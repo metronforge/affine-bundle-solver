@@ -1,0 +1,26 @@
+# Build products
+*.so
+*.o
+.rounding_probe
+.mxcsr_probe
+.cfg/
+
+# LaTeX intermediates
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.synctex.gz
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store

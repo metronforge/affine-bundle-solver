@@ -1,0 +1,22 @@
+{
+  "checks": 2271,
+  "property_counts": {
+    "inconsistent_row_scaling_generator": 1800,
+    "tall_zero_distance_inconsistency_availability": 300,
+    "strict_unique_subnormal_availability": 3,
+    "strict_infinite_subnormal_availability": 3,
+    "strict_inconsistent_subnormal_availability": 3,
+    "strict_unique_extreme_global_scale": 14,
+    "strict_infinite_extreme_global_scale": 14,
+    "strict_inconsistent_extreme_global_scale": 14,
+    "high_precision_outward_radius": 120
+  },
+  "failures": [],
+  "failure_counts": {},
+  "stats": {
+    "inconsistent_eta_max": 3.8706114675943495e-15,
+    "inconsistent_eta_median": 9.417587441149346e-17,
+    "shadow_ratio_min": 1.0000000000000002,
+    "shadow_ratio_max": 2.0000000000000004
+  }
+}

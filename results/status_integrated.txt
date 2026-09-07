@@ -1,0 +1,9 @@
+eps=1e-12 eta_unique=7.987e-13 eta_inconsistent=2.008e-15
+eps=1e-09 eta_unique=7.985e-10 eta_inconsistent=2.002e-15
+eps=1e-06 eta_unique=7.985e-07 eta_inconsistent=2.055e-15
+eps=1e-03 eta_unique=7.982e-04 eta_inconsistent=1.900e-15
+eps=1e-01 eta_unique=7.628e-02 eta_inconsistent=1.910e-15
+compatible-adversarial eta_inconsistent=1.964e-15
+PRIMARY PASS
+rank-deficient-compatible eta_unique=1.077e-15 eta_infinite=6.627e-16 eta_inconsistent=2.204e-15
+MIRROR PASS

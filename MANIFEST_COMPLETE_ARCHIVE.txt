@@ -1,0 +1,45 @@
+AFFINE-BUNDLE SOLVER - COMPLETE SOURCE AND REPRODUCIBILITY ARCHIVE
+
+This archive contains the complete pre-submission release materials needed to inspect,
+build, test, and reproduce the solver/article revision.
+
+AUTHORITATIVE SOURCES
+  paper.tex                 LaTeX manuscript source
+  references.bib            bibliography
+  src/*.c, src/*.h          C implementation and certificate/provenance layer
+  build.sh                  C build script
+  build_paper.sh            LaTeX/BibTeX build script
+
+REPRODUCIBILITY MATERIALS
+  tests/                    regression, adversarial, PBT, audit tests, and meta-API absence regression
+  experiments/              numerical, application, real-matrix, and policy gates
+  data/                     checksummed WELL1033 matrix/RHS and source record
+  results/                  stored JSON/text results, including full follow-up PBT and well1033 API smoke
+  figures/                  manuscript figures
+  FINAL_VALIDATION_REPORT.md
+  README.md
+  REVIEW_NOTES.md
+
+GENERATED OUTPUT
+  paper.pdf                 built 31-page manuscript
+
+OPTIONAL VALIDATION-HOST BINARIES
+  libaffine_bundle_solver.so
+  libcertified_solver.so
+  libstatus_verifier.so
+
+  These shared libraries are convenience artifacts from the validation host.
+  They are not portable promises; the C sources are authoritative and build.sh
+  should be used in a new environment.
+
+CHANGE RECORD
+  certificate_layer_changes.patch
+  review_followup_changes.patch
+  procedural_wording_neutralization.patch  neutralization of review-status wording
+  REVIEW_NOTES.md
+
+INTEGRITY
+  SHA256SUMS.txt contains per-file checksums for archive contents except itself.
+
+The release is validated by rebuilding the C implementation and manuscript from
+an extracted source tree and by running the smoke gates documented in README.md.

@@ -1,0 +1,23 @@
+Affine-Bundle Solver
+Copyright 2026 Viktor Mikhalkin
+
+This product includes software developed by Viktor Mikhalkin.
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+---
+
+Third-party components used at build or test time (not redistributed here):
+
+  OpenBLAS      -- linked at build time from the shared library shipped
+                   inside the SciPy wheel.  BSD 3-Clause.
+                   https://github.com/OpenMathLib/OpenBLAS
+  LAPACK        -- reference kernels reached through OpenBLAS.  BSD 3-Clause.
+  NumPy, SciPy  -- test and experiment harnesses.  BSD 3-Clause.
+  mpmath        -- high-precision shadow evaluation in the certificate
+                   battery.  BSD 3-Clause.
+  threadpoolctl -- BLAS thread control in benchmarks.  BSD 3-Clause.
+
+The well1033 matrix used as a numerical-structure control originates from the
+Harwell-Boeing collection and is distributed through the SuiteSparse Matrix
+Collection; see experiments/acquire_well1033.py for provenance and checksums.

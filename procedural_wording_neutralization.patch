@@ -1,0 +1,203 @@
+--- a/REVIEW_NOTES.md
++++ b/REVIEW_NOTES.md
+@@ -1,16 +1,16 @@
+-# Independent Review Follow-up
++# Pre-submission Audit Follow-up
+ 
+-This revision addresses three points raised during an independent reproducibility and mathematical review of the packaged release.
++This revision addresses three points raised during a pre-submission reproducibility, adversarial-testing, and mathematical audit of the packaged release. These checks were internal to the development process and do not constitute external peer review.
+ 
+ ## 1. Rank-transition wording
+ 
+ The manuscript now states the substantive fact directly: in the transition construction the exact rank is 256 for every nonzero perturbation. Therefore the previous `INFINITE/255` point verdict at the smallest nonzero levels was false. The current `UNDECIDABLE [255,256]` result is a soundness repair, not merely a more conservative choice of language.
+ 
+-No C source change was required for this review item; the implementation had already been repaired and the manuscript wording is brought into line with the actual mathematical improvement.
++No C source change was required for this audit item; the implementation had already been repaired and the manuscript wording is brought into line with the actual mathematical improvement.
+ 
+ ## 2. `well1033` restored
+ 
+-The real non-Hadamard `well1033` control is restored because its matrix and published RHS remain available in the earlier reproducibility assets. The reviewed release now makes this control self-contained by including:
++The real non-Hadamard `well1033` control is restored because its matrix and published RHS remain available in the earlier reproducibility assets. The pre-submission release now makes this control self-contained by including:
+ 
+ - `data/well1033.mtx`;
+ - `data/well1033_rhs1.mtx`;
+@@ -36,10 +36,10 @@
+ 
+ ## Validation status
+ 
+-The numerical solver core and all certificate kernels remain unchanged.  Relative to the preceding reviewed release, only `src/bsolver.c` differs, and only in the final meta-API export mask for `out[6]`.  The full PBT remains 8,335 checks with 0 hard failures and the focused certificate battery remains 2,271 checks with 0 failures.
++The numerical solver core and all certificate kernels remain unchanged.  Relative to the preceding pre-submission release, only `src/bsolver.c` differs, and only in the final meta-API export mask for `out[6]`.  The full PBT remains 8,335 checks with 0 hard failures and the focused certificate battery remains 2,271 checks with 0 failures.
+ 
+ 
+-## Follow-up review fixes
++## Follow-up audit fixes
+ 
+ - The affine-translation proposition now names both logarithmic bounds explicitly: `e_keep = log2((|rho|/tc-B0)/K)` and `e_drop = log2((|rho|/tc-1+|beta|+||x||)/K)`.  The second comes from a separate reverse-triangle bound and is not the naive `(+B0)` counterpart of the first.
+ - The router meta API now exports `NaN` for `out[6]` whenever status is `INCONSISTENT` or `UNDECIDABLE`, because no solution witness exists.  The `well1033` JSON harness maps this to `null`; the residual diagnostic `out[5]` remains available for `INCONSISTENT`.
+--- a/REVIEW_PACKAGE_README.md
++++ b/REVIEW_PACKAGE_README.md
+@@ -1,6 +1,6 @@
+-# External Review Package
++# Package for External Review
+ 
+-This archive is the current review candidate for the affine-bundle linear solver.
++This archive is the current pre-submission candidate prepared for external review of the affine-bundle linear solver. It does not claim that external peer review has already taken place.
+ 
+ Suggested entry points:
+ 
+@@ -11,9 +11,10 @@
+ 5. `experiments/` — reproducible numerical experiment harnesses.
+ 6. `data/` — packaged real-matrix control data, including `well1033` assets.
+ 7. `FINAL_VALIDATION_REPORT.md` — final validation summary.
+-8. `REVIEW_NOTES.md` and `review_followup_changes.patch` — review-driven changes.
+-9. `SHA256SUMS.txt` — per-file integrity checks inside the package.
++8. `REVIEW_NOTES.md` and `review_followup_changes.patch` — changes arising from the pre-submission audit.
++9. `procedural_wording_neutralization.patch` — wording-only change that makes the review status explicit and neutral.
++10. `SHA256SUMS.txt` — per-file integrity checks inside the package.
+ 
+-The latest review follow-up includes two clarifications:
++The latest pre-submission audit follow-up includes two clarifications:
+ - explicit distinct formulas for the affine-translation keep/drop thresholds;
+ - semantically inapplicable solution-quality fields are exported as NaN/null for INCONSISTENT/UNDECIDABLE outcomes.
+--- a/FINAL_VALIDATION_REPORT.md
++++ b/FINAL_VALIDATION_REPORT.md
+@@ -2,14 +2,16 @@
+ 
+ ## Scope
+ 
+-This release combines the source-provenance rank certificate with the strengthened nearby-status certificate generator and strict verifier, then incorporates the independent-review findings.  The numerical routing logic is unchanged; one meta-API export rule is tightened so a semantically absent solution-quality field cannot appear as a huge finite number:
++The term *pre-submission audit* in this report refers to internal reproducibility, adversarial-testing, and mathematical checks performed during development. It does not denote completed external peer review.
++
++This release combines the source-provenance rank certificate with the strengthened nearby-status certificate generator and strict verifier, then incorporates the pre-submission audit findings.  The numerical routing logic is unchanged; one meta-API export rule is tightened so a semantically absent solution-quality field cannot appear as a huge finite number:
+ 
+ 1. the rank-transition discussion now states explicitly that the repaired `UNDECIDABLE [255,256]` state removes an earlier false deterministic `INFINITE/255` rank claim for a matrix whose exact rank is 256 for every nonzero perturbation;
+ 2. the `well1033` real-matrix control is restored with bundled, checksummed MatrixMarket data plus acquisition and rerun scripts;
+ 3. the 154 affine-translation diagnostics are no longer an unquantified caveat: the contradiction-policy threshold is derived per source row and reproduced by a controlled dyadic-translation gate;
+ 4. for `INCONSISTENT` and `UNDECIDABLE`, the meta API now exports `NaN` in the solution/reference-solution error field (`out[6]`), because no solution witness exists.  The inconsistency residual diagnostic in `out[5]` is retained.
+ 
+-Relative to the preceding reviewed release, every C/header file is byte-identical except `src/bsolver.c`.  Its only change is the final meta-API export mask for `out[6]`; the routing, rank, certificate, and numerical kernels are unchanged.
++Relative to the preceding pre-submission release, every C/header file is byte-identical except `src/bsolver.c`.  Its only change is the final meta-API export mask for `out[6]`; the routing, rank, certificate, and numerical kernels are unchanged.
+ 
+ ## Property-based validation
+ 
+@@ -126,7 +128,7 @@
+ 
+ - Final PDF: **31 pages**.
+ - LaTeX build: clean; no undefined references/citations and no overfull/underfull box warnings in the final pass.
+-- PDF rendered page-by-page after the review revision.
++- PDF rendered page-by-page after the pre-submission revision.
+ - New proposition/proof pages, rank-transition discussion, affine-translation robustness text, restored `well1033` section/table, limitations, and bibliography were visually checked for clipping and layout defects.
+ - No working/internal revision labels are used in manuscript-facing text.
+ 
+@@ -134,7 +136,7 @@
+ 
+ ## Clean-release smoke test
+ 
+-Before packaging, the reviewed tree was copied to a fresh directory without shared libraries or TeX intermediate files and rebuilt there.
++Before packaging, the pre-submission candidate tree was copied to a fresh directory without shared libraries or TeX intermediate files and rebuilt there.
+ 
+ - C build and directed-rounding probe: **PASS**.
+ - LaTeX/bibliography build: **PASS**, 31-page PDF.
+@@ -150,7 +152,7 @@
+ 
+ The final ZIP is additionally checked with `unzip -t`, per-file `sha256sum -c`, and a second extraction after `SHA256SUMS.txt` is regenerated.
+ 
+-## Follow-up review validation
++## Follow-up audit validation
+ 
+ After the final meta-API absence fix and explicit two-bound notation:
+ 
+--- a/README.md
++++ b/README.md
+@@ -2,6 +2,8 @@
+ 
+ This package contains the manuscript, dense C research implementation, independent proof kernels, property-based tests, real-matrix data, and numerical experiment harnesses used for the August 2026 results.
+ 
++**Procedural status.** The package has undergone an internal pre-submission reproducibility, adversarial-testing, and mathematical audit. This is not a claim of external peer review; the archive is prepared for such review.
++
+ ## Numerical contract
+ 
+ The fast router treats sketches, compressed cores, QRCP, and SVD as proposal mechanisms. A compressed path may increase the deterministic source-rank lower bound only after an independent source-provenance certificate. Nearby-status proof objects are checked by a separate strict arithmetic verifier.
+@@ -87,7 +89,7 @@
+ python3 experiments/affine_translation_policy_gate.py
+ ```
+ 
+-`results/numerical_final_suite.json` contains the consolidated synthetic/application data used in the manuscript; `results/well1033_reviewed.json` and `results/affine_translation_policy_gate.json` contain the two review-driven controls. DGELSY numbers are contextual task-specific comparisons, not a claim of general superiority over LAPACK.
++`results/numerical_final_suite.json` contains the consolidated synthetic/application data used in the manuscript; `results/well1033_reviewed.json` and `results/affine_translation_policy_gate.json` contain the two pre-submission-audit controls. DGELSY numbers are contextual task-specific comparisons, not a claim of general superiority over LAPACK.
+ 
+ ## Performance layers
+ 
+@@ -103,11 +105,11 @@
+ - `results/`: final PBT, numerical, real-matrix, policy-threshold, application, and matched audit artifacts.
+ - `figures/`: figures included by the manuscript.
+ - `FINAL_VALIDATION_REPORT.md`: detailed release validation summary.
+-- `REVIEW_NOTES.md`: concise record of the independent-review-driven changes in this revision.
++- `REVIEW_NOTES.md`: concise record of the changes arising from the pre-submission audit.
+ 
+ The implementation is a dense CPU research prototype. The strict proof kernels are independently checkable numerical code, not formal machine-checked proofs.
+ 
+ 
+ ## Meta-API absence semantics
+ 
+-For `INCONSISTENT` and `UNDECIDABLE`, the router does not claim a solution witness.  Consequently the meta-API solution/reference-solution error field (`out[6]`, reported as `rx` by the review harness) is `NaN`; JSON harnesses serialize it as `null`.  An inconsistency residual diagnostic may still be finite in `out[5]`.
++For `INCONSISTENT` and `UNDECIDABLE`, the router does not claim a solution witness.  Consequently the meta-API solution/reference-solution error field (`out[6]`, reported as `rx` by the audit harness) is `NaN`; JSON harnesses serialize it as `null`.  An inconsistency residual diagnostic may still be finite in `out[5]`.
+--- a/MANIFEST_COMPLETE_ARCHIVE.txt
++++ b/MANIFEST_COMPLETE_ARCHIVE.txt
+@@ -1,6 +1,6 @@
+ AFFINE-BUNDLE SOLVER - COMPLETE SOURCE AND REPRODUCIBILITY ARCHIVE
+ 
+-This archive contains the complete reviewed release materials needed to inspect,
++This archive contains the complete pre-submission release materials needed to inspect,
+ build, test, and reproduce the solver/article revision.
+ 
+ AUTHORITATIVE SOURCES
+@@ -35,6 +35,7 @@
+ CHANGE RECORD
+   certificate_layer_changes.patch
+   review_followup_changes.patch
++  procedural_wording_neutralization.patch  neutralization of review-status wording
+   REVIEW_NOTES.md
+ 
+ INTEGRITY
+--- a/review_followup_changes.patch
++++ b/review_followup_changes.patch
+@@ -106,7 +106,7 @@
+  ## Main validation results
+  
+ @@ -106,3 +106,8 @@
+- - `REVIEW_NOTES.md`: concise record of the independent-review-driven changes in this revision.
++ - `REVIEW_NOTES.md`: concise record of the pre-submission-audit-driven changes in this revision.
+  
+  The implementation is a dense CPU research prototype. The strict proof kernels are independently checkable numerical code, not formal machine-checked proofs.
+ +
+@@ -120,8 +120,8 @@
+  
+  ## Scope
+  
+--This release combines the source-provenance rank certificate with the strengthened nearby-status certificate generator and strict verifier, then incorporates three independent-review findings without changing the C solver core:
+-+This release combines the source-provenance rank certificate with the strengthened nearby-status certificate generator and strict verifier, then incorporates the independent-review findings.  The numerical routing logic is unchanged; one meta-API export rule is tightened so a semantically absent solution-quality field cannot appear as a huge finite number:
++-This release combines the source-provenance rank certificate with the strengthened nearby-status certificate generator and strict verifier, then incorporates three pre-submission audit findings without changing the C solver core:
+++This release combines the source-provenance rank certificate with the strengthened nearby-status certificate generator and strict verifier, then incorporates the pre-submission audit findings.  The numerical routing logic is unchanged; one meta-API export rule is tightened so a semantically absent solution-quality field cannot appear as a huge finite number:
+  
+  1. the rank-transition discussion now states explicitly that the repaired `UNDECIDABLE [255,256]` state removes an earlier false deterministic `INFINITE/255` rank claim for a matrix whose exact rank is 256 for every nonzero perturbation;
+  2. the `well1033` real-matrix control is restored with bundled, checksummed MatrixMarket data plus acquisition and rerun scripts;
+@@ -129,8 +129,8 @@
+ +3. the 154 affine-translation diagnostics are no longer an unquantified caveat: the contradiction-policy threshold is derived per source row and reproduced by a controlled dyadic-translation gate;
+ +4. for `INCONSISTENT` and `UNDECIDABLE`, the meta API now exports `NaN` in the solution/reference-solution error field (`out[6]`), because no solution witness exists.  The inconsistency residual diagnostic in `out[5]` is retained.
+  
+--All `src/*.c` and `src/*.h` files are byte-identical to the preceding integrated release. The review revision changes the manuscript, reproducibility assets, and additional experiments only.
+-+Relative to the preceding reviewed release, every C/header file is byte-identical except `src/bsolver.c`.  Its only change is the final meta-API export mask for `out[6]`; the routing, rank, certificate, and numerical kernels are unchanged.
++-All `src/*.c` and `src/*.h` files are byte-identical to the preceding integrated release. The pre-submission revision changes the manuscript, reproducibility assets, and additional experiments only.
+++Relative to the preceding pre-submission release, every C/header file is byte-identical except `src/bsolver.c`.  Its only change is the final meta-API export mask for `out[6]`; the routing, rank, certificate, and numerical kernels are unchanged.
+  
+  ## Property-based validation
+  
+@@ -176,7 +176,7 @@
+  ## Validation status
+  
+ -All C and header sources are byte-identical to the preceding integrated release. The unchanged full PBT remains 8,335 checks with 0 hard failures and the focused certificate battery remains 2,271 checks with 0 failures. The review revision adds reproducibility assets and a controlled policy-threshold experiment; it does not alter the solver core.
+-+The numerical solver core and all certificate kernels remain unchanged.  Relative to the preceding reviewed release, only `src/bsolver.c` differs, and only in the final meta-API export mask for `out[6]`.  The full PBT remains 8,335 checks with 0 hard failures and the focused certificate battery remains 2,271 checks with 0 failures.
+++The numerical solver core and all certificate kernels remain unchanged.  Relative to the preceding pre-submission release, only `src/bsolver.c` differs, and only in the final meta-API export mask for `out[6]`.  The full PBT remains 8,335 checks with 0 hard failures and the focused certificate battery remains 2,271 checks with 0 failures.
+ +
+ +
+ +## Follow-up review fixes

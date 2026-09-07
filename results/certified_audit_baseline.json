@@ -1,0 +1,90 @@
+{
+  "root": "/mnt/data/merge_work/base/affine_bundle_solver_provenance_final",
+  "reps": 9,
+  "cases": [
+    {
+      "case": "compatible_full_128x32",
+      "m": 128,
+      "n": 32,
+      "median_ms": 1.109187,
+      "min_ms": 1.009302,
+      "max_ms": 1.680301,
+      "mask": 7,
+      "eta_inconsistent": 4.800296301203991e-15,
+      "inc_codes": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "inconsistent_rank16_128x32",
+      "m": 128,
+      "n": 32,
+      "median_ms": 1.176614,
+      "min_ms": 1.14547,
+      "max_ms": 1.275438,
+      "mask": 7,
+      "eta_inconsistent": 2.2896557374563068e-15,
+      "inc_codes": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "compatible_full_512x64",
+      "m": 512,
+      "n": 64,
+      "median_ms": 10.26994,
+      "min_ms": 10.087397,
+      "max_ms": 17.755975,
+      "mask": 7,
+      "eta_inconsistent": 1.3206265246764383e-14,
+      "inc_codes": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "inconsistent_rank32_512x64",
+      "m": 512,
+      "n": 64,
+      "median_ms": 12.866452,
+      "min_ms": 10.918607,
+      "max_ms": 13.908597,
+      "mask": 7,
+      "eta_inconsistent": 1.7925728786589334e-14,
+      "inc_codes": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "compatible_full_2048x64",
+      "m": 2048,
+      "n": 64,
+      "median_ms": 31.274021,
+      "min_ms": 29.755934,
+      "max_ms": 43.538535,
+      "mask": 7,
+      "eta_inconsistent": 1.9261137985901766e-13,
+      "inc_codes": [
+        0,
+        0
+      ]
+    },
+    {
+      "case": "inconsistent_rank32_2048x64",
+      "m": 2048,
+      "n": 64,
+      "median_ms": 34.23152,
+      "min_ms": 32.92472,
+      "max_ms": 37.057551,
+      "mask": 7,
+      "eta_inconsistent": 5.29058357489361e-14,
+      "inc_codes": [
+        0,
+        0
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "elapsed_s": 1.1987614580002628,
+  "checks": 8335,
+  "failure_counts_by_severity": {
+    "known-representation": 154
+  },
+  "formation_guard_checks": 3780,
+  "formation_escalations": 201,
+  "source_qrcp_calls_total": 365
+}

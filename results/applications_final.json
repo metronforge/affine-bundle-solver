@@ -1,0 +1,514 @@
+{
+  "timestamp_utc": "2026-08-13T10:08:13Z",
+  "environment": {
+    "cpu": "Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz",
+    "cpus": 5,
+    "platform": "Linux-6.18.35-x86_64-with-glibc2.41",
+    "python": "3.13.5",
+    "numpy": "2.3.5",
+    "threadpools": [
+      {
+        "user_api": "blas",
+        "internal_api": "openblas",
+        "num_threads": 1,
+        "prefix": "libscipy_openblas",
+        "filepath": "/opt/pyvenv/lib/python3.13/site-packages/numpy.libs/libscipy_openblas64_-fdde5778.so",
+        "version": "0.3.30",
+        "threading_layer": "pthreads",
+        "architecture": "SkylakeX"
+      },
+      {
+        "user_api": "blas",
+        "internal_api": "openblas",
+        "num_threads": 1,
+        "prefix": "libscipy_openblas",
+        "filepath": "/opt/pyvenv/lib/python3.13/site-packages/scipy.libs/libscipy_openblas-6cdc3b4a.so",
+        "version": "0.3.30",
+        "threading_layer": "pthreads",
+        "architecture": "SkylakeX"
+      },
+      {
+        "user_api": "openmp",
+        "internal_api": "openmp",
+        "num_threads": 4,
+        "prefix": "libgomp",
+        "filepath": "/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0",
+        "version": null
+      }
+    ]
+  },
+  "omp_router": 4,
+  "blas_threads": 1,
+  "radio": {
+    "construction": "complete undirected incidence; one optional reference; one duplicate perturbed equation for contradiction",
+    "rows": [
+      {
+        "case": "N64_gauge",
+        "m": 2016,
+        "n": 64,
+        "expected_class": "infinite",
+        "expected_rank": 63,
+        "ok": true,
+        "router_ms": 0.9468679999999999,
+        "router_class": "infinite",
+        "router_rank": 63,
+        "rank_lo": 63,
+        "rank_hi": 64,
+        "router_relres": 6.744437742142679e-16,
+        "router_eta_x": null,
+        "dgelsy_ms": 3.086694,
+        "dgelsy_class": "infinite",
+        "dgelsy_rank": 63,
+        "dgelsy_relres": 6.085924991396629e-16
+      },
+      {
+        "case": "N64_reference",
+        "m": 2017,
+        "n": 64,
+        "expected_class": "unique",
+        "expected_rank": 64,
+        "ok": true,
+        "router_ms": 1.037302,
+        "router_class": "unique",
+        "router_rank": 64,
+        "rank_lo": 64,
+        "rank_hi": 64,
+        "router_relres": 9.07207699051303e-16,
+        "router_eta_x": 1.1205315980127176e-15,
+        "dgelsy_ms": 3.88225,
+        "dgelsy_class": "unique",
+        "dgelsy_rank": 64,
+        "dgelsy_relres": 4.1660312103326114e-16
+      },
+      {
+        "case": "N128_gauge",
+        "m": 8128,
+        "n": 128,
+        "expected_class": "infinite",
+        "expected_rank": 127,
+        "ok": true,
+        "router_ms": 4.953939,
+        "router_class": "infinite",
+        "router_rank": 127,
+        "rank_lo": 127,
+        "rank_hi": 128,
+        "router_relres": 9.81265299998939e-16,
+        "router_eta_x": null,
+        "dgelsy_ms": 47.778090999999996,
+        "dgelsy_class": "infinite",
+        "dgelsy_rank": 127,
+        "dgelsy_relres": 7.599868723325885e-16
+      },
+      {
+        "case": "N128_disconnected",
+        "m": 4032,
+        "n": 128,
+        "expected_class": "infinite",
+        "expected_rank": 126,
+        "ok": true,
+        "router_ms": 6.248212,
+        "router_class": "infinite",
+        "router_rank": 126,
+        "rank_lo": 126,
+        "rank_hi": 128,
+        "router_relres": 1.7582522142995715e-15,
+        "router_eta_x": null,
+        "dgelsy_ms": 28.162395,
+        "dgelsy_class": "infinite",
+        "dgelsy_rank": 126,
+        "dgelsy_relres": 4.437297717343712e-16
+      },
+      {
+        "case": "N256_gauge",
+        "m": 32640,
+        "n": 256,
+        "expected_class": "infinite",
+        "expected_rank": 255,
+        "ok": true,
+        "router_ms": 26.268100999999998,
+        "router_class": "infinite",
+        "router_rank": 255,
+        "rank_lo": 255,
+        "rank_hi": 256,
+        "router_relres": 1.0889271792510646e-15,
+        "router_eta_x": null
+      },
+      {
+        "case": "N256_inconsistent",
+        "m": 32641,
+        "n": 256,
+        "expected_class": "inconsistent",
+        "expected_rank": 255,
+        "ok": true,
+        "router_ms": 28.142308999999997,
+        "router_class": "inconsistent",
+        "router_rank": 255,
+        "rank_lo": 255,
+        "rank_hi": 255,
+        "router_relres": 0.0009804674781027402,
+        "router_eta_x": null
+      }
+    ],
+    "hard_failures": 0
+  },
+  "harmonic": {
+    "rows": [
+      {
+        "case": "L7_full",
+        "L": 7,
+        "m": 4096,
+        "n": 64,
+        "expected_class": "unique",
+        "expected_rank": 64,
+        "ok": true,
+        "router_ms": 1.8797439999999999,
+        "router_class": "unique",
+        "router_rank": 64,
+        "rank_lo": 64,
+        "rank_hi": 64,
+        "router_relres": 7.772672083930788e-16,
+        "router_eta_x": 1.3855017415808102e-15,
+        "global_ms": 1.544584,
+        "global_class": "unique",
+        "global_rank": 64,
+        "global_relres": 9.058458580236676e-16,
+        "dgelsy_ms": 10.583666,
+        "dgelsy_class": "unique",
+        "dgelsy_rank": 64,
+        "dgelsy_relres": 4.723992297624995e-16
+      },
+      {
+        "case": "L7_equator",
+        "L": 7,
+        "m": 4096,
+        "n": 64,
+        "expected_class": "infinite",
+        "expected_rank": 15,
+        "ok": true,
+        "router_ms": 0.817495,
+        "router_class": "infinite",
+        "router_rank": 15,
+        "rank_lo": 15,
+        "rank_hi": 64,
+        "router_relres": 4.526892367807294e-16,
+        "router_eta_x": null,
+        "global_ms": 1.030733,
+        "global_class": "infinite",
+        "global_rank": 15,
+        "global_relres": 5.418679208411204e-16,
+        "dgelsy_ms": 11.135752,
+        "dgelsy_class": "infinite",
+        "dgelsy_rank": 15,
+        "dgelsy_relres": 3.0505605279689815e-16
+      },
+      {
+        "case": "L11_full",
+        "L": 11,
+        "m": 8192,
+        "n": 144,
+        "expected_class": "unique",
+        "expected_rank": 144,
+        "ok": true,
+        "router_ms": 9.684747999999999,
+        "router_class": "unique",
+        "router_rank": 144,
+        "rank_lo": 144,
+        "rank_hi": 144,
+        "router_relres": 1.0579316604507949e-15,
+        "router_eta_x": 1.1959720283300688e-15,
+        "global_ms": 8.629883,
+        "global_class": "unique",
+        "global_rank": 144,
+        "global_relres": 1.1366990239579282e-15,
+        "dgelsy_ms": 101.858502,
+        "dgelsy_class": "unique",
+        "dgelsy_rank": 144,
+        "dgelsy_relres": 4.64294858572024e-16
+      },
+      {
+        "case": "L11_equator",
+        "L": 11,
+        "m": 8192,
+        "n": 144,
+        "expected_class": "infinite",
+        "expected_rank": 23,
+        "ok": true,
+        "router_ms": 3.524228,
+        "router_class": "infinite",
+        "router_rank": 23,
+        "rank_lo": 23,
+        "rank_hi": 144,
+        "router_relres": 5.565492450150162e-16,
+        "router_eta_x": null,
+        "global_ms": 4.767308,
+        "global_class": "infinite",
+        "global_rank": 23,
+        "global_relres": 5.125093363268827e-16,
+        "dgelsy_ms": 125.502708,
+        "dgelsy_class": "infinite",
+        "dgelsy_rank": 23,
+        "dgelsy_relres": 4.702863571254308e-16
+      },
+      {
+        "case": "L15_full",
+        "L": 15,
+        "m": 16384,
+        "n": 256,
+        "expected_class": "unique",
+        "expected_rank": 256,
+        "ok": true,
+        "router_ms": 33.589815,
+        "router_class": "unique",
+        "router_rank": 256,
+        "rank_lo": 256,
+        "rank_hi": 256,
+        "router_relres": 1.2350684728584498e-15,
+        "router_eta_x": 3.0987339625967585e-16,
+        "global_ms": 29.821308,
+        "global_class": "unique",
+        "global_rank": 256,
+        "global_relres": 1.3329433502830014e-15,
+        "dgelsy_ms": 642.222432,
+        "dgelsy_class": "unique",
+        "dgelsy_rank": 256,
+        "dgelsy_relres": 5.761209628742012e-16
+      },
+      {
+        "case": "L15_equator",
+        "L": 15,
+        "m": 16384,
+        "n": 256,
+        "expected_class": "infinite",
+        "expected_rank": 31,
+        "ok": true,
+        "router_ms": 12.058814,
+        "router_class": "infinite",
+        "router_rank": 31,
+        "rank_lo": 31,
+        "rank_hi": 256,
+        "router_relres": 5.111536044127911e-16,
+        "router_eta_x": null,
+        "global_ms": 13.300868999999999,
+        "global_class": "infinite",
+        "global_rank": 31,
+        "global_relres": 4.701950130395534e-16,
+        "dgelsy_ms": 681.434637,
+        "dgelsy_class": "infinite",
+        "dgelsy_rank": 31,
+        "dgelsy_relres": 5.743241355430729e-16
+      }
+    ],
+    "hard_failures": 0,
+    "L15_permutations": [
+      {
+        "class": "unique",
+        "rank": 256,
+        "rr": 1.2563413356822919e-15
+      },
+      {
+        "class": "unique",
+        "rank": 256,
+        "rr": 1.245579762751144e-15
+      },
+      {
+        "class": "unique",
+        "rank": 256,
+        "rr": 1.2760505830935579e-15
+      },
+      {
+        "class": "unique",
+        "rank": 256,
+        "rr": 1.400906560890336e-15
+      },
+      {
+        "class": "unique",
+        "rank": 256,
+        "rr": 1.2315733279593433e-15
+      },
+      {
+        "class": "unique",
+        "rank": 256,
+        "rr": 1.260593403338721e-15
+      },
+      {
+        "class": "unique",
+        "rank": 256,
+        "rr": 1.2366444103458886e-15
+      },
+      {
+        "class": "unique",
+        "rank": 256,
+        "rr": 1.3282655744643668e-15
+      },
+      {
+        "class": "unique",
+        "rank": 256,
+        "rr": 1.3874200070387386e-15
+      },
+      {
+        "class": "unique",
+        "rank": 256,
+        "rr": 1.2435309286155585e-15
+      },
+      {
+        "class": "unique",
+        "rank": 256,
+        "rr": 1.3102156116898081e-15
+      },
+      {
+        "class": "unique",
+        "rank": 256,
+        "rr": 1.2824892016186051e-15
+      }
+    ]
+  },
+  "lens": {
+    "rows": [
+      {
+        "case": "8x8_source",
+        "m": 4096,
+        "n": 64,
+        "expected_class": "unique",
+        "expected_rank": 64,
+        "ok": true,
+        "normal_eq_ms": 0.863506,
+        "normal_eq_relres": 6.740799318156838e-17,
+        "router_ms": 1.208747,
+        "router_class": "unique",
+        "router_rank": 64,
+        "rank_lo": 64,
+        "rank_hi": 64,
+        "router_relres": 1.378707930729673e-15,
+        "router_eta_x": 4.863591573278684e-16,
+        "global_ms": 1.2936379999999998,
+        "global_class": "unique",
+        "global_rank": 64,
+        "global_relres": 9.357121181032595e-16,
+        "dgelsy_ms": 10.026086,
+        "dgelsy_class": "unique",
+        "dgelsy_rank": 64,
+        "dgelsy_relres": 3.2128201019764353e-16
+      },
+      {
+        "case": "12x12_source",
+        "m": 4096,
+        "n": 144,
+        "expected_class": "unique",
+        "expected_rank": 144,
+        "ok": true,
+        "normal_eq_ms": 3.041625,
+        "normal_eq_relres": 7.123792597586991e-17,
+        "router_ms": 4.587523,
+        "router_class": "unique",
+        "router_rank": 144,
+        "rank_lo": 144,
+        "rank_hi": 144,
+        "router_relres": 1.5399252504199785e-15,
+        "router_eta_x": 6.024778291817539e-16,
+        "global_ms": 6.180147,
+        "global_class": "unique",
+        "global_rank": 144,
+        "global_relres": 8.98370116422187e-16,
+        "dgelsy_ms": 35.451681,
+        "dgelsy_class": "unique",
+        "dgelsy_rank": 144,
+        "dgelsy_relres": 4.390603520248212e-16
+      },
+      {
+        "case": "16x16_source",
+        "m": 9216,
+        "n": 256,
+        "expected_class": "unique",
+        "expected_rank": 256,
+        "ok": true,
+        "normal_eq_ms": 19.003574999999998,
+        "normal_eq_relres": 4.3792612397799437e-17,
+        "router_ms": 14.534512999999999,
+        "router_class": "unique",
+        "router_rank": 256,
+        "rank_lo": 256,
+        "rank_hi": 256,
+        "router_relres": 2.0163556618520007e-15,
+        "router_eta_x": 3.9407102588607004e-16,
+        "global_ms": 22.651232,
+        "global_class": "unique",
+        "global_rank": 256,
+        "global_relres": 1.197596105762962e-15,
+        "dgelsy_ms": 245.149207,
+        "dgelsy_class": "unique",
+        "dgelsy_rank": 256,
+        "dgelsy_relres": 4.2011584121999195e-16
+      }
+    ],
+    "hard_failures": 0,
+    "row_permutations": [
+      {
+        "class": "unique",
+        "rank": 144,
+        "rr": 1.67608046413481e-15
+      },
+      {
+        "class": "unique",
+        "rank": 144,
+        "rr": 1.922523612305051e-15
+      },
+      {
+        "class": "unique",
+        "rank": 144,
+        "rr": 1.6618705200730109e-15
+      },
+      {
+        "class": "unique",
+        "rank": 144,
+        "rr": 1.5642796993440285e-15
+      },
+      {
+        "class": "unique",
+        "rank": 144,
+        "rr": 1.5224748038506807e-15
+      },
+      {
+        "class": "unique",
+        "rank": 144,
+        "rr": 2.3022096882461974e-15
+      },
+      {
+        "class": "unique",
+        "rank": 144,
+        "rr": 1.5429455974963495e-15
+      },
+      {
+        "class": "unique",
+        "rank": 144,
+        "rr": 1.4669635419006797e-15
+      },
+      {
+        "class": "unique",
+        "rank": 144,
+        "rr": 1.5194238745521862e-15
+      },
+      {
+        "class": "unique",
+        "rank": 144,
+        "rr": 1.8132509979000328e-15
+      },
+      {
+        "class": "unique",
+        "rank": 144,
+        "rr": 2.5002031258160365e-15
+      },
+      {
+        "class": "unique",
+        "rank": 144,
+        "rr": 1.3921641830190044e-15
+      }
+    ],
+    "construction": {
+      "lens": "SIS-like beta=theta-theta_E theta/|theta|",
+      "theta_E": 0.38,
+      "src_extent": 0.72,
+      "img_extent": 1.35,
+      "psf_sigma_pixels": 0.75
+    }
+  }
+}

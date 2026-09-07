@@ -1,0 +1,580 @@
+--- a/src/certified_api.c	2026-08-13 05:16:21.000000000 +0000
++++ b/src/certified_api.c	2026-08-13 10:21:40.807685504 +0000
+@@ -32,6 +32,78 @@
+     return 1;
+ }
+ 
++
++/* Normalize each augmented source row [a_i,b_i] to unit 2-norm without
++   ever forming that norm in binary64.  We retain d_i = mant_i * 2^exp_i
++   so a left-null witness ybar for the normalized system can be mapped back
++   as y_i proportional to ybar_i/d_i.  Independent row scalings therefore
++   cancel in the witness construction itself rather than being left for the
++   verifier to absorb. */
++static int normalize_augmented_rows(const double *A,const double *b,int m,int n,
++                                    double *An,double *bn,long double *dmant,int *dexp) {
++    for(int i=0;i<m;i++){
++        double mx=fabs(b[i]);
++        for(int j=0;j<n;j++){double q=fabs(A[(size_t)i*n+j]);if(q>mx)mx=q;}
++        if(mx==0.0){
++            bn[i]=0.0;dmant[i]=0.0L;dexp[i]=0;
++            for(int j=0;j<n;j++)An[(size_t)i*n+j]=0.0;
++            continue;
++        }
++        int e=0;double mf=frexp(mx,&e); /* mx = mf * 2^e, exactly. */
++        long double ss=0.0L;
++        for(int j=0;j<n;j++){long double q=(long double)A[(size_t)i*n+j]/(long double)mx;ss+=q*q;}
++        {long double q=(long double)b[i]/(long double)mx;ss+=q*q;}
++        if(!(ss>0.0L)||!isfinite((double)fminl(ss,(long double)DBL_MAX)))return 1;
++        long double qn=sqrtl(ss);
++        dmant[i]=(long double)mf*qn;dexp[i]=e;
++        for(int j=0;j<n;j++)An[(size_t)i*n+j]=(double)(((long double)A[(size_t)i*n+j]/(long double)mx)/qn);
++        bn[i]=(double)(((long double)b[i]/(long double)mx)/qn);
++    }
++    return 0;
++}
++
++/* Map ybar through D^{-1} robustly.  A common power-of-two is removed before
++   casting to binary64; the verifier is homogeneous in y, so this changes no
++   certificate.  best_out is selected in normalized coordinates, where
++   |ybar_i| is exactly the row-scaling-invariant pivot score |y_i| d_i. */
++static int map_augmented_left_witness(const double *ybar,const long double *dmant,const int *dexp,
++                                      int m,double *y,int *best_out) {
++    int emax=INT32_MIN,best=-1;long double bestabs=-1.0L;
++    for(int i=0;i<m;i++){
++        if(dmant[i]==0.0L||ybar[i]==0.0)continue;
++        long double c=(long double)ybar[i]/dmant[i],ac=fabsl(c);
++        if(!(ac>0.0L))continue;
++        int ce=0;frexpl(ac,&ce);int eraw=ce-dexp[i];if(eraw>emax)emax=eraw;
++        long double ya=fabsl((long double)ybar[i]);if(ya>bestabs){bestabs=ya;best=i;}
++    }
++    if(emax==INT32_MIN||best<0)return 1;
++    /* The verifier is homogeneous in y.  Do not waste exponent headroom by
++       forcing ||y||=1: place the largest component high in the binary64
++       range while reserving ~64 exponent bits plus a dimension guard for
++       dot-product accumulation.  This lets inverse row scales spanning almost
++       the full nonzero binary64 range coexist in one witness. */
++    /* Choose the common homogeneous scale from the raw witness exponent.
++       Mapping max(D^{-1}ybar) to `target` multiplies all products A_i*y_i
++       and b_i*y_i by roughly 2^(target-emax).  Cap that common product scale
++       near 2^500 while still using upper exponent headroom when inverse row
++       scales require it. */
++    int target=emax+500; if(target>1000)target=1000;
++    int any=0;
++    for(int i=0;i<m;i++){
++        long double v=0.0L;
++        if(dmant[i]!=0.0L&&ybar[i]!=0.0)
++            v=scalbnl((long double)ybar[i]/dmant[i],-dexp[i]+target-emax);
++        y[i]=(double)v;if(y[i]!=0.0)any=1;
++    }
++    if(!any)return 2;
++    if(y[best]==0.0){
++        best=-1;bestabs=-1.0L;
++        for(int i=0;i<m;i++)if(y[i]!=0.0){long double ya=fabsl((long double)ybar[i]);if(ya>bestabs){bestabs=ya;best=i;}}
++        if(best<0)return 3;
++    }
++    *best_out=best;return 0;
++}
++
+ static int least_squares_x(const double *A, const double *b, int m, int n,
+                            double *x, int *rank_out) {
+     if (n <= 0 || m < 0 || !x) return 1;
+@@ -157,6 +229,90 @@
+     return 0;
+ }
+ 
++/* Build one explicit computed left-null direction from a pivoted QR.
++   If rank_hint < m, column rank_hint of the implicit Q is orthogonal to the
++   first rank_hint pivoted source columns.  For a rank-revealing rank_hint this
++   gives a left-null proposal without forming an m-by-m Q.  The proposal is
++   untrusted; the strict verifier still checks A^T y. */
++static int left_null_vector_qrcp(const double *A,int m,int n,int rank_hint,double *y) {
++    if(!A||!y||m<=0||n<0||rank_hint<0||rank_hint>=m)return 1;
++    if(n==0){for(int i=0;i<m;i++)y[i]=(i==rank_hint?1.0:0.0);return 0;}
++    int M=m,N=n,LDA=m,K=(m<n?m:n),info=0,lwork=-1,one=1,LDC=m;
++    double *Ac=(double*)malloc((size_t)m*n*sizeof(double));
++    int *jpvt=(int*)calloc((size_t)n,sizeof(int));
++    double *tau=(double*)malloc((size_t)K*sizeof(double));
++    double *v=(double*)calloc((size_t)m,sizeof(double));
++    if(!Ac||!jpvt||!tau||!v){free(Ac);free(jpvt);free(tau);free(v);return 2;}
++    for(int j=0;j<n;j++)for(int i=0;i<m;i++)Ac[i+(size_t)j*m]=A[(size_t)i*n+j];
++    double wq=0.0;
++    dgeqp3_(&M,&N,Ac,&LDA,jpvt,tau,&wq,&lwork,&info);
++    if(info){free(Ac);free(jpvt);free(tau);free(v);return 3;}
++    lwork=(int)wq;if(lwork<1)lwork=1;double *work=(double*)malloc((size_t)lwork*sizeof(double));
++    if(!work){free(Ac);free(jpvt);free(tau);free(v);return 4;}
++    memset(jpvt,0,(size_t)n*sizeof(int));
++    for(int j=0;j<n;j++)for(int i=0;i<m;i++)Ac[i+(size_t)j*m]=A[(size_t)i*n+j];
++    dgeqp3_(&M,&N,Ac,&LDA,jpvt,tau,work,&lwork,&info);
++    free(work);free(jpvt);
++    if(info){free(Ac);free(tau);free(v);return 5;}
++    v[rank_hint]=1.0;
++    char side='L',trans='N';lwork=-1;wq=0.0;
++    dormqr_(&side,&trans,&M,&one,&K,Ac,&LDA,tau,v,&LDC,&wq,&lwork,&info);
++    if(info){free(Ac);free(tau);free(v);return 6;}
++    lwork=(int)wq;if(lwork<1)lwork=1;work=(double*)malloc((size_t)lwork*sizeof(double));
++    if(!work){free(Ac);free(tau);free(v);return 7;}
++    dormqr_(&side,&trans,&M,&one,&K,Ac,&LDA,tau,v,&LDC,work,&lwork,&info);
++    free(work);free(Ac);free(tau);
++    if(info){free(v);return 8;}
++    memcpy(y,v,(size_t)m*sizeof(double));free(v);return 0;
++}
++
++/* Project b onto the computed orthogonal complement of the first
++   rank_hint pivoted QR directions.  The crucial difference from the old
++   tail projection is that we discard only the numerically supported rank,
++   not blindly the first n Q coordinates. */
++static int left_null_projection_rank_qrcp(const double *A,const double *b,int m,int n,int rank_hint,
++                                          double *y,long double *tail_rel) {
++    if(tail_rel)*tail_rel=0.0L;
++    if(!A||!b||!y||m<=0||n<0||rank_hint<0||rank_hint>m)return 1;
++    if(n==0){
++        long double bn2=0.0L;for(int i=0;i<m;i++){y[i]=b[i];bn2+=(long double)b[i]*b[i];}
++        if(tail_rel)*tail_rel=(bn2>0.0L?1.0L:0.0L);return 0;
++    }
++    int M=m,N=n,LDA=m,K=(m<n?m:n),info=0,lwork=-1,one=1,LDC=m;
++    double *Ac=(double*)malloc((size_t)m*n*sizeof(double));int *jpvt=(int*)calloc((size_t)n,sizeof(int));
++    double *tau=(double*)malloc((size_t)K*sizeof(double));double *v=(double*)malloc((size_t)m*sizeof(double));
++    if(!Ac||!jpvt||!tau||!v){free(Ac);free(jpvt);free(tau);free(v);return 2;}
++    for(int j=0;j<n;j++)for(int i=0;i<m;i++)Ac[i+(size_t)j*m]=A[(size_t)i*n+j];
++    double wq=0.0;dgeqp3_(&M,&N,Ac,&LDA,jpvt,tau,&wq,&lwork,&info);
++    if(info){free(Ac);free(jpvt);free(tau);free(v);return 3;}
++    lwork=(int)wq;if(lwork<1)lwork=1;double *work=(double*)malloc((size_t)lwork*sizeof(double));
++    if(!work){free(Ac);free(jpvt);free(tau);free(v);return 4;}
++    memset(jpvt,0,(size_t)n*sizeof(int));for(int j=0;j<n;j++)for(int i=0;i<m;i++)Ac[i+(size_t)j*m]=A[(size_t)i*n+j];
++    dgeqp3_(&M,&N,Ac,&LDA,jpvt,tau,work,&lwork,&info);free(work);free(jpvt);
++    if(info){free(Ac);free(tau);free(v);return 5;}
++    memcpy(v,b,(size_t)m*sizeof(double));char side='L',trans='T';lwork=-1;wq=0.0;
++    dormqr_(&side,&trans,&M,&one,&K,Ac,&LDA,tau,v,&LDC,&wq,&lwork,&info);
++    if(info){free(Ac);free(tau);free(v);return 6;}
++    lwork=(int)wq;if(lwork<1)lwork=1;work=(double*)malloc((size_t)lwork*sizeof(double));
++    if(!work){free(Ac);free(tau);free(v);return 7;}
++    dormqr_(&side,&trans,&M,&one,&K,Ac,&LDA,tau,v,&LDC,work,&lwork,&info);free(work);
++    if(info){free(Ac);free(tau);free(v);return 8;}
++    long double bn2=0.0L,tn2=0.0L;for(int i=0;i<m;i++)bn2+=(long double)b[i]*b[i];
++    for(int i=0;i<rank_hint && i<m;i++)v[i]=0.0;
++    for(int i=rank_hint;i<m;i++)tn2+=(long double)v[i]*v[i];
++    if(tail_rel)*tail_rel=(bn2>0.0L?sqrtl(tn2/bn2):0.0L);
++    trans='N';lwork=-1;wq=0.0;dormqr_(&side,&trans,&M,&one,&K,Ac,&LDA,tau,v,&LDC,&wq,&lwork,&info);
++    if(info){free(Ac);free(tau);free(v);return 9;}
++    lwork=(int)wq;if(lwork<1)lwork=1;work=(double*)malloc((size_t)lwork*sizeof(double));
++    if(!work){free(Ac);free(tau);free(v);return 10;}
++    dormqr_(&side,&trans,&M,&one,&K,Ac,&LDA,tau,v,&LDC,work,&lwork,&info);
++    free(work);free(Ac);free(tau);if(info){free(v);return 11;}
++    long double vn2=0.0L;for(int i=0;i<m;i++){long double q=v[i];vn2+=q*q;}
++    if(!(vn2>0.0L)){free(v);return 12;}
++    long double inv=1.0L/sqrtl(vn2);for(int i=0;i<m;i++)y[i]=(double)((long double)v[i]*inv);
++    free(v);return 0;
++}
++
+ /* For m>n, compute a single left-null direction aligned with b without
+    forming a full m-by-m Q.  DGEQRF stores n Householder reflectors for A=QR;
+    DORMQR applies Q^T to b, we discard the first n coordinates, and then apply
+@@ -216,28 +372,68 @@
+     if(!A||!b||!w||m<=0||n<0||!finite_array(A,(size_t)m*n)||!finite_array(b,(size_t)m))return 1;
+     memset(w,0,sizeof(*w));w->m=m;w->y=(double*)malloc((size_t)m*sizeof(double));
+     double *x=(double*)malloc((size_t)(n>0?n:1)*sizeof(double));
+-    if(!w->y||!x){free(x);bs_inconsistent_witness_free(w);return 2;}
++    double *An=(double*)malloc((size_t)m*(size_t)(n>0?n:1)*sizeof(double));
++    double *bn=(double*)malloc((size_t)m*sizeof(double));
++    double *ybar=(double*)malloc((size_t)m*sizeof(double));
++    long double *dmant=(long double*)malloc((size_t)m*sizeof(long double));
++    int *dexp=(int*)malloc((size_t)m*sizeof(int));
++    if(!w->y||!x||!An||!bn||!ybar||!dmant||!dexp){free(x);free(An);free(bn);free(ybar);free(dmant);free(dexp);bs_inconsistent_witness_free(w);return 2;}
++    if(normalize_augmented_rows(A,b,m,n,An,bn,dmant,dexp)){
++        free(x);free(An);free(bn);free(ybar);free(dmant);free(dexp);bs_inconsistent_witness_free(w);return 3;
++    }
++
++    /* First obtain a rank-revealing least-squares solve in normalized
++       augmented coordinates.  When rank(A)=n and m>n, the n Householder
++       columns span col(A), so the tail projection is a valid, very accurate
++       left-null construction and remains machine-scale even arbitrarily near
++       compatibility.  When rank(A)<n that argument is false: some of the
++       first n Q columns are arbitrary completion directions and can erase
++       genuine left-null content.  In that case the rank-revealing LS residual
++       is the appropriate construction. */
++    int rank=0;
++    if(n>0 && least_squares_x(An,bn,m,n,x,&rank)){free(x);free(An);free(bn);free(ybar);free(dmant);free(dexp);bs_inconsistent_witness_free(w);return 4;}
+     int have_y=0;
+-    if(m>n && n>0 && left_null_projection_qr(A,b,m,n,w->y)==0) have_y=1;
++    if(rank<m){
++        long double tail_rel=0.0L;
++        if(left_null_projection_rank_qrcp(An,bn,m,n,rank,ybar,&tail_rel)==0 && tail_rel>256.0L*(long double)DBL_EPSILON)
++            have_y=1;
++        else if(left_null_vector_qrcp(An,m,n,rank,ybar)==0)
++            have_y=1;
++    }
+     if(!have_y){
+-        int rank=0;if(n>0 && least_squares_x(A,b,m,n,x,&rank)){free(x);bs_inconsistent_witness_free(w);return 3;}
+         long double yn2=0.0L,btb=0.0L;
+         for(int i=0;i<m;i++){
+-            long double ax=0.0L;for(int j=0;j<n;j++)ax+=(long double)A[(size_t)i*n+j]*(long double)x[j];
+-            double yi=(double)((long double)b[i]-ax);w->y[i]=yi;yn2+=(long double)yi*yi;btb+=(long double)b[i]*b[i];
++            long double ax=0.0L;for(int j=0;j<n;j++)ax+=(long double)An[(size_t)i*n+j]*(long double)x[j];
++            double yi=(double)((long double)bn[i]-ax);ybar[i]=yi;yn2+=(long double)yi*yi;btb+=(long double)bn[i]*bn[i];
+         }
+         if(!(yn2>0.0L)){
+-            if(!(btb>0.0L)){free(x);bs_inconsistent_witness_free(w);return 4;}
+-            memcpy(w->y,b,(size_t)m*sizeof(double));
++            if(!(btb>0.0L)){free(x);free(An);free(bn);free(ybar);free(dmant);free(dexp);bs_inconsistent_witness_free(w);return 5;}
++            memcpy(ybar,bn,(size_t)m*sizeof(double));
+         }
+     }
+-    int best=-1;long double score=-1.0L;
+-    for(int i=0;i<m;i++){
+-        long double src=0.0L;for(int j=0;j<n;j++){long double v=A[(size_t)i*n+j];src+=v*v;}src+=(long double)b[i]*b[i];
+-        long double sc=fabsl((long double)w->y[i])*sqrtl(src);
+-        if(sc>score && w->y[i]!=0.0){score=sc;best=i;}
++    int best=-1;
++    int mrc=map_augmented_left_witness(ybar,dmant,dexp,m,w->y,&best);
++    /* A compatible tall system may have explicit zero augmented rows.  A
++       perfectly legitimate QR completion can then return a left-null basis
++       vector supported only on those zero rows; such a vector cannot certify
++       finite rowwise distance because every admissible pivot has zero source
++       norm.  If that happens, scan the remaining computed null directions
++       until one has visible support on a positive-norm source row.  This is a
++       generator availability fallback only; the strict verifier remains the
++       acceptance authority. */
++    if((mrc||best<0) && rank<m){
++        for(int qi=rank+1;qi<m;qi++){
++            if(left_null_vector_qrcp(An,m,n,qi,ybar)!=0)continue;
++            long double good2=0.0L;
++            for(int i=0;i<m;i++)if(dmant[i]!=0.0L){long double z=ybar[i];good2+=z*z;}
++            if(!(good2>1024.0L*(long double)DBL_EPSILON*(long double)DBL_EPSILON))continue;
++            best=-1;mrc=map_augmented_left_witness(ybar,dmant,dexp,m,w->y,&best);
++            if(!mrc&&best>=0)break;
++        }
+     }
+-    free(x);if(best<0){bs_inconsistent_witness_free(w);return 5;}w->pivot_row=best;return 0;
++    free(x);free(An);free(bn);free(ybar);free(dmant);free(dexp);
++    if(mrc||best<0){bs_inconsistent_witness_free(w);return 6;}
++    w->pivot_row=best;return 0;
+ }
+ 
+ static void run_unique_profile(const double *A,const double *b,int m,int n,BSCertifiedResult *out) {
+@@ -263,45 +459,51 @@
+     int grc=bs_generate_inconsistent_witness(A,b,m,n,&w), vrc=0;
+     if(!grc) vrc=bs_verify_inconsistent(A,b,m,n,&w,&lo,&hi,&eta);
+ 
+-    /* A compatible tall system has exact distance zero to inconsistency, but a
+-       numerically very accurate left-null candidate can make the interval for
+-       y^T b contain zero.  This is a generator failure, not a verifier failure.
+-       If that happens and b != 0, tilt the untrusted candidate by working-precision
+-       b-direction scales and let the unchanged verifier decide.
+-       The tilt makes y^T b nonzero while changing A^T y only at O(u). */
+-    if(!grc && vrc==4 && m>n && w.y){
+-        long double bn2=0.0L;
+-        for(int i=0;i<m;i++){long double q=b[i];bn2+=q*q;}
+-        if(bn2>0.0L){
+-            double *base=(double*)malloc((size_t)m*sizeof(double));
+-            if(base){
+-                memcpy(base,w.y,(size_t)m*sizeof(double));
+-                long double bn=sqrtl(bn2);
+-                int accepted=0;
+-                for(int mult=1;mult<=1024 && !accepted;mult*=2){
+-                    double best_eta=INFINITY; int best_rc=4;
++    /* If y^T b is interval-indeterminate, keep the verifier unchanged but
++       search tiny tilts in augmented-row-normalized coordinates.  This is the
++       row-scaling-equivariant analogue of the older raw-b tilt. */
++    if(!grc && vrc==4 && w.y){
++        double *An=(double*)malloc((size_t)m*(size_t)(n>0?n:1)*sizeof(double));
++        double *bn=(double*)malloc((size_t)m*sizeof(double));
++        double *ybar0=(double*)malloc((size_t)m*sizeof(double));
++        double *ycand=(double*)malloc((size_t)m*sizeof(double));
++        long double *dmant=(long double*)malloc((size_t)m*sizeof(long double));
++        int *dexp=(int*)malloc((size_t)m*sizeof(int));
++        if(An&&bn&&ybar0&&ycand&&dmant&&dexp && !normalize_augmented_rows(A,b,m,n,An,bn,dmant,dexp)){
++            /* Recover ybar proportional to D y without overflowing, then normalize it. */
++            int emax=INT32_MIN;
++            for(int i=0;i<m;i++)if(w.y[i]!=0.0 && dmant[i]!=0.0L){
++                long double c=(long double)w.y[i]*dmant[i],ac=fabsl(c);if(!(ac>0.0L))continue;
++                int ce=0;frexpl(ac,&ce);int eraw=ce+dexp[i];if(eraw>emax)emax=eraw;
++            }
++            long double yn2=0.0L,bn2=0.0L;
++            if(emax!=INT32_MIN){
++                for(int i=0;i<m;i++){
++                    long double yy=0.0L;
++                    if(w.y[i]!=0.0 && dmant[i]!=0.0L)
++                        yy=scalbnl((long double)w.y[i]*dmant[i],dexp[i]-emax);
++                    ybar0[i]=(double)yy;yn2+=yy*yy;bn2+=(long double)bn[i]*bn[i];
++                }
++            }
++            if(yn2>0.0L && bn2>0.0L){
++                long double yi=1.0L/sqrtl(yn2),bi=1.0L/sqrtl(bn2);
++                for(int i=0;i<m;i++)ybar0[i]=(double)((long double)ybar0[i]*yi);
++                double best_eta=INFINITY; int accepted=0;
++                for(int mult=1;mult<=4096;mult*=2){
+                     for(int sign=-1;sign<=1;sign+=2){
+                         long double tau=(long double)sign*(long double)mult*(long double)DBL_EPSILON;
+-                        for(int i=0;i<m;i++)w.y[i]=(double)((long double)base[i]+tau*(long double)b[i]/bn);
+-                        int best=-1; long double score=-1.0L;
+-                        for(int i=0;i<m;i++){
+-                            long double src=0.0L;
+-                            for(int j=0;j<n;j++){long double q=A[(size_t)i*n+j];src+=q*q;}
+-                            src+=(long double)b[i]*b[i];
+-                            long double sc=fabsl((long double)w.y[i])*sqrtl(src);
+-                            if(sc>score && w.y[i]!=0.0){score=sc;best=i;}
+-                        }
+-                        if(best<0)continue;
++                        for(int i=0;i<m;i++)ycand[i]=(double)((long double)ybar0[i]+tau*(long double)bn[i]*bi);
++                        int best=-1;if(map_augmented_left_witness(ycand,dmant,dexp,m,w.y,&best))continue;
+                         w.pivot_row=best;
+                         double eta_try=INFINITY,lo_try=0.0,hi_try=0.0;
+                         int rc_try=bs_verify_inconsistent(A,b,m,n,&w,&lo_try,&hi_try,&eta_try);
+-                        if(rc_try==0 && isfinite(eta_try) && eta_try<best_eta){best_eta=eta_try;best_rc=0;}
++                        if(rc_try==0 && isfinite(eta_try) && eta_try<best_eta){best_eta=eta_try;accepted=1;}
+                     }
+-                    if(best_rc==0){eta=best_eta;vrc=0;accepted=1;}
++                    if(accepted){eta=best_eta;vrc=0;break;}
+                 }
+-                free(base);
+             }
+         }
++        free(An);free(bn);free(ybar0);free(ycand);free(dmant);free(dexp);
+     }
+ 
+     bs_inconsistent_witness_free(&w);
+--- a/src/status_certificate.c	2026-08-13 05:16:21.000000000 +0000
++++ b/src/status_certificate.c	2026-08-13 10:21:40.807773372 +0000
+@@ -1,6 +1,7 @@
+ #pragma STDC FENV_ACCESS ON
+ #include "status_certificate.h"
+ #include <fenv.h>
++#include <limits.h>
+ #include <math.h>
+ #include <stddef.h>
+ #include <stdlib.h>
+@@ -25,26 +26,113 @@
+     *hi = s;
+ }
+ 
++/* Directed LASSQ-style Euclidean norms.  Direct sum(v*v) loses
++   availability when the data live near either end of the binary64 exponent
++   range.  A power-of-two scale is exact, so all squaring is performed on
++   O(1) numbers and only the final result is rescaled.  Under the strict build
++   used by this checker, sqrt and the arithmetic below honor the active
++   directed rounding mode. */
++static int max_abs_exp_vec(const double *a, int n, double extra, int have_extra) {
++    int emax = FP_ILOGB0;
++    for (int i = 0; i < n; ++i) {
++        double q = fabs(a[i]);
++        if (q > 0.0) { int e = ilogb(q); if (emax == FP_ILOGB0 || e > emax) emax = e; }
++    }
++    if (have_extra) {
++        double q = fabs(extra);
++        if (q > 0.0) { int e = ilogb(q); if (emax == FP_ILOGB0 || e > emax) emax = e; }
++    }
++    return emax;
++}
++
++static double scaled_norm_dir(const double *a, int n, double extra, int have_extra, int mode) {
++    int e = max_abs_exp_vec(a, n, extra, have_extra);
++    if (e == FP_ILOGB0) return 0.0;
++    volatile double ss = 0.0, r, p, root, out;
++    fesetround(mode);
++    for (int i = 0; i < n; ++i) {
++        r = scalbn(a[i], -e); p = r * r; ss = ss + p;
++    }
++    if (have_extra) { r = scalbn(extra, -e); p = r * r; ss = ss + p; }
++    root = sqrt(ss);
++    out = scalbn(root, e);
++    return out;
++}
++
+ static double norm_up(const double *a, int n) {
+-    volatile double s = 0.0, p;
+-    fesetround(FE_UPWARD);
+-    for (int i = 0; i < n; ++i) { p = a[i] * a[i]; s = s + p; }
+-    return sqrt(s);
++    return scaled_norm_dir(a, n, 0.0, 0, FE_UPWARD);
+ }
+ 
+ static double norm_lower(const double *a, int n) {
+-    volatile double s = 0.0, p;
+-    fesetround(FE_DOWNWARD);
+-    for (int i = 0; i < n; ++i) { p = a[i] * a[i]; s = s + p; }
+-    return sqrt(s);
++    return scaled_norm_dir(a, n, 0.0, 0, FE_DOWNWARD);
+ }
+ 
+ static double norm_aug_lower(const double *a, double b, int n) {
+-    volatile double s = 0.0, p;
++    return scaled_norm_dir(a, n, b, 1, FE_DOWNWARD);
++}
++
++static double hypot_up(double a, double b) {
++    double v[2] = {a, b};
++    return norm_up(v, 2);
++}
++
++
++/* Exponent-framed interval products for the inconsistent proof.  A left-null
++   witness and the source may occupy opposite ends of the binary64 exponent
++   range, so forming y_i*a_ij directly can overflow even when the normalized
++   dot product is perfectly benign.  frexp decomposes each input exactly;
++   only O(1) mantissas are multiplied and all terms are accumulated in one
++   common power-of-two frame. */
++static int common_product_exp(const double *y, int m,
++                              const double *A, const double *b, int n) {
++    int E = INT_MIN;
++    for (int i = 0; i < m; ++i) {
++        if (y[i] == 0.0) continue;
++        int ey = 0; (void)frexp(y[i], &ey);
++        if (b[i] != 0.0) {
++            int eb = 0; (void)frexp(b[i], &eb);
++            if (ey + eb > E) E = ey + eb;
++        }
++        for (int j = 0; j < n; ++j) if (A[(size_t)i*n+j] != 0.0) {
++            int ea = 0; (void)frexp(A[(size_t)i*n+j], &ea);
++            if (ey + ea > E) E = ey + ea;
++        }
++    }
++    return E;
++}
++
++static double product_in_frame_dir(double a, double b, int E, int mode) {
++    if (a == 0.0 || b == 0.0) return 0.0;
++    int ea = 0, eb = 0;
++    double ma = frexp(a, &ea), mb = frexp(b, &eb);
++    volatile double p, q;
++    fesetround(mode);
++    p = ma * mb;
++    q = scalbn(p, ea + eb - E);
++    return q;
++}
++
++static void dot_interval_frame(const double *a, const double *b, int n, int E,
++                               double *lo, double *hi) {
++    volatile double s, p;
++    fesetround(FE_DOWNWARD); s = 0.0;
++    for (int k = 0; k < n; ++k) { p = product_in_frame_dir(a[k], b[k], E, FE_DOWNWARD); s = s + p; }
++    *lo = s;
++    fesetround(FE_UPWARD); s = 0.0;
++    for (int k = 0; k < n; ++k) { p = product_in_frame_dir(a[k], b[k], E, FE_UPWARD); s = s + p; }
++    *hi = s;
++}
++
++/* Downward lower bound for |a|*b*2^{-E}, with b>=0. */
++static double positive_product_lower_frame(double a, double b, int E) {
++    if (!(a > 0.0) || !(b > 0.0)) return 0.0;
++    int ea = 0, eb = 0;
++    double ma = frexp(a, &ea), mb = frexp(b, &eb);
++    volatile double p, q;
+     fesetround(FE_DOWNWARD);
+-    for (int i = 0; i < n; ++i) { p = a[i] * a[i]; s = s + p; }
+-    p = b * b; s = s + p;
+-    return sqrt(s);
++    p = ma * mb;
++    q = scalbn(p, ea + eb - E);
++    return q;
+ }
+ 
+ static double residual_abs_up(const double *a, double b,
+@@ -105,7 +193,8 @@
+     double xn_up = norm_up(w->x, n), best = 0.0;
+     double *ucol = (double *)malloc((size_t)n*sizeof(double));
+     double *lrow = (double *)malloc((size_t)n*sizeof(double));
+-    if (!ucol || !lrow) { free(pos); free(ucol); free(lrow); fesetround(old); return 6; }
++    double *evec = (double *)malloc((size_t)n*sizeof(double));
++    if (!ucol || !lrow || !evec) { free(pos); free(ucol); free(lrow); free(evec); fesetround(old); return 6; }
+ 
+     for (int i = 0; i < m; ++i) {
+         double da_up = 0.0;
+@@ -114,7 +203,6 @@
+             int lr = w->perm[ks];
+             for (int k = 0; k < n; ++k)
+                 lrow[k] = (k < lr ? w->packed_lu[(size_t)lr*n+k] : (k == lr ? 1.0 : 0.0));
+-            volatile double ss = 0.0;
+             for (int j = 0; j < n; ++j) {
+                 for (int k = 0; k < n; ++k)
+                     ucol[k] = (k <= j ? w->packed_lu[(size_t)k*n+j] : 0.0);
+@@ -122,22 +210,21 @@
+                 volatile double slo, shi, elo, ehi;
+                 fesetround(FE_DOWNWARD); slo = w->scale[ks] * lo; elo = slo - A[(size_t)i*n+j];
+                 fesetround(FE_UPWARD);   shi = w->scale[ks] * hi; ehi = shi - A[(size_t)i*n+j];
+-                double ea = fmax(fabs((double)elo), fabs((double)ehi));
+-                fesetround(FE_UPWARD); ss = ss + ea*ea;
++                evec[j] = fmax(fabs((double)elo), fabs((double)ehi));
+             }
+-            fesetround(FE_UPWARD); da_up = sqrt(ss);
++            da_up = norm_up(evec, n);
+         }
+         double res_up = residual_abs_up(A+(size_t)i*n, b[i], w->x, n);
+         fesetround(FE_UPWARD);
+         double db_up = res_up + da_up*xn_up;
+-        double pert = sqrt(da_up*da_up + db_up*db_up);
++        double pert = hypot_up(da_up, db_up);
+         double src = norm_aug_lower(A+(size_t)i*n, b[i], n);
+         double q;
+         if (src == 0.0) q = (pert == 0.0 ? 0.0 : INFINITY);
+         else { fesetround(FE_UPWARD); q = pert/src; }
+         if (q > best) best = q;
+     }
+-    free(pos); free(ucol); free(lrow); fesetround(old);
++    free(pos); free(ucol); free(lrow); free(evec); fesetround(old);
+     *eta_up = best;
+     return isfinite(best) ? 0 : 7;
+ }
+@@ -159,7 +246,7 @@
+         double erow = az_up / zn_lo;
+         double res_up = residual_abs_up(A+(size_t)i*n, b[i], w->x, n);
+         double db_up = res_up + erow*xn_up;
+-        double pert = sqrt(erow*erow + db_up*db_up);
++        double pert = hypot_up(erow, db_up);
+         double src = norm_aug_lower(A+(size_t)i*n, b[i], n);
+         double q;
+         if (src == 0.0) q = (pert == 0.0 ? 0.0 : INFINITY);
+@@ -180,25 +267,30 @@
+     int k = w->pivot_row;
+     if (w->y[k] == 0.0) return 3;
+     int old = fegetround();
+-    double lb, ub; dot_interval(w->y, b, m, &lb, &ub); *ytb_lo = lb; *ytb_hi = ub;
++
++    int E = common_product_exp(w->y, m, A, b, n);
++    if (E == INT_MIN) { fesetround(old); return 4; }
++
++    /* Bounds are for 2^{-E} y^T b.  The positive power-of-two frame changes
++       neither the sign proof nor the relative perturbation radius. */
++    double lb, ub; dot_interval_frame(w->y, b, m, E, &lb, &ub);
++    *ytb_lo = lb; *ytb_hi = ub;
+     if (!(lb > 0.0 || ub < 0.0)) { fesetround(old); return 4; }
+ 
+     double *col = (double *)malloc((size_t)m*sizeof(double));
+-    if (!col) { fesetround(old); return 5; }
+-    volatile double ss = 0.0;
++    double *qvec = (double *)malloc((size_t)(n > 0 ? n : 1)*sizeof(double));
++    if (!col || !qvec) { free(col); free(qvec); fesetround(old); return 5; }
+     for (int j = 0; j < n; ++j) {
+         for (int i = 0; i < m; ++i) col[i] = A[(size_t)i*n+j];
+-        double lo, hi; dot_interval(col, w->y, m, &lo, &hi);
+-        fesetround(FE_UPWARD);
+-        double q = fmax(fabs(lo), fabs(hi)); ss = ss + q*q;
++        double lo, hi; dot_interval_frame(col, w->y, m, E, &lo, &hi);
++        qvec[j] = fmax(fabs(lo), fabs(hi));
+     }
+-    fesetround(FE_UPWARD);
+-    double H = sqrt(ss);
+-    double erow = H / fabs(w->y[k]);
++    double Hs = norm_up(qvec, n); /* upper bound for 2^{-E} ||A^T y|| */
+     double src = norm_aug_lower(A+(size_t)k*n, b[k], n);
++    double dens = positive_product_lower_frame(fabs(w->y[k]), src, E);
+     double q;
+-    if (src == 0.0) q = (erow == 0.0 ? 0.0 : INFINITY);
+-    else { fesetround(FE_UPWARD); q = erow/src; }
+-    free(col); fesetround(old); *eta_up = q;
++    if (dens == 0.0) q = (Hs == 0.0 ? 0.0 : INFINITY);
++    else { fesetround(FE_UPWARD); q = Hs/dens; }
++    free(col); free(qvec); fesetround(old); *eta_up = q;
+     return isfinite(q) ? 0 : 6;
+ }
+--- a/src/status_certificate.h	2026-08-13 05:16:21.000000000 +0000
++++ b/src/status_certificate.h	2026-08-13 10:21:40.807843063 +0000
+@@ -42,6 +42,8 @@
+                      const BSUniqueWitness *w, double *eta_status_up);
+ int bs_verify_infinite(const double *A, const double *b, int m, int n,
+                        const BSInfiniteWitness *w, double *eta_status_up);
++/* ytb_lo/hi bound a positive power-of-two normalization of y^T b;
++   their sign, not their absolute scale, is the certified diagnostic. */
+ int bs_verify_inconsistent(const double *A, const double *b, int m, int n,
+                            const BSInconsistentWitness *w,
+                            double *ytb_lo, double *ytb_hi,

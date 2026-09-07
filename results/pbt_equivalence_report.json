@@ -1,0 +1,2658 @@
+{
+  "checks": 8335,
+  "property_counts": {
+    "exact_base_status": 180,
+    "rank_interval_contains_exact_well_separated": 98,
+    "row_permutation": 180,
+    "row_permutation_rank_interval": 98,
+    "signed_dyadic_row_scaling": 180,
+    "signed_dyadic_row_scaling_rank_interval": 98,
+    "duplicate_equations": 180,
+    "duplicate_equations_rank_interval": 98,
+    "dependent_equation_extension": 180,
+    "dependent_equation_extension_rank_interval": 98,
+    "unimodular_row_mixing": 180,
+    "unimodular_row_mixing_rank_interval": 98,
+    "signed_column_permutation": 180,
+    "signed_column_permutation_rank_interval": 98,
+    "unimodular_coordinate_change": 180,
+    "unimodular_coordinate_change_rank_interval": 98,
+    "rhs_sign": 180,
+    "rhs_sign_rank_interval": 98,
+    "coefficient_sign": 180,
+    "coefficient_sign_rank_interval": 98,
+    "hadamard_orthogonal_coordinates": 90,
+    "hadamard_orthogonal_coordinates_rank_interval": 51,
+    "affine_translation_2^0": 180,
+    "affine_translation_2^10": 180,
+    "affine_translation_2^20": 180,
+    "affine_translation_2^30": 180,
+    "append_zero_equation": 120,
+    "append_zero_contradiction": 120,
+    "append_free_variable": 120,
+    "direct_sum_status_algebra": 80,
+    "configuration_orbit_status": 480,
+    "configuration_orbit_rank_interval": 480,
+    "source_status_certificate_machine_scale": 600,
+    "profile_row_permutation": 600,
+    "profile_row_scaling": 600,
+    "profile_signed_column_permutation": 600,
+    "profile_global_scaling": 600,
+    "certificate_extreme_global_scaling": 13,
+    "inconsistent_affine_translation_sweep": 280,
+    "minimal_rank1_counterexample": 1
+  },
+  "failure_counts_by_severity": {
+    "known-representation": 154
+  },
+  "failure_counts_by_property": {
+    "affine_translation_2^30": 24,
+    "inconsistent_affine_translation_sweep": 130
+  },
+  "failures": [
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 20,
+      "m": 48,
+      "n": 48,
+      "status": 3,
+      "rank": 1,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 1,
+        "lo": 1,
+        "hi": 1,
+        "relres": 1.6997157382249392e-10,
+        "relx": 0.9937649148724578,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 31,
+      "m": 94,
+      "n": 47,
+      "status": 3,
+      "rank": 1,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 1,
+        "lo": 1,
+        "hi": 1,
+        "relres": 4.150329242930466e-11,
+        "relx": 0.9712287342246064,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 43,
+      "m": 188,
+      "n": 47,
+      "status": 3,
+      "rank": 23,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 23,
+        "lo": 23,
+        "hi": 23,
+        "relres": 2.6203194267752024e-10,
+        "relx": 0.7423673988082354,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 46,
+      "m": 256,
+      "n": 64,
+      "status": 3,
+      "rank": 1,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 1,
+        "lo": 1,
+        "hi": 1,
+        "relres": 2.942511228445507e-10,
+        "relx": 0.9960312722875916,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 56,
+      "m": 24,
+      "n": 48,
+      "status": 3,
+      "rank": 12,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 12,
+        "lo": 12,
+        "hi": 12,
+        "relres": 1.6787879634930955e-10,
+        "relx": 0.8204526750565115,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 59,
+      "m": 48,
+      "n": 96,
+      "status": 3,
+      "rank": 47,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 47,
+        "lo": 47,
+        "hi": 47,
+        "relres": 6.182502985963809e-10,
+        "relx": 0.6647351160704373,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 68,
+      "m": 48,
+      "n": 48,
+      "status": 3,
+      "rank": 24,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 24,
+        "lo": 24,
+        "hi": 24,
+        "relres": 3.111342962698244e-10,
+        "relx": 0.7328324327533077,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 90,
+      "m": 124,
+      "n": 31,
+      "status": 3,
+      "rank": 1,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 1,
+        "lo": 1,
+        "hi": 1,
+        "relres": 2.9446414778502235e-10,
+        "relx": 0.9872772390720602,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 93,
+      "m": 196,
+      "n": 49,
+      "status": 3,
+      "rank": 24,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 24,
+        "lo": 24,
+        "hi": 24,
+        "relres": 1.81041870589004e-10,
+        "relx": 0.7205911574631472,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 100,
+      "m": 4,
+      "n": 8,
+      "status": 3,
+      "rank": 1,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 1,
+        "lo": 1,
+        "hi": 1,
+        "relres": 8.747347793823508e-11,
+        "relx": 0.8039840633402249,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 104,
+      "m": 24,
+      "n": 48,
+      "status": 3,
+      "rank": 23,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 23,
+        "lo": 23,
+        "hi": 23,
+        "relres": 8.085696188019471e-10,
+        "relx": 0.7223560200631571,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 105,
+      "m": 24,
+      "n": 49,
+      "status": 3,
+      "rank": 1,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 1,
+        "lo": 1,
+        "hi": 1,
+        "relres": 6.969466286194275e-11,
+        "relx": 0.9907031667346612,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 117,
+      "m": 49,
+      "n": 49,
+      "status": 3,
+      "rank": 24,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 24,
+        "lo": 24,
+        "hi": 24,
+        "relres": 1.582872872732987e-10,
+        "relx": 0.6770016987238576,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 119,
+      "m": 96,
+      "n": 96,
+      "status": 3,
+      "rank": 48,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 48,
+        "lo": 48,
+        "hi": 48,
+        "relres": 1.5046472413925764e-10,
+        "relx": 0.7081379443058688,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 130,
+      "m": 128,
+      "n": 64,
+      "status": 3,
+      "rank": 32,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 32,
+        "lo": 32,
+        "hi": 32,
+        "relres": 2.2024236418642193e-10,
+        "relx": 0.7136787251052004,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 135,
+      "m": 16,
+      "n": 4,
+      "status": 3,
+      "rank": 1,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 1,
+        "lo": 1,
+        "hi": 1,
+        "relres": 1.4606279953091246e-10,
+        "relx": 0.5762081312206059,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 151,
+      "m": 24,
+      "n": 47,
+      "status": 3,
+      "rank": 1,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 1,
+        "lo": 1,
+        "hi": 1,
+        "relres": 6.174810002453344e-11,
+        "relx": 0.956478571969048,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 152,
+      "m": 24,
+      "n": 48,
+      "status": 3,
+      "rank": 12,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 12,
+        "lo": 12,
+        "hi": 12,
+        "relres": 2.396779310337134e-10,
+        "relx": 0.8477522612732008,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 154,
+      "m": 32,
+      "n": 64,
+      "status": 3,
+      "rank": 31,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 31,
+        "lo": 31,
+        "hi": 31,
+        "relres": 1.3107492853278643e-09,
+        "relx": 0.6785076626872558,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 155,
+      "m": 48,
+      "n": 96,
+      "status": 3,
+      "rank": 24,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 24,
+        "lo": 24,
+        "hi": 24,
+        "relres": 1.1259258537428512e-10,
+        "relx": 0.8037261906914056,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 167,
+      "m": 96,
+      "n": 96,
+      "status": 3,
+      "rank": 1,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 1,
+        "lo": 1,
+        "hi": 1,
+        "relres": 3.2917491280316276e-10,
+        "relx": 0.998946345369649,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 175,
+      "m": 94,
+      "n": 47,
+      "status": 3,
+      "rank": 23,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 23,
+        "lo": 23,
+        "hi": 23,
+        "relres": 1.8469163444812307e-10,
+        "relx": 0.7687996154893246,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 178,
+      "m": 128,
+      "n": 64,
+      "status": 3,
+      "rank": 1,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 1,
+        "lo": 1,
+        "hi": 1,
+        "relres": 1.0361323902129859e-10,
+        "relx": 0.9897091115763376,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "affine_translation_2^30",
+      "severity": "known-representation",
+      "t": 179,
+      "m": 192,
+      "n": 96,
+      "status": 3,
+      "rank": 48,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 48,
+        "lo": 48,
+        "hi": 48,
+        "relres": 1.5700183465208844e-10,
+        "relx": 0.7023867988271446,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 0,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.9253369934682194e-13,
+        "relx": 0.4999999999999674,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 0,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 6.615663260787152e-16,
+        "relx": 0.8017837257372735,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 0,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.7076933300423494e-16,
+        "relx": 0.4558423058385517,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 1,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.5186013836942031e-13,
+        "relx": 0.25819888974653477,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 1,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.315278725398034e-16,
+        "relx": 0.3162277660168378,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 1,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.5246796027242265e-16,
+        "relx": 0.5581563056514383,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 2,
+      "exp": 30,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 3,
+        "lo": 3,
+        "hi": 3,
+        "relres": 6.552183408204564e-11,
+        "relx": 0.5910828044067025,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 2,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 9.006703724107884e-14,
+        "relx": 0.5275043787168334,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 2,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.615616286566874e-16,
+        "relx": 0.6810052246069984,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 2,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.392049351799046e-16,
+        "relx": 0.2786391062876764,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 3,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.5155915106513837e-13,
+        "relx": 0.2631174057911036,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 3,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.236282339923805e-16,
+        "relx": 0.12725695259515502,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 3,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.097739321969941e-16,
+        "relx": 0.5913123959890826,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 4,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.4348169972247844e-13,
+        "relx": 0.18257418583455715,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 4,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 3.537669415790254e-16,
+        "relx": 0.4045199174779453,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 4,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 4.370184296601467e-16,
+        "relx": 0.5581563056514381,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 5,
+      "exp": 30,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 3,
+        "lo": 3,
+        "hi": 3,
+        "relres": 9.826105921384877e-11,
+        "relx": 0.45584230616660265,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 5,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 7.179642254808759e-14,
+        "relx": 0.08671099695281889,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 5,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 8.948711139792063e-17,
+        "relx": 0.14824986333222048,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 5,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.1185518962456306e-16,
+        "relx": 0.47809144373375734,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 6,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.6881239067474994e-13,
+        "relx": 0.1671834637725949,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 6,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.0714440970593036e-15,
+        "relx": 5.836206563811021e-16,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 6,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 3.9902731851648286e-16,
+        "relx": 0.3149703941743562,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 7,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.2736034348928478e-13,
+        "relx": 0.6929348671834177,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 7,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 3.930616933777211e-16,
+        "relx": 0.3450327796711766,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 7,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 3.312988361482197e-16,
+        "relx": 0.5241424183609591,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 8,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.3877424746634558e-13,
+        "relx": 2.1764605012162047e-13,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 8,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.6622034216660027e-16,
+        "relx": 4.0792198665315537e-16,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 8,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 3.454483085892214e-16,
+        "relx": 0.08164965809277261,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 9,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.5384731809769345e-13,
+        "relx": 0.17770466332725365,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 9,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 5.863080213092059e-16,
+        "relx": 0.9197090092274489,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 9,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.552478377775769e-16,
+        "relx": 0.18394180184548997,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 10,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.615295210477209e-13,
+        "relx": 0.6210590034080381,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 10,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 3.035499548113837e-16,
+        "relx": 0.12909944487358127,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 10,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.4515509915394041e-16,
+        "relx": 0.7606388292556648,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 11,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.6221892947432343e-13,
+        "relx": 0.6579516949603105,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 11,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.0560710711791252e-15,
+        "relx": 0.9116846116771031,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 11,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.2586839243924963e-16,
+        "relx": 0.2925089696508522,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 12,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.3990338584546425e-13,
+        "relx": 0.7071067811860474,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 12,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 3.2622965560390427e-16,
+        "relx": 0.4082482904638647,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 12,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 3.7927121338023607e-16,
+        "relx": 4.1910000110727263e-16,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 13,
+      "exp": 30,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 3,
+        "lo": 3,
+        "hi": 3,
+        "relres": 2.3249678630758325e-10,
+        "relx": 0.4601789929092592,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 13,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 4.4243407725907484e-14,
+        "relx": 0.4242640687124366,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 13,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 3.3467205840762786e-16,
+        "relx": 0.22360679774997758,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 13,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 3.072691894177894e-16,
+        "relx": 0.22718473369882586,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 14,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.3769453331186714e-13,
+        "relx": 0.30304576336553857,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 14,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.2313233829031173e-16,
+        "relx": 0.45584230583855195,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 14,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.0371381338243e-16,
+        "relx": 0.3571428571428572,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 15,
+      "exp": 30,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 3,
+        "lo": 3,
+        "hi": 3,
+        "relres": 4.3651483094249834e-11,
+        "relx": 0.5063696834692804,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 15,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 8.71542205576887e-14,
+        "relx": 0.5520524474730406,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 15,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.6399080890483375e-16,
+        "relx": 0.6454972243679028,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 15,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.8399784737264583e-16,
+        "relx": 0.16514456476895403,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 16,
+      "exp": 30,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 3,
+        "lo": 3,
+        "hi": 3,
+        "relres": 5.735846135491795e-11,
+        "relx": 0.18200630206924445,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 16,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.7824288752097742e-13,
+        "relx": 0.287018923940868,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 16,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 3.3865026114190544e-16,
+        "relx": 0.2229112850301412,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 16,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 3.7376778975731055e-16,
+        "relx": 0.044455422447438844,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 17,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.493347179537148e-13,
+        "relx": 0.40482045237688274,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 17,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.894818131931099e-16,
+        "relx": 0.16317848796612572,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 17,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.4278040763881694e-16,
+        "relx": 0.18605210188381271,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 18,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.0887802212101523e-13,
+        "relx": 3.651976497572945e-13,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 18,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 3.168275790184551e-16,
+        "relx": 0.6227991553292189,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 18,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 3.525091691471546e-16,
+        "relx": 0.8547043234472846,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 19,
+      "exp": 30,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 3,
+        "lo": 3,
+        "hi": 3,
+        "relres": 2.9022150736132834e-10,
+        "relx": 0.6687338547609675,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 19,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.419090311280392e-13,
+        "relx": 0.8910421112135902,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 19,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.623817073726293e-16,
+        "relx": 0.46291004988627515,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 19,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.397297458674376e-16,
+        "relx": 0.08451542547285161,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 20,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.1865062727480673e-13,
+        "relx": 0.08770580193054353,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 20,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.3977690929331724e-16,
+        "relx": 0.07161148740394328,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 20,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.6765082941377347e-16,
+        "relx": 0.0716114874039434,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 21,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.3643509894306217e-13,
+        "relx": 0.4529108136575292,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 21,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.531383384667099e-16,
+        "relx": 0.2236067977499797,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 21,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 7.316006243458889e-16,
+        "relx": 0.6454972243679028,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 22,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 5.599777947752091e-14,
+        "relx": 0.11821656093585606,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 22,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.4289893343206116e-16,
+        "relx": 0.48154341234307646,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 22,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.916444456540697e-16,
+        "relx": 0.32302914123489923,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 23,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 9.64502531415269e-14,
+        "relx": 0.35856858280045395,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 23,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 4.736450061703362e-16,
+        "relx": 0.20203050891044197,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 23,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.3211187504541327e-16,
+        "relx": 0.629940788348712,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 24,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.6524866503147851e-13,
+        "relx": 0.3127716210858431,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 24,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 8.413389250982825e-16,
+        "relx": 0.1147078669352806,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 24,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 5.925316300833014e-16,
+        "relx": 0.47140452079103157,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 25,
+      "exp": 30,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 3,
+        "lo": 3,
+        "hi": 3,
+        "relres": 2.9520824873084817e-10,
+        "relx": 0.28867513472923767,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 25,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.3049849719516112e-13,
+        "relx": 0.76455285154247,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 25,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.1444516992581576e-16,
+        "relx": 0.37796447300922675,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 25,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.212638065026324e-16,
+        "relx": 0.5819143739626463,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 26,
+      "exp": 30,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 3,
+        "lo": 3,
+        "hi": 3,
+        "relres": 1.5108086386537524e-10,
+        "relx": 0.09999999966472388,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 26,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 3.056371193423337e-14,
+        "relx": 0.11952286093323707,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 26,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.8778090084226674e-16,
+        "relx": 0.120482899335375,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 26,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.654312306137764e-16,
+        "relx": 0.04662524041201521,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 27,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.8355885102665225e-13,
+        "relx": 0.0962250448648647,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 27,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.512383849557223e-16,
+        "relx": 0.08703882797784865,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 27,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 4.694830060104893e-16,
+        "relx": 0.2581988897471611,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 28,
+      "exp": 30,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 3,
+        "lo": 3,
+        "hi": 3,
+        "relres": 1.984791487288763e-10,
+        "relx": 0.4783648732794911,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 28,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 5.716761396815815e-13,
+        "relx": 0.9233805168770678,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 28,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.086610403931171e-16,
+        "relx": 0.8411910241920597,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 28,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 3.0167944199796054e-16,
+        "relx": 0.05407380704358734,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 29,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.3717149603913991e-13,
+        "relx": 0.3113995776654138,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 29,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 6.376898006646662e-16,
+        "relx": 0.6445033866354899,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 29,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 3.7372941760769235e-16,
+        "relx": 0.5520524474738833,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 30,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.3143542675692612e-13,
+        "relx": 0.0916698497028162,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 30,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.6505147052915953e-16,
+        "relx": 0.5976143046671968,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 30,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.546942098935468e-16,
+        "relx": 0.4454354031873741,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 31,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.9058090479569249e-13,
+        "relx": 0.37267799625042447,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 31,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 5.889470144114023e-17,
+        "relx": 0.4242640687119283,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 31,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.6625084119037095e-16,
+        "relx": 0.0745355992499929,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 32,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.8736160359133666e-13,
+        "relx": 0.8916451401204432,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 32,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.792686728809901e-16,
+        "relx": 0.06900655593423526,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 32,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.3692751999343889e-16,
+        "relx": 0.3030457633656632,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 33,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.630146095104062e-14,
+        "relx": 0.06262242910811623,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 33,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.735627957319701e-16,
+        "relx": 0.4041451884327384,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 33,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 6.014496702825762e-16,
+        "relx": 0.6454972243679028,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 34,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 7.102243418554115e-13,
+        "relx": 0.632455532033644,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 34,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 3.0460206621134974e-16,
+        "relx": 0.8090398349558903,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 34,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.3738438949935616e-16,
+        "relx": 0.31622776601683783,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 35,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.3404518194623777e-13,
+        "relx": 0.3988620176078188,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 35,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 3.0525981276185684e-16,
+        "relx": 0.48349377841522867,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 35,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 3.4089392264241285e-16,
+        "relx": 0.23759548165574576,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 36,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.47786189835762e-13,
+        "relx": 0.13608276348820178,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 36,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.9996210974411582e-16,
+        "relx": 0.23570226039551617,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 36,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.6429759592610344e-16,
+        "relx": 0.22645540682891915,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 37,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.0306459698555821e-13,
+        "relx": 0.5773502691903841,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 37,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.27285815706583e-16,
+        "relx": 0.1601281538050876,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 37,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.348573823441605e-16,
+        "relx": 0.18257418583505533,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 38,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.248116114359719e-13,
+        "relx": 3.8900942987456495e-13,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 38,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 2.5025008708381183e-16,
+        "relx": 0.46829290579084665,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 38,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.049648055688891e-16,
+        "relx": 0.46829290579084676,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 39,
+      "exp": 30,
+      "got": {
+        "status": 2,
+        "certainty": 1,
+        "rank": 3,
+        "lo": 3,
+        "hi": 3,
+        "relres": 1.3022898225257871e-10,
+        "relx": 0.44582256953386207,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 39,
+      "exp": 40,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 1.4471119302251725e-13,
+        "relx": 0.9890707100936205,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 39,
+      "exp": 50,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 4.4823187259324025e-16,
+        "relx": 0.9253038911459843,
+        "eta_x": NaN
+      }
+    },
+    {
+      "property": "inconsistent_affine_translation_sweep",
+      "severity": "known-representation",
+      "t": 39,
+      "exp": 60,
+      "got": {
+        "status": 2,
+        "certainty": 2,
+        "rank": 3,
+        "lo": 3,
+        "hi": 4,
+        "relres": 3.6784967072156033e-16,
+        "relx": 0.1739130434782608,
+        "eta_x": NaN
+      }
+    }
+  ],
+  "notes": [
+    {
+      "minimal_counterexample": {
+        "A": [
+          [
+            -8.0,
+            20.0
+          ],
+          [
+            6.0,
+            -15.0
+          ],
+          [
+            -10.0,
+            25.0
+          ],
+          [
+            -6.0,
+            15.0
+          ]
+        ],
+        "b": [
+          -32.0,
+          24.0,
+          -40.0,
+          -24.0
+        ],
+        "exact_rank": 1,
+        "exact_status": "infinite",
+        "router": {
+          "status": 2,
+          "certainty": 1,
+          "rank": 1,
+          "lo": 1,
+          "hi": 1,
+          "relres": 8.176345093409794e-17,
+          "relx": 0.7474093186836598,
+          "eta_x": NaN
+        },
+        "sequential_source_scan": {
+          "status": 2,
+          "rank": 1,
+          "relres": 8.176345093409794e-17,
+          "relx": 0.7474093186836598
+        },
+        "certified_audit": {
+          "status": 2,
+          "certainty": 1,
+          "rank": 1,
+          "lo": 1,
+          "hi": 1,
+          "mask": 7,
+          "eta_unique": 7.130425232214704e-16,
+          "eta_infinite": 8.216726883026332e-16,
+          "eta_inconsistent": 2.356501221369625e-16,
+          "eta_x": NaN,
+          "codes": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,1110 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm,mathtools,bm,mathrsfs}
+\usepackage{booktabs,longtable,array,multirow}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage[margin=0.9in]{geometry}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[colorlinks=true,allcolors=blue]{hyperref}
+\usepackage[nameinlink,noabbrev]{cleveref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{fancyvrb}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Bun}{\mathcal{B}}
+\newcommand{\Sol}{\mathsf{Sol}}
+\newcommand{\Ran}{\operatorname{Ran}}
+\newcommand{\Ker}{\operatorname{Ker}}
+\newcommand{\rank}{\operatorname{rank}}
+\newcommand{\Span}{\operatorname{span}}
+\newcommand{\nnz}{\operatorname{nnz}}
+\newcommand{\orth}{\perp}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\cD}{\mathscr D}
+\newcommand{\cG}{\mathscr G}
+
+\title{Affine-Bundle Solvers for General Linear Equality Systems:\\
+Independently Verifiable Nearby-Status Certificates and Information-Adaptive Routing}
+\author{Viktor Mikhalkin}
+\date{August 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We study a solver architecture for real linear equality systems
+\[
+Ax=b,\qquad A\in\R^{m\times n},\quad b\in\R^m,
+\]
+without assuming consistency, full rank, or a unique solution. The central state is an affine bundle
+\(\Bun=(R,\ell)\), equivalently its canonical coordinates \((P,x)\), where \(P\) is the orthogonal projector onto the accepted normal space and \(x\) is the minimum-norm point satisfying the accepted constraints. For an incoming equality \(a^Tz=\beta\),
+\[
+g=(I-P)a,\qquad \rho=\beta-a^Tx
+\]
+give an exact insertion calculus: a nonzero \(g\) grows the bundle by one normal direction, whereas a zero \(g\) separates redundancy from contradiction.
+
+In finite precision the fast router separates numerical status, epistemic strength, a supported numerical-rank interval, and fixed-solution quality. Rows near a rank transition remain unresolved rather than being forced into a binary decision. The solver acquires information adaptively through guarded direct solves, canonical prefix bundles, tangent probes, exact guarded insertion, compressed correction, independent validation, and rank-aware fallback. Compressed rows are treated as proposal data rather than exact source-row evidence: every route that can raise the deterministic source-rank lower bound carries a formation-error provenance budget and must pass an a-posteriori source-rank certificate. Independent row evidence may be parallelized while information-changing bundle growth remains serialized.
+
+The principal certification result is path independent. Three compact proof-object types target exact uniqueness, exact consistency with nonuniqueness, and exact inconsistency. A separate strict arithmetic checker derives, rather than trusts, an outward upper bound \(\eta_S\) in a common rowwise augmented relative perturbation metric. Acceptance implies the existence of a nearby real system within \(\eta_S\) of the corresponding exact type. The audit API attempts all three types independently of the fast router and therefore returns a router-independent nearby-status profile \(\boldsymbol{\eta}=(\eta_{\rm uniq},\eta_{\rm inf},\eta_{\rm inc})\), with rejected coordinates reported as unavailable. These coordinates are existence upper bounds, not confidence scores: the exact status sets are not topologically separated, and at a compatible rank-deficient source point all three exact status-set distances can vanish simultaneously. The theorem therefore does not require a rounding-error proof for every internal routing branch, while the profile avoids letting that router decide which certified alternatives are visible.
+
+With formation-provenance certification and the strengthened certificate checker, the unchanged equivalence-orbit property battery contains 8,335 checks and reports no hard failure; the 31 former generator-quality and 6 former extreme-range availability diagnostics are eliminated. The remaining 154 explicitly labelled affine-translation diagnostics are not left as an empirical exception: their representation sensitivity is traced to the declared contradiction-policy scaling, and an explicit per-row dyadic translation threshold is derived and reproduced by a controlled gate. A separate 2,271-check certificate-equivalence battery has zero failure and exercises independent signed dyadic row scalings through $2^{\pm1000}$, compatible/near-compatible tall systems through $2^{\pm500}$, and global verifier scales from deep subnormal values through $2^{1020}$. High-precision shadow evaluation found no underestimated constructive inconsistency radius in that battery. The fast router source is unchanged by this certificate work; on six matched audit cases the strengthened all-status certified call costs 1.15--2.19 times the preceding audit implementation, with geometric-mean factor 1.53. The experiments support a restricted claim of practical viability for dense equality classification, not universal superiority over general-purpose numerical linear algebra.
+\end{abstract}
+
+\section{Introduction}
+A solver for a general linear equality system must distinguish several logically different outcomes. The system may be inconsistent; it may be consistent with a unique solution; it may be consistent with infinitely many solutions; and, in finite precision, the data may lie too close to a numerical-rank transition to justify a stable binary decision. These outcomes are often inferred only after a factorization has already been selected. Here the constraint object and its semantics are primary, and numerical work is acquired only when the current state shows that it is needed.
+
+The state used throughout this paper is an affine bundle. At the exact level it is a subspace together with the right-hand-side functional carried by that subspace. Its canonical coordinates encode the same information as the current affine solution set, but in a form that supports exact insertion, compatibility tests, and minimum-norm selection. This viewpoint overlaps classical pseudoinverse updates, affine projections, row-space methods, and recursive least-squares ideas \citep{Greville1960,BenIsraelGreville2003,Plesnik2007}; those ingredients are not claimed as new.
+
+The computational question is whether the same state can avoid paying for a general rank-revealing factorization when the current geometry already makes the next decision cheap. Randomized numerical linear algebra provides compression and approximate subspace tests \citep{ClarksonWoodruff2013,NelsonNguyen2013,GowerRichtarik2015}; communication-avoiding QR and low-synchronization Gram--Schmidt reorganize tall dense linear algebra around communication costs \citep{DemmelEtAl2008,CarsonLundMaOktay2024,CarsonMa2024}. The present solver draws on this landscape but is organized by affine-bundle semantics rather than by a single factorization.
+
+A second question is logically separate: how can exact nearby-status statements be certified without proving every heterogeneous routing path correct at floating-point instruction level? Our answer is to move the trusted boundary. In certified mode untrusted numerical generators propose typed proof objects, while an independent checker reconstructs nearby exact problems and computes their perturbation radii directly from the source data. The audit API attempts all three proof-object types rather than exposing only the type selected by the fast router. This generator/checker separation is established methodology in verified numerical computation and linear-algebra certification; the contribution claimed here is the common verifier contract for the three exact solution classifications of a general equality system and its integration with the affine-bundle router.
+
+The contributions are deliberately narrow.
+\begin{enumerate}[label=(\roman*)]
+\item We give the canonical affine-bundle insertion calculus and separate exact row semantics from finite-precision status, epistemic certainty, supported rank interval, and fixed-solution quality.
+\item We derive a route-independent nearby-status theorem based on three typed proof objects for exact uniqueness, exact nonuniqueness with consistency, and exact inconsistency. The verifier owns every reported radius, and the audit API attempts all three types to expose a router-independent status-proximity profile rather than a single router-selected number. For the left-null inconsistency object we also make the proof map equivariant under independent nonzero row scalings and evaluate its critical products in a common exponent frame, so certificate availability is not tied to the arbitrary stored amplitude of the witness.
+\item We isolate bundle-native tangent screening and an information-adaptive router combining guarded direct solves, canonical prefix bundles, exact growth, compressed evidence, independent validation, and rank-aware fallback. We also give an a-posteriori provenance theorem that prevents rounded compressed rows from raising a deterministic source-rank lower bound unless their formation error, QR residual, orthogonality defect, and triangular conditioning jointly certify that promotion.
+\item We identify the safe parallelism rule: evidence attached to rows is independent while the bundle is fixed, whereas information growth changes the state and remains causal.
+\item We provide regression, adversarial-certificate, high-precision shadow, transformation, concurrency, and application-motivated experiments, and explicitly report the cost of the optional certified path.
+\end{enumerate}
+
+The novelty boundary is correspondingly conservative. Total least squares, compatibility backward error, null-space witnesses, LU/QR/SVD kernels, interval arithmetic, randomized sketches, and independently checked linear-algebra certificates all have substantial prior art. The candidate contribution is their composition around a canonical affine constraint state with separate fast epistemic status, fixed-solution quality, and a router-independent profile of independently verified nearby exact-status upper bounds.
+\section{Affine bundles and exact insertion}
+Let \(V=\R^n\) with its Euclidean inner product.
+
+\begin{definition}[Affine bundle]
+An affine bundle is a pair
+\[
+\Bun=(R,\ell),
+\]
+where \(R\le V\) is a linear subspace and \(\ell:R\to\R\) is linear. Its solution set is
+\[
+\Sol(\Bun)=\{z\in V:\langle r,z\rangle=\ell(r)\ \text{for all }r\in R\}.
+\]
+\end{definition}
+
+By the finite-dimensional Riesz theorem there is a unique \(x_\Bun\in R\) satisfying \(\ell(r)=\langle r,x_\Bun\rangle\). Let \(P=P_R\) be the orthogonal projector onto \(R\).
+
+\begin{proposition}[Canonical coordinates]
+Every nonempty affine bundle has the canonical representation
+\[
+\Sol(\Bun)=\{z:Pz=x_\Bun\}=x_\Bun+R^\orth.
+\]
+Conversely, every nonempty affine subspace of \(V\) has a unique representation of this form with \(x_\Bun\in R\).
+\end{proposition}
+
+\begin{proof}
+The equality \(Pz=x_\Bun\) is equivalent to \(\langle r,z\rangle=\langle r,x_\Bun\rangle\) for every \(r\in R\). Hence \(z-x_\Bun\in R^\orth\). Conversely, for an affine subspace \(z_0+N\), take \(R=N^\orth\) and \(x_\Bun=P_Rz_0\).
+\end{proof}
+
+A single equation \(a^Tz=\beta\), \(a\neq0\), is the rank-one bundle with \(R=\Span\{a\}\) and canonical anchor \(x=(\beta/\|a\|^2)a\).
+
+\subsection{Semantic merge}
+Two compatible bundles \(\Bun_i=(R_i,\ell_i)\) merge by adding their normal spaces and agreeing on overlaps. If \(\ell_1=\ell_2\) on \(R_1\cap R_2\), then
+\[
+\Bun_1\star\Bun_2=(R_1+R_2,\ell_{12})
+\]
+with \(\ell_{12}(r_1+r_2)=\ell_1(r_1)+\ell_2(r_2)\). The solution set is the intersection
+\[
+\Sol(\Bun_1\star\Bun_2)=\Sol(\Bun_1)\cap\Sol(\Bun_2).
+\]
+On mutually compatible bundles, \(\star\) is commutative, associative, and idempotent. This fact permits reduction trees mathematically, although \cref{sec:parallel} shows that a naive tree is not necessarily efficient.
+
+\subsection{Canonical atomic insertion}
+Let the current bundle be \((P,x)\) and let \(a^Tz=\beta\) be an incoming row. Define
+\begin{equation}\label{eq:grho}
+g=(I-P)a,\qquad \rho=\beta-a^Tx.
+\end{equation}
+
+\begin{theorem}[Exact atomic insertion]\label{thm:atomic}
+If \(g\neq0\), the merged bundle is
+\begin{equation}\label{eq:Pupdate}
+P^+=P+\frac{gg^T}{\|g\|^2},
+\end{equation}
+\begin{equation}\label{eq:xupdate}
+x^+=x+\frac{\rho}{\|g\|^2}g.
+\end{equation}
+If \(g=0\), then \(a\in\Ran P\); the row is redundant if \(\rho=0\) and contradictory if \(\rho\neq0\).
+\end{theorem}
+
+\begin{proof}
+When \(g\neq0\), \(g\perp\Ran P\), so \cref{eq:Pupdate} is the orthogonal projector onto \(\Ran P\oplus\Span\{g\}\). Since \(x\in\Ran P\), one has \(x\perp g\), and because \(a=Pa+g\),
+\[
+a^Tx^+=a^Tx+\frac{\rho}{\|g\|^2}a^Tg=a^Tx+\rho=\beta.
+\]
+The correction is orthogonal to the previous normal space and therefore preserves all earlier equalities. If \(g=0\), the coefficient row already belongs to the accepted normal space, so only the scalar compatibility residual remains.
+\end{proof}
+
+Iterating \cref{thm:atomic} from \((P,x)=(0,0)\) yields the minimum-norm solution of every consistent finite system. At termination, \(\rank P=n\) implies uniqueness; \(\rank P<n\) implies infinitely many solutions; any dependent row with nonzero \(\rho\) proves inconsistency.
+
+\section{Certified numerical semantics}\label{sec:semantics}
+Exact dependence is not robust under arbitrary perturbations of the coefficient row. Consequently a finite-precision solver should not convert every tiny \(\|g\|\) into a forced rank decision. We encode this explicitly.
+
+\subsection{Nested augmented-row geometry}
+In the augmented row space \(V\oplus\R\), define
+\[
+\cD_\Bun=R\oplus\R,
+\qquad
+\cG_\Bun=\{(r,\langle r,x\rangle):r\in R\}.
+\]
+For \(y=(a,\beta)\), let
+\[
+\mu_{\rm dep}=\|(I-P)a\|
+\]
+and
+\[
+\mu_{\rm con}=\frac{|\beta-a^Tx|}{\sqrt{1+\|x\|^2}}.
+\]
+The first is the coefficient-space distance to the current dependence model; the second is the distance, within that model, to the graph of compatible consequences. The latter is the classical normwise compatibility backward-error quantity associated with a fixed candidate solution \citep{RigalGaches1967}.
+
+The two directions are orthogonal in the augmented geometry, giving the decomposition
+\[
+\mu_{\rm red}^2=\mu_{\rm dep}^2+\mu_{\rm con}^2.
+\]
+The solver therefore separates rank evidence from compatibility evidence rather than mixing them into a single tolerance.
+
+\subsection{Row decisions and system-level epistemic state}
+The implementation uses guarded bands around the rank transition. At the row level the local decision is one of
+\begin{enumerate}[label=(\alph*)]
+\item \textbf{growth}: the unexplained normal component is safely nonzero;
+\item \textbf{redundant}: dependence is accepted and the compatibility residual is small;
+\item \textbf{contradictory}: dependence is accepted and the compatibility residual is safely nonzero;
+\item \textbf{undecidable}: the row lies in a numerical-rank grey band.
+\end{enumerate}
+The exact threshold constants are implementation parameters, not mathematical invariants. Source rows are normalized and a deliberately separated policy band is used: resolved growth requires a certified distance above $\tau_g=10^{-9}$, while resolved dependence requires a certified distance below $\tau_d=10^{-13}$. A local SVD arbiter used for candidate contradiction is stricter on the dependence side ($10^{-14}$) and uses the same resolved-growth boundary. The gap is intentional: evidence inside it remains unresolved. Fast tangent screening is never allowed to narrow a source-supported uncertainty band.
+
+At system level the fast API reports
+\[
+ \mathcal R=(S,C,[r_-,r_+],\eta_x),
+\]
+where $S$ is a finite-precision status, $C\in\{\text{deterministic},\text{randomized},\text{unresolved}\}$ is epistemic strength, $[r_-,r_+]$ is the supported numerical-rank interval, and $\eta_x$ is a fixed-solution quality quantity when a deterministic unique numerical witness is exported. For a candidate $x$ the implemented quantity is
+\[
+\eta_x(x)=\max_i
+\frac{|a_i^Tx-b_i|}{|b_i|+\|a_i\|_2\|x\|_2}.
+\]
+For each row this is the minimal mixed rowwise $2$-norm backward error for fixed $x$ under
+\[
+\|\Delta a_i\|_2\le\eta\|a_i\|_2,
+\qquad |\Delta b_i|\le\eta|b_i|,
+\]
+by Cauchy--Schwarz with equality attained by a coefficient correction parallel to $x$. This quantity is not a componentwise Oettli--Prager bound and is not identified with the exact-status radius introduced below. The public implementation exports a deterministic unique result only after the final source-level closure path satisfies the declared quality threshold $\eta_x\le10^{-14}$; otherwise it returns an unresolved status. For unresolved outputs no unique solution witness is asserted and the solution-quality diagnostics are NaN.  The same absence rule applies to \textsc{inconsistent}: an incompatibility verdict has no solution witness, so the public meta API exports the solution/reference-solution error field as NaN (while a residual-style incompatibility diagnostic may remain finite).
+
+The numerical labels \textsc{infinite} and \textsc{inconsistent} should therefore be read as underdetermined and incompatible under the declared finite-precision policy unless an independent exact-status proof object is also accepted. Randomized rank closure obeys the a-priori dimensional upper bound $r_+\le\min(m,n)$. A compatibility residual becomes contradiction evidence only after dependence has itself been resolved, and compressed or sketched residuals may reject a candidate or trigger escalation but are not promoted directly to source-level inconsistency.
+
+\begin{proposition}[Affine-translation threshold of the fast contradiction policy]\label{prop:translation-threshold}
+Let a nonzero source row be normalized as $\hat a=a/\|a\|_2$ and $\hat\beta=b/\|a\|_2$, and let $x$ be the current affine anchor.  Under the exact coordinate translation
+\[
+ x=y+c,\qquad \hat\beta'=\hat\beta-\hat a^Tc,\qquad y=x-c,
+\]
+the exact compatibility residual is invariant:
+\[
+ \rho'=\hat\beta'-\hat a^Ty=\hat\beta-\hat a^Tx=\rho.
+\]
+The implemented source-row contradiction gate, however, compares this invariant residual with
+\[
+ |\rho|>t_c\bigl(1+|\hat\beta'|+\|y\|_2\bigr).
+\]
+Hence the finite-precision policy is not affine-translation invariant even before accounting for rounding.  Along a dyadic ray $c=2^e c_0$, define
+\[
+ K=|\hat a^Tc_0|+\|c_0\|_2,\qquad B_0=1+|\hat\beta|+\|x\|_2.
+\]
+The two sides of the transition are intentionally asymmetric.  Define
+\[
+ S_{\rm keep}=\frac{|\rho|/t_c-B_0}{K},
+ \qquad
+ S_{\rm drop}=\frac{|\rho|/t_c-1+|\hat\beta|+\|x\|_2}{K}.
+\]
+Whenever the corresponding numerators are positive,
+\[
+ e_{\rm keep}=\log_2 S_{\rm keep},
+ \qquad
+ e_{\rm drop}=\log_2 S_{\rm drop}.
+\]
+If $2^e<S_{\rm keep}$, equivalently $e<e_{\rm keep}$, then the contradiction gate is guaranteed to remain active.  Conversely, if $2^e\ge S_{\rm drop}$, equivalently $e\ge e_{\rm drop}$, then the gate is guaranteed not to fire.  Note that $S_{\rm drop}$ is \emph{not} obtained by replacing the minus sign in $S_{\rm keep}$ by a plus sign: it comes from a separate reverse-triangle estimate.  Thus the policy transition occurs in the explicit bracket $[e_{\rm keep},e_{\rm drop}]$, whose width is determined only by the unshifted row/anchor geometry. The two bounds are sufficient conditions on their respective sides; no upper bound on the bracket width is proved here, and its narrowness is verified empirically on the single controlled $3\times2$ instance reported in \cref{sec:results} rather than in general.
+\end{proposition}
+\begin{proof}
+Use
+\[
+ |\hat\beta-2^e\hat a^Tc_0|+\|x-2^ec_0\|_2
+ \le |\hat\beta|+\|x\|_2+2^eK
+\]
+for the sufficient-preservation statement and the reverse triangle inequalities
+\[
+ |\hat\beta-2^e\hat a^Tc_0|+\|x-2^ec_0\|_2
+ \ge 2^eK-|\hat\beta|-\|x\|_2
+\]
+for guaranteed gate failure.
+\end{proof}
+\begin{remark}
+This effect is distinct from the deterministic-unique quality quantity $\eta_x$.  The 154 large affine-translation diagnostics in the property battery are dominated by inconsistent systems, so their representation sensitivity is governed by the contradiction-policy scale above, not by the $\eta_x$ acceptance threshold.
+\end{remark}
+
+\subsection{An a-posteriori distance envelope}
+Let $Q\in\R^{n\times r}$ denote the stored normal basis in column convention (the C implementation stores its transpose), let
+\[
+G=Q^TQ=I+E,\qquad \eta_Q=\|E\|_F<1,
+\]
+and let $P$ be the exact orthogonal projector onto the \emph{computed} subspace $\operatorname{span}Q$. The implementation evaluates the certificate-critical two-pass projection in matrix form, so in exact arithmetic its residual is
+\[
+\widehat g=(I-QQ^T)^2a.
+\]
+
+\begin{lemma}[Orthogonality-defect envelope]\label{lem:orth-envelope}
+For a normalized row $\|a\|_2=1$ and full-column-rank $Q$,
+\[
+\left|\|\widehat g\|_2-\|(I-P)a\|_2\right|
+\le
+\|Q^TQ-I\|_2^2
+\le \eta_Q^2.
+\]
+Moreover,
+\[
+\left\|(I-QQ^T)^2-(I-P)\right\|_2
+=
+\|Q^TQ-I\|_2^2.
+\]
+\end{lemma}
+
+\begin{proof}
+Take a thin singular-value decomposition $Q=U\Sigma V^T$. Then $P=UU^T$, while
+\[
+QQ^T=U\Sigma^2U^T.
+\]
+On $\operatorname{span}U$, the operator difference is
+\[
+(I-QQ^T)^2-(I-P)
+=U(I-\Sigma^2)^2U^T,
+\]
+and it vanishes on the orthogonal complement. Hence
+\[
+\left\|(I-QQ^T)^2-(I-P)\right\|_2
+=\max_i |1-\sigma_i^2|^2
+=\|Q^TQ-I\|_2^2.
+\]
+The reverse triangle inequality gives the residual-norm bound, and $\|Q^TQ-I\|_2\le\|Q^TQ-I\|_F=\eta_Q$ gives the computable envelope.
+\end{proof}
+
+Thus, before accounting for evaluation rounding, the dependency distance to the computed subspace lies in
+\[
+\mu_{\rm dep}^{(Q)}
+\in
+\left[\max\{0,\widehat\mu-\eta_Q^2\},
+   \widehat\mu+\eta_Q^2\right],
+\qquad \widehat\mu=\|\widehat g\|_2.
+\]
+The distinction in the superscript is important: Lemma~\ref{lem:orth-envelope} certifies distance only to the \emph{computed} $\operatorname{span}Q$. It is therefore insufficient by itself to justify a deterministic increase of the rank of the source matrix. The production router closes that different implication with a separate formation-provenance certificate for every rounded compressed row that is allowed to contribute to deterministic rank growth.
+
+\subsection{Formation provenance for compressed rank evidence}\label{sec:formation-provenance}
+Consider stored compressed rows $\widehat k_i\in\R^n$. For each row the implementation retains an exact-real source trace $k_i^\star\in\operatorname{row}(A)$ determined by the stored binary64 coefficients, together with a computable envelope
+\[
+ \|\widehat k_i-k_i^\star\|_2\le \epsilon_i.
+\]
+For a raw sketch row $\widehat c=\operatorname{fl}(\sum_{i=1}^{\ell}\alpha_i a_i)$, a standard floating-point accumulation bound gives, schematically,
+\[
+ \|\widehat c-c^\star\|_2\le \gamma_{\ell}T+\delta_{\rm sf},
+ \qquad
+ c^\star=\sum_{i=1}^{\ell}\alpha_i a_i\in\operatorname{row}(A),
+\]
+where $T$ is an outward upper bound on the absolute accumulation scale, $\gamma_{\ell}=\ell u/(1-\ell u)$ when $\ell u<1$, and $\delta_{\rm sf}$ covers the implementation's subnormal/absolute-error allowance. The executable checker uses a more conservative operation count than the schematic display. If the computed row is subsequently divided by one common nonzero floating-point scalar $\nu$, we choose $z^\star=c^\star/\nu$. The accuracy of $\nu$ itself is irrelevant to row-space membership; only formation and componentwise division errors enlarge the envelope $\epsilon_i$. This is precisely the error channel that is invisible to a pure orthogonality-defect test when cancellation makes $\|c^\star\|$ tiny.
+
+Let $J=(j_1,\ldots,j_r)$ select $r$ proposed core rows, and let $\widehat K_J$ stack them. The QR factorization is used only to propose $J$ and numerical factors. The following theorem states the independent acceptance condition.
+
+\begin{theorem}[A-posteriori source-rank provenance]\label{thm:rank-provenance}
+Suppose
+\[
+ \widehat K_J^T=QR+F,
+\]
+where $R\in\R^{r\times r}$ is nonsingular, and suppose verified upper bounds satisfy
+\[
+ \|Q^TQ-I\|_2\le\eta<1,\qquad
+ \|F\|_2\le\phi,\qquad
+ \|R^{-1}\|_2\le\chi.
+\]
+Let
+\[
+ \varepsilon_J=\left(\sum_{j\in J}\epsilon_j^2\right)^{1/2}.
+\]
+If
+\begin{equation}\label{eq:rank-provenance-condition}
+ \boxed{\sqrt{1-\eta}>\chi(\phi+\varepsilon_J).}
+\end{equation}
+then $\operatorname{rank}(A)\ge r$.
+\end{theorem}
+
+\begin{proof}
+Set $Y^T=\widehat K_J^TR^{-1}=Q+FR^{-1}$. Since
+$\sigma_{\min}(Q)\ge\sqrt{1-\eta}$,
+\[
+ \sigma_{\min}(Y^T)\ge\sqrt{1-\eta}-\phi\chi.
+\]
+Let $K_J^\star$ stack the corresponding source traces. Because every row of $K_J^\star$ belongs to $\operatorname{row}(A)$ and
+\[
+ \|\widehat K_J-K_J^\star\|_2
+ \le \|\widehat K_J-K_J^\star\|_F
+ \le \varepsilon_J,
+\]
+we have
+\[
+ \|Y^T-K_J^{\star T}R^{-1}\|_2\le\varepsilon_J\chi.
+\]
+Condition~\eqref{eq:rank-provenance-condition} and the singular-value perturbation inequality imply that $K_J^{\star T}R^{-1}$ has positive smallest singular value. Hence $K_J^\star$ has rank $r$, and therefore $\operatorname{rank}(A)\ge r$.
+\end{proof}
+
+The trusted kernel does not assume a documented backward-error constant for QRCP or SVD. QRCP selects a candidate rank and pivot set. The checker recomputes the QR residual and orthogonality defect a posteriori, constructs an approximate triangular inverse $X$, and verifies a residual $\rho\ge\|I-RX\|_2$. When $\rho<1$, the Neumann-series argument gives
+\[
+ \|R^{-1}\|_2\le \frac{\|X\|_2}{1-\rho}
+ \le \frac{\|X\|_F}{1-\rho}.
+\]
+The matrix products used in these checks are widened by standard $\gamma_k$-type floating-point envelopes \citep{Higham2002}. Thus LAPACK kernels remain proposal mechanisms, while the deterministic source-rank promotion is accepted only by Theorem~\ref{thm:rank-provenance}. If the inequality fails, the router either falls back to a source-row proposal subject to the same provenance contract or leaves the rank interval unresolved.
+
+This theorem also explains an asymmetry of held-out validation. Testing fresh source combinations against a candidate span can reveal a \emph{missing} source direction, but it cannot prove that the candidate span contains no extra rounded direction: if $\operatorname{row}(A)\subsetneq\widehat S$, every exact source row still validates against $\widehat S$. Therefore increasing the number of random validators cannot replace formation provenance. Validator rows may still propose growth or reject a compressed candidate, but any validator-induced deterministic rank increase is subject to the same theorem.
+
+The implementation measures the Gram defect incrementally for basis vectors inserted by CGS2. For local dependency decisions this remains a computed-span envelope. Deterministic source-rank promotion from compressed evidence, however, is now a separate proof obligation governed by Theorem~\ref{thm:rank-provenance}. Growth is accepted only when the relevant rank lower bound is source-supported; otherwise the route escalates or remains unresolved.
+
+The diagnostic API retains up to 64 distinct source-row indices that generated grey dependency evidence and exposes the total number of grey events separately. The indices are not themselves a proof of rank; they localize which source constraints prevented a stronger numerical claim.
+
+
+\section{Independently verifiable nearby-status certificates}\label{sec:statuscert}
+The fast numerical semantics above and the stronger certified semantics are intentionally separate. A certificate does not assert that the original floating-point data possess an exact status robustly. Instead it constructs one nearby real system of the declared exact status and supplies an independently checked upper bound on the required perturbation.
+
+For source data $D=(A,b)$, write the augmented source row as $w_i=(a_i,b_i)\in\R^{n+1}$. For $\widetilde D=(\widetilde A,\widetilde b)$ define
+\[
+d_{\rm row}(D,\widetilde D)=\max_i\delta_i,
+\]
+where
+\[
+\delta_i=
+\begin{cases}
+\displaystyle \frac{\|\widetilde w_i-w_i\|_2}{\|w_i\|_2},&\|w_i\|_2>0,\\[1ex]
+0,&w_i=\widetilde w_i=0,\\
++\infty,&w_i=0\text{ and }\widetilde w_i\ne0.
+\end{cases}
+\]
+The relative zero-row convention is explicit. For $S\in\{\mathrm{uniq},\mathrm{inf},\mathrm{inc}\}$ let $\mathcal S_S$ denote the set of real systems of exact status $S$ and define the status-set distance
+\[
+d_S(D)=\inf_{\widetilde D\in\mathcal S_S} d_{\rm row}(D,\widetilde D).
+\]
+The verifier computes an outward upper bound $\eta_S^+$ from the source data and a proof object. Acceptance proves only $d_S(D)\le\eta_S^+$; the radius is not a trusted field of the object and need not be a sharp estimate of $d_S$.
+
+\subsection{Unique-status object}
+Choose distinct source-row indices $J=(j_1,\ldots,j_n)$, positive scales $D=\operatorname{diag}(d_1,\ldots,d_n)$, a permutation matrix $P$, and triangular matrices $L,U$ with nonzero diagonals. In the implementation $P$ is represented by a bijective permutation vector and $L,U$ share one packed matrix, with $\operatorname{diag}(L)=1$ implicit. Define the selected nearby block
+\[
+\widetilde B=DPLU.
+\]
+All nonselected coefficient rows remain unchanged and the right-hand side is defined globally by
+\[
+\widetilde b=\widetilde A x.
+\]
+Since $D,P,L,U$ are nonsingular, $\widetilde A$ has full column rank, while $x$ proves consistency. The nearby system therefore has exactly one solution. The checker validates source indices, positive scales, bijectivity of the permutation, triangular structure, nonzero factor diagonals, and outward rowwise bounds for $DPLU-B$ and the induced right-hand-side change.
+
+\subsection{Infinite-status object}
+Let $z\in\R^n$ be nonzero and let $x\in\R^n$. Define
+\[
+\widetilde a_i=a_i-\frac{a_i^Tz}{\|z\|_2^2}z,
+\qquad
+\widetilde b_i=\widetilde a_i^Tx.
+\]
+Then
+\[
+\widetilde A z=0,
+\qquad
+\widetilde A x=\widetilde b.
+\]
+Thus $x+t z$ is an affine family of distinct exact solutions. For fixed $z$,
+\[
+\|\widetilde a_i-a_i\|_2=\frac{|a_i^Tz|}{\|z\|_2},
+\]
+so the proof object contains only $(x,z)$ and the checker computes the rowwise status radius directly from source inner products, norms, and residuals.
+
+\subsection{Inconsistent-status object}
+Let $y\in\R^m$ and choose $k$ with $y_k\ne0$. Put $h=A^Ty$ and modify only source row $k$:
+\[
+\widetilde a_k=a_k-\frac{h}{y_k},
+\qquad \widetilde a_i=a_i\quad(i\ne k),
+\qquad \widetilde b=b.
+\]
+Then $y^T\widetilde A=0$. If an independently computed interval for $y^Tb$ excludes zero, the nearby system is exactly inconsistent. The changed coefficient row obeys
+\[
+\|\widetilde a_k-a_k\|_2
+\le \frac{\|A^Ty\|_2^+}{|y_k|}.
+\]
+The generator may choose $k$ to reduce the relative radius, but the checker trusts only the supplied data after validation.
+
+
+\subsection{Row-scaling equivariance and exponent-framed verification}\label{sec:certificate-scaling}
+For a nonzero augmented row let
+\[
+ d_i=\|w_i\|_2,\qquad
+ \bar a_i=a_i/d_i,\qquad
+ \bar b_i=b_i/d_i.
+\]
+Writing $D=\operatorname{diag}(d_i)$ on the nonzero-row support gives $\bar A=D^{-1}A$ and $\bar b=D^{-1}b$. The inconsistency generator is permitted to work in these normalized coordinates and to map a proposed left-null vector $\bar y$ back by
+\[
+ y\sim D^{-1}\bar y,
+\]
+where $\sim$ denotes equality up to a nonzero common scalar. The strict checker does not trust this construction; it re-evaluates the source contractions from $(A,b,y)$.
+
+\begin{proposition}[Equivariance of the normalized left-null map]\label{prop:row-scaling-equivariance}
+Let $\Lambda=\operatorname{diag}(\lambda_i)$ with every $\lambda_i\ne0$, and scale the equality rows by $(A',b')=(\Lambda A,\Lambda b)$. Suppose $w_i\ne0$ on the support used by a proof object. If $\bar y$ is a normalized-coordinate proposal for $(A,b)$ and $\bar y'=S\bar y$ for the scaled problem, where $S=\operatorname{diag}(\operatorname{sgn}\lambda_i)$, then the mapped source-coordinate witnesses satisfy
+\[
+ y'=\Lambda^{-1}y
+\]
+up to the same common nonzero scalar. Consequently
+\[
+ A'^Ty'=A^Ty,\qquad y'^Tb'=y^Tb,
+\]
+and, for every usable pivot row $k$,
+\[
+ |y'_k|\,\|(a'_k,b'_k)\|_2
+ =|y_k|\,\|(a_k,b_k)\|_2.
+\]
+Hence the exact one-row constructive inconsistency radius is invariant under independent signed row scalings.
+\end{proposition}
+
+\begin{proof}
+For the scaled data, $d'_i=|\lambda_i|d_i$, so $D'=|\Lambda|D$ and $(\bar A',\bar b')=S(\bar A,\bar b)$. Therefore $\bar y'=S\bar y$ maps to
+\[
+ y'=D'^{-1}\bar y'=D^{-1}|\Lambda|^{-1}S\bar y
+ =\Lambda^{-1}D^{-1}\bar y=\Lambda^{-1}y.
+\]
+The contraction identities and pivot-denominator identity follow immediately.
+\end{proof}
+
+Zero augmented rows are handled separately because the relative metric assigns infinite cost to changing a zero source row. A computed left-null direction supported only on zero augmented rows is algebraically valid but unusable for a finite rowwise certificate; the generator may search another null direction, while acceptance remains entirely with the strict checker.
+
+The checker also avoids forming $y_i a_{ij}$ and $y_i b_i$ at their raw exponents. For an arbitrary integer exponent $E$, define
+\[
+ h_E=2^{-E}A^Ty,\qquad c_E=2^{-E}y^Tb.
+\]
+The positive common factor preserves the contradiction sign, and the row-$k$ relative correction ratio is unchanged:
+\[
+ \frac{\|A^Ty\|_2}{|y_k|\,\|w_k\|_2}
+ =\frac{\|h_E\|_2}{2^{-E}|y_k|\,\|w_k\|_2}.
+\]
+Thus, if directed arithmetic gives $H_E^+\ge\|h_E\|_2$ and a positive lower bound
+\[
+ d_{k,E}^-\le 2^{-E}|y_k|\,\|w_k\|_2,
+\]
+then $H_E^+/d_{k,E}^-$ is an outward upper bound for the same constructive relative radius. The implementation chooses $E$ from mantissa/exponent decompositions and accumulates the scaled contractions with directed rounding. It therefore need not rescale the stored witness itself, which would risk destroying small but significant components in the subnormal range.
+
+\begin{theorem}[Path-independent nearby-status soundness]\label{thm:status-soundness}
+Assume that the independent arithmetic checker returns finite outward bounds for $d_{\rm row}$. If it accepts one of the three proof-object types above and returns $\eta_S^+$, then there exists a real system $(\widetilde A,\widetilde b)$ satisfying
+\[
+d_{\rm row}((A,b),(\widetilde A,\widetilde b))\le\eta_S^+
+\]
+whose exact solution classification is the accepted proof-object type: unique, infinite, or inconsistent.
+\end{theorem}
+
+\begin{proof}
+For the unique object, the selected block $DPLU$ is nonsingular by the accepted structural checks, so $\widetilde A$ has column rank $n$; defining $\widetilde b=\widetilde A x$ gives consistency and hence uniqueness. For the infinite object, the explicit construction gives $\widetilde A z=0$ with $z\ne0$ and $\widetilde A x=\widetilde b$, so $x+t z$ is a family of exact solutions. For the inconsistent object, the one-row correction gives $y^T\widetilde A=0$, while the accepted interval proves $y^Tb\ne0$, which rules out any solution. In all three cases the verifier bounds the exact-real row corrections used in the construction and takes their maximum, yielding $\eta_S^+$.
+\end{proof}
+
+\begin{proposition}[Status-set closure relations at compatible systems]\label{prop:status-closures}
+Let $D=(A,b)$ be compatible with $m\ge n$, and suppose every augmented source row $w_i=(a_i,b_i)$ has positive norm.
+\begin{enumerate}
+\item If $\rank A<m$, then
+\[
+d_{\rm inc}(D)=0.
+\]
+In particular, every tall compatible system has zero distance to inconsistency.
+\item If $\rank A<n$, then
+\[
+d_{\rm uniq}(D)=0.
+\]
+\end{enumerate}
+Consequently, if $D$ has infinitely many exact solutions, then
+\[
+d_{\rm uniq}(D)=d_{\rm inf}(D)=d_{\rm inc}(D)=0.
+\]
+The nonzero-row assumption is only a support condition imposed by the relative zero-row convention in $d_{\rm row}$; part (1) needs it only on the support of one chosen nonzero $y\in\ker A^T$.
+\end{proposition}
+
+\begin{proof}
+For part (1), choose nonzero $y\in\ker A^T$, which exists because $\rank A<m$. Compatibility gives $y^Tb=0$. For any nonzero real $\varepsilon$, keep $A$ fixed and set $\widetilde b=b+\varepsilon y$. Then
+\[
+y^T\widetilde b=\varepsilon\|y\|_2^2\ne0,
+\]
+while $y^TA=0$, so $(A,\widetilde b)$ is inconsistent. Moreover
+\[
+d_{\rm row}((A,b),(A,\widetilde b))
+=\max_{i:y_i\ne0}\frac{|\varepsilon y_i|}{\|w_i\|_2}\longrightarrow0
+\qquad(\varepsilon\to0).
+\]
+Hence $d_{\rm inc}(D)=0$.
+
+For part (2), write $r=\rank A<n$ and choose the minimum-norm solution $x_\star$ of $Ax=b$. Then $x_\star\perp\ker A$. Let $v_1,\ldots,v_{n-r}$ be an orthonormal basis of $\ker A$. Since $m\ge n$,
+\[
+\dim(\operatorname{im}A)^\perp=m-r\ge n-r,
+\]
+so choose orthonormal $u_1,\ldots,u_{n-r}\in(\operatorname{im}A)^\perp$ and define
+\[
+B=\sum_{j=1}^{n-r}u_jv_j^T.
+\]
+Then $Bx_\star=0$. For $\varepsilon\ne0$ set $\widetilde A=A+\varepsilon B$ and $\widetilde b=b$. If $z=z_0+\sum_j c_jv_j$ with $z_0\perp\ker A$, then
+\[
+\widetilde A z=Az_0+\varepsilon\sum_j c_ju_j,
+\]
+where the two terms lie in orthogonal subspaces. Thus $\widetilde A z=0$ implies $Az_0=0$ and every $c_j=0$; injectivity of $A$ on $(\ker A)^\perp$ gives $z_0=0$. Hence $\widetilde A$ has full column rank. Also $\widetilde A x_\star=Ax_\star=b$, so $(\widetilde A,b)$ is exactly unique. Finally,
+\[
+d_{\rm row}((A,b),(\widetilde A,b))
+=\max_i\frac{|\varepsilon|\,\|B_{i,:}\|_2}{\|w_i\|_2}\longrightarrow0.
+\]
+Therefore $d_{\rm uniq}(D)=0$. If $D$ is itself exactly infinite, then $d_{\rm inf}(D)=0$ trivially, and the three equalities follow.
+\end{proof}
+
+Proposition~\ref{prop:status-closures} shows that the earlier inconsistency effect is one side of a broader closure phenomenon. At a compatible full-column-rank tall point, the source already has $d_{\rm uniq}=0$ and also has $d_{\rm inc}=0$, while $d_{\rm inf}$ may remain positive because a rank loss is required. At a compatible rank-deficient point, however, all three exact status-set distances vanish simultaneously. Thus even a hypothetically sharp three-coordinate profile cannot classify an exactly infinite tall system by proximity alone. Positive separation, when it occurs, is stratum dependent: it comes from a compatibility or rank condition that the source violates and that cannot be repaired by arbitrarily small perturbations while remaining on the relevant local rank stratum. We do not promote this observation to a global ``if and only if'' rule, because compatibility is not globally closed across rank-changing strata.
+
+If the checker accepts several proof objects, the audit API reports the profile
+\[
+\boldsymbol\eta^+=(\eta_{\rm uniq}^+,\eta_{\rm inf}^+,\eta_{\rm inc}^+),
+\]
+using $+\infty$ for an unavailable coordinate. Every finite coordinate separately satisfies $d_S(D)\le\eta_S^+$. No theorem in this paper orders the exact distances from the ordering of these upper bounds: different generators can have different slack, and $\arg\min_S\eta_S^+$ is therefore a diagnostic rather than a certified classification rule. This profile removes the router from the decision of which certified alternatives are exposed without pretending that proximity alone makes the three status sets topologically separated.
+
+The executable API retains the legacy pair $(\texttt{certified\_status},\texttt{eta\_status})$ only as a compatibility projection onto the fast router's proposed type. The primary certified output is the three-coordinate profile together with per-type generator and verifier return codes. Thus the router remains outside the trusted core both for proof acceptance and for visibility of competing accepted status objects.
+
+The theorem deliberately excludes the internal router from the trusted mathematical core. Sketches, random probes, direct factorizations, tangent screening, and fallbacks act only as candidate generators in certified mode. A poor candidate may be rejected or may receive a large radius, but it cannot create a false accepted certificate. Fast provenance remains useful for ordinary execution; it is simply a different semantic layer from accepted nearby-status certification.
+
+The current executable checker is a strict-C research prototype using directed rounding and a runtime floating-point-environment probe. The mathematical theorem assumes valid outward bounds; the present binary is not claimed to be a compiler-independent formal proof. A production proof closure should use a validated interval package, MPFR-style directed arithmetic, or a formally verified checker.
+
+\paragraph{Semantic stress test.}
+The reproducibility suite contains a fixed $48\times8$ tall full-column-rank family in which one entry of $b$ is perturbed by a relative scale $\varepsilon$. The all-status audit profile behaves as follows:
+\[
+\begin{array}{c|cc}
+\varepsilon & \eta_{\rm uniq}^+ & \eta_{\rm inc}^+\\
+\hline
+10^{-12} & 7.99\times10^{-13} & 2.38\times10^{-15}\\
+10^{-9}  & 7.99\times10^{-10} & 2.34\times10^{-15}\\
+10^{-6}  & 7.99\times10^{-7}  & 2.10\times10^{-15}\\
+10^{-3}  & 7.98\times10^{-4}  & 2.09\times10^{-15}\\
+10^{-1}  & 7.63\times10^{-2}  & 2.00\times10^{-15}
+\end{array}
+\]
+Thus the unique-status construction tracks the compatibility defect while the inconsistent-status construction remains at the scale of the left-null correction. A separate adversarial witness built from a numerically computed left-null direction is accepted for the unperturbed floating data with $\eta_{\rm inc}^+=1.96\times10^{-15}$.
+
+The suite also contains the mirror case predicted by Proposition~\ref{prop:status-closures}: an exactly compatible $40\times6$ system of exact rank $4$, built from small integer columns with two exact stored-data dependencies. The audit API accepts all three proof-object types and returns
+\[
+(\eta_{\rm uniq}^+,\eta_{\rm inf}^+,\eta_{\rm inc}^+)
+=(1.08\times10^{-15},\ 6.63\times10^{-16},\ 1.75\times10^{-15}).
+\]
+Here the profile is intentionally non-discriminating: the source is exactly infinite, yet unique and inconsistent systems both lie in its metric closure. In this case the first numerical left-null candidate makes the verified interval for $y^Tb$ contain zero; the untrusted generator therefore retries working-precision normalized-$b$ tilts and resubmits them to the unchanged checker. This affects candidate availability only, not the soundness argument. The two stress cases are regression tests for the intended semantics rather than bug demonstrations.
+
+\section{Tangent screening and monotone evidence}\label{sec:secant}
+Let \(T=I-P\) be the tangent projector of the current affine solution set. Choose probe vectors \(\xi_1,\ldots,\xi_s\) and maintain
+\[
+Z=T\Xi,
+\qquad
+\Xi=[\xi_1,\ldots,\xi_s].
+\]
+Each column of \(Z\) belongs to \(R^\orth\), so \(x+z_j\) remains feasible for all accepted constraints.
+
+For an incoming coefficient row \(a\),
+\[
+a^TZ=a^TT\Xi=g^T\Xi.
+\]
+Thus the probe signature sees only the component not explained by the current bundle.
+
+\begin{lemma}[Gaussian idealization]
+If the probe columns are independent standard Gaussian vectors and \(g\neq0\), then each scalar \(g^T\xi_j\) is distributed as \(N(0,\|g\|^2)\), and hence is nonzero almost surely. For \(s\) probes,
+\[
+\frac{\|a^TZ\|^2}{\|g\|^2}\sim\chi_s^2.
+\]
+\end{lemma}
+
+\begin{proof}
+A fixed linear functional applied to a standard Gaussian vector is Gaussian with variance equal to the squared norm of the functional. Independence gives the chi-square sum.
+\end{proof}
+
+For the production choice $s=2$, the idealized Gaussian model also gives a simple anti-concentration scale. If $\|g\|\ge\gamma>0$, then
+\[
+\Pr\{\|a^TZ\|_2\le\tau\}
+\le 1-\exp\!\left(-\frac{\tau^2}{2\gamma^2}\right)
+\le \frac{\tau^2}{2\gamma^2}.
+\]
+This follows because $\chi_2^2$ is exponential with survival function $e^{-t/2}$. The bound is intentionally only an idealized orientation for the screen: the production implementation uses reproducible pseudorandom dense probes rather than a theorem-level Gaussian generator, and no end-to-end failure probability is inferred from it. Correctness is protected by guarded insertion and independent validation.
+
+When a true growth direction \(q=g/\|g\|\) is accepted, the tangent probes are updated by
+\[
+z_j^+=z_j-q(q^Tz_j),
+\]
+followed by normalization or refresh if the probe becomes numerically degenerate. This is a rank-one transport of the screening state induced directly by the bundle update.
+
+\subsection{A monotonicity property behind block screening}
+\begin{proposition}[Redundancy is monotone under compatible growth]\label{prop:monotone}
+Suppose \(a^Tz=\beta\) is redundant with respect to \(\Bun=(R,\ell)\). If \(\Bun^+\) is any compatible extension with \(R\subseteq R^+\), then the row remains redundant with respect to \(\Bun^+\).
+\end{proposition}
+
+\begin{proof}
+Because \(a\in R\subseteq R^+\), coefficient dependence persists. A compatible canonical extension changes the anchor by vectors orthogonal to the previously accepted normal space, so \(a^T(x^+-x)=0\). Hence \(a^Tx^+=a^Tx=\beta\).
+\end{proof}
+
+This proposition justifies screening many rows against a snapshot of the current bundle. The implementation does not screen the entire tail at once because that would lose early saturation when \(\rank P=n\); instead it uses adaptive finite windows.
+
+\section{The information-adaptive solver}\label{sec:solver}
+The exact bundle semantics does not prescribe a particular backend representation. The router stores an orthonormal normal basis \(Q\in\R^{n\times r}\) and canonical anchor \(x\), so that \(P=QQ^T\) is implicit. The router chooses how much information to acquire before deciding whether a row or block changes the state.
+
+\subsection{Guarded unique lane}
+If a tiny initial growth probe shows immediate independent growth, the solver first attempts a square \(n\times n\) core built from the first \(n\) normalized rows. It performs LU with partial pivoting, estimates the reciprocal condition number, and accepts the lane only when the core is safely conditioned. One refinement step is then performed with the same LU factors, followed by a deterministic scan of the full input. The final scan determines whether the candidate is a true unique solution or whether a later row contradicts it.
+
+The LU and condition-estimation components are classical LAPACK operations; no novelty is claimed for them. The bundle contribution is the routing rule: a cheap lane is allowed only when its result can be certified against the original equality system, otherwise the state falls back to a rank-aware route.
+
+\subsection{Rank-aware prefix and tail}
+For larger problems a block prefix of up to \(n\) rows is normalized and canonicalized by QR with column pivoting on the transposed core. Near the declared numerical-rank threshold, a small-core SVD is used to preserve the \textsc{undecidable} state.
+
+If the prefix already has full rank, a deterministic closure scan finishes the problem. Otherwise router attempts the tangent tail. With two tangent probes, each row is screened using its normalized compatibility residual and tangent signature. Obvious redundancy is skipped. A suspicious row is sent to exact guarded bundle insertion. If the insertion lands in the numerical-rank grey band, the tangent lane aborts and returns to the rank-aware core.
+
+For a sufficiently mature prefix and a long tail, the row screen is parallelized in windows. After 32 consecutive redundant rows, up to 2048 rows are evaluated in parallel against the same bundle snapshot. If no candidate is found, the whole window is skipped. If candidates exist, only the first candidate is acted upon; information after that point is considered stale because the bundle may change. This preserves causal early saturation while still exploiting row independence.
+
+\subsection{Sketch correction and validation}
+If tangent screening is unavailable or inconclusive, router builds a sparse compressed remainder. In the current configuration the sketch size is
+\[
+k=d+\left\lfloor\frac d8\right\rfloor+4,
+\]
+where \(d\) is the remaining rank defect, and the sparse sketch uses one contribution per input row together with two independent validation combinations. Sparse embeddings and their dimension/sparsity tradeoffs are classical \citep{ClarksonWoodruff2013,NelsonNguyen2013}; the choice above is an empirical router parameter rather than a new embedding theorem.
+
+A key implementation rule is that neither a sketch row nor a validator is treated as an exact source-row witness merely because its exact-arithmetic formula is a source combination. Floating-point formation may add a component transverse to $\operatorname{row}(A)$, and normalization can amplify that component after cancellation. Each primary sketch row, validation row, and correction-sketch row therefore carries a source-trace formation envelope $\epsilon_i$. These rows may propose a new direction or reject a compressed candidate, but they raise the deterministic source-rank lower bound only after Theorem~\ref{thm:rank-provenance} certifies the selected set. A residual of the compressed model is likewise never promoted directly to source-level inconsistency. Fresh correction sketches are drawn only for the remaining defect. Independent held-out validation is kept separate from the adaptive routing state in light of known fragility of fixed linear sketches under adaptive inputs \citep{HardtWoodruff2013}; its logical role is one-sided, since it can expose missing source directions but cannot rule out an artificial extra direction already present in the candidate span.
+
+\subsection{Orthogonalization kernel}
+For small accepted rank, the router uses two-pass modified Gram--Schmidt style projection. For larger rank (empirically \(r\ge96\)), the same operation is reorganized as two classical matrix-vector projections,
+\[
+g\leftarrow g-Q(Q^Tg),
+\]
+repeated twice. This reduces synchronization and improves vector-kernel efficiency without changing the bundle operation. Reorthogonalized classical Gram--Schmidt and low-synchronization variants are established techniques \citep{CarsonLundMaOktay2024,CarsonMa2024}.
+
+\subsection{Router summary}
+At a high level the production router is:
+\begin{enumerate}
+\item Build a tiny exact growth probe.
+\item If immediate growth is observed, attempt the guarded square unique lane.
+\item If the fast lane is not accepted, build a canonical rank-aware prefix bundle.
+\item If the prefix is full rank, perform deterministic compatibility closure.
+\item Otherwise attempt tangent-tail screening with exact guarded growth and adaptive parallel windows.
+\item If tangent screening is unavailable, inconclusive, or numerically grey, use sparse correction plus independent validation.
+\item Treat QRCP/SVD and compressed cores as rank proposals. Raise the deterministic source-rank lower bound only after the formation-provenance condition of Theorem~\ref{thm:rank-provenance} is verified; otherwise escalate to a source-row proposal under the same contract or preserve an unresolved rank interval.
+\end{enumerate}
+
+The important point is that LU, QRCP, SVD, sketching, and reorthogonalization are subordinate to the same state \(\Bun\). They are mechanisms for answering questions asked by the bundle semantics, not competing central representations.
+
+\section{Parallelism: evidence versus state mutation}\label{sec:parallel}
+Parallelism is introduced only where the mathematics permits independent computation for a fixed bundle.
+
+\subsection{Independent row evidence}
+For fixed \((Q,x,Z)\), quantities such as
+\[
+a_i^Tx,\quad a_i^Tz_1,\quad a_i^Tz_2,\quad \|a_i\|,
+\]
+and residual contributions are independent across rows. They can therefore be accumulated by static OpenMP partitions and deterministic scalar reductions. Sparse-sketch contributions are similarly accumulated into thread-local sketches and merged after the row loop, avoiding atomics in the hot path.
+
+When a row is accepted as genuine growth, however, the bundle changes. Subsequent membership decisions may depend on the new state. The router therefore serializes the growth event itself and invalidates speculative screening after the first candidate in a parallel window.
+
+This yields the implementation principle
+\begin{center}
+\emph{parallelize evidence, serialize information growth.}
+\end{center}
+
+\subsection{Why the bundle butterfly was not retained}
+Because compatible bundle merge is associative and commutative, a balanced reduction tree
+\[
+\Bun_1,\Bun_2,\ldots,\Bun_p
+\longrightarrow
+\Bun_{12},\Bun_{34},\ldots
+\longrightarrow
+\Bun
+\]
+is mathematically valid. This resembles TSQR, whose binary reduction structure is communication-efficient for tall-skinny QR \citep{DemmelEtAl2008}. We implemented a naive affine-bundle analogue during development. It was not competitive: each leaf repeatedly carried or projected information that the sequential information-adaptive state had already learned to avoid. On some late-growth cases the tree was several times slower than the sequential bundle route.
+
+This negative result is useful. Associativity identifies a legal parallel decomposition, but the best computation is not necessarily the most symmetric one. For the present solver, coarse bundle-tree parallelism duplicates too much state work; fine-grained evidence parallelism is better aligned with the information-adaptive objective.
+
+\section{Complexity perspective}
+The exact row insertion costs \(O(nr)\) with an explicit orthonormal normal basis of rank \(r\). A naive full scan can therefore accumulate \(O(mnr)\) work. Tangent screening changes the common case: for a fixed small probe count \(s\), a row can be screened with \(O(sn)\) work, while exact \(O(nr)\) projection is paid only for candidate growth or grey-zone rows. In a rank-deficient or highly redundant tall system, the expensive insertion count is bounded by the number of actual growth events.
+
+The sparse correction route has an input scan plus a small core whose dimension tracks the remaining defect, while the full-rank route reduces the problem to one square core plus deterministic closure. Thus no single asymptotic formula describes every branch. A useful summary is that the router attempts to keep the dominant tall-system work near one or a few passes over \(A\), plus polynomial work in the discovered rank or remaining defect, escalating to more general rank-aware factorization only when the numerical geometry requires it.
+
+This is also an information-theoretic boundary: for arbitrary explicit input, a solver that certifies global consistency cannot in general skip all access to an unseen row, because that row could be replaced by a contradiction. The target is therefore not less than one physical pass in the worst case, but less expensive processing per row.
+
+\section{Experimental methodology}\label{sec:experiments}
+All quantitative results in this section were regenerated with the formation-provenance rank certificate and strengthened certificate generator/checker shipped with this artifact. No earlier wall time is reused. The main performance control is a simple sequential implementation of the same affine-bundle semantics; it is deliberately not LAPACK and should be read as an algorithmic control for the information-adaptive router. Rank/status oracles in the structural and property gates come from exact test construction rather than from \texttt{numpy.linalg.matrix\_rank}.
+
+\subsection{Hardware and software}
+The refreshed run exposes five x86-64 virtual CPUs from an Intel Xeon Platinum 8370C at 2.80 GHz, one NUMA node, and 48 MiB visible L3 cache. The Python environment has Python 3.13.5, NumPy 2.3.5, SciPy 1.17.0, and OpenBLAS 0.3.30. The production router uses four OpenMP threads while BLAS is fixed at one thread to avoid oversubscription. The formation-provenance checker and status checker are compiled separately with \texttt{-frounding-math -fno-fast-math}; the fast router retains the optimized build.
+
+Wall times are medians after warm-up. In the standard gate the router uses four warm-up calls and 11 timed calls, while the sequential bundle reference uses two warm-ups and seven timed calls. The contextual DGELSY table uses end-to-end wrapper time, with two warm-ups and seven timed calls for each method. Application tables use the repetition counts encoded in \path{experiments/rerun_applications.py}. The certified-audit comparison uses nine timed calls per case after two warm-ups for both the preceding checker and the strengthened checker, rebuilt on the same current environment. The JSON result files contain the exact environment and raw per-case outputs.
+
+\subsection{Standard synthetic families}
+The refreshed standard battery contains dense full-rank, grouped/redundant, rank-deficient, inconsistent, and non-Hadamard data families. The synthetic families use normalized Hadamard directions with exactly controlled source rank; \texttt{Digits} uses the scikit-learn digits design matrix after zero-variance columns are removed, leaving $n=61$, with a constructed compatible right-hand side.
+
+\section{Results}\label{sec:results}
+\subsection{Information-adaptive router versus the sequential bundle reference}
+\Cref{tab:standard} reports the current-code performance gate. The geometric mean of the reference/router ratios is 16.11; the median is 23.44. These factors measure the benefit of the current information-adaptive implementation relative to the deliberately simple sequential bundle control, not a universal linear-algebra speedup. The largest factors occur in redundant or rank-deficient tall systems, where the reference repeatedly pays exact insertion costs that the router avoids after it has acquired enough evidence.
+
+\begin{table}[ht]
+\centering
+\caption{Refreshed standard gate after integrating the strengthened certificate checker. Times are milliseconds. ``Reference'' is the simple sequential affine-bundle control, not LAPACK. The inconsistent residual is a diagnostic feasibility residual rather than a solution error.}
+\label{tab:standard}
+\small
+\begin{tabular}{lrrrrrr}
+\toprule
+case & Reference & Router & ratio & class & rank & rel. residual\\
+\midrule
+random64 & 1.610 & 0.458 & 3.51 & unique & 64 & 2.60e-15 \\
+grouped64 & 178.162 & 7.600 & 23.44 & unique & 64 & 1.53e-15 \\
+rankdef64 & 149.725 & 4.031 & 37.14 & infinite & 56 & 2.66e-15 \\
+inconsistent64 & 84.306 & 3.411 & 24.71 & inconsistent & 64 & 1.38e-03 \\
+digits & 3.573 & 0.821 & 4.35 & unique & 61 & 3.13e-15 \\
+random128 & 5.790 & 1.027 & 5.64 & unique & 128 & 2.71e-15 \\
+grouped256 & 1337.911 & 25.569 & 52.33 & unique & 256 & 2.12e-15 \\
+rankdef256 & 1218.522 & 20.464 & 59.55 & infinite & 240 & 3.52e-15 \\
+random512 & 112.301 & 8.877 & 12.65 & unique & 512 & 6.75e-15 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.94\linewidth]{figures/standard_speedup.pdf}
+\caption{Sequential-bundle/reference wall time divided by router wall time in the refreshed standard gate.}
+\label{fig:standard-speedup}
+\end{figure}
+
+\subsection{Parallel scaling}
+To isolate the row-evidence parallel layer from BLAS, the same router binary was run with BLAS fixed at one thread and OpenMP set to 1, 2, and 4 threads on three evidence-heavy cases. \Cref{tab:scaling} reports speedup relative to the one-thread router itself. Four OpenMP threads give a geometric-mean factor 1.567 and median 1.541. This is a modest shared-memory gain rather than a scalability claim; bundle growth and several proof obligations remain serialized.
+
+\begin{table}[ht]
+\centering
+\caption{Refreshed scaling of the router with BLAS fixed at one thread; ratios are relative to the one-OpenMP-thread router.}
+\label{tab:scaling}
+\begin{tabular}{rrr}
+\toprule
+OpenMP threads & geometric mean & median\\
+\midrule
+1 & 1.000 & 1.000 \\
+2 & 1.206 & 1.208 \\
+4 & 1.567 & 1.541 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.72\linewidth]{figures/thread_scaling.pdf}
+\caption{Refreshed aggregate OpenMP scaling of the router evidence layer.}
+\label{fig:thread-scaling}
+\end{figure}
+
+\subsection{Structural stress battery}
+A reproducible 44-instance battery covers $n\in\{32,64,128,256,512\}$, tallness multipliers 4, 16, and 64, full-rank and rank-deficient families, six late-growth prefix ranks, two strongly delayed-growth cases, inconsistency, and row scaling over approximately $10^{-8}$ to $10^8$. Each instance is routed with three independent seeds, for 132 checks. All 132 agree with the construction oracle. The maximum relative residual over compatible cases is 2.756e-15. The complete refreshed table is in \cref{app:stress}.
+
+\subsection{Numerical-rank transition}
+The transition gate fixes 255 source directions in dimension 256 and adds one late row $h_1+\epsilon h_{256}$ while choosing $x_\star\perp h_{256}$. Each level is repeated over 20 seeds. Above the transition, all runs establish unique rank 256. Beginning at $\epsilon=3\times10^{-10}$, the provenance-gated router refuses to turn unresolved compressed evidence into a deterministic lower bound and returns rank interval $[255,256]$ with state \texttt{UNDECIDABLE}. This is a soundness repair, not merely a more conservative routing policy: for every $\epsilon\ne0$ the exact matrix has rank 256, whereas an earlier branch returned the point verdict \texttt{INFINITE}/255 at the smallest tested nonzero perturbations. The new interval therefore removes a false deterministic rank assertion while preserving the information that rank 255 is source-certified.
+
+\begin{table}[ht]
+\centering
+\caption{Refreshed rank-transition gate, 20 seeds per level. ``states'' and ``ranks'' report counts over the 20 runs.}
+\label{tab:rank-transition}
+\small
+\begin{tabular}{lcccc}
+\toprule
+weak direction & states & ranks & supported interval & max residual\\
+\midrule
+$1e-08$ & 20/unique & 20x256 & [256,256] & 1.37e-15 \\
+$3e-09$ & 20/unique & 20x256 & [256,256] & 1.39e-15 \\
+$1e-09$ & 20/unique & 20x256 & [256,256] & 1.77e-15 \\
+$3e-10$ & 20/undecidable & 20x255 & [255,256] & -- \\
+$3e-11$ & 20/undecidable & 20x255 & [255,256] & -- \\
+$1e-12$ & 20/undecidable & 20x255 & [255,256] & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Finite-precision, provenance, and certificate robustness}
+The unchanged equivalence-orbit property battery executes 8,335 checks with no hard failure. It includes the shrunk $4\times2$ cancellation counterexample that originally exposed false compressed rank growth. After the strengthened certificate generator/checker, the earlier generator-quality and extreme-range availability diagnostics are absent; the only recorded non-hard diagnostics are 154 explicitly labelled representation-sensitive affine-translation cases. These cases are no longer an unquantified caveat: Proposition~\ref{prop:translation-threshold} gives the source-row policy threshold explicitly. In the stored battery there are no such diagnostics at the $2^{20}$ translation level; 34 first appear at $2^{30}$, and the dedicated inconsistent sweep records 40/40 at each of $2^{40},2^{50},2^{60}$. A separate controlled $3\times2$ exact-inconsistent gate has analytic threshold $e_*=30.21928\ldots$ and experimentally changes from \texttt{INCONSISTENT} at $e=30$ to \texttt{UNDECIDABLE} at $e=31$, exactly within the derived bracket. The independent telemetry rerun consults the formation guard 3,780 times and escalates 201 times (5.32\%); these counts are unchanged because the fast router source is unchanged by the certificate work.
+
+A second focused battery contains 2,271 certificate-equivalence and range checks with zero failure. It applies independent signed dyadic row scalings through $2^{\pm1000}$ to exact inconsistent systems, compatible and near-compatible tall systems through $2^{\pm500}$, and direct verifier global scales from deep subnormal values through $2^{1020}$. The accepted inconsistency radii have maximum 3.871e-15 and median 9.418e-17. Against a high-precision constructive shadow, the strict/checker radius ratio ranges from 1 to 2; no sampled strict radius is below the shadow value. This is evidence for the implementation, not a formal proof of the C rounding code.
+
+The large-$n$ \texttt{blockprefix} route was separately tested on 1,000 exact systems in dimension 192 across source ranks 4, 8, 32, 96, and 191, including cancellation-heavy constructions. It produced zero hard failure, zero formation escalation, and zero source-QRCP call. The exact rank-1 guard benchmark at $10000\times64$ has median router time 4.324 ms; over its 12 warm/timed invocations, 2 formation escalations were resolved without source QRCP. Thus the stricter source-rank proof does not force the low-rank fast path into repeated source factorization.
+
+The dedicated proof-object regression scripts pass after integration. The strengthened all-status audit is intentionally more expensive than the preceding audit implementation because normalized augmented-row generation and exponent-framed verification add proof work. \Cref{tab:audit-cost} compares both checkers rebuilt on the same environment; the geometric-mean factor is 1.53 and the median is 1.46. This cost belongs to the optional audit API, not to the fast router.
+
+\begin{table}[ht]
+\centering
+\caption{Matched end-to-end certified-audit cost before and after the strengthened row-scaling/range checker. Times are milliseconds; ratio is strengthened/preceding audit. The fast router source is identical in both columns.}
+\label{tab:audit-cost}
+\small
+\begin{tabular}{lrrr}
+\toprule
+case & preceding audit & strengthened audit & ratio\\
+\midrule
+compatible\_full\_128x32 & 1.109 & 1.654 & 1.49 \\
+inconsistent\_rank16\_128x32 & 1.177 & 1.685 & 1.43 \\
+compatible\_full\_512x64 & 10.270 & 17.938 & 1.75 \\
+inconsistent\_rank32\_512x64 & 12.866 & 14.821 & 1.15 \\
+compatible\_full\_2048x64 & 31.274 & 68.616 & 2.19 \\
+inconsistent\_rank32\_2048x64 & 34.232 & 46.371 & 1.35 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Non-Hadamard real-matrix controls}
+The refreshed package retains \texttt{Digits} as a small non-Hadamard packaged-data control, but it also restores the structurally unrelated \texttt{well1033} matrix from the Harwell--Boeing/Matrix Market collection \citep{DavisHu2011}.  The bundled MatrixMarket artifact is $1033\times320$ with 4,732 nonzeros; the dense research solver intentionally densifies it, so this is a numerical-structure control rather than a sparse-performance experiment.  The release now includes both checksummed matrix/RHS artifacts and an independent acquisition script.
+
+On five constructed compatible right-hand sides $b=Ax_\star$, the current router returns deterministic \texttt{UNIQUE}, rank 320 in all five runs.  Relative residuals lie between $1.06\times10^{-15}$ and $1.17\times10^{-15}$ and $\eta_x$ between $2.29\times10^{-16}$ and $2.85\times10^{-16}$.  In the present rerun the median router time is 121.23 ms versus 24.52 ms for one-thread DGELSY, so \texttt{well1033} remains a deliberate performance negative control while preserving machine-scale solution quality.  For the published noisy right-hand side, the router reports incompatibility for the exact-equality task, whereas DGELSY returns a least-squares fit with relative residual $8.61\times10^{-2}$; those timings are not task-equivalent.
+
+\begin{table}[ht]
+\centering
+\caption{Restored non-Hadamard \texttt{well1033} control.  Times are medians in milliseconds from the current packaged rerun. The $\eta_x$ entry is absent for the published right-hand side by the rule of \cref{sec:semantics}: an \textsc{inconsistent} verdict carries no solution witness, so no fixed-solution quality quantity is defined. It is not missing data.}
+\label{tab:well1033}
+\small
+\begin{tabular}{lrrrrl}
+\toprule
+case & Router & DGELSY & router residual & $\eta_x$ & router verdict\\
+\midrule
+constructed $Ax_\star$ & 121.23 & 24.52 & $1.15\times10^{-15}$ & $2.49\times10^{-16}$ & unique/320\\
+published RHS & 0.286 & 27.57 & diagnostic $0.994$ & -- & incompatible\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Contextual comparison with DGELSY}
+We compare a representative subset with LAPACK DGELSY through a benchmark-only wrapper. DGELSY solves a more general minimum-norm least-squares problem, while the router targets equality classification and may terminate after acquiring only the evidence needed for that task. The comparison is therefore contextual. Both numbers in \cref{tab:lapack} are end-to-end wrapper medians with BLAS fixed at one thread; QRCP is not treated as a proof oracle in the router.
+
+\begin{table}[ht]
+\centering
+\caption{Refreshed task-specific DGELSY comparison. Times are milliseconds; ``ratio'' is DGELSY/router. Router times differ from \cref{tab:standard} because this table reports end-to-end wrapper time under a different warm-up protocol (two warm-ups and seven timed calls, against four and eleven); see \cref{sec:experiments}. The two tables should not be compared entry by entry.}
+\label{tab:lapack}
+\small
+\begin{tabular}{lrrrrr}
+\toprule
+case & Router & DGELSY & ratio & router rank & router residual\\
+\midrule
+random64 & 0.361 & 97.795 & 271.3 & 64 & 2.60e-15 \\
+grouped64 & 10.476 & 372.660 & 35.6 & 64 & 1.12e-15 \\
+rankdef64 & 4.342 & 104.522 & 24.1 & 56 & 1.31e-15 \\
+random128 & 1.357 & 535.131 & 394.4 & 128 & 2.71e-15 \\
+rankdef256 & 18.687 & 612.391 & 32.8 & 240 & 3.52e-15 \\
+random512 & 8.722 & 326.942 & 37.5 & 512 & 6.75e-15 \\
+\bottomrule
+\end{tabular}
+\end{table}
+The geometric mean of these contextual ratios is 69.5 and the median is 36.5. The magnitude is workload- and task-dependent and is not a claim that the router replaces DGELSY as a general least-squares solver. In particular, sparse, structured, multi-right-hand-side, accelerator, and distributed-memory regimes require separate implementations and competitors.
+
+\section{Related work and novelty boundary}\label{sec:related}
+The exact affine-bundle state overlaps several classical viewpoints. Recursive pseudoinverse formulas and Greville updates produce minimum-norm solutions incrementally \citep{Greville1960,BenIsraelGreville2003}; orthogonal projection methods represent affine feasibility \citep{Plesnik2007}. Compatibility backward errors go back at least to Rigal--Gaches and Oettli--Prager \citep{RigalGaches1967,OettliPrager1964}. Rank determination under uncertainty and projector perturbation have substantial classical theory \citep{Manteuffel1981,Stewart1977}. These ingredients are not claimed as new.
+
+The nearby-status objects also have clear predecessors. Total least squares treats perturbations of the augmented data $[A\;b]$ and searches for a nearby compatible problem \citep{GolubVanLoan1980}; restoring rank and consistency by projection is classical \citep{VanDerSluisVeltkamp1979}. Right-null and left-null witnesses, distance-to-singularity constructions, and LU/QR/SVD factorizations are standard linear algebra. Verified numerical computation likewise has a long generator/checker tradition. Villard gives rigorous positive certificates for a computed QR factor with rounding errors included \citep{Villard2007}, while Dumas and Kaltofen develop independently verifiable certificates for linear-algebra properties including rank in an exact-algebra setting \citep{DumasKaltofen2014}. The general idea of an untrusted producer followed by an independent checker is therefore prior art. The narrower separation claimed here is not generator/checker architecture by itself, but one common real-perturbation contract covering all three exact equality-system classes---unique, infinite, and inconsistent---with the same source-level verifier semantics and a simultaneous status-proximity profile.
+
+Randomized sketch-and-project methods, sparse subspace embeddings, and random rank evidence are established \citep{GowerRichtarik2015,ClarksonWoodruff2013,NelsonNguyen2013}; fixed linear sketches are also known to be non-robust under adaptive inputs \citep{HardtWoodruff2013}. Communication-avoiding QR, reduction trees, and low-synchronization orthogonalization are mature techniques \citep{DemmelEtAl2008,CarsonLundMaOktay2024,CarsonMa2024}. The router's use of these mechanisms is an implementation choice rather than an isolated novelty claim.
+
+The narrower candidate contribution is architectural and semantic: a canonical affine-bundle equality classifier with compact proof objects for all three exact solution classifications, while a route-independent verifier derives every accepted nearby-status radius directly from source data. The framework keeps fast epistemic status and rank interval, fixed-solution quality $\eta_x$, and the router-independent nearby-status profile $\boldsymbol\eta^+$ separate. We make no priority claim for any individual witness formula or verification primitive, and we do not identify the smallest reported upper bound with a certified exact status.
+
+\section{Limitations}
+\begin{enumerate}
+\item The implementation remains dense. The refreshed evidence contains dense synthetic, Digits, physics-motivated, and restored \texttt{well1033} controls; sparse production use requires a separate sparse implementation and comparison. The \texttt{well1033} matrix is deliberately densified and therefore serves as a numerical-structure/negative-performance control rather than a sparse benchmark.
+\item The local dependency-distance envelope still certifies a two-pass residual relative to the computed $\operatorname{span}Q$ rather than identifying that span with the exact source row space. The separate formation-provenance theorem closes the narrower implication needed for deterministic source-rank promotion from rounded compressed evidence. Its executable proof kernel still relies on conservative IEEE-754/BLAS rounding envelopes; it is not a formal verification of every fast-router instruction.
+\item The two-probe anti-concentration argument is an idealization and production probes are reproducible pseudorandom vectors. Randomized closure remains epistemically labelled and is never silently promoted to a deterministic exact-status theorem.
+\item The executable certificate checker is a strict-C research prototype. Scaled LASSQ-style norms and exponent-framed contractions greatly enlarge the tested binary64 range, but the theorem still assumes valid outward arithmetic bounds. Compiler-independent proof closure requires validated interval arithmetic, MPFR-style directed arithmetic, or formal verification of the checker. We note explicitly which compiler mechanism the contract rests on: GCC does not implement \texttt{\#pragma STDC FENV\_ACCESS} and silently ignores it, so the directed-rounding contract is enforced by \texttt{-frounding-math} alone. Portability of the checker to toolchains providing neither mechanism has not been established. Separate compilation of the fast and strict kernels is likewise necessary but not sufficient, because FTZ/DAZ are runtime MXCSR state that a \texttt{-ffast-math} link can set process-wide at load time; the build now verifies at run time that loading the fast library leaves the floating-point mode and subnormal behaviour unchanged, since otherwise the subnormal-range checks of \cref{sec:statuscert} would pass vacuously.
+\item The three status sets are not topologically separated in the rowwise relative metric. Under Proposition~\ref{prop:status-closures}, an exactly infinite compatible system with nonzero augmented rows satisfies $d_{\rm uniq}=d_{\rm inf}=d_{\rm inc}=0$; even an exactly unique tall compatible system has both $d_{\rm uniq}=0$ and $d_{\rm inc}=0$. Thus no profile coordinate is a general confidence margin for the source status. Nonzero separation is local and stratum dependent, arising only when a compatibility or rank condition relevant to the target class cannot be repaired arbitrarily cheaply. In addition, the reported coordinates are generator-dependent upper bounds, so their ordering is comparative diagnostic information rather than a certified ordering of exact distances.
+\item Certificate generation is not cheap in the current post-hoc implementation. The all-status profile deliberately attempts up to three generators, and normalized augmented-row generation plus independent verification add proof work. In the matched six-case audit comparison the strengthened checker costs 1.15--2.19 times the preceding audit implementation, with geometric-mean factor 1.53. This audit-mode overhead should not be confused with fast-router timing; the fast router source is unchanged by the certificate robustness changes.
+\item The LAPACK comparison is contextual: DGELSY solves a more general least-squares and minimum-norm problem. Specialized sparse, graph, iterative, and structured methods can be much faster.
+\item Exact affine coordinate translations preserve the mathematical solution set, but the fast contradiction policy is intentionally representation-scaled and therefore not affine-translation invariant. Proposition~\ref{prop:translation-threshold} gives explicit per-row sufficient conditions for preservation and guaranteed loss of contradiction evidence along dyadic translation rays. The remaining 154 PBT diagnostics are retained as measurements of this declared policy boundary rather than as unexplained numerical exceptions.
+\item The shared-memory study is limited to the available CPU environment, and the method does not claim asymptotic superiority for generic dense square full-rank systems. The reported performance tables cover overdetermined shapes only. On square and underdetermined shapes the router is slower than the LAPACK reference by factors of roughly $1.2$--$4$ in our measurements, while returning the same classification; the argument in those regimes is the classification output and the rank interval, not wall time.
+\end{enumerate}
+
+\section{Conclusion}
+The affine-bundle representation turns a general linear equality system into a stateful geometric problem: which normal directions are already known, which right-hand-side values are implied, and what new information does an incoming row contribute? The exact answers are encoded by $g=(I-P)a$ and $\rho=\beta-a^Tx$. The numerical router uses this state to acquire information adaptively rather than committing to one global factorization, and parallelizes evidence while serializing information-changing growth.
+
+The central semantic distinction is the separation of fast numerical classification from exact nearby-status certification. The router may use deterministic or randomized mechanisms and may remain unresolved near a rank transition. Certified mode does not attempt to prove every routing branch backward stable. Instead, independent generators attempt three typed objects and a small checker reconstructs nearby exact systems: a full-column-rank compatible system for uniqueness, a compatible system with an explicit nonzero null direction for infinitely many solutions, or an inconsistent system with an explicit left-null contradiction. The checker computes every accepted radius itself and exports the three-coordinate profile without asking the router which type should be visible. Consequently, replacement of an internal sketch, factorization, or route does not alter the soundness theorem as long as accepted proof objects obey the same contract.
+
+The regression and adversarial experiments support this separation. The unchanged equivalence-orbit battery reports 8,335 checks with no hard failure; after the strengthened certificate generator/checker it has no generator-quality or extreme-range availability diagnostic. The 154 explicitly labelled affine-translation cases are now quantitatively tied to the contradiction-policy threshold of Proposition~\ref{prop:translation-threshold}, rather than being retained as an unexplained empirical exception. A separate focused battery has 2,271 checks and zero failure, including independent signed dyadic row scalings through $2^{\pm1000}$ and high-precision shadow checks of the constructive inconsistency radius. The dedicated blockprefix gate reports 1,000/1,000 construction-oracle checks without a hard failure, and the certificate/adversarial/status-profile regression scripts pass. The semantic stress tests preserve both closure effects: the inconsistency radius can remain at machine scale while the unique radius tracks an injected compatibility defect, and an exactly rank-deficient compatible system can accept all three profile coordinates at machine scale simultaneously. The certificate implementation remains an audit prototype; the strengthened audit costs a geometric-mean factor 1.53 over the preceding checker in six matched cases, while the fast router source is unchanged. The immediate engineering work is therefore reuse of already computed factors as untrusted certificate candidates and replacement of the strict-C interval prototype by a stronger validated arithmetic backend. The mathematical and empirical claims remain deliberately restricted to general linear equality classification in the tested dense regimes.
+
+\appendix
+
+\section{Reproducibility protocol}\label{app:repro}
+The accompanying package separates the optimized router from strict proof kernels. Manuscript-facing sources use neutral names. The principal executable materials are:
+\begin{itemize}
+\item \texttt{src/bsolver.c} and \texttt{src/bsolver\_core.c}: fast affine-bundle router and support code;
+\item \texttt{src/formation\_guard.c/.h}: strict a-posteriori formation-provenance checker;
+\item \texttt{src/rounding\_probe.c} and \texttt{src/mxcsr\_probe.c}: build-time checks that directed rounding is distinguishable and that loading the fast library does not alter the process floating-point mode;
+\item \texttt{src/status\_certificate.c/.h} and \texttt{src/certified\_api.c}: independent proof-object checking and audit API;
+\item \texttt{tests/pbt\_equivalence\_orbits.py}: the 8,335-check equivalence-orbit property battery;
+\item \texttt{tests/pbt\_certificate\_equivariance.py}: focused row-scaling and extreme-range certificate property battery;
+\item \texttt{tests/benchmark\_certified\_audit.py}: matched optional-audit timing harness;
+\item \texttt{tests/test\_certified\_api.py}: certified-API regression;
+\item \texttt{tests/test\_verifier\_adversarial.py}: malformed-object regression;
+\item \texttt{tests/test\_status\_profile\_semantics.py}: status-profile semantic regression;
+\item \texttt{experiments/rerun\_numerical\_suite.py}: standard, transition, scaling, guard, structural, and DGELSY reruns;
+\item \texttt{experiments/rerun\_blockprefix\_stress.py}: dedicated large-$n$ route gate;
+\item \texttt{experiments/rerun\_applications.py}: radio, harmonic, and lens reruns;
+\item \texttt{results/}: JSON records for every refreshed manuscript table and property gate.
+\end{itemize}
+The fast library is compiled separately from both strict proof kernels so that \texttt{-ffast-math} cannot leak into certificate-critical arithmetic. The status checker and formation-provenance guard use \texttt{-frounding-math -fno-fast-math}; a runtime probe verifies that upward and downward rounding are distinguishable on the test platform. The inconsistency checker forms scaled dot products through mantissa/exponent decomposition rather than by first rescaling the stored witness, preserving small significant witness components across wide exponent spans.
+
+\section{Full 44-instance structural stress table}\label{app:stress}
+\small
+\begin{longtable}{lrrlrrr}
+\caption{Refreshed structural stress battery. Time is the median over three routing seeds; residual is the maximum compatible-run relative residual for that instance (inconsistent rows show the diagnostic residual).}\label{tab:stress-full}\\
+\toprule
+case & $m$ & $n$ & class & rank & Router ms & rel. residual\\
+\midrule
+\endfirsthead
+\toprule
+case & $m$ & $n$ & class & rank & Router ms & rel. residual\\
+\midrule
+\endhead
+full\_n32\_x4 & 128 & 32 & unique & 32 & 0.062 & 2.98e-16 \\
+def\_n32\_x4 & 128 & 32 & infinite & 28 & 0.165 & 6.69e-16 \\
+full\_n32\_x16 & 512 & 32 & unique & 32 & 0.029 & 3.09e-16 \\
+def\_n32\_x16 & 512 & 32 & infinite & 28 & 0.153 & 7.63e-16 \\
+full\_n32\_x64 & 2048 & 32 & unique & 32 & 0.057 & 2.89e-16 \\
+def\_n32\_x64 & 2048 & 32 & infinite & 28 & 0.289 & 5.86e-16 \\
+full\_n64\_x4 & 256 & 64 & unique & 64 & 0.070 & 2.56e-16 \\
+def\_n64\_x4 & 256 & 64 & infinite & 56 & 0.557 & 8.03e-16 \\
+full\_n64\_x16 & 1024 & 64 & unique & 64 & 0.095 & 2.95e-16 \\
+def\_n64\_x16 & 1024 & 64 & infinite & 56 & 0.823 & 8.04e-16 \\
+full\_n64\_x64 & 4096 & 64 & unique & 64 & 0.225 & 3.11e-16 \\
+def\_n64\_x64 & 4096 & 64 & infinite & 56 & 1.309 & 8.59e-16 \\
+full\_n128\_x4 & 512 & 128 & unique & 128 & 0.260 & 3.29e-16 \\
+def\_n128\_x4 & 512 & 128 & infinite & 112 & 3.050 & 9.27e-16 \\
+full\_n128\_x16 & 2048 & 128 & unique & 128 & 0.384 & 3.49e-16 \\
+def\_n128\_x16 & 2048 & 128 & infinite & 112 & 3.284 & 9.73e-16 \\
+full\_n128\_x64 & 8192 & 128 & unique & 128 & 0.697 & 3.51e-16 \\
+def\_n128\_x64 & 8192 & 128 & infinite & 112 & 4.367 & 1.19e-15 \\
+full\_n256\_x4 & 1024 & 256 & unique & 256 & 2.141 & 4.78e-16 \\
+def\_n256\_x4 & 1024 & 256 & infinite & 224 & 11.825 & 1.14e-15 \\
+full\_n256\_x16 & 4096 & 256 & unique & 256 & 2.518 & 4.77e-16 \\
+def\_n256\_x16 & 4096 & 256 & infinite & 224 & 12.609 & 1.05e-15 \\
+full\_n256\_x64 & 16384 & 256 & unique & 256 & 2.719 & 5.04e-16 \\
+def\_n256\_x64 & 16384 & 256 & infinite & 224 & 18.396 & 1.08e-15 \\
+full\_n512\_x4 & 2048 & 512 & unique & 512 & 6.899 & 6.16e-16 \\
+def\_n512\_x4 & 2048 & 512 & infinite & 448 & 71.256 & 1.30e-15 \\
+full\_n512\_x16 & 8192 & 512 & unique & 512 & 9.567 & 6.33e-16 \\
+def\_n512\_x16 & 8192 & 512 & infinite & 448 & 64.259 & 1.35e-15 \\
+full\_n512\_x64 & 32768 & 512 & unique & 512 & 20.148 & 6.60e-16 \\
+def\_n512\_x64 & 32768 & 512 & infinite & 448 & 87.099 & 1.33e-15 \\
+late\_n128\_r0\_1 & 4096 & 128 & unique & 128 & 3.723 & 2.23e-15 \\
+late\_n128\_r0\_2 & 4096 & 128 & unique & 128 & 3.930 & 2.22e-15 \\
+late\_n128\_r0\_4 & 4096 & 128 & unique & 128 & 3.804 & 2.15e-15 \\
+late\_n128\_r0\_8 & 4096 & 128 & unique & 128 & 3.809 & 2.11e-15 \\
+late\_n128\_r0\_16 & 4096 & 128 & unique & 128 & 4.451 & 2.37e-15 \\
+late\_n128\_r0\_64 & 4096 & 128 & unique & 128 & 3.978 & 2.76e-15 \\
+delayed\_n64 & 8192 & 64 & unique & 64 & 25.027 & 2.22e-16 \\
+delayed\_n128 & 8192 & 128 & unique & 128 & 84.871 & 8.04e-16 \\
+inconsistent\_n64 & 4096 & 64 & inconsistent & 64 & 0.250 & 4.21e-03 \\
+inconsistent\_n128 & 4096 & 128 & inconsistent & 128 & 0.644 & 4.25e-03 \\
+scaled\_n64\_r64 & 4096 & 64 & unique & 64 & 0.238 & 2.88e-16 \\
+scaled\_n64\_r56 & 4096 & 64 & infinite & 56 & 1.369 & 8.86e-16 \\
+scaled\_n128\_r128 & 4096 & 128 & unique & 128 & 0.900 & 4.31e-16 \\
+scaled\_n128\_r112 & 4096 & 128 & infinite & 112 & 4.362 & 9.96e-16 \\
+\bottomrule
+\end{longtable}
+\normalsize
+
+\section{Benchmark construction details}\label{app:construction}
+The standard full-rank and rank-deficient dense families use $A=CH_r$, where $H_r$ contains $r$ orthonormal rows of a normalized Hadamard matrix and $C$ is Gaussian. Grouped systems repeat Hadamard directions, giving exact rank with extreme row redundancy. The 44-instance structural gate instead stores each exact direction at least once and fills remaining rows with fixed small signed combinations of source directions; this keeps the oracle construction-based while avoiding a numerical-rank oracle. Late-growth tests delay previously unseen directions; row-scaled tests multiply each row and corresponding right-hand side by an independent factor log-uniform over approximately $[10^{-8},10^8]$.
+
+The rank-transition family fixes 255 Hadamard directions in dimension 256 and inserts $h_1+\epsilon h_{256}$ late in the stream. The true solution is projected to $h_{256}^\perp$, so the compatibility channel alone cannot reveal the weak direction. The blockprefix stress uses exact integer factorizations $A=UV$ with prescribed rank and additional cancellation-heavy row combinations; its oracle is the construction of $U$ and $V$.
+
+\section{Implementation thresholds and policy constants}\label{app:thresholds}
+The following constants describe the current implementation numerical policy and should not be interpreted as universal problem constants:
+\begin{itemize}
+\item base compatibility tolerance: approximately $2\times10^{-10}$;
+\item normalized dependency-distance policy: resolved growth only above $\tau_g=10^{-9}$, resolved dependence only below $\tau_d=10^{-13}$, after widening by the distance envelope;
+\item local SVD arbiter for a candidate contradiction: dependence below a relative smallest-singular-value ratio of $10^{-14}$, resolved growth above $10^{-9}$, otherwise unresolved;
+\item deterministic-unique rowwise mixed-$2$-norm quality bound: $\eta_x\le10^{-14}$;
+\item square-LU lane reciprocal condition gate: $10^{-8}$;
+\item the certificate-critical projection is two-pass matrix-form CGS2; at about $r=96$ the implementation switches from explicit coefficient loops to the BLAS matrix-vector backend, not to a different mathematical operator;
+\item tangent tail uses two probes and two independent validators;
+\item adaptive parallel window activates after 32 consecutive redundant rows, with a window of up to 2048 rows;
+\item sparse correction core size $k=d+\lfloor d/8\rfloor+4$ with one sparse contribution per input row and two validation combinations.
+\end{itemize}
+The rank thresholds were calibrated against explicit rank-transition families to create a deliberate no-claim region between resolved dependence and resolved growth. The implementation expands that region by the measured orthogonality-defect envelope rather than treating the scalar projection residual as exact. These numerical-policy constants remain implementation parameters rather than properties of the underlying exact bundle.
+
+\section{Why the solver is called competitive rather than universally superior}\label{app:competitive}
+The word \emph{competitive} is used in a restricted, task-specific sense. On the refreshed dense tall equality-classification workloads the router reaches compatible residuals near machine precision and often has lower wall time than the tested general DGELSY call. This does not establish universal superiority: DGELSY solves a more general minimum-norm least-squares problem, and specialized sparse, graph, iterative, GPU, multiple-right-hand-side, and distributed methods can exploit structure that the present dense prototype ignores. The main claim remains the affine-bundle semantics and the usefulness of information-adaptive, provenance-checked computation.
+
+\section{Astrophysical validation benchmarks}\label{app:astro}
+All matrices in this section are generated by \texttt{experiments/rerun\_applications.py} in the refreshed artifact. These are validation benchmarks for the linear kernel, not claims that the dense prototype is a production application solver.
+
+\subsection{Radio-interferometric phase calibration}
+For antenna phases $\varphi_i$, each baseline gives $\varphi_i-\varphi_j=d_{ij}$ after a known sky phase is removed \citep{finlay2023tabascal}. The refreshed construction uses one equation for every unordered baseline. A connected $N$-antenna array has rank $N-1$ because of the global phase gauge; one reference equation makes the system unique; two disconnected components give rank $N-2$; duplicating a baseline with a perturbed right-hand side creates an exact contradiction. The router recovered all six construction oracles in \cref{tab:astro-radio} without graph metadata.
+
+\begin{table}[ht]
+\centering
+\caption{Refreshed radio phase-calibration validation. DGELSY is omitted for the two $N=256$ rows to keep this section a semantic validation rather than a dense-factorization stress test.}
+\label{tab:astro-radio}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Case & $m\times n$ & Router ms & DGELSY ms & Router verdict\\
+\midrule
+N64\_gauge & $2016\times64$ & 0.947 & 3.087 & infinite / 63 \\
+N64\_reference & $2017\times64$ & 1.037 & 3.882 & unique / 64 \\
+N128\_gauge & $8128\times128$ & 4.954 & 47.778 & infinite / 127 \\
+N128\_disconnected & $4032\times128$ & 6.248 & 28.162 & infinite / 126 \\
+N256\_gauge & $32640\times256$ & 26.268 & -- & infinite / 255 \\
+N256\_inconsistent & $32641\times256$ & 28.142 & -- & inconsistent / 255 \\
+\bottomrule
+\end{tabular}
+\end{table}
+A specialized graph algorithm should be far preferable in production because it works on the edge representation and never materializes the dense incidence matrix. The radio family is therefore a structural negative control for the scope of the method even though no stale graph timing is retained.
+
+\subsection{Irregular spherical-harmonic recovery}
+For real spherical harmonics through bandlimit $L$, the coefficient dimension is $n=(L+1)^2$. Full-sky samples use independent uniform azimuth and uniform $\cos\theta$. Putting all samples on the equator gives the exact functional rank $1+2L$: for each azimuthal order only one sine/cosine dependence survives as an independent sampled function. The router returns ranks 15, 23, and 31 for $L=7,11,15$, respectively, while the full-sky cases are unique.
+
+\begin{table}[ht]
+\centering
+\caption{Refreshed real spherical-harmonic validation. ``Global'' is the provenance-gated global-sketch/QR branch; DGELSY is contextual.}
+\label{tab:astro-harm}
+\small
+\begin{tabular}{lrrrrrr}
+\toprule
+Case & $m\times n$ & Router ms & Global ms & DGELSY ms & rank & Router residual\\
+\midrule
+$L=7$ full & $4096\times64$ & 1.880 & 1.545 & 10.584 & 64 & 7.77e-16 \\
+$L=7$ equator & $4096\times64$ & 0.817 & 1.031 & 11.136 & 15 & 4.53e-16 \\
+$L=11$ full & $8192\times144$ & 9.685 & 8.630 & 101.859 & 144 & 1.06e-15 \\
+$L=11$ equator & $8192\times144$ & 3.524 & 4.767 & 125.503 & 23 & 5.57e-16 \\
+$L=15$ full & $16384\times256$ & 33.590 & 29.821 & 642.222 & 256 & 1.24e-15 \\
+$L=15$ equator & $16384\times256$ & 12.059 & 13.301 & 681.435 & 31 & 5.11e-16 \\
+\bottomrule
+\end{tabular}
+\end{table}
+For the fixed $L=15$ full-sky matrix, 12 independent row permutations all return \texttt{UNIQUE}/256; their residuals range from 1.23e-15 to 1.40e-15. Thus the refreshed gate preserves the architectural separation between rank/status evidence and solution-quality certification.
+
+\subsection{Semi-linear strong-lens source inversion}
+For a fixed lens model, pixelized source recovery is a linear problem in the semi-linear method \citep{warren2003semilinear}. The refreshed generator maps image coordinates through an SIS-like rule $\beta=\theta-\theta_E\theta/|\theta|$ with $\theta_E=0.38$, applies bilinear interpolation on a regular source grid, and convolves each source-pixel response with a Gaussian PSF of width 0.75 image pixels. Noise-free right-hand sides are constructed as $b=Ax_\star$. These cases validate the equality kernel only; observational inference normally requires noise models and regularization.
+
+\begin{table}[ht]
+\centering
+\caption{Refreshed noise-free semi-linear lens validation. Normal equations are a solution-only full-rank comparator and are not used as a status oracle.}
+\label{tab:astro-lens}
+\small
+\begin{tabular}{lrrrrrr}
+\toprule
+Case & $m\times n$ & Router & Global & DGELSY & Normal eq. & Router residual\\
+\midrule
+8x8\_source & $4096\times64$ & 1.209 & 1.294 & 10.026 & 0.864 & 1.38e-15 \\
+12x12\_source & $4096\times144$ & 4.588 & 6.180 & 35.452 & 3.042 & 1.54e-15 \\
+16x16\_source & $9216\times256$ & 14.535 & 22.651 & 245.149 & 19.004 & 2.02e-15 \\
+\bottomrule
+\end{tabular}
+\end{table}
+All three lens systems return \texttt{UNIQUE} with the constructed rank. On the fixed $12\times12$ source case, 12 independent row permutations preserve \texttt{UNIQUE}/144 and give residuals from 1.39e-15 to 2.50e-15. The normal-equation timings are included only to show the cost of a narrow full-rank solution path; squaring the condition number makes them unsuitable as a general rank/status reference.
+
+\subsection{Scope of the refreshed application evidence}
+The three application families jointly cover exact graph gauges and contradictions, analytic functional rank collapse, irregular dense full-rank sampling, and interpolation/PSF matrices. All 15 fixed application cases pass their construction-based semantic oracle, as do the 24 row-permutation checks reported above. No application timing from an earlier hardware run is carried into these tables. The evidence therefore supports robustness of the current provenance/certificate contract on these dense test families, not universal application-level performance dominance.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+\end{document}

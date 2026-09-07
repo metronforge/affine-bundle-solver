@@ -1,0 +1,7 @@
+# Runtime and test dependencies.
+# SciPy is required not only for tests: build.sh locates the OpenBLAS shared
+# library that ships inside the SciPy wheel and links the router against it.
+numpy>=1.24
+scipy>=1.10
+mpmath>=1.3
+threadpoolctl>=3.1

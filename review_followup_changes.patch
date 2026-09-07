@@ -1,0 +1,233 @@
+--- a/paper.tex
++++ b/paper.tex
+@@ -200,7 +200,7 @@
+ \|\Delta a_i\|_2\le\eta\|a_i\|_2,
+ \qquad |\Delta b_i|\le\eta|b_i|,
+ \]
+-by Cauchy--Schwarz with equality attained by a coefficient correction parallel to $x$. This quantity is not a componentwise Oettli--Prager bound and is not identified with the exact-status radius introduced below. The public implementation exports a deterministic unique result only after the final source-level closure path satisfies the declared quality threshold $\eta_x\le10^{-14}$; otherwise it returns an unresolved status. For unresolved outputs no unique solution witness is asserted and the solution-quality diagnostics are NaN.
++by Cauchy--Schwarz with equality attained by a coefficient correction parallel to $x$. This quantity is not a componentwise Oettli--Prager bound and is not identified with the exact-status radius introduced below. The public implementation exports a deterministic unique result only after the final source-level closure path satisfies the declared quality threshold $\eta_x\le10^{-14}$; otherwise it returns an unresolved status. For unresolved outputs no unique solution witness is asserted and the solution-quality diagnostics are NaN.  The same absence rule applies to \textsc{inconsistent}: an incompatibility verdict has no solution witness, so the public meta API exports the solution/reference-solution error field as NaN (while a residual-style incompatibility diagnostic may remain finite).
+ 
+ The numerical labels \textsc{infinite} and \textsc{inconsistent} should therefore be read as underdetermined and incompatible under the declared finite-precision policy unless an independent exact-status proof object is also accepted. Randomized rank closure obeys the a-priori dimensional upper bound $r_+\le\min(m,n)$. A compatibility residual becomes contradiction evidence only after dependence has itself been resolved, and compressed or sketched residuals may reject a candidate or trigger escalation but are not promoted directly to source-level inconsistency.
+ 
+@@ -221,15 +221,19 @@
+ \[
+  K=|\hat a^Tc_0|+\|c_0\|_2,\qquad B_0=1+|\hat\beta|+\|x\|_2.
+ \]
+-If
++The two sides of the transition are intentionally asymmetric.  Define
+ \[
+- 2^eK<|\rho|/t_c-B_0,
++ S_{\rm keep}=\frac{|\rho|/t_c-B_0}{K},
++ \qquad
++ S_{\rm drop}=\frac{|\rho|/t_c-1+|\hat\beta|+\|x\|_2}{K}.
+ \]
+-then the contradiction gate is guaranteed to remain active.  Conversely, if
++Whenever the corresponding numerators are positive,
+ \[
+- 2^eK\ge |\rho|/t_c-1+|\hat\beta|+\|x\|_2,
++ e_{\rm keep}=\log_2 S_{\rm keep},
++ \qquad
++ e_{\rm drop}=\log_2 S_{\rm drop}.
+ \]
+-then the gate is guaranteed not to fire.  Thus, whenever the right-hand sides are positive, the policy transition occurs in an explicit logarithmic bracket of width determined only by the unshifted row/anchor geometry.
++If $2^e<S_{\rm keep}$, equivalently $e<e_{\rm keep}$, then the contradiction gate is guaranteed to remain active.  Conversely, if $2^e\ge S_{\rm drop}$, equivalently $e\ge e_{\rm drop}$, then the gate is guaranteed not to fire.  Note that $S_{\rm drop}$ is \emph{not} obtained by replacing the minus sign in $S_{\rm keep}$ by a plus sign: it comes from a separate reverse-triangle estimate.  Thus the policy transition occurs in the explicit bracket $[e_{\rm keep},e_{\rm drop}]$, whose width is determined only by the unshifted row/anchor geometry.
+ \end{proposition}
+ \begin{proof}
+ Use
+--- a/src/bsolver.c
++++ b/src/bsolver.c
+@@ -829,11 +829,14 @@
+     else if(r.accepted_random){lo=r.rank;hi=(m<n?m:n);}
+     else{lo=r.rank;hi=r.rank;}
+     out[0]=status;out[1]=certainty;out[2]=r.rank;out[3]=lo;out[4]=hi;
+-    /* An unresolved status intentionally exports no solution witness.  A
+-       deterministic UNIQUE result is accepted only after a rowwise mixed-2-norm
+-       fixed-solution quality certificate has been computed; out[10] is therefore
+-       finite for deterministic UNIQUE and NaN when no such witness is claimed. */
+-    out[5]=(status==4?NAN:r.relres);out[6]=(status==4?NAN:r.relx);
++    /* INCONSISTENT and UNDECIDABLE statuses export no solution witness.
++       out[5] may still carry a residual diagnostic for INCONSISTENT, but out[6]
++       is a solution/reference-solution error and is therefore semantically absent
++       for both statuses.  A deterministic UNIQUE result is accepted only after a
++       rowwise mixed-2-norm fixed-solution quality certificate has been computed;
++       out[10] is finite only when that witness is actually claimed. */
++    out[5]=(status==4?NAN:r.relres);
++    out[6]=((status==3||status==4)?NAN:r.relx);
+     out[7]=r.sec;out[8]=r.fallback;out[9]=r.cls;
+     out[10]=(certainty==1 && status==1 && g_last_berr_valid)?g_last_berr:NAN;
+ }
+--- a/experiments/affine_translation_policy_gate.py
++++ b/experiments/affine_translation_policy_gate.py
+@@ -36,8 +36,10 @@
+ B0=1+abs(beta)+np.linalg.norm(x)
+ # If 2^e K < |rho|/tc-B0, contradiction is guaranteed to survive the policy gate.
+ # If 2^e K >= |rho|/tc-1+|beta|+||x||, the gate is guaranteed not to fire.
+-preserve_rhs=(abs(rho)/tc - B0)/K
+-fail_rhs=(abs(rho)/tc - 1 + abs(beta)+np.linalg.norm(x))/K
++preserve_numerator=abs(rho)/tc - B0
++fail_numerator=abs(rho)/tc - 1 + abs(beta)+np.linalg.norm(x)
++preserve_rhs=preserve_numerator/K
++fail_rhs=fail_numerator/K
+ preserve_e=math.log2(preserve_rhs)
+ fail_e=math.log2(fail_rhs)
+ rows=[]
+@@ -45,6 +47,10 @@
+     c=np.ldexp(c0,e); bt=b-A@c; xt=x-c
+     rows.append({'exp':e,'scale':float(2.0**e),'router':router(A,bt,xt)})
+ out={'tc':tc,'rho':float(rho),'K':float(K),'B0':float(B0),
++     'sufficient_preservation_scale_formula':'(|rho|/tc - B0)/K',
++     'guaranteed_gate_failure_scale_formula':'(|rho|/tc - 1 + |beta| + ||x||_2)/K',
++     'sufficient_preservation_numerator':float(preserve_numerator),
++     'guaranteed_gate_failure_numerator':float(fail_numerator),
+      'sufficient_preservation_log2_bound':preserve_e,
+      'guaranteed_gate_failure_log2_bound':fail_e,
+      'rows':rows}
+--- a/experiments/rerun_well1033.py
++++ b/experiments/rerun_well1033.py
+@@ -26,7 +26,8 @@
+         ts.append(time.perf_counter()-t); outs.append(o.copy())
+     k=int(np.argsort(ts)[len(ts)//2]); o=outs[k]
+     return {'ms':1000*ts[k],'status':int(o[0]),'certainty':int(o[1]),'rank':int(o[2]),
+-            'lo':int(o[3]),'hi':int(o[4]),'rr':float(o[5]),'rx':float(o[6]),
++            'lo':int(o[3]),'hi':int(o[4]),'rr':None if not np.isfinite(o[5]) else float(o[5]),
++            'rx':None if not np.isfinite(o[6]) else float(o[6]),
+             'eta_x':None if not np.isfinite(o[10]) else float(o[10])}
+ 
+ def lap(A,b,reps=5):
+--- a/README.md
++++ b/README.md
+@@ -12,7 +12,7 @@
+ 
+ `|rho| > tc * (1 + |beta| + ||x||)`.
+ 
+-Under `x = y + c`, `beta' = beta - a_hat^T c`, the residual `rho` is unchanged while the right-hand side can grow. The manuscript derives explicit sufficient preservation and guaranteed-loss bounds along dyadic rays. The controlled `3x2` gate predicts the transition at `log2(scale)=30.21928...` and observes `INCONSISTENT` at `2^30` versus `UNDECIDABLE` at `2^31`.
++Under `x = y + c`, `beta' = beta - a_hat^T c`, the residual `rho` is unchanged while the right-hand side can grow. The manuscript derives explicit, asymmetric sufficient-preservation and guaranteed-loss bounds along dyadic rays.  The upper/loss formula comes from a separate reverse-triangle inequality and is written explicitly rather than inferred by sign symmetry. The controlled `3x2` gate predicts the transition at `log2(scale)=30.21928...` and observes `INCONSISTENT` at `2^30` versus `UNDECIDABLE` at `2^31`.
+ 
+ ## Main validation results
+ 
+@@ -106,3 +106,8 @@
+ - `REVIEW_NOTES.md`: concise record of the pre-submission-audit-driven changes in this revision.
+ 
+ The implementation is a dense CPU research prototype. The strict proof kernels are independently checkable numerical code, not formal machine-checked proofs.
++
++
++## Meta-API absence semantics
++
++For `INCONSISTENT` and `UNDECIDABLE`, the router does not claim a solution witness.  Consequently the meta-API solution/reference-solution error field (`out[6]`, reported as `rx` by the review harness) is `NaN`; JSON harnesses serialize it as `null`.  An inconsistency residual diagnostic may still be finite in `out[5]`.
+--- a/FINAL_VALIDATION_REPORT.md
++++ b/FINAL_VALIDATION_REPORT.md
+@@ -2,13 +2,14 @@
+ 
+ ## Scope
+ 
+-This release combines the source-provenance rank certificate with the strengthened nearby-status certificate generator and strict verifier, then incorporates three pre-submission audit findings without changing the C solver core:
++This release combines the source-provenance rank certificate with the strengthened nearby-status certificate generator and strict verifier, then incorporates the pre-submission audit findings.  The numerical routing logic is unchanged; one meta-API export rule is tightened so a semantically absent solution-quality field cannot appear as a huge finite number:
+ 
+ 1. the rank-transition discussion now states explicitly that the repaired `UNDECIDABLE [255,256]` state removes an earlier false deterministic `INFINITE/255` rank claim for a matrix whose exact rank is 256 for every nonzero perturbation;
+ 2. the `well1033` real-matrix control is restored with bundled, checksummed MatrixMarket data plus acquisition and rerun scripts;
+-3. the 154 affine-translation diagnostics are no longer an unquantified caveat: the contradiction-policy threshold is derived per source row and reproduced by a controlled dyadic-translation gate.
++3. the 154 affine-translation diagnostics are no longer an unquantified caveat: the contradiction-policy threshold is derived per source row and reproduced by a controlled dyadic-translation gate;
++4. for `INCONSISTENT` and `UNDECIDABLE`, the meta API now exports `NaN` in the solution/reference-solution error field (`out[6]`), because no solution witness exists.  The inconsistency residual diagnostic in `out[5]` is retained.
+ 
+-All `src/*.c` and `src/*.h` files are byte-identical to the preceding integrated release. The pre-submission revision changes the manuscript, reproducibility assets, and additional experiments only.
++Relative to the preceding pre-submission release, every C/header file is byte-identical except `src/bsolver.c`.  Its only change is the final meta-API export mask for `out[6]`; the routing, rank, certificate, and numerical kernels are unchanged.
+ 
+ ## Property-based validation
+ 
+@@ -30,7 +31,7 @@
+ 
+ `|rho| > tc * (1 + |beta| + ||x||)`.
+ 
+-Under `x=y+c`, `beta'=beta-a_hat^T c`, the exact residual `rho` is invariant while the threshold grows with the coordinate representation. Along `c=2^e c0`, the manuscript derives sufficient preservation and guaranteed gate-loss bounds. In the controlled `3x2` exact-inconsistent example, the analytic bracket is
++Under `x=y+c`, `beta'=beta-a_hat^T c`, the exact residual `rho` is invariant while the threshold grows with the coordinate representation. Along `c=2^e c0`, the manuscript derives two explicit asymmetric bounds.  The sufficient-preservation scale is `(|rho|/tc-B0)/K`; the guaranteed-loss scale is `(|rho|/tc-1+|beta|+||x||)/K`, obtained separately from reverse-triangle inequalities rather than by a sign-symmetric `+B0` substitution.  In the controlled `3x2` exact-inconsistent example, the analytic bracket is
+ 
+ - sufficient-preservation log2 bound: **30.21928094817703**;
+ - guaranteed-gate-loss log2 bound: **30.219280948754108**.
+@@ -119,7 +120,7 @@
+ 
+ ## Certified-audit cost
+ 
+-The previous and strengthened certified checkers were both rebuilt on the same current environment. Across six matched cases, the strengthened all-status audit costs **1.15x-2.19x**, with geometric-mean factor **1.5288x** and median factor **1.4615x**. The fast-router source is unchanged, so this overhead belongs only to optional certificate generation/verification.
++The previous and strengthened certified checkers were both rebuilt on the same current environment. Across six matched cases, the strengthened all-status audit costs **1.15x-2.19x**, with geometric-mean factor **1.5288x** and median factor **1.4615x**. The numerical fast-routing logic is unchanged; the follow-up `out[6]` mask is an export-only API semantic change, so this overhead still belongs only to optional certificate generation/verification.
+ 
+ ## Manuscript validation
+ 
+@@ -129,7 +130,7 @@
+ - New proposition/proof pages, rank-transition discussion, affine-translation robustness text, restored `well1033` section/table, limitations, and bibliography were visually checked for clipping and layout defects.
+ - No working/internal revision labels are used in manuscript-facing text.
+ 
+-The manuscript does not reuse unverifiable real-matrix timing values: the restored `well1033` table is regenerated by the packaged current implementation. Main numerical tables and figures remain those generated from the integrated implementation; the C source is unchanged by this review revision.
++The manuscript does not reuse unverifiable real-matrix timing values: the restored `well1033` table is regenerated by the packaged implementation. Main numerical tables and figures remain those generated from the integrated implementation.  The follow-up C change affects only whether a non-applicable `out[6]` value is exported for statuses without a solution witness; it does not alter those numerical results.
+ 
+ ## Clean-release smoke test
+ 
+@@ -143,6 +144,7 @@
+ - Adversarial verifier regression: **PASS**.
+ - Primary/mirror status semantics: **PASS**.
+ - Controlled affine-translation gate: analytic bracket `30.21928094817703--30.219280948754108`; observed `INCONSISTENT` through `e=30` and `UNDECIDABLE` from `e=31` in the tested range.
++- Meta-API absence regression: `INCONSISTENT` keeps a finite residual diagnostic but exports `NaN` for `out[6]` and `out[10]`: **PASS**.
+ - Bundled `well1033` SHA-256 verification: **PASS** for both matrix and RHS.
+ - Fresh-copy `well1033` rerun: 5/5 constructed compatible RHS cases return deterministic `UNIQUE`, rank 320; residual and `eta_x` ranges reproduce the stored numerical-quality values. Timing varies with the host/run and is not used as an archive-integrity assertion.
+ 
+--- a/REVIEW_NOTES.md
++++ b/REVIEW_NOTES.md
+@@ -36,4 +36,10 @@
+ 
+ ## Validation status
+ 
+-All C and header sources are byte-identical to the preceding integrated release. The unchanged full PBT remains 8,335 checks with 0 hard failures and the focused certificate battery remains 2,271 checks with 0 failures. The review revision adds reproducibility assets and a controlled policy-threshold experiment; it does not alter the solver core.
++The numerical solver core and all certificate kernels remain unchanged.  Relative to the preceding pre-submission release, only `src/bsolver.c` differs, and only in the final meta-API export mask for `out[6]`.  The full PBT remains 8,335 checks with 0 hard failures and the focused certificate battery remains 2,271 checks with 0 failures.
++
++
++## Follow-up review fixes
++
++- The affine-translation proposition now names both logarithmic bounds explicitly: `e_keep = log2((|rho|/tc-B0)/K)` and `e_drop = log2((|rho|/tc-1+|beta|+||x||)/K)`.  The second comes from a separate reverse-triangle bound and is not the naive `(+B0)` counterpart of the first.
++- The router meta API now exports `NaN` for `out[6]` whenever status is `INCONSISTENT` or `UNDECIDABLE`, because no solution witness exists.  The `well1033` JSON harness maps this to `null`; the residual diagnostic `out[5]` remains available for `INCONSISTENT`.
+--- a/MANIFEST_COMPLETE_ARCHIVE.txt
++++ b/MANIFEST_COMPLETE_ARCHIVE.txt
+@@ -11,10 +11,10 @@
+   build_paper.sh            LaTeX/BibTeX build script
+ 
+ REPRODUCIBILITY MATERIALS
+-  tests/                    regression, adversarial, PBT, and audit tests
++  tests/                    regression, adversarial, PBT, audit tests, and meta-API absence regression
+   experiments/              numerical, application, real-matrix, and policy gates
+   data/                     checksummed WELL1033 matrix/RHS and source record
+-  results/                  stored JSON/text results from the validated runs
++  results/                  stored JSON/text results, including full follow-up PBT and well1033 API smoke
+   figures/                  manuscript figures
+   FINAL_VALIDATION_REPORT.md
+   README.md
+@@ -34,6 +34,7 @@
+ 
+ CHANGE RECORD
+   certificate_layer_changes.patch
++  review_followup_changes.patch
+   REVIEW_NOTES.md
+ 
+ INTEGRITY
+--- /dev/null
++++ b/tests/test_meta_api_absent_solution_quality.py
+@@ -0,0 +1,22 @@
++#!/usr/bin/env python3
++import ctypes, math
++from pathlib import Path
++import numpy as np
++
++ROOT=Path(__file__).resolve().parents[1]
++L=ctypes.CDLL(str(ROOT/'libaffine_bundle_solver.so'))
++DP=ctypes.POINTER(ctypes.c_double)
++L.bsolve_router_meta_api.argtypes=[DP,DP,DP,ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.c_ulonglong,ctypes.c_int,DP]
++def p(x): return x.ctypes.data_as(DP)
++
++# Exact inconsistent system: x1=0, x2=0, x1+x2=1.
++A=np.ascontiguousarray([[1.,0.],[0.,1.],[1.,1.]],dtype=float)
++b=np.ascontiguousarray([0.,0.,1.],dtype=float)
++xt=np.zeros(2,dtype=float)
++o=np.zeros(11,dtype=float)
++L.bsolve_router_meta_api(p(A),p(b),p(xt),3,2,1,2,2,777,0,p(o))
++assert int(o[0])==3, o
++assert math.isfinite(float(o[5])), o       # residual diagnostic remains allowed
++assert math.isnan(float(o[6])), o          # no solution witness => no solution error
++assert math.isnan(float(o[10])), o         # no deterministic-unique quality certificate
++print('PASS incompatible meta API exports no solution-quality field')

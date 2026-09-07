@@ -1,0 +1,146 @@
+{
+  "tc": 2e-10,
+  "rho": 0.7071067811865475,
+  "K": 2.82842712474619,
+  "B0": 1.7071067811865475,
+  "sufficient_preservation_scale_formula": "(|rho|/tc - B0)/K",
+  "guaranteed_gate_failure_scale_formula": "(|rho|/tc - 1 + |beta| + ||x||_2)/K",
+  "sufficient_preservation_numerator": 3535533904.2256308,
+  "guaranteed_gate_failure_numerator": 3535533905.639844,
+  "sufficient_preservation_log2_bound": 30.21928094817703,
+  "guaranteed_gate_failure_log2_bound": 30.219280948754108,
+  "rows": [
+    {
+      "exp": 24,
+      "scale": 16777216.0,
+      "router": {
+        "status": 3,
+        "certainty": 1,
+        "rank": 2,
+        "lo": 2,
+        "hi": 2,
+        "relres": 2.433349481672215e-08
+      }
+    },
+    {
+      "exp": 25,
+      "scale": 33554432.0,
+      "router": {
+        "status": 3,
+        "certainty": 1,
+        "rank": 2,
+        "lo": 2,
+        "hi": 2,
+        "relres": 1.2166747287495298e-08
+      }
+    },
+    {
+      "exp": 26,
+      "scale": 67108864.0,
+      "router": {
+        "status": 3,
+        "certainty": 1,
+        "rank": 2,
+        "lo": 2,
+        "hi": 2,
+        "relres": 6.0833736135312055e-09
+      }
+    },
+    {
+      "exp": 27,
+      "scale": 134217728.0,
+      "router": {
+        "status": 3,
+        "certainty": 1,
+        "rank": 2,
+        "lo": 2,
+        "hi": 2,
+        "relres": 3.0416867992114916e-09
+      }
+    },
+    {
+      "exp": 28,
+      "scale": 268435456.0,
+      "router": {
+        "status": 3,
+        "certainty": 1,
+        "rank": 2,
+        "lo": 2,
+        "hi": 2,
+        "relres": 1.5208433977172182e-09
+      }
+    },
+    {
+      "exp": 29,
+      "scale": 536870912.0,
+      "router": {
+        "status": 3,
+        "certainty": 1,
+        "rank": 2,
+        "lo": 2,
+        "hi": 2,
+        "relres": 7.604216983864772e-10
+      }
+    },
+    {
+      "exp": 30,
+      "scale": 1073741824.0,
+      "router": {
+        "status": 3,
+        "certainty": 1,
+        "rank": 2,
+        "lo": 2,
+        "hi": 2,
+        "relres": 3.802108490752056e-10
+      }
+    },
+    {
+      "exp": 31,
+      "scale": 2147483648.0,
+      "router": {
+        "status": 4,
+        "certainty": 3,
+        "rank": 2,
+        "lo": 2,
+        "hi": 2,
+        "relres": null
+      }
+    },
+    {
+      "exp": 32,
+      "scale": 4294967296.0,
+      "router": {
+        "status": 4,
+        "certainty": 3,
+        "rank": 2,
+        "lo": 2,
+        "hi": 2,
+        "relres": null
+      }
+    },
+    {
+      "exp": 33,
+      "scale": 8589934592.0,
+      "router": {
+        "status": 4,
+        "certainty": 3,
+        "rank": 2,
+        "lo": 2,
+        "hi": 2,
+        "relres": null
+      }
+    },
+    {
+      "exp": 34,
+      "scale": 17179869184.0,
+      "router": {
+        "status": 4,
+        "certainty": 3,
+        "rank": 2,
+        "lo": 2,
+        "hi": 2,
+        "relres": null
+      }
+    }
+  ]
+}

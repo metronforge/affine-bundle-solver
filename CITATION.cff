@@ -1,0 +1,50 @@
+cff-version: 1.2.0
+title: >-
+  Affine-Bundle Solvers for General Linear Equality Systems:
+  Independently Verifiable Nearby-Status Certificates and
+  Information-Adaptive Routing
+message: >-
+  If you use this software or refer to its results, please cite
+  the preprint below.
+type: software
+authors:
+  - given-names: Viktor
+    family-names: Mikhalkin
+    # orcid: 'https://orcid.org/0000-0000-0000-0000'   # add if you have one
+repository-code: 'https://github.com/metronforge/affine-bundle-solver'
+abstract: >-
+  A dense solver architecture for real linear equality systems Ax=b that
+  assumes neither consistency, full rank, nor uniqueness. The state is an
+  affine bundle whose canonical coordinates support an exact insertion
+  calculus separating redundancy from contradiction. In finite precision the
+  router reports a status, an epistemic strength, a supported numerical-rank
+  interval, and a fixed-solution quality quantity, leaving rows near a rank
+  transition unresolved rather than forcing a binary decision. A separate
+  strict checker derives outward perturbation bounds from the source data and
+  independently verifies three typed proof objects for exact uniqueness,
+  exact consistency with nonuniqueness, and exact inconsistency.
+keywords:
+  - linear systems
+  - certified computation
+  - numerical rank
+  - consistency classification
+  - affine bundle
+  - certifying algorithms
+  - verified numerical linear algebra
+license: Apache-2.0
+version: 0.1.0
+date-released: '2026-09-07'
+# Uncomment and fill once the preprint and Zenodo archive exist:
+# identifiers:
+#   - type: doi
+#     value: 10.5281/zenodo.XXXXXXX
+#     description: Archived source code
+# preferred-citation:
+#   type: article
+#   title: >-
+#     Affine-Bundle Solvers for General Linear Equality Systems
+#   authors:
+#     - given-names: Viktor
+#       family-names: Mikhalkin
+#   year: 2026
+#   url: 'https://hal.science/hal-XXXXXXX'
