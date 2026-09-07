@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/metronforge/affine-bundle-solver/compare/v0.2.0...v0.2.1) (2026-09-07)
+
+
+### Continuous integration
+
+* modify release workflow for draft releases ([22bdea8](https://github.com/metronforge/affine-bundle-solver/commit/22bdea852147c5b0aaf963d6fed75f2d2c64dc63))
+
 ## [0.2.0](https://github.com/metronforge/affine-bundle-solver/compare/v0.1.0...v0.2.0) (2026-09-07)
 
 
