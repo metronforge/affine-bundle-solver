@@ -17,6 +17,10 @@ jobs:
   build-and-test:
     name: ${{ matrix.cc }} / ${{ matrix.arch_label }}
     runs-on: ubuntu-latest
+    # A matrix entry with required:false must not fail the workflow.  The
+    # `required` key is plain matrix data; GitHub gives it no meaning, so the
+    # behaviour has to be requested explicitly here.
+    continue-on-error: ${{ matrix.required == false }}
     strategy:
       fail-fast: false
       matrix:
@@ -55,7 +59,9 @@ jobs:
         run: |
           sudo apt-get update
           if [ "${{ matrix.cc }}" = "clang" ]; then
-            sudo apt-get install -y clang
+            # libomp-dev is required: the clang package does not ship an
+            # OpenMP runtime, and build.sh passes -fopenmp.
+            sudo apt-get install -y clang libomp-dev
           fi
           ${{ matrix.cc }} --version
 
@@ -88,7 +94,7 @@ jobs:
             ${{ matrix.cc }} -std=c11 -Wall -Wextra -Wshadow \
               -c "$f" -o /dev/null -Isrc 2>&1 || true
           done | grep "warning:" | sed 's/.*warning: //' \
-               | sort | uniq -c | sort -rn || echo "no warnings"
+               | sort | uniq -c | sort -rn || true
           echo "::endgroup::"
 
       - name: Regression tests

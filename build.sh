@@ -5,11 +5,16 @@ PYTHON=${PYTHON:-python3}
 CC=${CC:-gcc}
 # Architecture flags for the fast router.  Default is -march=native for
 # best local performance; override with ARCH_FLAGS="" (or a specific -march)
-# for a portable binary.  Note that -march=native fixes the instruction set
-# to the build machine and enables FMA contraction, so reported wall times
-# and last-bit results of the fast router are build-machine dependent.
-# The strict proof kernels below never use these flags.
-ARCH_FLAGS=${ARCH_FLAGS:--march=native}
+# for a portable binary.  -march=native fixes the instruction set to the build
+# machine and enables FMA contraction, so wall times and last-bit results of
+# the fast router are build-machine dependent.  The strict proof kernels below
+# never use these flags.
+#
+# The expansion uses "-" and not ":-" deliberately: an explicitly empty
+# ARCH_FLAGS must stay empty, whereas ":-" would treat it as unset and
+# silently restore -march=native, making a "portable" build identical to a
+# native one.
+ARCH_FLAGS=${ARCH_FLAGS--march=native}
 OPENBLAS="$($PYTHON - <<'PY'
 import glob, os, scipy
 base=os.path.dirname(scipy.__file__)

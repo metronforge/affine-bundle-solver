@@ -135,13 +135,16 @@ def main() -> int:
     print("bits), wall-clock time.")
     print()
     print(f"  {'case':<24s} {'status':>12s} {'rank':>5s} "
-          f"{'semantic':>9s} {'max |rel diff|':>15s}")
+          f"{'semantic':>9s} {'max |abs diff|':>15s}")
     print("  " + "-" * 72)
 
     divergences = []
-    worst = 0.0
+    worst_abs = 0.0
+    worst_mag = 0.0
 
     for name, A, b, x in cases:
+        case_abs = 0.0
+        case_mag = 0.0
         for seed in seeds:
             oa = run(lib_a, A, b, x, seed)
             ob = run(lib_b, A, b, x, seed)
@@ -150,15 +153,21 @@ def main() -> int:
             if not sem_ok:
                 divergences.append((name, seed, oa.copy(), ob.copy()))
 
+            # Compare residuals in ABSOLUTE terms.  A relative comparison of
+            # two quantities that are both at machine scale (~1e-15) is
+            # meaningless: 1e-15 against 5e-16 is a 50% relative difference
+            # and no difference at all in substance.
             for i in NUMERIC:
                 va, vb = oa[i], ob[i]
                 if np.isfinite(va) and np.isfinite(vb):
-                    denom = max(abs(va), abs(vb), 1e-300)
-                    worst = max(worst, abs(va - vb) / denom)
+                    case_abs = max(case_abs, abs(va - vb))
+                    case_mag = max(case_mag, abs(va), abs(vb))
 
+        worst_abs = max(worst_abs, case_abs)
+        worst_mag = max(worst_mag, case_mag)
         print(f"  {name:<24s} {STATUS.get(int(oa[IDX_STATUS]), '?'):>12s} "
               f"{int(oa[IDX_RANK]):>5d} {'yes' if sem_ok else 'NO':>9s} "
-              f"{worst:>15.3e}")
+              f"{case_abs:>15.3e}")
 
     print()
     if divergences:
@@ -174,7 +183,15 @@ def main() -> int:
         return 1
 
     print(f"semantic agreement on all {len(cases)} cases x {len(seeds)} seeds")
-    print(f"largest relative difference in reported residuals: {worst:.3e}")
+    print(f"largest absolute difference in reported residuals: {worst_abs:.3e}")
+    print(f"largest residual magnitude seen:                   {worst_mag:.3e}")
+    # The magnitude column includes the diagnostic feasibility residual of the
+    # inconsistent cases, which is O(1) by construction and not a solution
+    # error.  What matters is that the DIFFERENCE between builds stays at
+    # machine scale.
+    if worst_abs <= 1e-12:
+        print("differences are at machine scale; the builds agree numerically "
+              "as well as semantically")
     return 0
 
 
