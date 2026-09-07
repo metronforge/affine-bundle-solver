@@ -5,8 +5,6 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# Least privilege by default; the single job that needs to write says so
-# explicitly below.
 permissions:
   contents: read
 
@@ -14,8 +12,6 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     permissions:
-      # Needed to open the release pull request, and to create the tag and
-      # GitHub release once that pull request is merged.
       contents: write
       pull-requests: write
     steps:
@@ -24,6 +20,8 @@ jobs:
         with:
           config-file: .release-please-config.json
           manifest-file: .release-please-manifest.json
+          # ФИКС: Заставляем release-please создавать только черновик (Draft)
+          draft: true
 
       # Everything below runs only on the push that MERGES the release pull
       # request, i.e. when a release was actually created.
@@ -36,10 +34,6 @@ jobs:
           python-version: '3.12'
 
       - name: Verify the released commit builds and reproduces the manuscript
-        # A tag is what Zenodo archives and what a citation points at, so it
-        # should not be created from a commit that has not been checked here.
-        # The full CI already ran on this commit; this is the narrower question
-        # of whether the artifact a reader will download actually works.
         if: ${{ steps.release.outputs.release_created }}
         run: |
           python -m pip install --upgrade pip
@@ -56,5 +50,13 @@ jobs:
         run: |
           git archive --format=tar.gz --prefix="affine-bundle-solver-${TAG}/" \
             -o "affine-bundle-solver-${TAG}.tar.gz" HEAD
-          gh release upload "$TAG" "affine-bundle-solver-${TAG}.tar.gz" \
-            --clobber
+          # Загружаем архив в черновик (это разрешено, так как он еще не immutable)
+          gh release upload "$TAG" "affine-bundle-solver-${TAG}.tar.gz" --clobber
+
+      - name: Publish the release
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.release.outputs.tag_name }}
+        run: |
+          gh release edit "$TAG" --draft=false
