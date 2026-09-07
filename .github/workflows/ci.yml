@@ -189,6 +189,104 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
+  sanitizers:
+    name: ASan + UBSan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Build sanitized libraries
+        run: |
+          chmod +x build_sanitized.sh
+          ./build_sanitized.sh
+      - name: Run the suite under sanitizers
+        env:
+          # LeakSanitizer cannot see through CPython's arena allocator, so its
+          # findings here are the interpreter rather than this code.  ASan's
+          # memory-error checks and UBSan are unaffected and stay on.
+          ASAN_OPTIONS: detect_leaks=0:abort_on_error=0:halt_on_error=0
+          UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=0
+        run: |
+          LIBASAN=$(gcc -print-file-name=libasan.so)
+          fail=0
+          for t in test_certified_api \
+                   test_verifier_adversarial \
+                   test_status_profile_semantics \
+                   test_meta_api_absent_solution_quality \
+                   pbt_certificate_equivariance \
+                   pbt_equivalence_orbits; do
+            echo "::group::$t"
+            LD_PRELOAD=$LIBASAN python tests/$t.py > "san_$t.log" 2>&1 || true
+            n=$(grep -cE "ERROR: AddressSanitizer|runtime error:" "san_$t.log" || true)
+            if [ "$n" -gt 0 ]; then
+              echo "::error::$t: $n sanitizer finding(s)"
+              grep -E "ERROR: AddressSanitizer|runtime error:" "san_$t.log" | sort -u | head -20
+              fail=1
+            else
+              echo "$t: clean"
+            fi
+            echo "::endgroup::"
+          done
+          exit $fail
+      - name: Upload sanitizer logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sanitizer-logs
+          path: san_*.log
+          retention-days: 14
+
+  coverage:
+    name: branch coverage (informational)
+    runs-on: ubuntu-latest
+    # Reported, not enforced.  A threshold would invite writing tests that
+    # move the number rather than tests that check something, which is the
+    # opposite of what the property batteries are for.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Build with coverage instrumentation
+        run: |
+          chmod +x build_coverage.sh
+          ./build_coverage.sh
+      - name: Exercise the suite
+        run: |
+          for t in test_certified_api test_verifier_adversarial \
+                   test_status_profile_semantics \
+                   test_meta_api_absent_solution_quality \
+                   pbt_certificate_equivariance pbt_equivalence_orbits; do
+            python tests/$t.py > /dev/null 2>&1 || true
+          done
+      - name: Report
+        run: |
+          echo "::group::coverage"
+          gcov -b -o . bsolver.cov.o 2>/dev/null | \
+            grep -A3 "bsolver.c" || true
+          gcov -b -o . formation_guard.cov.o 2>/dev/null | \
+            grep -A3 "formation_guard.c" || true
+          echo "::endgroup::"
+      - name: Upload gcov output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-gcov
+          path: "*.gcov"
+          retention-days: 14
+          if-no-files-found: warn
+
   cross-config-consistency:
     name: portable vs native agree
     runs-on: ubuntu-latest
