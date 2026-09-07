@@ -19,6 +19,8 @@
 #include "bsolver_core.c"
 #undef main
 #include <float.h>
+#include <stdint.h>
+#include <string.h>
 
 
 /* Compressed evidence may reject a candidate or trigger source-level escalation,
@@ -33,6 +35,38 @@
    resource exhaustion is never converted into a status verdict. */
 #define BS_FAIL_RESULT(res,tzero) do{ (res).cls=CLS_FAIL; (res).rank=0; \
     (res).relres=NAN; (res).relx=NAN; (res).sec=now_sec()-(tzero); }while(0)
+
+
+/* Finiteness testing under -ffast-math.
+ *
+ * This translation unit is compiled with -ffast-math, which implies
+ * -ffinite-math-only: the compiler is told NaN and infinity cannot occur and
+ * is then free to fold isfinite()/isnan() to a constant.  Measured with GCC
+ * 13 at -O3 -ffast-math, !isfinite(NaN) evaluates to 0 -- every such guard in
+ * this file is dead code.  Clang reports the same situation as
+ * -Wnan-infinity-disabled.
+ *
+ * Inspecting the bit pattern avoids the issue entirely because it performs no
+ * floating-point comparison: an IEEE-754 binary64 value is non-finite exactly
+ * when its 11 exponent bits are all set.
+ *
+ * The consequence of the dead guards was concrete: on input containing NaN or
+ * infinity the router returned UNIQUE rather than refusing.  The certified
+ * layer was unaffected (it is compiled without -ffast-math and correctly
+ * returned an empty accepted-status mask), so no certificate was ever at
+ * risk, but the router's own output was wrong.
+ */
+static inline int bs_nonfinite(double x) {
+    uint64_t u;
+    memcpy(&u, &x, sizeof u);
+    return (int)(((u >> 52) & 0x7FFu) == 0x7FFu);
+}
+
+static int bs_any_nonfinite(const double *v, size_t k) {
+    if (!v) return 0;
+    for (size_t i = 0; i < k; ++i) if (bs_nonfinite(v[i])) return 1;
+    return 0;
+}
 
 static void fill_out(Result r, double*out){
     out[0]=(double)r.cls; out[1]=(double)r.rank; out[2]=(double)r.fallback; out[3]=(double)r.accepted_random;
@@ -787,8 +821,16 @@ static Result solve_router(const double*A,const double*b,const double*xt,int m,i
     }
     return r;
 }
-void bsolve_router_api(const double*A,const double*b,const double*xt,int m,int n,int sp,int qv,int alpha,unsigned long long seed,int full,double*out){fill_out(solve_router(A,b,xt,m,n,sp,qv,alpha,(uint64_t)seed,full),out);}
+void bsolve_router_api(const double*A,const double*b,const double*xt,int m,int n,int sp,int qv,int alpha,unsigned long long seed,int full,double*out){
+    /* Reject non-finite input at the boundary; see bs_nonfinite above for why
+       the internal isfinite() guards cannot do this under -ffast-math. */
+    if(m>0&&n>0&&(bs_any_nonfinite(A,(size_t)m*n)||bs_any_nonfinite(b,(size_t)m))){
+        Result R={0}; BS_FAIL_RESULT(R,now_sec()); fill_out(R,out); return; }
+    fill_out(solve_router(A,b,xt,m,n,sp,qv,alpha,(uint64_t)seed,full),out);}
 void bsolve_router_meta_api(const double*A,const double*b,const double*xt,int m,int n,int sp,int qv,int alpha,unsigned long long seed,int full,double*out){
+    if(m>0&&n>0&&(bs_any_nonfinite(A,(size_t)m*n)||bs_any_nonfinite(b,(size_t)m))){
+        Result R={0}; BS_FAIL_RESULT(R,now_sec()); fill_out(R,out);
+        out[8]=0; out[9]=0; out[10]=(double)NAN; return; }
     grey_reset();g_max_orth_eta=0.0;g_core_rank_lo=g_core_rank_hi=-1;Result r=solve_router(A,b,xt,m,n,sp,qv,alpha,(uint64_t)seed,full);
     int status=(r.cls==CLS_UNIQUE?1:(r.cls==CLS_INFINITE?2:(r.cls==CLS_INCONSISTENT?3:4)));
     int certainty=((r.cls==CLS_UNDECIDABLE||r.cls==CLS_FAIL)?3:(r.accepted_random?2:1));

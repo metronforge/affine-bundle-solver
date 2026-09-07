@@ -31,8 +31,15 @@ $CC -O2 -fPIC -c src/formation_guard.c -o formation_guard.o \
 
 # Fast numerical route.  Sketch/proposal arithmetic may use fast-math, but no
 # source-rank lower bound is trusted until formation_guard.o verifies it.
+# -latomic is required under clang.  For reduction(max:) on a double, clang
+# emits the generic __atomic_compare_exchange / __atomic_load libcalls from
+# libatomic, whereas GCC routes the same construct through libgomp
+# (GOMP_atomic_start/end).  Without it the clang build links but the shared
+# object fails to load with an undefined symbol.  Under GCC the flag is
+# harmless: --as-needed drops the unused dependency.
 $CC -O3 $ARCH_FLAGS -fopenmp -shared -fPIC src/bsolver.c formation_guard.o \
-  -o libaffine_bundle_solver.so -ffast-math "$OPENBLAS" -Wl,-rpath,"$RPATH" -lm
+  -o libaffine_bundle_solver.so -ffast-math "$OPENBLAS" -Wl,-rpath,"$RPATH" \
+  -latomic -lm
 rm -f formation_guard.o
 
 # The certificate checker has a deliberately separate floating-point contract.
