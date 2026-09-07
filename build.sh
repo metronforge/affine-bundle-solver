@@ -37,10 +37,26 @@ $CC -O2 -fPIC -c src/formation_guard.c -o formation_guard.o \
 # (GOMP_atomic_start/end).  Without it the clang build links but the shared
 # object fails to load with an undefined symbol.  Under GCC the flag is
 # harmless: --as-needed drops the unused dependency.
-$CC -O3 $ARCH_FLAGS -fopenmp -shared -fPIC src/bsolver.c formation_guard.o \
-  -o libaffine_bundle_solver.so -ffast-math "$OPENBLAS" -Wl,-rpath,"$RPATH" \
+#
+# Compilation and linking are deliberately SEPARATE steps, and -ffast-math is
+# passed only to the compile step.  When -ffast-math appears on the link line,
+# the driver may add a startup object (crtfastmath.o and equivalents) whose
+# constructor sets the MXCSR FTZ and DAZ bits for the WHOLE PROCESS at load
+# time.  Those bits are runtime state, so they would then also apply to the
+# strict proof kernels running in the same process, flushing to zero exactly
+# the subnormal inputs the certificate battery is built to exercise -- those
+# checks would pass vacuously.
+#
+# This is compiler-dependent and was observed, not assumed: GCC 13 does not
+# add the constructor, clang 18 does.  The mxcsr probe below verifies the
+# resulting library at run time and fails the build if the mode leaks, so a
+# toolchain that behaves differently again cannot slip through silently.
+$CC -O3 $ARCH_FLAGS -fopenmp -fPIC -ffast-math -c src/bsolver.c \
+  -o bsolver.o
+$CC -shared -fopenmp bsolver.o formation_guard.o \
+  -o libaffine_bundle_solver.so "$OPENBLAS" -Wl,-rpath,"$RPATH" \
   -latomic -lm
-rm -f formation_guard.o
+rm -f formation_guard.o bsolver.o
 
 # The certificate checker has a deliberately separate floating-point contract.
 $CC -O2 -frounding-math -fno-fast-math src/rounding_probe.c \
