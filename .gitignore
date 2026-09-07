@@ -24,3 +24,6 @@ venv/
 .vscode/
 .idea/
 .DS_Store
+
+# Manuscript build artifact (built by build_paper.sh, produced in CI)
+paper.pdf
