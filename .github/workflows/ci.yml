@@ -37,15 +37,23 @@ jobs:
             arch: '-march=native'
             arch_label: native
             required: true
-          # clang exercises a different floating-point front end.  The
-          # directed-rounding contract rests on -frounding-math, whose
-          # handling differs between compilers, so this job is the portability
-          # check for the certificate arithmetic.  Not yet verified locally --
-          # keep informational until it has passed once, then flip required.
+          # clang is REQUIRED, not informational.  It exercises a different
+          # floating-point front end, and the manuscript's separation of the
+          # fast router from the strict proof kernels is a claim about
+          # compilers, not a convenience.  Making this job optional would
+          # demote the only check that tests that claim.
+          #
+          # It has already earned its place twice: it caught a missing
+          # libatomic dependency (clang emits __atomic_compare_exchange for
+          # reduction(max:) on a double where GCC uses libgomp), and then the
+          # mxcsr probe caught clang's link-time FTZ/DAZ constructor setting
+          # the process floating-point mode -- which would have made the
+          # subnormal-range certificate checks pass vacuously.  GCC exhibits
+          # neither.
           - cc: clang
             arch: ''
             arch_label: portable
-            required: false
+            required: true
 
     steps:
       - uses: actions/checkout@v4
