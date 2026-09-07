@@ -78,21 +78,64 @@ assert inc.max() / inc.min() < 10.0
 
 # Semantic attack: even the nearly compatible floating data admit a machine-
 # scale inconsistent proof object.  This does not violate soundness; it records
-# the topological degeneracy of distance to inconsistency for tall systems.
+# the topological degeneracy of distance to inconsistency for tall systems
+# (Proposition on status-set closure: d_inc = 0 for a tall compatible system).
+#
+# Candidate quality matters and is not a property of the data.  b0 = A @ x is
+# compatible, so y^T b0 vanishes for an exact left-null y; the verified
+# interval then legitimately straddles zero and the checker refuses.  A
+# candidate is accepted only when the rounding-level residual of y^T b0
+# exceeds the verifier's own error envelope.  Picking an arbitrary basis
+# direction is therefore a coin flip -- measured on one platform only 3 of the
+# 40 left-null basis vectors were accepted, and which 3 depends on the LAPACK
+# build.  That made this assertion environment-dependent.
+#
+# The generator instead aims: among unit vectors of the left null space,
+# |y^T b0| is maximised by the normalised projection of b0 onto that space.
+# This is the strongest available candidate and is deterministic.  The basis
+# directions are kept as a fallback.  The checker is unchanged throughout and
+# decides alone; the search only affects which candidates it is offered.
 Q, _ = np.linalg.qr(A, mode='complete')
-y = arr(Q[:, A.shape[1]])
+Qn = Q[:, A.shape[1]:]
 src = np.sqrt(np.sum(A * A, axis=1) + b0 * b0)
-k = int(np.argmax(np.abs(y) * src))
-w = InconsistentWitness(A.shape[0], ptr(y), k)
+
+proj = Qn @ (Qn.T @ b0)
+proj_norm = float(np.linalg.norm(proj))
+candidates = []
+if proj_norm > 0.0:
+    candidates.append(proj / proj_norm)
+candidates += [Qn[:, j] for j in range(Qn.shape[1])]
+
 lo = ctypes.c_double(); hi = ctypes.c_double(); eta = ctypes.c_double()
-rc = ver.bs_verify_inconsistent(ptr(A), ptr(b0), A.shape[0], A.shape[1],
-                                ctypes.byref(w), ctypes.byref(lo), ctypes.byref(hi), ctypes.byref(eta))
-assert rc == 0, (rc, lo.value, hi.value)
-assert eta.value < 1e-12, eta.value
+accepted = 0
+best_eta = math.inf
+first_rc, first_lo, first_hi = None, None, None
+for y_raw in candidates:
+    y = arr(y_raw)
+    k = int(np.argmax(np.abs(y) * src))
+    w = InconsistentWitness(A.shape[0], ptr(y), k)
+    rc = ver.bs_verify_inconsistent(ptr(A), ptr(b0), A.shape[0], A.shape[1],
+                                    ctypes.byref(w), ctypes.byref(lo),
+                                    ctypes.byref(hi), ctypes.byref(eta))
+    if first_rc is None:
+        first_rc, first_lo, first_hi = rc, lo.value, hi.value
+    if rc == 0:
+        accepted += 1
+        # The soundness question is not whether a candidate is accepted, but
+        # whether an accepted one carries a small radius.  A large radius
+        # would mean the checker certified a distant system.
+        assert eta.value < 1e-12, eta.value
+        best_eta = min(best_eta, eta.value)
+
+assert accepted > 0, (
+    "no left-null candidate produced an accepted inconsistency certificate; "
+    f"||P_null b0|| = {proj_norm:.3e}, best candidate returned rc={first_rc} "
+    f"with interval [{first_lo}, {first_hi}]")
+eta_adversarial = best_eta
 
 for eps, eu, ei in rows:
     print(f'eps={eps:.0e} eta_unique={eu:.3e} eta_inconsistent={ei:.3e}')
-print(f'compatible-adversarial eta_inconsistent={eta.value:.3e}')
+print(f'compatible-adversarial eta_inconsistent={eta_adversarial:.3e} ({accepted}/{len(candidates)} candidates accepted, ||P_null b0||={proj_norm:.2e})')
 print('PRIMARY PASS')
 
 # Mirror case: an exactly compatible tall system with exact rank 4 < n=6.
