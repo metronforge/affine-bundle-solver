@@ -18,9 +18,9 @@
     { "type": "fix",      "section": "Bug fixes" },
     { "type": "perf",     "section": "Performance" },
     { "type": "docs",     "section": "Manuscript and documentation" },
-    { "type": "test",     "section": "Tests" },
-    { "type": "ci",       "section": "Continuous integration" },
-    { "type": "build",    "section": "Build" },
+    { "type": "test",     "section": "Tests", "hidden": true },
+    { "type": "ci",       "section": "Continuous integration", "hidden": true },
+    { "type": "build",    "section": "Build", "hidden": true },
     { "type": "refactor", "section": "Refactoring", "hidden": true },
     { "type": "chore",    "section": "Chores", "hidden": true }
   ],
