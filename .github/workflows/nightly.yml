@@ -1,0 +1,58 @@
+name: nightly
+
+# Coverage is informational: it reports a number, it does not gate anything.
+# Running it on every pull request cost minutes and told nobody anything they
+# acted on, so it runs weekly and on demand instead.
+on:
+  schedule:
+    - cron: '0 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  coverage:
+    name: branch coverage (informational)
+    runs-on: ubuntu-latest
+    # Reported, not enforced.  A threshold would invite writing tests that
+    # move the number rather than tests that check something, which is the
+    # opposite of what the property batteries are for.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Build with coverage instrumentation
+        run: |
+          chmod +x build_coverage.sh
+          ./build_coverage.sh
+      - name: Exercise the suite
+        run: |
+          for t in test_certified_api test_verifier_adversarial \
+                   test_status_profile_semantics \
+                   test_meta_api_absent_solution_quality \
+                   pbt_certificate_equivariance pbt_equivalence_orbits; do
+            python tests/$t.py > /dev/null 2>&1 || true
+          done
+      - name: Report
+        run: |
+          echo "::group::coverage"
+          gcov -b -o . bsolver.cov.o 2>/dev/null | \
+            grep -A3 "bsolver.c" || true
+          gcov -b -o . formation_guard.cov.o 2>/dev/null | \
+            grep -A3 "formation_guard.c" || true
+          echo "::endgroup::"
+      - name: Upload gcov output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-gcov
+          path: "*.gcov"
+          retention-days: 14
+          if-no-files-found: warn
