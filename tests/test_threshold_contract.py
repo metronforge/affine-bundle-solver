@@ -34,8 +34,14 @@ DP = ctypes.POINTER(ctypes.c_double)
 # Values as documented in include/affine_bundle/router.h.
 HEADER_DEP = 1e-13
 HEADER_GROW = 1e-9
+HEADER_QUALITY = 1e-14
 
 lib.abs_thresholds.argtypes = [DP, DP]
+lib.abs_quality_threshold.argtypes = []
+lib.abs_quality_threshold.restype = ctypes.c_double
+lib.bsolve_router_meta_api.argtypes = [
+    DP, DP, DP, ctypes.c_int, ctypes.c_int, ctypes.c_int,
+    ctypes.c_int, ctypes.c_int, ctypes.c_ulonglong, ctypes.c_int, DP]
 lib.abs_stream_create.argtypes = [ctypes.c_int]
 lib.abs_stream_create.restype = ctypes.c_void_p
 lib.abs_stream_destroy.argtypes = [ctypes.c_void_p]
@@ -121,6 +127,66 @@ def main():
                 + ", ".join(NAME.get(v, '?') for v in verdicts))
         print(f"  {eps:>8.0e} " + " ".join(f"{NAME.get(v, '?'):>10s}" for v in verdicts))
 
+    # ------------------------------------------------------------------
+    # The quality threshold.  Unlike the two above it does not decide the
+    # rank; it decides whether a UNIQUE classification keeps its solution
+    # witness.  A UNIQUE that fails on quality comes back as UNDECIDABLE, so
+    # the caller never receives a unique-solution claim resting on a witness
+    # the library would not accept itself.
+    #
+    # The contract is one-directional and that is what is checked: a
+    # deterministic UNIQUE with a finite backward error must be at or below
+    # the threshold.  Nothing is asserted about systems that do not classify
+    # as UNIQUE.
+    # ------------------------------------------------------------------
+    quality = lib.abs_quality_threshold()
+    print()
+    print(f"  quality threshold: header {HEADER_QUALITY:.0e}, "
+          f"library {quality:.0e}")
+    if quality != HEADER_QUALITY:
+        failures.append("header and library disagree on the quality threshold")
+
+    STATUS_UNIQUE, CERTAINTY_DETERMINISTIC = 1, 1
+    IDX_STATUS, IDX_CERTAINTY, IDX_BERR = 0, 1, 10
+
+    # The family matters here.  Well-scaled systems of modest width solve to a
+    # backward error two orders under the threshold, and the assertion below
+    # never fires whatever the library does with it.  Spreading the COLUMN
+    # scales and widening n pushes the error up against the threshold, which
+    # is where the gate is either working or not: with the demotion removed
+    # from the router, the same systems come back as UNIQUE carrying errors of
+    # 1.7e-14 at n=32 and 1.5e-13 at n=384.
+    rng = np.random.default_rng(31337)
+    checked = unique_seen = 0
+    worst = 0.0
+    for n in (32, 64, 128, 192, 256, 384):
+        for _ in range(8):
+            m = n * 6
+            A = rng.standard_normal((m, n)) * (10.0 ** rng.uniform(-3, 3, size=n))
+            x = rng.standard_normal(n)
+            b = A @ x
+            out = np.zeros(11)
+            lib.bsolve_router_meta_api(ptr(A), ptr(b), ptr(x), m, n, 1, 2, 2,
+                                       int(rng.integers(1, 10 ** 9)), 0, ptr(out))
+            checked += 1
+            if (int(out[IDX_STATUS]) == STATUS_UNIQUE
+                    and int(out[IDX_CERTAINTY]) == CERTAINTY_DETERMINISTIC
+                    and np.isfinite(out[IDX_BERR])):
+                unique_seen += 1
+                worst = max(worst, out[IDX_BERR])
+                if out[IDX_BERR] > quality:
+                    failures.append(
+                        f"deterministic UNIQUE with backward error "
+                        f"{out[IDX_BERR]:.3e} above the threshold "
+                        f"{quality:.0e} on a {m}x{n} system")
+
+    print(f"  {checked} systems, {unique_seen} deterministic UNIQUE with a "
+          f"witness, largest backward error {worst:.3e}")
+    if unique_seen == 0:
+        failures.append(
+            "no deterministic UNIQUE was produced, so the quality contract "
+            "was not exercised at all")
+
     print()
     if failures:
         print(f"FAIL ({len(failures)}):")
@@ -128,7 +194,8 @@ def main():
             print(f"  {f}")
         return 1
     print("ok: thresholds match the header, separate the three verdicts, "
-          "and are scale-free")
+          "are scale-free, and every deterministic UNIQUE carries an "
+          "acceptable witness")
     return 0
 
 

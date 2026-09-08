@@ -137,6 +137,45 @@ enum {
 void abs_thresholds(double *dependence, double *growth);
 
 /* ------------------------------------------------------------------------
+ * The solution-quality threshold.
+ *
+ * The two thresholds above decide the RANK.  This one decides whether a
+ * UNIQUE classification is allowed to keep its solution witness, and it is
+ * published for the same reason: it changes which status comes back.
+ *
+ * After a candidate solution x is found, the rowwise mixed-2-norm backward
+ * error is measured,
+ *
+ *     berr = max over rows i of  |a_i . x - b_i|
+ *                                ---------------------------
+ *                                |b_i| + ||a_i||_2 * ||x||_2
+ *
+ * and compared against ABS_QUALITY_THRESHOLD.  Above it, the router does not
+ * return UNIQUE.  It first retries through the trusted source QRCP backend,
+ * and if that still cannot produce an acceptable witness the status becomes
+ * UNDECIDABLE.  So a UNIQUE that fails on quality is reported as a refusal to
+ * decide, not as a poor UNIQUE, and a caller never receives a unique-solution
+ * claim backed by a witness the library itself would not accept.
+ *
+ * The contract this gives the caller:
+ *
+ *     out[ABS_OUT_STATUS] == ABS_STATUS_UNIQUE
+ *       and out[ABS_OUT_CERTAINTY] == ABS_CERTAINTY_DETERMINISTIC
+ *       and out[ABS_OUT_BERR] finite
+ *     implies  out[ABS_OUT_BERR] <= ABS_QUALITY_THRESHOLD
+ *
+ * The denominator makes berr scale-free per row, so the threshold means the
+ * same thing whatever units the system arrives in.
+ *
+ * Note that this is a statement about the WITNESS, not about the distance to
+ * a nearby exact system.  Those distances are the eta profile of
+ * <affine_bundle/certified_api.h> and are bounded independently.
+ * ---------------------------------------------------------------------- */
+#define ABS_QUALITY_THRESHOLD 1e-14
+
+double abs_quality_threshold(void);
+
+/* ------------------------------------------------------------------------
  * Entry points.
  *
  * A and b are read in row-major order, A as m*n doubles and b as m.
