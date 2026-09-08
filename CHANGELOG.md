@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/metronforge/affine-bundle-solver/compare/v0.3.0...v0.3.1) (2026-09-08)
+
+
+### Continuous integration
+
+* close the release pull request computed before the tag existed ([df80cfe](https://github.com/metronforge/affine-bundle-solver/commit/df80cfeb45b2159d69c70f30d8c374d55dfaea57))
+
 ## [0.3.0](https://github.com/metronforge/affine-bundle-solver/compare/v0.2.1...v0.3.0) (2026-09-08)
 
 
