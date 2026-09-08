@@ -113,35 +113,97 @@ if proj_norm > 0.0:
 candidates += [Qn[:, j] for j in range(Qn.shape[1])]
 
 lo = ctypes.c_double(); hi = ctypes.c_double(); eta = ctypes.c_double()
+
+
+def offer(A_, b_, y_raw):
+    """Offer one left-null candidate to the checker and report what it said."""
+    y = arr(y_raw)
+    s_ = np.sqrt(np.sum(A_ * A_, axis=1) + b_ * b_)
+    k = int(np.argmax(np.abs(y) * s_))
+    w = InconsistentWitness(A_.shape[0], ptr(y), k)
+    rc = ver.bs_verify_inconsistent(ptr(A_), ptr(b_), A_.shape[0], A_.shape[1],
+                                    ctypes.byref(w), ctypes.byref(lo),
+                                    ctypes.byref(hi), ctypes.byref(eta))
+    return rc, lo.value, hi.value, eta.value
+
+
+# ---------------------------------------------------------------------------
+# Part one: the degenerate case, asserted one-sidedly.
+#
+# b0 = A @ x is COMPATIBLE, so y^T b0 vanishes for an exact left-null y and is
+# nonzero here only through rounding.  Whether the verified interval clears
+# zero is therefore a property of the machine's arithmetic and not of the
+# library: measured at 5.2e-15 of left-null projection on one platform, 4 of
+# 41 candidates were accepted; at 4.0e-15 on another, none were, and the
+# checker correctly refused because there is nothing to certify.
+#
+# Requiring an acceptance here would assert that rounding noise on this
+# machine exceeds the verifier's own error envelope, which is not a claim the
+# library makes.  What IS invariant, and is asserted, is one-sided: an
+# acceptance must carry a small radius.  A checker that certified a distant
+# system would fail this; a checker that refuses everything would pass it,
+# which is why part two exists.
+# ---------------------------------------------------------------------------
 accepted = 0
 best_eta = math.inf
 first_rc, first_lo, first_hi = None, None, None
 for y_raw in candidates:
-    y = arr(y_raw)
-    k = int(np.argmax(np.abs(y) * src))
-    w = InconsistentWitness(A.shape[0], ptr(y), k)
-    rc = ver.bs_verify_inconsistent(ptr(A), ptr(b0), A.shape[0], A.shape[1],
-                                    ctypes.byref(w), ctypes.byref(lo),
-                                    ctypes.byref(hi), ctypes.byref(eta))
+    rc, l, h, e = offer(A, b0, y_raw)
     if first_rc is None:
-        first_rc, first_lo, first_hi = rc, lo.value, hi.value
+        first_rc, first_lo, first_hi = rc, l, h
     if rc == 0:
         accepted += 1
-        # The soundness question is not whether a candidate is accepted, but
-        # whether an accepted one carries a small radius.  A large radius
-        # would mean the checker certified a distant system.
-        assert eta.value < 1e-12, eta.value
-        best_eta = min(best_eta, eta.value)
+        assert e < 1e-12, e
+        best_eta = min(best_eta, e)
 
-assert accepted > 0, (
-    "no left-null candidate produced an accepted inconsistency certificate; "
-    f"||P_null b0|| = {proj_norm:.3e}, best candidate returned rc={first_rc} "
-    f"with interval [{first_lo}, {first_hi}]")
-eta_adversarial = best_eta
+# Measurement, not an assertion.  Reported so a reproduction on other hardware
+# has the number rather than a bare pass.
+print(f"degenerate case: ||P_null b0|| = {proj_norm:.3e}, "
+      f"{accepted} of {len(candidates)} candidates accepted, "
+      f"first interval [{first_lo:.3e}, {first_hi:.3e}]")
+
+# ---------------------------------------------------------------------------
+# Part two: a system that is inconsistent by a controlled amount.
+#
+# b0 is pushed off the column space along a left-null direction by delta,
+# chosen far above any rounding-level effect and far below the scale of the
+# data.  Now y^T b is delta rather than noise, the interval must clear zero on
+# any machine, and the checker is required to certify.  This is what stops
+# part one's one-sided assertion from being vacuous.
+# ---------------------------------------------------------------------------
+u = candidates[0] if proj_norm > 0.0 else Qn[:, 0]
+u = arr(u / np.linalg.norm(u))
+delta = 1e-8 * float(np.linalg.norm(b0))
+b_inc = arr(b0 + delta * u)
+
+rc, l, h, e = offer(A, b_inc, u)
+print(f"controlled case: delta = {delta:.3e}, rc={rc}, "
+      f"interval [{l:.3e}, {h:.3e}], eta = {e:.3e}")
+
+assert rc == 0, (
+    f"the checker refused a system inconsistent by delta={delta:.3e}, which is "
+    f"{delta / max(proj_norm, 1e-300):.1e} times the machine-scale left-null "
+    f"projection; interval [{l:.3e}, {h:.3e}]")
+assert l > 0.0, f"verified interval straddles zero at delta={delta:.3e}: [{l:.3e}, {h:.3e}]"
+assert math.isfinite(e), e
+assert e < 1e-6, (
+    f"certificate radius {e:.3e} is not tight for a system inconsistent by "
+    f"delta={delta:.3e}")
+
+# Left as infinity when nothing was accepted: the controlled case's radius
+# belongs to a different system and must not be reported under this label.
 
 for eps, eu, ei in rows:
     print(f'eps={eps:.0e} eta_unique={eu:.3e} eta_inconsistent={ei:.3e}')
-print(f'compatible-adversarial eta_inconsistent={eta_adversarial:.3e} ({accepted}/{len(candidates)} candidates accepted, ||P_null b0||={proj_norm:.2e})')
+if accepted:
+    print(f'compatible-adversarial eta_inconsistent={best_eta:.3e} '
+          f'({accepted}/{len(candidates)} candidates accepted, '
+          f'||P_null b0||={proj_norm:.2e})')
+else:
+    print(f'compatible-adversarial eta_inconsistent=not observed '
+          f'(0/{len(candidates)} candidates accepted, '
+          f'||P_null b0||={proj_norm:.2e}); the rounding-level residual did '
+          f'not clear the verifier envelope on this platform')
 print('PRIMARY PASS')
 
 # Mirror case: an exactly compatible tall system with exact rank 4 < n=6.
