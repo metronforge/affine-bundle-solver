@@ -1,0 +1,76 @@
+name: manuscript
+
+# The manuscript is a separate artefact from the library and breaks for
+# separate reasons, so it builds on its own schedule rather than on every
+# change to a C file.  This workflow is not a required check; see the note in
+# ci.yml about why filtered workflows must not be.
+# The path list is repeated rather than shared through a YAML anchor: the
+# workflow parser does not accept anchors, and a file it refuses to parse
+# simply never runs.
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**.tex'
+      - '**.bib'
+      - 'build_paper.sh'
+      - '.github/workflows/manuscript.yml'
+  pull_request:
+    paths:
+      - '**.tex'
+      - '**.bib'
+      - 'build_paper.sh'
+      - '.github/workflows/manuscript.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  manuscript:
+    name: manuscript builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install TeX Live
+        run: |
+          sudo apt-get update
+          # Minimal set for this preamble: lmodern, mathtools/bm/mathrsfs,
+          # booktabs/longtable/multirow, enumitem, microtype, natbib,
+          # hyperref/cleveref, listings, fancyvrb.
+          sudo apt-get install -y --no-install-recommends \
+            texlive-latex-base \
+            texlive-latex-recommended \
+            texlive-latex-extra \
+            texlive-fonts-recommended \
+            texlive-science \
+            lmodern
+
+      - name: Build the manuscript
+        env:
+          # build_paper.sh defaults to bibtex8, which the runner does not ship.
+          BIBTEX: bibtex
+        run: |
+          chmod +x build_paper.sh
+          ./build_paper.sh
+
+      - name: Check for unresolved references
+        # A broken \cref or \cite is a silent warning in LaTeX, not an error.
+        # After a text edit that is exactly the failure worth catching, so it
+        # is promoted to a build failure here.
+        run: |
+          if grep -E "Reference .* undefined|Citation .* undefined" paper.log; then
+            echo "::error::manuscript has unresolved references or citations"
+            exit 1
+          fi
+          echo "no unresolved references"
+
+      - name: Upload manuscript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper-pdf
+          path: paper.pdf
+          retention-days: 30
+          if-no-files-found: error
