@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "certified_api.h"
+#include "affine_bundle/certified_api.h"
 #include <math.h>
 #include <float.h>
 #include <stdint.h>
@@ -26,11 +26,7 @@
 extern void bsolve_router_meta_api(const double*,const double*,const double*,int,int,int,int,int,
                                    unsigned long long,int,double*);
 
-#define dgelsy_ scipy_dgelsy_
-#define dgeqp3_ scipy_dgeqp3_
-#define dgesvd_ scipy_dgesvd_
-#define dgeqrf_ scipy_dgeqrf_
-#define dormqr_ scipy_dormqr_
+#include "blas_symbols.h"
 extern void dgelsy_(int*,int*,int*,double*,int*,double*,int*,int*,double*,int*,double*,int*,int*);
 extern void dgeqp3_(int*,int*,double*,int*,int*,double*,double*,int*,int*);
 extern void dgesvd_(char*,char*,int*,int*,double*,int*,double*,double*,int*,double*,int*,double*,int*,int*);

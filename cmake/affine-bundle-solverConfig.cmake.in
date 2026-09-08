@@ -1,0 +1,7 @@
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/affine-bundle-solverTargets.cmake")
+
+# The three shared objects link their BLAS privately, so a consumer needs no
+# BLAS of its own to use them.
+check_required_components(affine-bundle-solver)

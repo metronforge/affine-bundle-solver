@@ -16,6 +16,11 @@
  * limitations under the License.
  */
 #define main bsolver_bench_embedded_main
+/* Declarations of the exported entry points.  Included here so that the
+   compiler checks the public header against the definitions below: a
+   header nobody compiles against is a header that drifts. */
+#include "affine_bundle/router.h"
+#include "affine_bundle/stream.h"
 #include "bsolver_core.c"
 #undef main
 #include <float.h>
@@ -73,7 +78,7 @@ static void fill_out(Result r, double*out){
     out[4]=r.sec; out[5]=r.relres; out[6]=r.relx;
 }
 
-#define dgemv_ scipy_dgemv_
+#include "blas_symbols.h"
 extern void dgemv_(char*,int*,int*,double*,double*,int*,double*,int*,double*,double*,int*);
 
 static double project_cgs2(double*g,const double*Q,int r,int n){
@@ -108,8 +113,11 @@ static void bs_accumulate_certified_q_defect(BState*s,const double*q,double c2n,
 
 
 
-#define BS_GROW_THR 1e-9
-#define BS_DEP_THR  1e-13
+/* Single source of truth is the public header: these two are part of the
+   contract, so a value here that drifted from the documented one would be a
+   silent change of what a classification asserts. */
+#define BS_GROW_THR ABS_GROWTH_THRESHOLD
+#define BS_DEP_THR  ABS_DEPENDENCE_THRESHOLD
 #define BS_SVD_DEP_THR 1e-14
 #define BS_QUALITY_THR 1e-14
 static _Thread_local double g_max_orth_eta=0.0;
@@ -361,7 +369,7 @@ static int certified_proof_rank_lo(const ProofRows *p,int proposal){
     free(wpiv);free(wR);free(zero);return lo;
 }
 
-#define dtrcon_ scipy_dtrcon_
+#include "blas_symbols.h"
 extern void dtrcon_(char*,char*,char*,int*,double*,int*,double*,double*,int*,int*);
 
 
@@ -714,9 +722,7 @@ cleanup:
 void bsolve_block_api(const double*A,const double*b,const double*xt,int m,int n,int sp,int qv,int alpha,unsigned long long seed,int full,double*out){fill_out(solve_blockprefix_qr(A,b,xt,m,n,sp,qv,alpha,(uint64_t)seed,full),out);}
 
 
-#define dgetrf_ scipy_dgetrf_
-#define dgetrs_ scipy_dgetrs_
-#define dgecon_ scipy_dgecon_
+#include "blas_symbols.h"
 extern void dgetrf_(int*,int*,double*,int*,int*,int*);
 extern void dgetrs_(char*,int*,int*,double*,int*,int*,double*,int*,int*);
 extern void dgecon_(char*,int*,double*,int*,double*,double*,double*,int*,int*);
@@ -871,3 +877,158 @@ void bsolve_fg_counters_reset_api(void){g_fg_checks=0;g_fg_escalations=0;g_sourc
 void bsolve_fg_counters_api(unsigned long long*out){if(!out)return;out[0]=g_fg_checks;out[1]=g_fg_escalations;out[2]=g_source_qrcp_calls;}
 void bsolve_last_core_rank_interval_api(int*out){if(!out)return;out[0]=g_core_rank_lo;out[1]=g_core_rank_hi;}
 int bsolve_last_core_qr_rank_api(void){return g_last_core_qr_rank;}
+
+/* ==========================================================================
+ * Incremental classification API.  See include/affine_bundle/stream.h.
+ *
+ * This wraps bs_insert_certified, not bs_insert: the threshold routine
+ * always produces a verdict, including across the band where the interval
+ * routine declines, and shipping it as the library's only streaming
+ * interface would put a decision with nothing behind it at the front of the
+ * API.
+ *
+ * The per-row scratch inside bs_insert_certified is alloca'd and therefore
+ * proportional to n.  That is safe here only because abs_stream_create
+ * checks its own O(n^2) allocation first: an n large enough to overflow the
+ * stack with 2n doubles needs a Q of n^2 doubles, which fails long before.
+ * ========================================================================== */
+
+struct ABSStream {
+    BState    s;
+    int       n;
+    int       closed;      /* a contradiction was seen; state is final */
+    long long seen;
+    long long deferred;
+    double    tolcon;
+};
+
+ABSStream *abs_stream_create(int n)
+{
+    ABSStream *st;
+    if (n <= 0) return NULL;
+    st = (ABSStream*)calloc(1, sizeof(*st));
+    if (!st) return NULL;
+
+    /* bs_init does not report failure, so the allocation is done here where
+       it can be checked.  Q is n*n doubles. */
+    st->s.n = n;
+    st->s.r = 0;
+    st->s.inconsistent = 0;
+    st->s.orth_frob2 = 0.0L;
+    st->s.Q = (double*)calloc((size_t)n * (size_t)n, sizeof(double));
+    st->s.x = (double*)calloc((size_t)n, sizeof(double));
+    if (!st->s.Q || !st->s.x) {
+        free(st->s.Q); free(st->s.x); free(st);
+        return NULL;
+    }
+    st->n = n;
+    st->closed = 0;
+    st->seen = 0;
+    st->deferred = 0;
+    /* The value the batch sequential path uses.  Deliberately not a
+       parameter: a caller-chosen constant would make the classification a
+       function of that choice. */
+    st->tolcon = 2e-10;
+    return st;
+}
+
+void abs_stream_destroy(ABSStream *st)
+{
+    if (!st) return;
+    free(st->s.Q);
+    free(st->s.x);
+    free(st);
+}
+
+int abs_stream_insert(ABSStream *st, const double *row, double rhs)
+{
+    int rc;
+    if (!st || !row) return ABS_INSERT_EINVAL;
+
+    /* Same boundary check as the batch entry points, and for the same
+       reason: this translation unit is compiled with -ffast-math, under
+       which the compiler may fold isfinite() to a constant, and does. */
+    if (bs_any_nonfinite(row, (size_t)st->n) || bs_any_nonfinite(&rhs, 1))
+        return ABS_INSERT_EINVAL;
+
+    if (st->closed) return ABS_INSERT_CONTRA;
+
+    st->seen++;
+    rc = bs_insert_certified(&st->s, row, rhs, st->tolcon);
+
+    if (rc == -1) { st->closed = 1; return ABS_INSERT_CONTRA; }
+    if (rc ==  2) { st->deferred++; return ABS_INSERT_DEFER;  }
+    return rc; /* 1 grow, 0 absorb */
+}
+
+void abs_stream_status(const ABSStream *st, double *out)
+{
+    int i, r, lo, hi, cls;
+    if (!out) return;
+    for (i = 0; i < ABS_OUT_LEN; i++) out[i] = 0.0;
+    out[ABS_OUT_RELRES] = (double)NAN;
+    out[ABS_OUT_RELX]   = (double)NAN;
+    out[ABS_OUT_BERR]   = (double)NAN;
+    if (!st) { out[ABS_OUT_STATUS] = 4; out[ABS_OUT_CLS] = ABS_CLS_FAIL;
+               out[ABS_OUT_CERTAINTY] = ABS_CERTAINTY_NONE; return; }
+
+    r = st->s.r;
+
+    if (st->closed || st->s.inconsistent) {
+        /* A contradiction, once established, cannot be undone by rows that
+           were never resolved: no addition makes an inconsistent system
+           consistent.  So INCONSISTENT stands even with rows deferred, while
+           the rank stays an interval, because those rows may still have been
+           independent. */
+        long long h = (long long)r + st->deferred;
+        cls = ABS_CLS_INCONSISTENT;
+        lo = r;
+        hi = (h > (long long)st->n) ? st->n : (int)h;
+    } else if (st->deferred > 0) {
+        /* Sound both ways: the inserted rows are a subset of the rows seen,
+           so r is a lower bound; d deferred rows lift the rank by at most d. */
+        long long h = (long long)r + st->deferred;
+        cls = ABS_CLS_UNDECIDABLE;
+        lo = r;
+        hi = (h > (long long)st->n) ? st->n : (int)h;
+    } else if (r >= st->n) {
+        cls = ABS_CLS_UNIQUE; lo = r; hi = r;
+    } else {
+        cls = ABS_CLS_INFINITE; lo = r; hi = r;
+    }
+
+    out[ABS_OUT_CLS]     = (double)cls;
+    out[ABS_OUT_STATUS]  = (double)(cls == ABS_CLS_UNIQUE       ? 1 :
+                                    cls == ABS_CLS_INFINITE     ? 2 :
+                                    cls == ABS_CLS_INCONSISTENT ? 3 : 4);
+    out[ABS_OUT_CERTAINTY] = (double)(cls == ABS_CLS_UNDECIDABLE
+                                      ? ABS_CERTAINTY_NONE
+                                      : ABS_CERTAINTY_DETERMINISTIC);
+    out[ABS_OUT_RANK]    = (double)r;
+    out[ABS_OUT_RANK_LO] = (double)lo;
+    out[ABS_OUT_RANK_HI] = (double)hi;
+}
+
+void abs_stream_counts(const ABSStream *st, long long *seen, long long *deferred)
+{
+    if (!st) return;
+    if (seen)     *seen     = st->seen;
+    if (deferred) *deferred = st->deferred;
+}
+
+int abs_stream_solution(const ABSStream *st, double *x)
+{
+    int j;
+    if (!st || !x) return 0;
+    if (st->closed || st->s.inconsistent || st->deferred > 0) return 0;
+    for (j = 0; j < st->n; j++) x[j] = st->s.x[j];
+    return 1;
+}
+
+/* Reports the values this shared object was actually built with, so a caller
+   can detect a header that does not match the library it linked against. */
+void abs_thresholds(double *dependence, double *growth)
+{
+    if (dependence) *dependence = ABS_DEPENDENCE_THRESHOLD;
+    if (growth)     *growth     = ABS_GROWTH_THRESHOLD;
+}
