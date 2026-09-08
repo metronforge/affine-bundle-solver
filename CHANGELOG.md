@@ -1,5 +1,40 @@
 # Changelog
 
+## [0.3.0](https://github.com/metronforge/affine-bundle-solver/compare/v0.2.1...v0.3.0) (2026-09-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* **router:** out[0] of bsolve_router_meta_api returns 5 for UNDECIDABLE where it previously returned 4.
+* certified_api.h and status_certificate.h moved from src/ to include/affine_bundle/.
+
+### Features
+
+* build as a library, with public headers and a streaming API ([d62ecb4](https://github.com/metronforge/affine-bundle-solver/commit/d62ecb4ab0eb329520ae754a1438455535ae4ca3))
+
+
+### Bug fixes
+
+* **build:** give the sanitizer and coverage scripts the new include path ([fdd69d0](https://github.com/metronforge/affine-bundle-solver/commit/fdd69d00eb43d0cef90e66782a3a34598979456f))
+* **router:** report UNDECIDABLE distinctly, and fix the meta layout on ([961a9e8](https://github.com/metronforge/affine-bundle-solver/commit/961a9e8a0ae70df5e412109d3e70970a7d340e59))
+* **test:** stop asserting that rounding noise clears the verifier envelope ([0b14329](https://github.com/metronforge/affine-bundle-solver/commit/0b14329ac2fa94d77a92a6699dc8575f563444c5))
+
+
+### Manuscript and documentation
+
+* record why the certified insertion routine was chosen ([144ccc0](https://github.com/metronforge/affine-bundle-solver/commit/144ccc061d0c808168bc60abd51e431863abab12))
+
+
+### Tests
+
+* cover the streaming API and the threshold contract ([020cfa1](https://github.com/metronforge/affine-bundle-solver/commit/020cfa15edce1bc66de4932ea9d6ce2b538d0cd6))
+
+
+### Continuous integration
+
+* build with CMake, install, and check BLAS independence ([67f4971](https://github.com/metronforge/affine-bundle-solver/commit/67f497147cb6d9250d37388e145609f92d9db4e0))
+* create the release as a draft so the archive can be attached ([f7ecf32](https://github.com/metronforge/affine-bundle-solver/commit/f7ecf3276a95e50224317497b1fa4ba34193c053))
+
 ## [0.2.1](https://github.com/metronforge/affine-bundle-solver/compare/v0.2.0...v0.2.1) (2026-09-07)
 
 
