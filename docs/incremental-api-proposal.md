@@ -190,16 +190,38 @@ statement about the data rather than about its units.
 
 ## 8. Still open
 
-`BS_QUALITY_THR` (1e-14) is the same kind of constant and is not yet public.
-It gates the backward-error quality certificate, and at `src/bsolver.c:812`
-and `:823` it is what demotes an otherwise `UNIQUE` result to `UNDECIDABLE`.
-A reader of the output has no way to know that this threshold exists, let
-alone what it is. `BS_SVD_DEP_THR` (1e-14) is narrower — it only selects
-between branches inside the local dependency SVD — and is a weaker candidate.
+`BS_SVD_DEP_THR` (1e-14) selects between branches inside the local dependency
+SVD and does not by itself decide a status; it remains internal.
 
-The stream's consistency tolerance, `2e-10`, is a third case and differs in
-kind from the two now published: it is applied as
-`tolcon * (1 + |beta| + ||x||)`, so unlike the growth and dependence
-thresholds it is *not* scale-free and depends on the solution accumulated so
+The stream's consistency tolerance, `2e-10`, differs in kind from the three
+published thresholds: it is applied as `tolcon * (1 + |beta| + ||x||)`, so
+unlike them it is *not* scale-free and depends on the solution accumulated so
 far. Publishing it would promise something weaker, and the difference should
 be stated rather than smoothed over.
+
+## 9. Resolved: the quality threshold is public
+
+`BS_QUALITY_THR` is now `ABS_QUALITY_THRESHOLD` in
+`include/affine_bundle/router.h`, with the internal name defined from it.
+Unlike the two rank thresholds it does not decide a rank: it decides whether a
+UNIQUE classification keeps its solution witness. Above it the router retries
+through the trusted source QRCP backend and, failing that, returns
+UNDECIDABLE — a refusal to decide rather than a poor UNIQUE.
+
+Publishing it required closing a hole first. `source_qrcp_trusted` can return
+UNIQUE having computed a backward error without comparing it against the
+threshold. One of its two call sites in `solve_router` applied the quality
+gate to that result and the other returned it directly, so the same helper's
+output was authoritative on one path and required demotion on the other. The
+gate is now applied at both. Measured on 500 adversarial systems the open path
+never actually returned UNIQUE — every entry resolved to UNDECIDABLE — so the
+defect was latent rather than observed, and closing it changed no output on
+any input that could be constructed.
+
+`tests/test_threshold_contract.py` checks the resulting contract: a
+deterministic UNIQUE with a finite backward error is at or below the
+threshold. The system family matters. Well-scaled systems of modest width
+solve two orders under the threshold and would satisfy the assertion whatever
+the library did, so the test spreads column scales and runs up to n=384, where
+removing the demotion produces UNIQUE results carrying errors of 1.7e-14 at
+n=32 and 1.5e-13 at n=384.
