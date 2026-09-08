@@ -127,7 +127,11 @@ jobs:
           num=$(gh pr list --head "$BRANCH" --state open \
                   --json number --jq '.[0].number // empty')
           if [ -n "$num" ]; then
-            gh pr close "$num" --delete-branch --comment "$NOTE"
+            # No --delete-branch: the pull request's own CI is still running
+            # against that branch, and removing it mid-run fails the check for
+            # no reason.  release-please force-updates the branch on the next
+            # release anyway.
+            gh pr close "$num" --comment "$NOTE"
             echo "closed stale release pull request #$num"
           else
             echo "no release pull request was opened during this run"
