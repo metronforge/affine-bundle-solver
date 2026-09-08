@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.5.0](https://github.com/metronforge/affine-bundle-solver/compare/v0.4.0...v0.5.0) (2026-09-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* **router:** out[0] of bsolve_router_meta_api returns 5 for UNDECIDABLE where it previously returned 4.
+* certified_api.h and status_certificate.h moved from src/ to include/affine_bundle/.
+
+### Features
+
+* build as a library, with public headers and a streaming API ([d62ecb4](https://github.com/metronforge/affine-bundle-solver/commit/d62ecb4ab0eb329520ae754a1438455535ae4ca3))
+* initial public release of the affine-bundle solver ([48b9fce](https://github.com/metronforge/affine-bundle-solver/commit/48b9fce6742f02c69ef98c31c4d008e0fc6bcaee))
+* **router:** publish the solution-quality threshold ([e4ca740](https://github.com/metronforge/affine-bundle-solver/commit/e4ca7401332fcb86d4a985744b5acb0c4b948e51))
+
+
+### Bug fixes
+
+* **build:** give the sanitizer and coverage scripts the new include path ([fdd69d0](https://github.com/metronforge/affine-bundle-solver/commit/fdd69d00eb43d0cef90e66782a3a34598979456f))
+* **build:** keep -ffast-math off the link line to stop an FTZ/DAZ leak ([9e02cf3](https://github.com/metronforge/affine-bundle-solver/commit/9e02cf3586e6a884800be2643610be1da8304d52))
+* **build:** keep ARCH_FLAGS empty when explicitly set to empty ([799a84c](https://github.com/metronforge/affine-bundle-solver/commit/799a84c7bc95b8a09c21c356f713b0615b65c594))
+* **router:** apply the quality gate on both paths out of the source repair ([c6b487b](https://github.com/metronforge/affine-bundle-solver/commit/c6b487bfbb1861bb639f0acc6790b7d1570431b2))
+* **router:** reject non-finite input via bit-pattern test ([45ab675](https://github.com/metronforge/affine-bundle-solver/commit/45ab675ffad20204c9458ecff3117a22597c525e))
+* **router:** report UNDECIDABLE distinctly, and fix the meta layout on ([961a9e8](https://github.com/metronforge/affine-bundle-solver/commit/961a9e8a0ae70df5e412109d3e70970a7d340e59))
+* **test:** aim the adversarial left-null candidate instead of taking the first ([c035dad](https://github.com/metronforge/affine-bundle-solver/commit/c035dadecaf357832b626c2043c1c0ce0daa9ba5))
+* **test:** stop asserting that rounding noise clears the verifier envelope ([0b14329](https://github.com/metronforge/affine-bundle-solver/commit/0b14329ac2fa94d77a92a6699dc8575f563444c5))
+
+
+### Manuscript and documentation
+
+* record why the certified insertion routine was chosen ([144ccc0](https://github.com/metronforge/affine-bundle-solver/commit/144ccc061d0c808168bc60abd51e431863abab12))
+
 ## [0.4.0](https://github.com/metronforge/affine-bundle-solver/compare/v0.3.1...v0.4.0) (2026-09-08)
 
 
