@@ -3,6 +3,7 @@
   "release-type": "simple",
   "packages": {
     ".": {
+      "draft": true,
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         {

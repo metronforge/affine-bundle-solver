@@ -5,6 +5,8 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Least privilege by default.  Only the job below is allowed to write, and it
+# is the only job in this file.
 permissions:
   contents: read
 
@@ -15,13 +17,30 @@ jobs:
       contents: write
       pull-requests: write
     steps:
+      # The release is created as a DRAFT.  That is configured in
+      # .release-please-config.json, not here: `draft` is a package option of
+      # release-please and not an input of this action, and an unknown `with:`
+      # input is silently ignored.  It was set here before and had no effect,
+      # so every release was published the moment it was created.
+      #
+      # Two things follow from the release being a real draft.
+      #
+      # A draft carries no git tag.  The tag is created when the draft is
+      # published, at the end of this job, so a tag cannot come from a commit
+      # that has not been checked below.  A tag is what Zenodo archives and
+      # what a citation points at; it should not exist until the commit behind
+      # it has been shown to build and to reproduce the manuscript.
+      #
+      # A draft is also still mutable.  This repository has immutable releases
+      # enabled, so assets cannot be added to a release once it is published:
+      # the previous arrangement failed here with
+      #   HTTP 422: Cannot upload assets to an immutable release
+      # on v0.2.1, leaving a published release with no source archive.
       - uses: googleapis/release-please-action@v4
         id: release
         with:
           config-file: .release-please-config.json
           manifest-file: .release-please-manifest.json
-          # ФИКС: Заставляем release-please создавать только черновик (Draft)
-          draft: true
 
       # Everything below runs only on the push that MERGES the release pull
       # request, i.e. when a release was actually created.
@@ -33,6 +52,10 @@ jobs:
         with:
           python-version: '3.12'
 
+      # The gate.  Nothing below this point runs if the released commit does
+      # not build or does not reproduce the numbers in the manuscript, and
+      # since the release is still a draft, nothing has been published and no
+      # tag exists yet.
       - name: Verify the released commit builds and reproduces the manuscript
         if: ${{ steps.release.outputs.release_created }}
         run: |
@@ -42,15 +65,16 @@ jobs:
           ./build.sh
           python tests/check_paper_claims.py
 
-      - name: Attach the source archive to the release
+      - name: Attach the source archive to the draft
         if: ${{ steps.release.outputs.release_created }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.release.outputs.tag_name }}
         run: |
+          # HEAD, not the tag: while the release is a draft the tag does not
+          # exist yet, and HEAD is the commit the draft was cut from.
           git archive --format=tar.gz --prefix="affine-bundle-solver-${TAG}/" \
             -o "affine-bundle-solver-${TAG}.tar.gz" HEAD
-          # Загружаем архив в черновик (это разрешено, так как он еще не immutable)
           gh release upload "$TAG" "affine-bundle-solver-${TAG}.tar.gz" --clobber
 
       - name: Publish the release
@@ -58,5 +82,20 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.release.outputs.tag_name }}
+        run: gh release edit "$TAG" --draft=false
+
+      # Publishing is the step that makes the release immutable, so this is the
+      # last moment the archive can still be confirmed present.  Without it a
+      # future upload failure would again leave a published release missing its
+      # archive and nothing would say so.
+      - name: Confirm the published release carries its archive
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.release.outputs.tag_name }}
         run: |
-          gh release edit "$TAG" --draft=false
+          if ! gh release view "$TAG" --json assets \
+                 --jq '.assets[].name' | grep -qx "affine-bundle-solver-${TAG}.tar.gz"; then
+            echo "the published release has no source archive attached"
+            exit 1
+          fi
