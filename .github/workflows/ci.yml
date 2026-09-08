@@ -110,7 +110,9 @@ jobs:
           for t in test_certified_api \
                    test_verifier_adversarial \
                    test_status_profile_semantics \
-                   test_meta_api_absent_solution_quality; do
+                   test_meta_api_absent_solution_quality \
+                   test_streaming_equivalence \
+                   test_threshold_contract; do
             echo "::group::$t"
             python tests/$t.py
             echo "::endgroup::"
@@ -286,6 +288,83 @@ jobs:
           path: "*.gcov"
           retention-days: 14
           if-no-files-found: warn
+
+  cmake-install:
+    name: cmake, system BLAS, install and consume
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Install a system BLAS
+        # The point of this job is that building the library needs no Python
+        # and no SciPy wheel.  Python is installed here only to run the
+        # existing batteries against the CMake build tree.
+        run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev
+
+      - name: Configure and build against the system BLAS
+        # Portable arch flags: this job is about linkage and packaging, and a
+        # native build would tie its artefacts to the runner.
+        run: |
+          cmake -B build-system -DABS_BLAS=system -DABS_ARCH_FLAGS=''
+          cmake --build build-system -j"$(nproc)"
+
+      - name: Run the probes, examples and batteries
+        run: ctest --test-dir build-system --output-on-failure
+
+      - name: Install and consume from a separate project
+        # find_package must work from a tree that has never seen the sources.
+        # This also catches an install that forgets $ORIGIN on the libraries,
+        # or a .pc file that baked in the configure-time prefix.
+        run: |
+          cmake --install build-system --prefix "$PWD/_prefix"
+          test -f _prefix/include/affine_bundle/router.h
+          test ! -f _prefix/include/affine_bundle/formation_guard.h
+          test ! -f _prefix/include/affine_bundle/blas_symbols.h
+          cmake -S tests/consumer -B build-consumer \
+                -DCMAKE_PREFIX_PATH="$PWD/_prefix"
+          cmake --build build-consumer
+          ./build-consumer/consumer
+          if ldd ./build-consumer/consumer | grep -q "not found"; then
+            echo "installed libraries cannot resolve their own dependencies"
+            exit 1
+          fi
+          PKG_CONFIG_PATH="$PWD/_prefix/lib/pkgconfig" \
+            pkg-config --cflags --libs affine-bundle-solver
+
+  blas-independence:
+    name: classification does not depend on the BLAS
+    runs-on: ubuntu-latest
+    needs: cmake-install
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Install a system BLAS
+        run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev
+      - name: Build against each BLAS in turn
+        run: |
+          cmake -B .cfg/openblas -DABS_BLAS=scipy-openblas -DABS_ARCH_FLAGS=''
+          cmake --build .cfg/openblas -j"$(nproc)"
+          cmake -B .cfg/refblas -DABS_BLAS=system -DABS_ARCH_FLAGS=''
+          cmake --build .cfg/refblas -j"$(nproc)"
+      - name: Compare classification output
+        # Two different BLAS implementations sum in a different order, so
+        # last-bit results legitimately differ.  Status, rank and the rank
+        # interval must not.  If this job ever fails, the manuscript's
+        # classification claims are implementation dependent and have to say
+        # so.
+        run: python tests/compare_builds.py .cfg/openblas .cfg/refblas
 
   cross-config-consistency:
     name: portable vs native agree
