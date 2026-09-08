@@ -221,6 +221,8 @@ jobs:
                    test_verifier_adversarial \
                    test_status_profile_semantics \
                    test_meta_api_absent_solution_quality \
+                   test_streaming_equivalence \
+                   test_threshold_contract \
                    pbt_certificate_equivariance \
                    pbt_equivalence_orbits; do
             echo "::group::$t"

@@ -38,17 +38,24 @@ RPATH=$(dirname "$OPENBLAS")
 
 rm -f ./*.gcda ./*.gcno ./*.gcov
 
-$CC -O0 -g --coverage -fopenmp -fPIC -c src/bsolver.c -o bsolver.cov.o
-$CC -O2 --coverage -frounding-math -fno-fast-math -fPIC \
+# Public headers live in include/, and the sources select their BLAS symbol
+# names through src/blas_symbols.h.  This script links SciPy's bundled
+# OpenBLAS, whose Fortran symbols carry a scipy_ prefix, so it asks for that
+# naming explicitly -- exactly as build.sh does.
+INCLUDES="-Iinclude -Isrc"
+BLAS_DEFS="-DABS_SCIPY_BLAS"
+
+$CC $INCLUDES $BLAS_DEFS -O0 -g --coverage -fopenmp -fPIC -c src/bsolver.c -o bsolver.cov.o
+$CC $INCLUDES $BLAS_DEFS -O2 --coverage -frounding-math -fno-fast-math -fPIC \
   -c src/formation_guard.c -o formation_guard.cov.o
 
 $CC --coverage -shared -fopenmp bsolver.cov.o formation_guard.cov.o \
   -o libaffine_bundle_solver.so "$OPENBLAS" -Wl,-rpath,"$RPATH" -latomic -lm
 
-$CC -O2 --coverage -frounding-math -fno-fast-math -shared -fPIC \
+$CC $INCLUDES $BLAS_DEFS -O2 --coverage -frounding-math -fno-fast-math -shared -fPIC \
   src/status_certificate.c -o libstatus_verifier.so -lm
 
-$CC -O2 --coverage -frounding-math -fno-fast-math -shared -fPIC \
+$CC $INCLUDES $BLAS_DEFS -O2 --coverage -frounding-math -fno-fast-math -shared -fPIC \
   src/certified_api.c -o libcertified_solver.so \
   -L. -laffine_bundle_solver -lstatus_verifier \
   "$OPENBLAS" -Wl,-rpath,'$ORIGIN' -Wl,-rpath,"$RPATH" -lm
