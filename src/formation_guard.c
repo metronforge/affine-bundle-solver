@@ -193,8 +193,7 @@ int fg_qr_rank_lower_bound(const double *K,const double *eps,int rows,int n,int 
    Dense products/inversion are proposal computations; their actual residuals are
    bounded afterwards.  This keeps the proof O(r^3) in optimized BLAS rather than
    O(r^3) scalar long-double recurrences plus all-prefix rechecks. */
-#define dtrtri_ scipy_dtrtri_
-#define dgemm_  scipy_dgemm_
+#include "blas_symbols.h"
 extern void dtrtri_(char*,char*,int*,double*,int*,int*);
 extern void dgemm_(char*,char*,int*,int*,int*,double*,double*,int*,double*,int*,double*,double*,int*);
 

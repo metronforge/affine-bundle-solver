@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 #pragma STDC FENV_ACCESS ON
-#include "status_certificate.h"
+#include "affine_bundle/status_certificate.h"
 #include <fenv.h>
 #include <limits.h>
 #include <math.h>

@@ -26,12 +26,7 @@
 #include <alloca.h>
 #include <omp.h>
 #include "formation_guard.h"
-#define dgelsy_ scipy_dgelsy_
-#define dgesvd_ scipy_dgesvd_
-#define dgeqp3_ scipy_dgeqp3_
-#define dorgqr_ scipy_dorgqr_
-#define dgels_ scipy_dgels_
-#define dgemm_ scipy_dgemm_
+#include "blas_symbols.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846

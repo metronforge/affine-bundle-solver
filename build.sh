@@ -25,8 +25,16 @@ PY
 )"
 RPATH=$(dirname "$OPENBLAS")
 
+# The sources call BLAS through the names selected in src/blas_symbols.h.
+# build.sh is the manuscript reproduction path and links SciPy's bundled
+# OpenBLAS, whose Fortran symbols carry a scipy_ prefix, so it asks for that
+# naming explicitly.  A CMake build without this define links an ordinary
+# system BLAS instead.
+BLAS_DEFS="-DABS_SCIPY_BLAS"
+INCLUDES="-Iinclude -Isrc"
+
 # Strict compressed-rank witness: a-posteriori provenance bounds, separate from fast-math.
-$CC -O2 -fPIC -c src/formation_guard.c -o formation_guard.o \
+$CC -O2 -fPIC $INCLUDES $BLAS_DEFS -c src/formation_guard.c -o formation_guard.o \
   -frounding-math -fno-fast-math
 
 # Fast numerical route.  Sketch/proposal arithmetic may use fast-math, but no
@@ -51,7 +59,7 @@ $CC -O2 -fPIC -c src/formation_guard.c -o formation_guard.o \
 # add the constructor, clang 18 does.  The mxcsr probe below verifies the
 # resulting library at run time and fails the build if the mode leaks, so a
 # toolchain that behaves differently again cannot slip through silently.
-$CC -O3 $ARCH_FLAGS -fopenmp -fPIC -ffast-math -c src/bsolver.c \
+$CC -O3 $ARCH_FLAGS -fopenmp -fPIC -ffast-math $INCLUDES $BLAS_DEFS -c src/bsolver.c \
   -o bsolver.o
 $CC -shared -fopenmp bsolver.o formation_guard.o \
   -o libaffine_bundle_solver.so "$OPENBLAS" -Wl,-rpath,"$RPATH" \
@@ -64,10 +72,10 @@ $CC -O2 -frounding-math -fno-fast-math src/rounding_probe.c \
 ./.rounding_probe
 rm -f .rounding_probe
 
-$CC -O2 -shared -fPIC src/status_certificate.c -o libstatus_verifier.so \
+$CC -O2 -shared -fPIC $INCLUDES src/status_certificate.c -o libstatus_verifier.so \
   -frounding-math -fno-fast-math -lm
 
-$CC -O2 -shared -fPIC src/certified_api.c -o libcertified_solver.so \
+$CC -O2 -shared -fPIC $INCLUDES $BLAS_DEFS src/certified_api.c -o libcertified_solver.so \
   -frounding-math -fno-fast-math -L. -laffine_bundle_solver -lstatus_verifier \
   "$OPENBLAS" -Wl,-rpath,'$ORIGIN' -Wl,-rpath,"$RPATH" -lm
 
