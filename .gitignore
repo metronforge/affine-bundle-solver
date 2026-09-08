@@ -1,9 +1,19 @@
 # Build products
 *.so
 *.o
+*.gcno
+*.gcda
 .rounding_probe
 .mxcsr_probe
 .cfg/
+
+# CMake build trees.  The pattern is deliberately broad: a configured tree is
+# a few hundred files and belongs to whoever configured it, not to the
+# repository.
+build/
+build-*/
+_prefix/
+CMakeUserPresets.json
 
 # LaTeX intermediates
 *.aux

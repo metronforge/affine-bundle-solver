@@ -47,22 +47,29 @@ echo "sanitizers: ${SAN}"
 echo "openblas  : $(basename "$OPENBLAS")"
 
 # --- strict proof kernels: same floating-point contract as the shipping build
-$CC $COMMON -frounding-math -fno-fast-math -fPIC -c src/formation_guard.c \
+# Public headers live in include/, and the sources select their BLAS symbol
+# names through src/blas_symbols.h.  This script links SciPy's bundled
+# OpenBLAS, whose Fortran symbols carry a scipy_ prefix, so it asks for that
+# naming explicitly -- exactly as build.sh does.
+INCLUDES="-Iinclude -Isrc"
+BLAS_DEFS="-DABS_SCIPY_BLAS"
+
+$CC $INCLUDES $BLAS_DEFS $COMMON -frounding-math -fno-fast-math -fPIC -c src/formation_guard.c \
   -o formation_guard.san.o
 
-$CC $COMMON -frounding-math -fno-fast-math -shared -fPIC \
+$CC $INCLUDES $BLAS_DEFS $COMMON -frounding-math -fno-fast-math -shared -fPIC \
   src/status_certificate.c -o libstatus_verifier.so -lm
 
 # --- fast router: same source, sanitizable floating-point mode (see header).
 # Built before the audit API because the latter links against it.
-$CC $COMMON -fopenmp -fPIC -c src/bsolver.c -o bsolver.san.o
+$CC $INCLUDES $BLAS_DEFS $COMMON -fopenmp -fPIC -c src/bsolver.c -o bsolver.san.o
 
 $CC $SANFLAGS -shared -fopenmp bsolver.san.o formation_guard.san.o \
   -o libaffine_bundle_solver.so "$OPENBLAS" -Wl,-rpath,"$RPATH" \
   -latomic -lm
 
 # --- audit API: links against both of the above, mirroring build.sh
-$CC $COMMON -frounding-math -fno-fast-math -shared -fPIC \
+$CC $INCLUDES $BLAS_DEFS $COMMON -frounding-math -fno-fast-math -shared -fPIC \
   src/certified_api.c -o libcertified_solver.so \
   -L. -laffine_bundle_solver -lstatus_verifier \
   "$OPENBLAS" -Wl,-rpath,'$ORIGIN' -Wl,-rpath,"$RPATH" -lm
