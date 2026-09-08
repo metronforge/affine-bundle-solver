@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
+import os
 import ctypes, math
 from pathlib import Path
 import numpy as np
 
 ROOT=Path(__file__).resolve().parents[1]
-L=ctypes.CDLL(str(ROOT/'libaffine_bundle_solver.so'))
+# Shared objects are looked up in ABS_LIB_DIR when it is set, so that CTest
+# can run this battery against a CMake build tree without touching the
+# repository root.  Unset, it falls back to the root, which is where
+# build.sh leaves them.
+LIBDIR = Path(os.environ.get("ABS_LIB_DIR", str(ROOT)))
+L=ctypes.CDLL(str(LIBDIR / 'libaffine_bundle_solver.so'))
 DP=ctypes.POINTER(ctypes.c_double)
 L.bsolve_router_meta_api.argtypes=[DP,DP,DP,ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.c_ulonglong,ctypes.c_int,DP]
 def p(x): return x.ctypes.data_as(DP)

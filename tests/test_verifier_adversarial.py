@@ -1,9 +1,15 @@
+import os
 import ctypes
 from pathlib import Path
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-lib = ctypes.CDLL(str(ROOT/'libstatus_verifier.so'))
+# Shared objects are looked up in ABS_LIB_DIR when it is set, so that CTest
+# can run this battery against a CMake build tree without touching the
+# repository root.  Unset, it falls back to the root, which is where
+# build.sh leaves them.
+LIBDIR = Path(os.environ.get("ABS_LIB_DIR", str(ROOT)))
+lib = ctypes.CDLL(str(LIBDIR / 'libstatus_verifier.so'))
 DP = ctypes.POINTER(ctypes.c_double)
 IP = ctypes.POINTER(ctypes.c_int)
 

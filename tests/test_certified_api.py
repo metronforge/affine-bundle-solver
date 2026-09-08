@@ -1,9 +1,15 @@
+import os
 import ctypes, math
 from pathlib import Path
 import numpy as np
 
 ROOT=Path(__file__).resolve().parents[1]
-lib=ctypes.CDLL(str(ROOT/'libcertified_solver.so'))
+# Shared objects are looked up in ABS_LIB_DIR when it is set, so that CTest
+# can run this battery against a CMake build tree without touching the
+# repository root.  Unset, it falls back to the root, which is where
+# build.sh leaves them.
+LIBDIR = Path(os.environ.get("ABS_LIB_DIR", str(ROOT)))
+lib=ctypes.CDLL(str(LIBDIR / 'libcertified_solver.so'))
 
 class Result(ctypes.Structure):
     _fields_=[('fast_status',ctypes.c_int),('fast_certainty',ctypes.c_int),
