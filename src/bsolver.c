@@ -119,7 +119,10 @@ static void bs_accumulate_certified_q_defect(BState*s,const double*q,double c2n,
 #define BS_GROW_THR ABS_GROWTH_THRESHOLD
 #define BS_DEP_THR  ABS_DEPENDENCE_THRESHOLD
 #define BS_SVD_DEP_THR 1e-14
-#define BS_QUALITY_THR 1e-14
+/* Public: see ABS_QUALITY_THRESHOLD in <affine_bundle/router.h>.  It decides
+   whether a UNIQUE classification is allowed to keep its solution witness, so
+   it is part of what the status means and not a tuning constant. */
+#define BS_QUALITY_THR ABS_QUALITY_THRESHOLD
 static _Thread_local double g_max_orth_eta=0.0;
 
 /* A posteriori distance envelope for the row-space distance.
@@ -806,7 +809,19 @@ static Result solve_router(const double*A,const double*b,const double*xt,int m,i
         Result t={0};
         if(try_sampled_source_fullrank(A,b,xt,m,n,2e-10,seed,&t)){t.sec=r.sec+t.sec;return t;}
         int trc=source_qrcp_trusted(A,b,xt,m,n,2e-10,&t);
-        if(trc>=0)return t;
+        if(trc>=0){
+            /* Same gate as below.  source_qrcp_trusted can return UNIQUE
+               having computed a backward error but without comparing it
+               against the quality threshold, so this call site used to accept
+               a witness the other call site of the same helper would have
+               demoted.  A UNIQUE that leaves this function must carry a
+               quality certificate, on every path, or ABS_QUALITY_THRESHOLD is
+               not a contract. */
+            if(t.cls==CLS_UNIQUE && (!g_last_berr_valid || g_last_berr>BS_QUALITY_THR)){
+                t.cls=CLS_UNDECIDABLE;t.fallback=1;t.relres=NAN;t.relx=NAN;
+            }
+            return t;
+        }
     }
     /* A deterministic UNIQUE status and a high-quality solution witness are
        separate claims.  If the selected route did not export a rowwise mixed-2-norm
@@ -1046,4 +1061,12 @@ void abs_thresholds(double *dependence, double *growth)
 {
     if (dependence) *dependence = ABS_DEPENDENCE_THRESHOLD;
     if (growth)     *growth     = ABS_GROWTH_THRESHOLD;
+}
+
+/* Companion to abs_thresholds().  Separate function rather than a third
+   parameter there: that entry point is already published, and widening it
+   would break every caller compiled against the earlier header. */
+double abs_quality_threshold(void)
+{
+    return ABS_QUALITY_THRESHOLD;
 }
