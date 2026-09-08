@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.0](https://github.com/metronforge/affine-bundle-solver/compare/v0.3.1...v0.4.0) (2026-09-08)
+
+
+### Features
+
+* **router:** publish the solution-quality threshold ([e4ca740](https://github.com/metronforge/affine-bundle-solver/commit/e4ca7401332fcb86d4a985744b5acb0c4b948e51))
+
+
+### Bug fixes
+
+* **router:** apply the quality gate on both paths out of the source repair ([c6b487b](https://github.com/metronforge/affine-bundle-solver/commit/c6b487bfbb1861bb639f0acc6790b7d1570431b2))
+
 ## [0.3.1](https://github.com/metronforge/affine-bundle-solver/compare/v0.3.0...v0.3.1) (2026-09-08)
 
 
