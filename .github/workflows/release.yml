@@ -99,3 +99,36 @@ jobs:
             echo "the published release has no source archive attached"
             exit 1
           fi
+
+      # release-please runs as the FIRST step of this job, while the release it
+      # is creating is still a draft and therefore carries no tag.  Unable to
+      # find the tag of the release it has just made, it treats the whole
+      # history as unreleased and opens a follow-up release pull request
+      # listing commits that shipped in earlier versions.  Observed on v0.3.0:
+      # a "release 0.4.0" pull request proposing, among others, the initial
+      # public release that went out in v0.2.0.
+      #
+      # Any such pull request is wrong by construction.  It was computed before
+      # the tag published above existed, and at this point main is exactly the
+      # release commit, so there is nothing left to release.  Closing it is
+      # safe: release-please opens a correct one on the next push to main that
+      # actually has something in it, which is how a manual re-run after v0.3.0
+      # behaved once the tag was there.
+      - name: Discard the release pull request computed before the tag existed
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: release-please--branches--main
+          NOTE: >-
+            Computed before the release tag existed, so it lists commits that
+            shipped in earlier versions. release-please will open a correct one
+            on the next push to main that has something to release.
+        run: |
+          num=$(gh pr list --head "$BRANCH" --state open \
+                  --json number --jq '.[0].number // empty')
+          if [ -n "$num" ]; then
+            gh pr close "$num" --delete-branch --comment "$NOTE"
+            echo "closed stale release pull request #$num"
+          else
+            echo "no release pull request was opened during this run"
+          fi
