@@ -26,35 +26,34 @@ extern "C" {
 #endif
 
 /* ------------------------------------------------------------------------
- * Status codes as they appear in out[0] of the meta API.
+ * Status codes, reported in out[0] of the meta API.
  *
- * READ THE NOTE ON ABS_STATUS_FAIL BEFORE USING out[0].
+ * out[0] carries the class itself, all five of them.  Earlier releases
+ * mapped both FAIL and UNDECIDABLE onto 4, which erased the distinction the
+ * classification rests on; out[9] carried the unmapped class and had to be
+ * consulted to recover it.  The two fields now agree, and out[9] is kept
+ * only so that callers written against the old behaviour keep working.
  * ---------------------------------------------------------------------- */
 enum {
     ABS_STATUS_UNIQUE       = 1, /* the solution set is a single point       */
     ABS_STATUS_INFINITE     = 2, /* consistent, solution set has dimension>0 */
     ABS_STATUS_INCONSISTENT = 3, /* no solution exists                       */
 
-    /* out[0] == 4 means EITHER of two very different things, and the meta
-       API does not separate them in this field:
+    /* A refusal on resource grounds.  This asserts NOTHING about the data:
+       there may well be a unique solution.  The rank fields carry no
+       information in this case. */
+    ABS_STATUS_FAIL         = 4,
 
-         - FAIL: the router gave up on resource grounds.  This asserts
-           NOTHING about the data.  There may well be a unique solution.
-
-         - UNDECIDABLE: the data sits too close to a rank transition for a
-           point classification, and a rank INTERVAL [out[3], out[4]] is
-           returned in place of a point rank.  This is a statement about the
-           data, and a much stronger one than FAIL.
-
-       The two are separated only by out[9], which carries the raw internal
-       class: 4 for FAIL, 5 for UNDECIDABLE.  A caller that reads out[0]
-       alone cannot tell a resource refusal from a genuine near-degeneracy,
-       which is the distinction the whole classification rests on.  Read
-       out[9] whenever out[0] is 4. */
-    ABS_STATUS_FAIL_OR_UNDECIDABLE = 4
+    /* The data sits too close to a rank transition for a point answer.  This
+       IS a statement about the data, and a much stronger one than FAIL: a
+       rank INTERVAL [out[3], out[4]] is returned in place of a point rank.
+       Which interval, and how wide, is decided against
+       ABS_DEPENDENCE_THRESHOLD and ABS_GROWTH_THRESHOLD below. */
+    ABS_STATUS_UNDECIDABLE  = 5
 };
 
-/* Raw internal class, reported in out[9]. */
+/* Raw internal class, reported in out[9].  Equal to out[0]; retained for
+   callers written before out[0] carried the full class. */
 enum {
     ABS_CLS_UNIQUE       = 1,
     ABS_CLS_INFINITE     = 2,
@@ -75,9 +74,11 @@ enum {
  * Layout of the 11-element out vector of bsolve_router_meta_api.
  * ---------------------------------------------------------------------- */
 enum {
-    ABS_OUT_STATUS    = 0,  /* one of ABS_STATUS_*; see the note on 4       */
+    ABS_OUT_STATUS    = 0,  /* one of ABS_STATUS_*                          */
     ABS_OUT_CERTAINTY = 1,  /* one of ABS_CERTAINTY_*                       */
-    ABS_OUT_RANK      = 2,  /* point rank; meaningless when out[0]==4       */
+    ABS_OUT_RANK      = 2,  /* point rank; carries no information on FAIL,
+                               and on UNDECIDABLE the interval below is the
+                               answer rather than this field               */
     ABS_OUT_RANK_LO   = 3,  /* supported rank interval, lower end           */
     ABS_OUT_RANK_HI   = 4,  /* supported rank interval, upper end           */
     ABS_OUT_RELRES    = 5,  /* relative residual; NaN on FAIL/UNDECIDABLE.
@@ -89,7 +90,7 @@ enum {
     ABS_OUT_SECONDS   = 7,  /* wall clock.  Not reproducible.  Every
                                build-to-build comparison must exclude it.   */
     ABS_OUT_FALLBACK  = 8,  /* internal escalation indicator                */
-    ABS_OUT_CLS       = 9,  /* raw class, ABS_CLS_*; separates 4 from 5     */
+    ABS_OUT_CLS       = 9,  /* raw class, ABS_CLS_*; equal to out[0]        */
     ABS_OUT_BERR      = 10, /* rowwise mixed-norm backward error, finite
                                only for a deterministic UNIQUE result       */
     ABS_OUT_LEN       = 11
@@ -149,7 +150,7 @@ void abs_thresholds(double *dependence, double *growth);
  * randomised steps.  full requests the non-sketched path.
  *
  * Non-finite entries in A or b are rejected at this boundary and produce
- * FAIL.  The check is a bit-pattern test on the exponent field, because the
+ * FAIL, with the rank and residual fields carrying no information.  The check is a bit-pattern test on the exponent field, because the
  * router is compiled with -ffast-math, under which the compiler is entitled
  * to fold isfinite() to a constant, and does.
  *

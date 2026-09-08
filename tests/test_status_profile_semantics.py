@@ -171,8 +171,13 @@ print(f"degenerate case: ||P_null b0|| = {proj_norm:.3e}, "
 # any machine, and the checker is required to certify.  This is what stops
 # part one's one-sided assertion from being vacuous.
 # ---------------------------------------------------------------------------
-u = candidates[0] if proj_norm > 0.0 else Qn[:, 0]
-u = arr(u / np.linalg.norm(u))
+# The direction comes from the exact left-null basis, not from the projection
+# of b0: that projection is rounding noise, so it is a different vector on
+# every machine and the pivot row chosen from it differs too.  The verdict was
+# never in doubt either way -- the margin is seven orders -- but the reported
+# interval came out a factor of two apart on two platforms for no reason worth
+# having.
+u = arr(Qn[:, 0] / np.linalg.norm(Qn[:, 0]))
 delta = 1e-8 * float(np.linalg.norm(b0))
 b_inc = arr(b0 + delta * u)
 

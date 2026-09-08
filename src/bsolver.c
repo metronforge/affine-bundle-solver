@@ -835,10 +835,27 @@ void bsolve_router_api(const double*A,const double*b,const double*xt,int m,int n
     fill_out(solve_router(A,b,xt,m,n,sp,qv,alpha,(uint64_t)seed,full),out);}
 void bsolve_router_meta_api(const double*A,const double*b,const double*xt,int m,int n,int sp,int qv,int alpha,unsigned long long seed,int full,double*out){
     if(m>0&&n>0&&(bs_any_nonfinite(A,(size_t)m*n)||bs_any_nonfinite(b,(size_t)m))){
-        Result R={0}; BS_FAIL_RESULT(R,now_sec()); fill_out(R,out);
-        out[8]=0; out[9]=0; out[10]=(double)NAN; return; }
+        /* fill_out writes the SEVEN-field layout, which is not this
+           function's.  Writing it here put the elapsed time into
+           out[4] (the upper end of the rank interval, reported as a small
+           negative number) and left out[1] and out[9] at values that are not
+           valid codes at all.  The meta layout is written explicitly. */
+        out[0]=(double)CLS_FAIL;  out[1]=3.0;  /* certainty: none */
+        out[2]=0.0; out[3]=0.0; out[4]=0.0;
+        out[5]=(double)NAN; out[6]=(double)NAN;
+        out[7]=0.0; out[8]=0.0;
+        out[9]=(double)CLS_FAIL;
+        out[10]=(double)NAN; return; }
     grey_reset();g_max_orth_eta=0.0;g_core_rank_lo=g_core_rank_hi=-1;Result r=solve_router(A,b,xt,m,n,sp,qv,alpha,(uint64_t)seed,full);
-    int status=(r.cls==CLS_UNIQUE?1:(r.cls==CLS_INFINITE?2:(r.cls==CLS_INCONSISTENT?3:4)));
+    /* out[0] carries the class itself.  It used to map both CLS_FAIL and
+       CLS_UNDECIDABLE onto 4, which erased the distinction the whole
+       classification rests on: FAIL is a refusal on resource grounds that
+       asserts nothing about the data, while UNDECIDABLE asserts that the
+       data sits too close to a rank transition for a point answer and
+       returns an interval instead.  The seven-field fill_out layout has
+       always reported the class unmapped, so the two entry points of this
+       library disagreed about the meaning of their first field. */
+    int status=(int)r.cls;
     int certainty=((r.cls==CLS_UNDECIDABLE||r.cls==CLS_FAIL)?3:(r.accepted_random?2:1));
     int lo,hi;
     if(r.cls==CLS_UNDECIDABLE && g_source_rank_lo>=0){lo=g_source_rank_lo;hi=g_source_rank_hi;}
@@ -852,10 +869,10 @@ void bsolve_router_meta_api(const double*A,const double*b,const double*xt,int m,
        for both statuses.  A deterministic UNIQUE result is accepted only after a
        rowwise mixed-2-norm fixed-solution quality certificate has been computed;
        out[10] is finite only when that witness is actually claimed. */
-    out[5]=(status==4?NAN:r.relres);
-    out[6]=((status==3||status==4)?NAN:r.relx);
+    out[5]=((r.cls==CLS_FAIL||r.cls==CLS_UNDECIDABLE)?NAN:r.relres);
+    out[6]=((r.cls==CLS_INCONSISTENT||r.cls==CLS_FAIL||r.cls==CLS_UNDECIDABLE)?NAN:r.relx);
     out[7]=r.sec;out[8]=r.fallback;out[9]=r.cls;
-    out[10]=(certainty==1 && status==1 && g_last_berr_valid)?g_last_berr:NAN;
+    out[10]=(certainty==1 && r.cls==CLS_UNIQUE && g_last_berr_valid)?g_last_berr:NAN;
 }
 
 
@@ -998,9 +1015,7 @@ void abs_stream_status(const ABSStream *st, double *out)
     }
 
     out[ABS_OUT_CLS]     = (double)cls;
-    out[ABS_OUT_STATUS]  = (double)(cls == ABS_CLS_UNIQUE       ? 1 :
-                                    cls == ABS_CLS_INFINITE     ? 2 :
-                                    cls == ABS_CLS_INCONSISTENT ? 3 : 4);
+    out[ABS_OUT_STATUS]  = (double)cls;   /* the two fields agree; see router.h */
     out[ABS_OUT_CERTAINTY] = (double)(cls == ABS_CLS_UNDECIDABLE
                                       ? ABS_CERTAINTY_NONE
                                       : ABS_CERTAINTY_DETERMINISTIC);
