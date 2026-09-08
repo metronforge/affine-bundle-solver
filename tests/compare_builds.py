@@ -37,8 +37,14 @@ IDX_STATUS, IDX_CERTAINTY = 0, 1
 IDX_RANK, IDX_RANK_LO, IDX_RANK_HI = 2, 3, 4
 IDX_RELRES, IDX_RELX = 5, 6
 IDX_TIME = 7
+IDX_FALLBACK, IDX_CLS = 8, 9
 
-SEMANTIC = [IDX_STATUS, IDX_CERTAINTY, IDX_RANK, IDX_RANK_LO, IDX_RANK_HI]
+# IDX_CLS is compared even though it now equals IDX_STATUS.  While the two
+# were allowed to disagree, a build difference that turned UNDECIDABLE into
+# FAIL moved only IDX_CLS and this comparison did not look at it, so the one
+# divergence that would matter most was the one it could not see.  Keeping it
+# in the set costs nothing and makes the two fields required to stay in step.
+SEMANTIC = [IDX_STATUS, IDX_CERTAINTY, IDX_RANK, IDX_RANK_LO, IDX_RANK_HI, IDX_CLS]
 NUMERIC = [IDX_RELRES, IDX_RELX]
 
 STATUS = {0: "UNDETERMINED", 1: "UNIQUE", 2: "INFINITE",

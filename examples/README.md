@@ -10,12 +10,11 @@ inconsistent — and asks the router about each.
 
 What to look at is the reading of the answer, not the call:
 
-- `out[ABS_OUT_STATUS] == 4` is **not** "failed". It is either `FAIL`, a
-  refusal on resource grounds that asserts nothing about the data, or
-  `UNDECIDABLE`, which asserts that the data sits too close to a rank
-  transition for a point answer and returns a rank interval instead. The
-  two are separated only by `out[ABS_OUT_CLS]`. Branching on `out[0]` alone
-  reads a refusal as a conclusion.
+- `FAIL` and `UNDECIDABLE` are opposite kinds of statement, not degrees of
+  the same one. `FAIL` is a refusal on resource grounds and asserts nothing
+  about the data; `UNDECIDABLE` asserts that the data sits too close to a
+  rank transition for a point answer and returns a rank interval instead.
+  Treating both as failure discards the stronger of the two results.
 - The rank is an interval. `[r, r]` for a deterministic answer,
   `[r, min(m,n)]` when a randomised acceptance was used. The widening is
   information.

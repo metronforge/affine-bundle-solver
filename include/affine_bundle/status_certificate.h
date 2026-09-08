@@ -26,7 +26,13 @@ enum {
     BS_STATUS_UNIQUE = 1,
     BS_STATUS_INFINITE = 2,
     BS_STATUS_INCONSISTENT = 3,
-    BS_STATUS_UNRESOLVED = 4
+    /* Nothing was established.  Also the initial value of certified_status,
+       before any proof object has been accepted. */
+    BS_STATUS_UNRESOLVED = 4,
+    /* Reported in fast_status when the router declined a point answer and
+       returned a rank interval.  Distinct from UNRESOLVED: the router made a
+       statement about the data rather than failing to make one. */
+    BS_STATUS_UNDECIDABLE = 5
 };
 
 typedef struct {

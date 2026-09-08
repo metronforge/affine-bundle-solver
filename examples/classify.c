@@ -8,13 +8,12 @@
  * The point of the example is the reading, not the call.  Two things in
  * particular:
  *
- *   1. out[ABS_OUT_STATUS] == 4 does not mean "failed".  It means either
- *      FAIL (a resource refusal, which asserts nothing whatsoever about the
- *      data) or UNDECIDABLE (the data is too close to a rank transition for
- *      a point answer, so a rank interval is returned instead).  Those are
- *      opposite kinds of statement and they are separated only by
- *      out[ABS_OUT_CLS].  A caller that branches on out[0] alone will read a
- *      refusal as a conclusion.
+ *   1. FAIL and UNDECIDABLE are opposite kinds of statement and must not be
+ *      collapsed into "did not work".  FAIL is a refusal on resource
+ *      grounds and asserts nothing whatsoever about the data; UNDECIDABLE
+ *      asserts that the data is too close to a rank transition for a point
+ *      answer, and returns a rank interval instead.  A caller that treats
+ *      both as failure discards the stronger of the two results.
  *
  *   2. The rank is an interval.  For a deterministic answer the interval is
  *      a point, [r, r].  When a randomised acceptance was used it widens to
@@ -35,10 +34,8 @@ static const char *status_name(const double *out)
     case ABS_STATUS_UNIQUE:       return "UNIQUE";
     case ABS_STATUS_INFINITE:     return "INFINITE";
     case ABS_STATUS_INCONSISTENT: return "INCONSISTENT";
-    case 4:
-        /* This is the branch the example exists for. */
-        return ((int)out[ABS_OUT_CLS] == ABS_CLS_UNDECIDABLE)
-               ? "UNDECIDABLE" : "FAIL";
+    case ABS_STATUS_FAIL:        return "FAIL";
+    case ABS_STATUS_UNDECIDABLE: return "UNDECIDABLE";
     default:                      return "?";
     }
 }
@@ -69,8 +66,7 @@ static void report(const char *label, const double *A, const double *b)
            (int)out[ABS_OUT_RANK_HI],
            certainty_name(out));
 
-    if ((int)out[ABS_OUT_STATUS] == 4 &&
-        (int)out[ABS_OUT_CLS] == ABS_CLS_FAIL) {
+    if ((int)out[ABS_OUT_STATUS] == ABS_STATUS_FAIL) {
         printf("    (a refusal on resource grounds: this says nothing about "
                "the system)\n");
     }
@@ -114,7 +110,9 @@ int main(void)
     b[M / 3] += 1.0;
     report("inconsistent", A, b);
 
-    printf("\nout[ABS_OUT_STATUS] alone cannot distinguish FAIL from\n"
-           "UNDECIDABLE; out[ABS_OUT_CLS] carries that difference.\n");
+    printf("\nFAIL and UNDECIDABLE are different answers, not degrees of the\n"
+           "same one: the first asserts nothing about the system, the second\n"
+           "asserts that a point rank is not available and returns an\n"
+           "interval instead.\n");
     return 0;
 }
