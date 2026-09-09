@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/metronforge/affine-bundle-solver/compare/v0.4.0...v0.4.1) (2026-09-09)
+
+
+### Manuscript and documentation
+
+* add a 300-word abstract for journals with a length cap ([9c3406d](https://github.com/metronforge/affine-bundle-solver/commit/9c3406db6dc2a85c6b3ffbfbbfb53372bf75fb87))
+
 ## [0.4.0](https://github.com/metronforge/affine-bundle-solver/compare/v0.3.1...v0.4.0) (2026-09-08)
 
 

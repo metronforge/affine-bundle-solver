@@ -32,7 +32,7 @@ keywords:
   - certifying algorithms
   - verified numerical linear algebra
 license: Apache-2.0
-version: 0.4.0 # x-release-please-version
+version: 0.4.1 # x-release-please-version
 date-released: '2026-09-07'
 # Uncomment and fill once the preprint and Zenodo archive exist:
 # identifiers:
