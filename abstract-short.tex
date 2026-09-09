@@ -1,0 +1,48 @@
+% Short abstract, 250--300 words, for journals that cap the abstract.
+% The full version in paper.tex stays as the HAL deposit abstract.
+%
+% Three things are preserved because dropping any of them changes what the
+% paper claims: the affine bundle as the solver's state, certificates that a
+% separate checker verifies rather than trusts, and the explicit boundary of
+% the claim.  Nothing here is stated more strongly than in the full version;
+% the material removed is detail, not qualification.
+%
+% Uses \mathbb{R} (amssymb) and no macros from the paper preamble, so it can
+% be pasted into a publisher template unchanged.
+
+\begin{abstract}
+We study a solver architecture for real linear equality systems
+\(Ax=b\), \(A\in\mathbb{R}^{m\times n}\), \(b\in\mathbb{R}^m\), without
+assuming consistency, full rank, or a unique solution. The state is an affine
+bundle in canonical coordinates \((P,x)\), where \(P\) projects onto the
+accepted normal space and \(x\) is the minimum-norm point satisfying the
+accepted constraints. For an incoming equality \(a^Tz=\beta\), the quantities
+\(g=(I-P)a\) and \(\rho=\beta-a^Tx\) give an exact insertion calculus:
+nonzero \(g\) grows the bundle by one normal direction, while zero \(g\)
+separates redundancy from contradiction.
+
+In finite precision the fast router reports numerical status, epistemic
+strength, a supported numerical-rank interval, and fixed-solution quality
+separately, and leaves rows near a rank transition unresolved rather than
+forcing a binary decision. Compressed rows are proposal data, not source-row
+evidence: every route that can raise the deterministic source-rank lower
+bound carries a formation-error provenance budget and must pass an
+a-posteriori source-rank certificate.
+
+Certification is path independent. Three compact proof-object types target
+exact uniqueness, exact consistency with nonuniqueness, and exact
+inconsistency, and a separate strict-arithmetic checker derives, rather than trusts, an
+outward bound \(\eta_S\) in a rowwise augmented relative
+perturbation metric; acceptance implies a nearby real system of that exact
+type within \(\eta_S\). The audit API attempts all three types independently
+of the router and returns a router-independent profile
+\(\boldsymbol{\eta}=(\eta_{\rm uniq},\eta_{\rm inf},\eta_{\rm inc})\). These
+are existence upper bounds, not confidence scores: the exact status sets are
+not topologically separated, and at a compatible rank-deficient point all
+three distances can vanish together.
+
+Two property batteries, of 8{,}335 and 2{,}271 checks, report no hard
+failure. The experiments support a restricted claim of practical viability
+for dense equality classification, not universal superiority over
+general-purpose numerical linear algebra.
+\end{abstract}
