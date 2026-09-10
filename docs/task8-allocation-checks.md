@@ -37,10 +37,17 @@ through to the serial loop, which computes the same sketch.
 `abs_stream_create` no longer duplicates `bs_init`'s body to get a checkable
 allocation.
 
-The count on library paths is 55 -> 35. The remaining 35 are LAPACK
-workspaces and local buffers inside functions that now all have a failure
-channel, so they are the mechanical part: check after the group, free what
-was allocated, return through the channel.
+The count on library paths is **55 -> 0**. The mechanical part followed the
+refactor: check after each group, free what was allocated, return through the
+channel the function now has. Two route helpers gained a resource code while
+this was done. `try_square_lu_unique` and `try_sampled_source_fullrank` both
+returned 0 on a failed allocation, and 0 there means "declined, try another
+route" -- a smaller route that then succeeded would have turned the shortage
+into a verdict about the data. Both now return -1, and `solve_router_raw`
+maps it to `CLS_FAIL`.
+
+The 30 remaining sites are in the embedded benchmark driver, which is not on
+any library path and is reached only from `experiments/`.
 
 Router output stayed bit-identical on 64 systems across 8 shapes and 2
 seeds, and the changed paths are clean under ASan and UBSan.
