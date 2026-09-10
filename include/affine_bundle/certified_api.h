@@ -29,6 +29,12 @@ typedef struct {
     int rank_estimate;
     int rank_lo;
     int rank_hi;
+
+    /* NOT part of the eta profile below, despite the name.  This is a copy of
+       the fast router's out[ABS_OUT_BERR]: the backward error of the router's
+       own solution witness, produced by the UNTRUSTED layer, NaN outside a
+       deterministic UNIQUE.  It is not a distance to a nearby exact system and
+       carries none of the guarantees the eta_* fields carry. */
     double eta_x;
 
     /* Backward-compatible projection onto the fast router's proposed type.

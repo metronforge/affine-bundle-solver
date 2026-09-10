@@ -44,6 +44,10 @@ Outputs:
 forced into a binary answer, and resource exhaustion is never converted into a
 status verdict.
 
+Field-by-field semantics, the three decision thresholds, and what each
+guarantee does and does not cover are in [`docs/api.md`](docs/api.md), which
+is written to be read without the manuscript.
+
 ### Certificates
 
 An optional audit API attempts three typed proof objects — nearby exact
@@ -62,14 +66,33 @@ Two things to be clear about:
 
 ## Where it is fast, and where it is not
 
-Measured against LAPACK `DGELSY`/`DGELSD`, single-threaded BLAS:
+Single-threaded BLAS. The baseline differs by shape and must: square systems
+compare against `dgesv`, everything else against `dgelsy` — comparing a square
+system against a least-squares driver measures the cost of column pivoting
+rather than anything about this method.
 
-| Shape | Result |
-|---|---|
-| Overdetermined `m ≫ n` | **20–80× faster**, median ≈ 22× |
-| Overdetermined, heavily grouped rows | can be **slower** (observed 0.56×) |
-| Square | **0.6–0.9×** (slower than LU) |
-| Underdetermined `m < n` | **0.24–0.43×** (slower) |
+| Shape | Measured | Baseline |
+|---|---|---|
+| Overdetermined `m ≫ n` | **20–80× faster**, reproduced from 8000×32 up to 20000×2000 | `dgelsy` |
+| Square | **parity**, 1.03–1.06× at n = 256…2000 | `dgesv` |
+| Underdetermined `m < n`, moderate aspect | **0.35–0.62×** (slower) | `dgelsy` |
+| Underdetermined, `n/m` in the tens or hundreds | **0.02–0.09×** (far slower) | `dgelsy` |
+
+Two of these correct earlier figures, in both directions. The square case was
+previously stated as 0.6–0.9× and measures at parity: the method was
+understated there. The extreme underdetermined case was covered by a stated
+0.24–0.43× that was measured at moderate aspect only; at `n/m` of 44 and 420
+the penalty is an order beyond that, and `LPnetlib/lp_fit2d` at 25×10524 runs
+at 0.02×. A regression on "overdetermined with heavily grouped rows"
+previously reported as 0.56× has not been reproduced — the generator here
+comes out faster, not slower — and is recorded as open rather than restated.
+
+Every number above comes from a harness in `experiments/`, and the two
+findings documents say what each one does and does not support:
+[`docs/benchmark-findings.md`](docs/benchmark-findings.md) and
+[`docs/suitesparse-findings.md`](docs/suitesparse-findings.md).
+`experiments/synthetic_bench.py` exits nonzero when a claim stops
+reproducing, so this table can be checked rather than trusted.
 
 The speed argument applies to overdetermined equality classification only. On
 square and underdetermined shapes the argument is the classification output
@@ -120,7 +143,9 @@ builds agree on classification, rank, and rank interval.
 ```bash
 # fast regression suite
 for t in test_certified_api test_verifier_adversarial \
-         test_status_profile_semantics test_meta_api_absent_solution_quality; do
+         test_status_profile_semantics test_meta_api_absent_solution_quality \
+         test_threshold_contract test_streaming_equivalence \
+         test_public_diagnostics test_core_rank_boundary; do
   python3 tests/$t.py
 done
 
@@ -146,6 +171,8 @@ src/status_certificate.c/.h     independent proof-object checker
 src/certified_api.c/.h          audit API
 src/rounding_probe.c            build-time directed-rounding check
 src/mxcsr_probe.c               build-time FP-mode leak check
+include/affine_bundle/          public headers: router, stream, certificates
+docs/api.md                     how to call it, without reading the paper
 tests/                          regression suites and property batteries
 experiments/                    manuscript table reruns
 results/                        JSON records behind every manuscript table
