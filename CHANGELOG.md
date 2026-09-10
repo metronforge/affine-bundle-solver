@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.4.3](https://github.com/metronforge/affine-bundle-solver/compare/v0.4.2...v0.4.3) (2026-09-10)
+
+
+### Bug fixes
+
+* check every allocation on the library paths ([b59f03b](https://github.com/metronforge/affine-bundle-solver/commit/b59f03b3a6c5bd391141d0ec7c7feada29f62995))
+* reset every last-call diagnostic on both router entry points ([4e70774](https://github.com/metronforge/affine-bundle-solver/commit/4e707747921a829127e7401d9df9782b212b6d80))
+* **tests:** the soundness side of a range claim admits no slack ([d993ff6](https://github.com/metronforge/affine-bundle-solver/commit/d993ff66bc5aba6c58335d86ae1963ecb8058415))
+
+
+### Manuscript and documentation
+
+* full is accepted and ignored, and the header said otherwise ([01f7e83](https://github.com/metronforge/affine-bundle-solver/commit/01f7e833c558057d35c50468ebe49fed640e2524))
+* report the negative and contextual benchmark results ([637135b](https://github.com/metronforge/affine-bundle-solver/commit/637135b5ee6c70e73f30e57d22ca04f7c0c4b744))
+* standalone API reference, eta_x provenance, measured performance table ([72c256c](https://github.com/metronforge/affine-bundle-solver/commit/72c256cae89d9ae7e9fd7b194d3227b1d5416fa3))
+
 ## [0.4.2](https://github.com/metronforge/affine-bundle-solver/compare/v0.4.1...v0.4.2) (2026-09-10)
 
 
