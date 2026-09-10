@@ -521,7 +521,12 @@ static int source_closure_no_growth(const BState*s,const double*A,const double*b
 }
 
 static Result solve_auto_qr(const double*A,const double*b,const double*xt,int m,int n,int sp,int qv,int alpha,int stall_limit,uint64_t seed,int do_full_residual,int allow_corefast){
- Result R={0}; double t0=now_sec(); double tr=1e-10,tc=2e-10; BState pre;if(bs_init(&pre,n)){BS_FAIL_RESULT(R,t0);return R;} int p=0,stall=0;
+ (void)alpha;(void)do_full_residual;
+    /* Accepted and ignored; see the note on `full` in
+       include/affine_bundle/router.h.  Named explicitly so the unused
+       parameter is a recorded decision rather than one more line in the
+       warning scan. */
+ Result R={0}; double t0=now_sec(); double tc=2e-10; BState pre;if(bs_init(&pre,n)){BS_FAIL_RESULT(R,t0);return R;} int p=0,stall=0;
  // Adaptive exact prefix: keep going while information keeps growing; switch after a redundancy streak.
  /* A grey (rc==2) prefix row needs no separate ambiguity flag: it does not
     raise pre.r, it is recorded by grey_record for diagnostics, and the row
@@ -567,7 +572,12 @@ static Result solve_auto_qr(const double*A,const double*b,const double*xt,int m,
 void bsolve_auto_qr_api(const double*A,const double*b,const double*xt,int m,int n,int sp,int qv,int alpha,int stall,unsigned long long seed,int full,double*out){fill_out(solve_auto_qr(A,b,xt,m,n,sp,qv,alpha,stall,(uint64_t)seed,full,1),out);}
 
 static Result solve_global_qr(const double*A,const double*b,const double*xt,int m,int n,int sp,int qv,int alpha,uint64_t seed,int do_full_residual){
-    Result R={0}; double t0=now_sec(); double tr=1e-10,tc=2e-10;
+    (void)do_full_residual;
+    /* Accepted and ignored; see the note on `full` in
+       include/affine_bundle/router.h.  Named explicitly so the unused
+       parameter is a recorded decision rather than one more line in the
+       warning scan. */
+    Result R={0}; double t0=now_sec(); double tc=2e-10;
     int k=alpha*(n+1); if(k>m)k=m; if(k<1)k=1;
     double*C=calloc((size_t)k*n,sizeof(double)),*d=calloc(k,sizeof(double)),*E=calloc((size_t)qv*n,sizeof(double)),*f=calloc(qv,sizeof(double));
     double*formT=calloc((size_t)k,sizeof(double));int*formL=calloc((size_t)k,sizeof(int));
@@ -650,6 +660,11 @@ static int try_secant_tail(const double*A,const double*b,const double*xt,int m,i
 }
 
 static Result solve_blockprefix_qr(const double*A,const double*b,const double*xt,int m,int n,int sp,int qv,int alpha,uint64_t seed,int do_full_residual){
+ (void)alpha;(void)do_full_residual;
+    /* Accepted and ignored; see the note on `full` in
+       include/affine_bundle/router.h.  Named explicitly so the unused
+       parameter is a recorded decision rather than one more line in the
+       warning scan. */
  Result R={0}; double t0=now_sec(); int p=n<m?n:m; double tc=2e-10;
  double *Pcore=NULL,*py=NULL,*C=NULL,*d=NULL,*E=NULL,*f=NULL,*Core=NULL,*cy=NULL;
  double *formT=NULL,*valT=NULL;int *formL=NULL,*valL=NULL;BState pre={0},fcan={0},cand={0};int pre_live=0,fcan_live=0,cand_live=0;

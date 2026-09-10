@@ -119,9 +119,18 @@ information only in the cases noted.
 `xt` is optional and feeds field 6 only. Pass `NULL` when there is no
 reference solution.
 
-`sp`, `qv`, `alpha` select sketch width, verification passes and acceptance
-scale; `(1, 2, 2)` is what the manuscript reports and what the test batteries
-use. `full` requests the non-sketched path.
+`sp`, `qv` and `alpha` select sketch width, verification passes and
+acceptance scale; `(1, 2, 2)` is what the manuscript reports and what the
+test batteries use. `alpha` reaches only some of the routes, so changing it
+does not always change the answer.
+
+`full` is accepted and ignored. It once selected a deterministic pass over
+the whole source system instead of the randomised closure check. Every route
+the router selects now does source-derived rank arbitration by itself where
+the evidence requires it, so the choice is no longer the caller's; only the
+embedded benchmark route still reads the flag. The parameter stays in the
+signature because the entry points are exported. Passing 1 does not buy a
+stricter answer, and passing 0 does not lose one.
 
 **Non-finite entries** in `A` or `b` are rejected at the API boundary and
 produce `FAIL`, with rank and residual carrying nothing.
