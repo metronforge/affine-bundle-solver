@@ -186,7 +186,17 @@ double abs_quality_threshold(void);
  * sp, qv and alpha select the sketch width, the number of verification
  * passes and the acceptance threshold scale; (1, 2, 2) is what the
  * manuscript reports and what the batteries use.  seed drives the
- * randomised steps.  full requests the non-sketched path.
+ * randomised steps.  alpha reaches only some of the routes, so changing it
+ * does not always change the answer.
+ *
+ * full is accepted and ignored.  It once selected a deterministic pass over
+ * the whole source system in place of the randomised closure check.  Every
+ * route the router selects now performs source-derived rank arbitration on
+ * its own where the evidence requires it -- the formation guard, the
+ * source-QRCP escalation and the full compatibility scan -- so the choice is
+ * no longer the caller's to make.  Only the embedded benchmark route still
+ * reads the flag.  The parameter is kept because these entry points are
+ * exported and callers link against these signatures.
  *
  * Non-finite entries in A or b are rejected at this boundary and produce
  * FAIL, with the rank and residual fields carrying no information.  The check is a bit-pattern test on the exponent field, because the
