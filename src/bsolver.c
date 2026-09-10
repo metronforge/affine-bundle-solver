@@ -291,6 +291,18 @@ static _Thread_local int g_core_undecidable=0;
 static _Thread_local int g_last_core_qr_rank=-1;
 static _Thread_local int g_core_rank_lo=-1,g_core_rank_hi=-1;
 static _Thread_local unsigned long long g_fg_checks=0,g_fg_escalations=0,g_source_qrcp_calls=0;
+/* Every accessor below the entry points reports state from "the most recent
+   router call", so each entry point has to clear all of it, not some of it.
+   g_last_core_qr_rank had no reset at all: a route that never reaches
+   core_qr_state left the value from an earlier call in place, and a caller
+   could read a rank belonging to a system of a different width.  Collected
+   here so that adding a diagnostic global does not silently skip a reset. */
+static void diag_reset(void){
+    grey_reset();
+    g_max_orth_eta=0.0;
+    g_core_rank_lo=g_core_rank_hi=-1;
+    g_last_core_qr_rank=-1;
+}
 static int core_has_rank_boundary(const double*Core,int rows,int n){
     int M=rows,N=n,LDA=rows,minmn=M<N?M:N,info=0; char ju='N',jv='N';
     double *Ac=malloc((size_t)M*N*sizeof(double));if(!Ac)return -1;for(int j=0;j<N;j++)for(int i=0;i<M;i++)Ac[i+(size_t)j*M]=Core[(size_t)i*n+j];
@@ -847,6 +859,12 @@ void bsolve_router_api(const double*A,const double*b,const double*xt,int m,int n
        the internal isfinite() guards cannot do this under -ffast-math. */
     if(m>0&&n>0&&(bs_any_nonfinite(A,(size_t)m*n)||bs_any_nonfinite(b,(size_t)m))){
         Result R={0}; BS_FAIL_RESULT(R,now_sec()); fill_out(R,out); return; }
+    /* This entry point ran the router without clearing the diagnostics, so
+       grey counts accumulated across calls and the accessors described a
+       mixture of two systems.  It exports no diagnostics itself, but it
+       shares the accessors with bsolve_router_meta_api and the header
+       promises them per call. */
+    diag_reset();
     fill_out(solve_router(A,b,xt,m,n,sp,qv,alpha,(uint64_t)seed,full),out);}
 void bsolve_router_meta_api(const double*A,const double*b,const double*xt,int m,int n,int sp,int qv,int alpha,unsigned long long seed,int full,double*out){
     if(m>0&&n>0&&(bs_any_nonfinite(A,(size_t)m*n)||bs_any_nonfinite(b,(size_t)m))){
@@ -861,7 +879,7 @@ void bsolve_router_meta_api(const double*A,const double*b,const double*xt,int m,
         out[7]=0.0; out[8]=0.0;
         out[9]=(double)CLS_FAIL;
         out[10]=(double)NAN; return; }
-    grey_reset();g_max_orth_eta=0.0;g_core_rank_lo=g_core_rank_hi=-1;Result r=solve_router(A,b,xt,m,n,sp,qv,alpha,(uint64_t)seed,full);
+    diag_reset();Result r=solve_router(A,b,xt,m,n,sp,qv,alpha,(uint64_t)seed,full);
     /* out[0] carries the class itself.  It used to map both CLS_FAIL and
        CLS_UNDECIDABLE onto 4, which erased the distinction the whole
        classification rests on: FAIL is a refusal on resource grounds that
