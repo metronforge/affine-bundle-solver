@@ -333,7 +333,8 @@ if(ABS_BUILD_TESTING)
             test_threshold_contract
             test_public_diagnostics
             test_core_rank_boundary
-            test_blockprefix_guard)
+            test_blockprefix_guard
+            test_route_agreement)
       add_test(NAME ${_battery}
                COMMAND ${Python3_EXECUTABLE}
                        ${CMAKE_CURRENT_SOURCE_DIR}/tests/${_battery}.py)
