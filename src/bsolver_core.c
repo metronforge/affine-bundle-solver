@@ -51,7 +51,6 @@ static double norm2(const double*a,int n){
     double scale=0.0,sumsq=1.0; for(int i=0;i<n;i++){double av=fabs(a[i]);if(av!=0.0){if(scale<av){double q=scale/av;sumsq=1.0+sumsq*q*q;scale=av;}else{double q=av/scale;sumsq+=q*q;}}} return scale==0.0?0.0:scale*sqrt(sumsq);
 }
 
-static long double dot_ld(const double*a,const double*b,int n){ long double s=0.0L; for(int i=0;i<n;i++)s+=(long double)a[i]*(long double)b[i]; return s; }
 static void bs_accumulate_new_q_defect(BState*s,const double*q){
     /* Incremental a-posteriori Gram defect.  Double accumulation is deliberate:
        the defect enters the distance envelope quadratically, while a small

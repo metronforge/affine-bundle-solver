@@ -419,7 +419,8 @@ only against the installed interface and never see `src/`.
 The library also exports `bsolve_fast_api`, `bsolve_auto_api`,
 `bsolve_auto_qr_api`, `bsolve_block_api`, `bsolve_global_api`,
 `bsolve_global_qr_api`, `bsolve_lapack_api`, `bsolve_seq_api` and
-`bsolver_bench_embedded_main`. These are individual routes and a benchmark
+`bsolver_bench_embedded_main`.  The first two of the `global` pair are the
+same route: `bsolve_global_api` forwards to `bsolve_global_qr_api`. These are individual routes and a benchmark
 driver called from the manuscript's Python scripts. They run one strategy and
 report what it produced; they do not classify, and they are deliberately
 declared in no header. Presence in the dynamic symbol table is not the same as

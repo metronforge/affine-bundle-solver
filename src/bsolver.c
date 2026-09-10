@@ -277,7 +277,6 @@ static int reset_source_guarded(BState*s,const double*A,const double*b,int m,int
     }
     g_source_rank_lo=s->r;g_source_rank_hi=n;return 2;
 }
-void bsolve_global_api(const double*A,const double*b,const double*xt,int m,int n,int sp,int qv,int alpha,unsigned long long seed,int full,double*out){fill_out(solve_global_qr(A,b,xt,m,n,sp,qv,alpha,(uint64_t)seed,full),out);}
 
 void bsolve_auto_api(const double*A,const double*b,const double*xt,int m,int n,int sp,int qv,int alpha,int stall,unsigned long long seed,int full,double*out){fill_out(solve_auto_qr(A,b,xt,m,n,sp,qv,alpha,stall,(uint64_t)seed,full,0),out);}
 
@@ -517,21 +516,6 @@ static int source_closure_no_growth(const BState*s,const double*A,const double*b
     return 1;
 }
 
-static int try_tall_qr_unique_core(const double*Core,const double*y,int rows,int n,double*x,double*rcond_out,double*rr_out){
-    if(rows<n) return 0;
-    int M=rows,N=n,NRHS=1,LDA=rows,LDB=rows>n?rows:n,info=0,lw=-1; char trans='N';
-    double *Ac=malloc((size_t)rows*n*sizeof(double)), *rhs=calloc((size_t)LDB,sizeof(double));
-    for(int j=0;j<n;j++)for(int i=0;i<rows;i++)Ac[i+(size_t)j*rows]=Core[(size_t)i*n+j]; memcpy(rhs,y,(size_t)rows*sizeof(double));
-    double wq=0; dgels_(&trans,&M,&N,&NRHS,Ac,&LDA,rhs,&LDB,&wq,&lw,&info); if(info){free(Ac);free(rhs);return 0;} lw=(int)wq; double*work=malloc((size_t)lw*sizeof(double));
-    for(int j=0;j<n;j++)for(int i=0;i<rows;i++)Ac[i+(size_t)j*rows]=Core[(size_t)i*n+j]; memcpy(rhs,y,(size_t)rows*sizeof(double));
-    dgels_(&trans,&M,&N,&NRHS,Ac,&LDA,rhs,&LDB,work,&lw,&info); if(info){free(Ac);free(rhs);free(work);return 0;}
-    char norm='1',uplo='U',diag='N'; double rcond=0; double *w2=malloc((size_t)3*n*sizeof(double)); int *iw=malloc((size_t)n*sizeof(int));
-    dtrcon_(&norm,&uplo,&diag,&N,Ac,&LDA,&rcond,w2,iw,&info); *rcond_out=rcond;
-    if(info || rcond<1e-8){free(Ac);free(rhs);free(work);free(w2);free(iw);return 0;}
-    double nr=0,ny=0; for(int i=0;i<rows;i++){double d=dot(Core+(size_t)i*n,rhs,n)-y[i];nr+=d*d;ny+=y[i]*y[i];} double rr=sqrt(nr)/(sqrt(ny)+1e-300);*rr_out=rr;
-    if(rr>1e-11){free(Ac);free(rhs);free(work);free(w2);free(iw);return 0;}
-    memcpy(x,rhs,(size_t)n*sizeof(double)); free(Ac);free(rhs);free(work);free(w2);free(iw);return 1;
-}
 static Result solve_auto_qr(const double*A,const double*b,const double*xt,int m,int n,int sp,int qv,int alpha,int stall_limit,uint64_t seed,int do_full_residual,int allow_corefast){
  Result R={0}; double t0=now_sec(); double tr=1e-10,tc=2e-10; BState pre;bs_init(&pre,n); int p=0,stall=0;
  // Adaptive exact prefix: keep going while information keeps growing; switch after a redundancy streak.
@@ -605,6 +589,12 @@ done1: bs_free(&cand);
 done0: free(formT);free(formL);free(CoreEps);free(wpiv);free(wR);free(C);free(d);free(E);free(f);free(Core);free(cy);return R;
 }
 void bsolve_global_qr_api(const double*A,const double*b,const double*xt,int m,int n,int sp,int qv,int alpha,unsigned long long seed,int full,double*out){fill_out(solve_global_qr(A,b,xt,m,n,sp,qv,alpha,(uint64_t)seed,full),out);}
+/* bsolve_global_api was a second copy of the body above, defined three
+   hundred lines earlier -- two exported symbols for one route, which
+   would drift apart the first time either was changed.  Kept as a
+   forwarder because it is exported and something outside this repository
+   may be linking against it. */
+void bsolve_global_api(const double*A,const double*b,const double*xt,int m,int n,int sp,int qv,int alpha,unsigned long long seed,int full,double*out){bsolve_global_qr_api(A,b,xt,m,n,sp,qv,alpha,seed,full,out);}
 
 
 static int bs_insert_guarded(BState*s,const double*a0,double beta0,double tolcon){ return bs_insert_certified(s,a0,beta0,tolcon); }
