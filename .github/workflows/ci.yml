@@ -117,7 +117,9 @@ jobs:
                    test_status_profile_semantics \
                    test_meta_api_absent_solution_quality \
                    test_streaming_equivalence \
-                   test_threshold_contract; do
+                   test_threshold_contract \
+                   test_public_diagnostics \
+                   test_core_rank_boundary; do
             echo "::group::$t"
             python tests/$t.py
             echo "::endgroup::"

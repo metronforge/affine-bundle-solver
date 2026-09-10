@@ -330,7 +330,9 @@ if(ABS_BUILD_TESTING)
             test_verifier_adversarial
             test_meta_api_absent_solution_quality
             test_streaming_equivalence
-            test_threshold_contract)
+            test_threshold_contract
+            test_public_diagnostics
+            test_core_rank_boundary)
       add_test(NAME ${_battery}
                COMMAND ${Python3_EXECUTABLE}
                        ${CMAKE_CURRENT_SOURCE_DIR}/tests/${_battery}.py)
