@@ -174,9 +174,11 @@ static Result solve_fast(const double*A,const double*b,const double*xt,int m,int
  }
  int dh=(n+1)-pre.r; int k=alpha*dh; if(k<dh)k=dh; if(k>m-p)k=m-p; if(k<1)k=1;
  double*C=calloc((size_t)k*n,sizeof(double)),*d=calloc(k,sizeof(double)),*E=calloc((size_t)qv*n,sizeof(double)),*f=calloc(qv,sizeof(double));
+ if(!C||!d||!E||!f){free(C);free(d);free(E);free(f);bs_free(&pre);BS_FAIL_RESULT(R,t0);return R;}
  sketch_remainder(A,b,p,m,n,k,sp,qv,seed,C,d,E,f,NULL,NULL,NULL,NULL);
  // Build one small normalized core = exact prefix rows + sketch rows; solve it stably by SVD.
  int crmax=p+k, cr=0; double*Core=malloc((size_t)crmax*n*sizeof(double)), *cy=malloc(crmax*sizeof(double));
+ if(!Core||!cy){free(Core);free(cy);free(C);free(d);free(E);free(f);bs_free(&pre);BS_FAIL_RESULT(R,t0);return R;}
  for(int i=0;i<p;i++){double an=norm2(A+(size_t)i*n,n);if(an==0)continue;for(int j=0;j<n;j++)Core[(size_t)cr*n+j]=A[(size_t)i*n+j]/an;cy[cr]=b[i]/an;cr++;}
  for(int i=0;i<k;i++){double an=norm2(C+(size_t)i*n,n);if(an==0)continue;for(int j=0;j<n;j++)Core[(size_t)cr*n+j]=C[(size_t)i*n+j]/an;cy[cr]=d[i]/an;cr++;}
  BState cand; double core_rr=0; if(core_svd_state(Core,cy,cr,n,&cand,&core_rr,1e-11)!=0){R.fallback=1;if(bs_copy(&cand,&pre)){free(C);free(d);free(E);free(f);bs_free(&pre);BS_FAIL_RESULT(R,t0);return R;}for(int i=p;i<m;i++){bs_insert(&cand,A+(size_t)i*n,b[i],tr,tc);if(cand.inconsistent)break;}}

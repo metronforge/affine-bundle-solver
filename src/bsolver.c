@@ -166,6 +166,7 @@ static int local_dependency_svd(const BState*s,const double*a){
     dgesvd_(&ju,&jv,&M,&N,Ac,&LDA,sv,&du,&ldu,&dv,&ldvt,&wq,&lw,&info);
     if(info){free(Ac);free(sv);return 2;}
     lw=(int)wq;if(lw<1)lw=1;double *work=malloc((size_t)lw*sizeof(double));
+    if(!work){free(Ac);free(sv);return 2;}
     for(int j=0;j<n;j++){
         for(int i=0;i<r;i++)Ac[i+(size_t)j*M]=s->Q[(size_t)i*n+j];
         Ac[r+(size_t)j*M]=a[j];
@@ -311,6 +312,7 @@ static int core_has_rank_boundary(const double*Core,int rows,int n){
     double *Ac=malloc((size_t)M*N*sizeof(double));if(!Ac)return -1;for(int j=0;j<N;j++)for(int i=0;i<M;i++)Ac[i+(size_t)j*M]=Core[(size_t)i*n+j];
     double *sv=malloc((size_t)minmn*sizeof(double));double du=0,dv=0,wq;int ldu=1,ldvt=1,lw=-1;
     dgesvd_(&ju,&jv,&M,&N,Ac,&LDA,sv,&du,&ldu,&dv,&ldvt,&wq,&lw,&info);lw=(int)wq;double*work=malloc((size_t)lw*sizeof(double));
+    if(!sv||!work){free(Ac);free(sv);free(work);return -1;}
     for(int j=0;j<N;j++)for(int i=0;i<M;i++)Ac[i+(size_t)j*M]=Core[(size_t)i*n+j];dgesvd_(&ju,&jv,&M,&N,Ac,&LDA,sv,&du,&ldu,&dv,&ldvt,work,&lw,&info);
     int amb=0;g_core_rank_lo=0;g_core_rank_hi=0;if(!info&&minmn&&sv[0]>0){for(int i=0;i<minmn;i++){double q=sv[i]/sv[0];if(q>1e-9)g_core_rank_lo++;if(q>1e-12)g_core_rank_hi++;if(q>=1e-12&&q<=1e-9)amb=1;}}
     free(Ac);free(sv);free(work);return amb;
@@ -321,10 +323,12 @@ static int core_qr_state(const double*Core,const double*y,int rows,int n,BState*
        reuse R directly for the anchor least-squares solve instead of rebuilding Core*Q_r. */
     if(wvalid)*wvalid=0;
     int M=n,N=rows,LDA=n,info=0,minmn=M<N?M:N;
-    double *AT=malloc((size_t)M*N*sizeof(double));
+    double *AT=malloc((size_t)M*N*sizeof(double)); if(!AT)return -1;
     for(int j=0;j<N;j++)for(int i=0;i<M;i++)AT[i+(size_t)j*M]=Core[(size_t)j*n+i];
     int *jpvt=calloc(N,sizeof(int)); double *tau=malloc((size_t)minmn*sizeof(double)); double wq; int lw=-1;
+    if(!jpvt||!tau){free(AT);free(jpvt);free(tau);return -1;}
     dgeqp3_(&M,&N,AT,&LDA,jpvt,tau,&wq,&lw,&info); if(info){free(AT);free(jpvt);free(tau);return -1;} lw=(int)wq; double*work=malloc((size_t)lw*sizeof(double));
+    if(!work){free(AT);free(jpvt);free(tau);return -1;}
     for(int j=0;j<N;j++)for(int i=0;i<M;i++)AT[i+(size_t)j*M]=Core[(size_t)j*n+i]; memset(jpvt,0,(size_t)N*sizeof(int));
     dgeqp3_(&M,&N,AT,&LDA,jpvt,tau,work,&lw,&info); if(info){free(AT);free(jpvt);free(tau);free(work);return -1;}
     double r00=minmn?fabs(AT[0]):0; int r=0; for(int i=0;i<minmn;i++){double rii=fabs(AT[i+(size_t)i*M]); if(rii>r00*ranktol)r++; else break;}
@@ -337,14 +341,17 @@ static int core_qr_state(const double*Core,const double*y,int rows,int n,BState*
     if(r==0){if(bs_init(out,n)){free(AT);free(jpvt);free(tau);free(work);return -1;}double nr=norm2(y,rows),ny=nr;*relr=nr/(ny+1e-300);free(AT);free(jpvt);free(tau);free(work);return 0;}
     /* Rtop is rows x r, column-major, and rhs follows the QRCP row permutation. */
     int RR=rows,Rr=r,NRHS=1,LDB=rows>r?rows:r; double *Rtop=calloc((size_t)rows*r,sizeof(double)),*rhs=calloc((size_t)LDB,sizeof(double));
+    if(!Rtop||!rhs){free(AT);free(jpvt);free(tau);free(work);free(Rtop);free(rhs);return -1;}
     for(int j=0;j<rows;j++){rhs[j]=y[jpvt[j]-1]; for(int i=0;i<r;i++)Rtop[j+(size_t)i*rows]=(i<=j)?AT[i+(size_t)j*M]:0.0;}
     char trans='N'; lw=-1; dgels_(&trans,&RR,&Rr,&NRHS,Rtop,&RR,rhs,&LDB,&wq,&lw,&info); if(info){free(AT);free(jpvt);free(tau);free(work);free(Rtop);free(rhs);return -1;} int lw3=(int)wq; double *work3=malloc((size_t)lw3*sizeof(double));
+    if(!work3){free(AT);free(jpvt);free(tau);free(work);free(Rtop);free(rhs);return -1;}
     /* DGELS workspace query may touch the matrix; reconstruct R^T. */
     for(int j=0;j<rows;j++)for(int i=0;i<r;i++)Rtop[j+(size_t)i*rows]=(i<=j)?AT[i+(size_t)j*M]:0.0;
     dgels_(&trans,&RR,&Rr,&NRHS,Rtop,&RR,rhs,&LDB,work3,&lw3,&info); if(info){free(AT);free(jpvt);free(tau);free(work);free(Rtop);free(rhs);free(work3);return -1;}
     int NQ=r,K=r; lw=-1; dorgqr_(&M,&NQ,&K,AT,&LDA,tau,&wq,&lw,&info); if(info){free(AT);free(jpvt);free(tau);free(work);free(Rtop);free(rhs);free(work3);return -1;} int lw2=(int)wq; double*work2=malloc((size_t)lw2*sizeof(double));
+    if(!work2){free(AT);free(jpvt);free(tau);free(work);free(Rtop);free(rhs);free(work3);return -1;}
     dorgqr_(&M,&NQ,&K,AT,&LDA,tau,work2,&lw2,&info); if(info){free(AT);free(jpvt);free(tau);free(work);free(Rtop);free(rhs);free(work3);free(work2);return -1;}
-    if(bs_init(out,n)){free(AT);free(jpvt);free(tau);free(work);free(Rtop);free(rhs);free(work3);return -1;}out->r=r; for(int l=0;l<r;l++){double*q=out->Q+(size_t)l*n;double c=rhs[l];for(int j=0;j<n;j++){q[j]=AT[j+(size_t)l*n];out->x[j]+=q[j]*c;}} bs_set_backend_orth_bound(out); if(wvalid)*wvalid=1;
+    if(bs_init(out,n)){free(AT);free(jpvt);free(tau);free(work);free(Rtop);free(rhs);free(work3);free(work2);return -1;}out->r=r; for(int l=0;l<r;l++){double*q=out->Q+(size_t)l*n;double c=rhs[l];for(int j=0;j<n;j++){q[j]=AT[j+(size_t)l*n];out->x[j]+=q[j]*c;}} bs_set_backend_orth_bound(out); if(wvalid)*wvalid=1;
     double nr=0,ny=0;for(int i=0;i<rows;i++){double rr0=dot(Core+(size_t)i*n,out->x,n)-y[i];nr+=rr0*rr0;ny+=y[i]*y[i];}*relr=sqrt(nr)/(sqrt(ny)+1e-300);
     free(AT);free(jpvt);free(tau);free(work);free(Rtop);free(rhs);free(work3);free(work2);return 0;
 }
@@ -452,6 +459,7 @@ static int source_qrcp_trusted(const double*A,const double*b,const double*xt,
     int r=rlo;
     if(r==0){
         double *x0=calloc((size_t)n,sizeof(double));double rr=0.0;
+        if(!x0){free(AT);free(yn);free(jpvt);free(tau);free(work);return -1;}
         int bad=compat_scan_fused(A,b,x0,m,n,tc,&rr);
         R->cls=bad?CLS_INCONSISTENT:CLS_INFINITE;R->rank=0;R->fallback=1;
         R->accepted_random=0;R->relres=rr;R->relx=relxerr(x0,xt,n);R->sec=now_sec()-t0;
@@ -474,6 +482,7 @@ static int source_qrcp_trusted(const double*A,const double*b,const double*xt,
     dgels_(&trans,&RR,&RR,&NRHS,Rt,&RR,coef,&LDB,&wq3,&lw3,&info);
     if(info){free(Rt);free(coef);free(Ksel);free(Keps);free(Rw);free(ipivw);free(AT);free(yn);free(jpvt);free(tau);free(work);return -1;}
     lw3=(int)wq3;if(lw3<1)lw3=1;double *work3=malloc((size_t)lw3*sizeof(double));
+    if(!work3){free(Rt);free(coef);free(Ksel);free(Keps);free(Rw);free(ipivw);free(AT);free(yn);free(jpvt);free(tau);free(work);return -1;}
     /* Rebuild R11^T after workspace query. */
     for(int col=0;col<r;col++)for(int row=0;row<r;row++)
         Rt[row+(size_t)col*r]=(col<=row)?AT[col+(size_t)row*n]:0.0;
@@ -484,6 +493,7 @@ static int source_qrcp_trusted(const double*A,const double*b,const double*xt,
     dorgqr_(&M,&NQ,&K,AT,&LDA,tau,&wq2,&lw2,&info);
     if(info){free(Rt);free(coef);free(work3);free(Ksel);free(Keps);free(Rw);free(ipivw);free(AT);free(yn);free(jpvt);free(tau);free(work);return -1;}
     lw2=(int)wq2;if(lw2<1)lw2=1;double *work2=malloc((size_t)lw2*sizeof(double));
+    if(!work2){free(work3);free(Rt);free(coef);free(Ksel);free(Keps);free(Rw);free(ipivw);free(AT);free(yn);free(jpvt);free(tau);free(work);return -1;}
     dorgqr_(&M,&NQ,&K,AT,&LDA,tau,work2,&lw2,&info);
     if(info){free(Rt);free(coef);free(work3);free(work2);free(Ksel);free(Keps);free(Rw);free(ipivw);free(AT);free(yn);free(jpvt);free(tau);free(work);return -1;}
     g_fg_checks++;
@@ -493,6 +503,7 @@ static int source_qrcp_trusted(const double*A,const double*b,const double*xt,
         free(Rt);free(coef);free(work3);free(work2);free(Ksel);free(Keps);free(Rw);free(ipivw);free(AT);free(yn);free(jpvt);free(tau);free(work);return 0;
     }
     double *x=calloc((size_t)n,sizeof(double));
+    if(!x){free(work3);free(work2);free(Rt);free(coef);free(Ksel);free(Keps);free(Rw);free(ipivw);free(AT);free(yn);free(jpvt);free(tau);free(work);return -1;}
     for(int k=0;k<r;k++){double c=coef[k];for(int j=0;j<n;j++)x[j]+=AT[j+(size_t)k*n]*c;}
     double rr=0.0;int bad=compat_scan_fused(A,b,x,m,n,tc,&rr);
     R->cls=bad?CLS_INCONSISTENT:(r==n?CLS_UNIQUE:CLS_INFINITE);
@@ -634,8 +645,11 @@ static void secant_downdate(double*z,const double*q,int n,uint64_t salt,const BS
    wrong for a resource failure -- a smaller route that then succeeds would
    turn an allocation failure into a verdict about the data. */
 static int try_secant_tail(const double*A,const double*b,const double*xt,int m,int n,int p,const BState*pre,uint64_t seed,double tc,Result*R){
-    enum{NS=2,NV=2,W=2048};uint64_t rseed=sm64(seed^0xA4093822299F31D0ULL),vseed=sm64(seed^0x082EFA98EC4E6C89ULL);BState s;if(bs_copy(&s,pre))return -1;double*Z=malloc((size_t)2*n*sizeof(double)),*E=calloc((size_t)2*n,sizeof(double));double f[2]={0,0};for(int t=0;t<2;t++)secant_refresh(Z+(size_t)t*n,&s,rseed+(uint64_t)(t+1)*0xD1B54A32D192ED03ULL);
+    enum{NS=2,NV=2,W=2048};uint64_t rseed=sm64(seed^0xA4093822299F31D0ULL),vseed=sm64(seed^0x082EFA98EC4E6C89ULL);BState s;if(bs_copy(&s,pre))return -1;double*Z=malloc((size_t)2*n*sizeof(double)),*E=calloc((size_t)2*n,sizeof(double));
+    if(!Z||!E){free(Z);free(E);bs_free(&s);return -1;}
+    double f[2]={0,0};for(int t=0;t<2;t++)secant_refresh(Z+(size_t)t*n,&s,rseed+(uint64_t)(t+1)*0xD1B54A32D192ED03ULL);
     int nt=omp_get_max_threads(),parallel_ok=(pre->r>=n/2 && nt>1),i=p,streak=0,covered=p,growths=0;double invm=1.0/sqrt((double)(m-p>0?m-p:1)),xn=norm2(s.x,n);unsigned char*hit=calloc(W,1);double*LE=calloc((size_t)nt*2*n,sizeof(double)),*Lf=calloc((size_t)nt*2,sizeof(double));
+    if(!hit||!LE||!Lf){free(hit);free(LE);free(Lf);free(Z);free(E);bs_free(&s);return -1;}
     while(i<m && !s.inconsistent && s.r<n){
       int ishit=0;
       if(parallel_ok && streak>=32 && i>=covered && (long long)(m-i)*n>=1000000LL){
@@ -765,7 +779,11 @@ extern void dgecon_(char*,int*,double*,int*,double*,double*,double*,int*,int*);
    accepts the repaired anchor. */
 
 static int try_square_lu_unique(const double*A,const double*b,const double*xt,int m,int n,double tc,Result*R){
-    if(m<n) return 0; int N=n,LDA=n,info=0; double *Ac=malloc((size_t)n*n*sizeof(double));if(!Ac)return 0; double *rhs=malloc((size_t)n*sizeof(double)); int *ipiv=malloc((size_t)n*sizeof(int)); double *rn=malloc((size_t)n*sizeof(double));
+    if(m<n) return 0;
+    int N=n,LDA=n,info=0;
+    double *Ac=malloc((size_t)n*n*sizeof(double));
+    double *rhs=malloc((size_t)n*sizeof(double)); int *ipiv=malloc((size_t)n*sizeof(int)); double *rn=malloc((size_t)n*sizeof(double));
+    if(!Ac||!rhs||!ipiv||!rn){free(Ac);free(rhs);free(ipiv);free(rn);return -1;}
     for(int i=0;i<n;i++){rn[i]=norm2(A+(size_t)i*n,n);if(rn[i]==0){free(Ac);free(rhs);free(ipiv);free(rn);return 0;}rhs[i]=b[i]/rn[i];}
     double anorm=0.0;
     for(int j=0;j<n;j++){
@@ -775,10 +793,12 @@ static int try_square_lu_unique(const double*A,const double*b,const double*xt,in
     }
     dgetrf_(&N,&N,Ac,&LDA,ipiv,&info); if(info!=0){free(Ac);free(rhs);free(ipiv);free(rn);return 0;}
     char one='1'; double rcond=0.0; double *work=malloc((size_t)4*n*sizeof(double)); int *iwork=malloc((size_t)n*sizeof(int));
+    if(!work||!iwork){free(Ac);free(rhs);free(ipiv);free(rn);free(work);free(iwork);return -1;}
     dgecon_(&one,&N,Ac,&LDA,&anorm,&rcond,work,iwork,&info); if(info!=0 || rcond<1e-8){free(Ac);free(rhs);free(ipiv);free(work);free(iwork);free(rn);return 0;}
     char trans='N'; int nrhs=1,ldb=n; dgetrs_(&trans,&N,&nrhs,Ac,&LDA,ipiv,rhs,&ldb,&info); if(info!=0){free(Ac);free(rhs);free(ipiv);free(work);free(iwork);free(rn);return 0;}
     // One LU refinement on the normalized square core.
     double *corr=malloc((size_t)n*sizeof(double));
+    if(!corr){free(Ac);free(rhs);free(ipiv);free(rn);free(work);free(iwork);return -1;}
     for(int i=0;i<n;i++){const double *row=A+(size_t)i*n;double ax=0.0;for(int j=0;j<n;j++)ax+=row[j]*rhs[j];corr[i]=(b[i]-ax)/rn[i];}
     dgetrs_(&trans,&N,&nrhs,Ac,&LDA,ipiv,corr,&ldb,&info); if(info==0)for(int j=0;j<n;j++)rhs[j]+=corr[j]; free(corr);
     double rr=0; int bad=compat_scan_fused(A,b,rhs,m,n,tc,&rr);
@@ -788,6 +808,11 @@ static int try_square_lu_unique(const double*A,const double*b,const double*xt,in
 }
 
 
+/* Returns 1 accepted, 2 accepted but the witness needs repair, 0 declined,
+   and -1 when an allocation failed.  0 sends the router on to another route,
+   which is right for a decline and wrong for a shortage: a smaller route
+   that then succeeds would turn the shortage into a verdict about the data.
+   -1 must reach CLS_FAIL. */
 /* Source-level full-rank witness used only to certify a suspected contradiction.
    Unlike a sketched core, these rows are actual equations from the source system.
    A well-conditioned full-rank subset fixes a unique x; a full source scan can
@@ -795,22 +820,25 @@ static int try_square_lu_unique(const double*A,const double*b,const double*xt,in
 static int try_sampled_source_fullrank(const double*A,const double*b,const double*xt,
                                        int m,int n,double tc,uint64_t seed,Result*R){
     if(m<n)return 0;
-    int N=n,LDA=n,info=0;double *Ac=malloc((size_t)n*n*sizeof(double));if(!Ac)return 0;
+    int N=n,LDA=n,info=0;double *Ac=malloc((size_t)n*n*sizeof(double));
     double *rhs=malloc((size_t)n*sizeof(double)),*rn=malloc((size_t)n*sizeof(double));
     int *ipiv=malloc((size_t)n*sizeof(int));
-    if(!Ac||!rhs||!rn||!ipiv){free(Ac);free(rhs);free(rn);free(ipiv);return 0;}
+    if(!Ac||!rhs||!rn||!ipiv){free(Ac);free(rhs);free(rn);free(ipiv);return -1;}
     int span=m/n;if(span<1)span=1;int off=(int)(sm64(seed^0x8CB92BA72F3D8DD7ULL)%(uint64_t)span);
     int *idxs=malloc((size_t)n*sizeof(int));
+    if(!idxs){free(Ac);free(rhs);free(rn);free(ipiv);return -1;}
     for(int i=0;i<n;i++){long long base=((long long)i*m)/n;int ix=(int)((base+off)%m);idxs[i]=ix;rn[i]=norm2(A+(size_t)ix*n,n);if(rn[i]==0.0){free(Ac);free(rhs);free(rn);free(ipiv);free(idxs);return 0;}rhs[i]=b[ix]/rn[i];}
     double anorm=0.0;
     for(int j=0;j<n;j++){double cs=0.0;for(int i=0;i<n;i++){int ix=idxs[i];double v=A[(size_t)ix*n+j]/rn[i];Ac[i+(size_t)j*n]=v;cs+=fabs(v);}if(cs>anorm)anorm=cs;}
     dgetrf_(&N,&N,Ac,&LDA,ipiv,&info);if(info){free(Ac);free(rhs);free(rn);free(ipiv);free(idxs);return 0;}
     char one='1';double rcond=0.0;double *work=malloc((size_t)4*n*sizeof(double));int *iwork=malloc((size_t)n*sizeof(int));
+    if(!work||!iwork){free(Ac);free(rhs);free(rn);free(ipiv);free(idxs);free(work);free(iwork);return -1;}
     dgecon_(&one,&N,Ac,&LDA,&anorm,&rcond,work,iwork,&info);
     if(info||rcond<1e-8){free(Ac);free(rhs);free(rn);free(ipiv);free(idxs);free(work);free(iwork);return 0;}
     char trans='N';int nrhs=1,ldb=n;dgetrs_(&trans,&N,&nrhs,Ac,&LDA,ipiv,rhs,&ldb,&info);
     if(info){free(Ac);free(rhs);free(rn);free(ipiv);free(idxs);free(work);free(iwork);return 0;}
     double *corr=malloc((size_t)n*sizeof(double));
+    if(!corr){free(Ac);free(rhs);free(rn);free(ipiv);free(idxs);free(work);free(iwork);return -1;}
     for(int i=0;i<n;i++){int ix=idxs[i];const double*row=A+(size_t)ix*n;corr[i]=(b[ix]-dot(row,rhs,n))/rn[i];}
     dgetrs_(&trans,&N,&nrhs,Ac,&LDA,ipiv,corr,&ldb,&info);if(!info)for(int j=0;j<n;j++)rhs[j]+=corr[j];
     free(corr);
@@ -827,7 +855,9 @@ static int try_sampled_source_fullrank(const double*A,const double*b,const doubl
 static Result solve_router_raw(const double*A,const double*b,const double*xt,int m,int n,int sp,int qv,int alpha,uint64_t seed,int do_full_residual){
     if(n < 48) return solve_auto_qr(A,b,xt,m,n,sp,qv,alpha,1,seed,do_full_residual,0);
     BState probe;if(bs_init(&probe,n)){Result R={0};BS_FAIL_RESULT(R,now_sec());return R;}int target=(n<96?2:4);int p0=n<target?n:target;int allgrow=1;for(int i=0;i<p0;i++){int rc=bs_insert_certified(&probe,A+(size_t)i*n,b[i],2e-10); if(rc==2)grey_record(i);if(probe.inconsistent){Result R={0};R.cls=CLS_INCONSISTENT;R.rank=probe.r;R.relres=relres(A,b,probe.x,m,n);R.relx=relxerr(probe.x,xt,n);bs_free(&probe);return R;}if(rc!=1)allgrow=0;}bs_free(&probe);
-    if(allgrow){Result fast={0};double tfast=now_sec();int frc=try_square_lu_unique(A,b,xt,m,n,2e-10,&fast);if(frc==1){fast.sec=now_sec()-tfast;return fast;}if(frc==2)return solve_global_qr(A,b,xt,m,n,sp,qv,alpha,seed,do_full_residual); if(n>=192) return solve_blockprefix_qr(A,b,xt,m,n,sp,qv,alpha,seed,do_full_residual); return solve_auto_qr(A,b,xt,m,n,sp,qv,alpha,1,seed,do_full_residual,0);}
+    if(allgrow){Result fast={0};double tfast=now_sec();int frc=try_square_lu_unique(A,b,xt,m,n,2e-10,&fast);
+      if(frc<0){Result R={0};BS_FAIL_RESULT(R,tfast);return R;}
+      if(frc==1){fast.sec=now_sec()-tfast;return fast;}if(frc==2)return solve_global_qr(A,b,xt,m,n,sp,qv,alpha,seed,do_full_residual); if(n>=192) return solve_blockprefix_qr(A,b,xt,m,n,sp,qv,alpha,seed,do_full_residual); return solve_auto_qr(A,b,xt,m,n,sp,qv,alpha,1,seed,do_full_residual,0);}
     int allow_corefast=(n>=192 || m<8192);
     return solve_auto_qr(A,b,xt,m,n,sp,qv,alpha,1,seed,do_full_residual,allow_corefast);
 }
@@ -835,7 +865,9 @@ static Result solve_router(const double*A,const double*b,const double*xt,int m,i
     g_source_rank_lo=g_source_rank_hi=-1;g_last_berr=0.0;g_last_berr_valid=0;Result r=solve_router_raw(A,b,xt,m,n,sp,qv,alpha,seed,do_full_residual);
     if(r.cls==CLS_UNDECIDABLE || (r.cls==CLS_INCONSISTENT && r.fallback)){
         Result t={0};
-        if(try_sampled_source_fullrank(A,b,xt,m,n,2e-10,seed,&t)){t.sec=r.sec+t.sec;return t;}
+        int src=try_sampled_source_fullrank(A,b,xt,m,n,2e-10,seed,&t);
+        if(src<0){Result f={0};BS_FAIL_RESULT(f,now_sec());return f;}
+        if(src){t.sec=r.sec+t.sec;return t;}
         int trc=source_qrcp_trusted(A,b,xt,m,n,2e-10,&t);
         if(trc>=0){
             /* Same gate as below.  source_qrcp_trusted can return UNIQUE
