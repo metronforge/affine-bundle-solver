@@ -21,6 +21,15 @@
    header nobody compiles against is a header that drifts. */
 #include "affine_bundle/router.h"
 #include "affine_bundle/stream.h"
+/* Allocation-failure policy.  On a large dense system an m*n request can
+   legitimately fail, so the router must report that rather than dereference
+   a null pointer.  Failure is reported as CLS_FAIL, which is deliberately
+   distinct from CLS_UNDECIDABLE: it makes no claim about the data, only
+   about resources.  This preserves the fail-closed rule of the paper --
+   resource exhaustion is never converted into a status verdict. */
+#define BS_FAIL_RESULT(res,tzero) do{ (res).cls=CLS_FAIL; (res).rank=0; \
+    (res).relres=NAN; (res).relx=NAN; (res).sec=now_sec()-(tzero); }while(0)
+
 #include "bsolver_core.c"
 #undef main
 #include <float.h>
@@ -32,14 +41,6 @@
    but it is never promoted directly to a source inconsistency claim. */
 
 // out = {cls, rank, fallback, accepted, sec, relres, relx}
-/* Allocation-failure policy.  On a large dense system an m*n request can
-   legitimately fail, so the router must report that rather than dereference
-   a null pointer.  Failure is reported as CLS_FAIL, which is deliberately
-   distinct from CLS_UNDECIDABLE: it makes no claim about the data, only
-   about resources.  This preserves the fail-closed rule of the paper --
-   resource exhaustion is never converted into a status verdict. */
-#define BS_FAIL_RESULT(res,tzero) do{ (res).cls=CLS_FAIL; (res).rank=0; \
-    (res).relres=NAN; (res).relx=NAN; (res).sec=now_sec()-(tzero); }while(0)
 
 
 /* Finiteness testing under -ffast-math.
@@ -262,9 +263,12 @@ static int compat_scan_fused(const double*A,const double*b,const double*x,int m,
 
 
 /* Conservative source-only fallback.  It may prove growth/redundancy/contradiction,
-   but it is not allowed to resolve a numerical dependency grey zone. */
+   but it is not allowed to resolve a numerical dependency grey zone.
+   Returns 0 resolved, 2 grey, and -1 when the state could not be allocated.
+   A caller must map -1 to CLS_FAIL: every other return value is a statement
+   about the data, and a resource failure is not one. */
 static int reset_source_guarded(BState*s,const double*A,const double*b,int m,int n,double tc){
-    bs_free(s);bs_init(s,n);
+    bs_free(s);if(bs_init(s,n))return -1;
     for(int pass=0;pass<2;pass++){
         int amb=0,growth=0;
         for(int i=0;i<m;i++){
@@ -330,7 +334,7 @@ static int core_qr_state(const double*Core,const double*y,int rows,int n,BState*
     }
     if(!ambiguous && wpiv && wR && wld>=r){for(int j=0;j<r;j++){wpiv[j]=jpvt[j]-1;for(int i=0;i<r;i++)wR[(size_t)i*wld+j]=(i<=j)?AT[i+(size_t)j*M]:0.0;}}
     if(ambiguous){g_core_undecidable=core_has_rank_boundary(Core,rows,n);free(AT);free(jpvt);free(tau);free(work);return core_svd_state(Core,y,rows,n,out,relr,ranktol);}
-    if(r==0){bs_init(out,n);double nr=norm2(y,rows),ny=nr;*relr=nr/(ny+1e-300);free(AT);free(jpvt);free(tau);free(work);return 0;}
+    if(r==0){if(bs_init(out,n)){free(AT);free(jpvt);free(tau);free(work);return -1;}double nr=norm2(y,rows),ny=nr;*relr=nr/(ny+1e-300);free(AT);free(jpvt);free(tau);free(work);return 0;}
     /* Rtop is rows x r, column-major, and rhs follows the QRCP row permutation. */
     int RR=rows,Rr=r,NRHS=1,LDB=rows>r?rows:r; double *Rtop=calloc((size_t)rows*r,sizeof(double)),*rhs=calloc((size_t)LDB,sizeof(double));
     for(int j=0;j<rows;j++){rhs[j]=y[jpvt[j]-1]; for(int i=0;i<r;i++)Rtop[j+(size_t)i*rows]=(i<=j)?AT[i+(size_t)j*M]:0.0;}
@@ -340,7 +344,7 @@ static int core_qr_state(const double*Core,const double*y,int rows,int n,BState*
     dgels_(&trans,&RR,&Rr,&NRHS,Rtop,&RR,rhs,&LDB,work3,&lw3,&info); if(info){free(AT);free(jpvt);free(tau);free(work);free(Rtop);free(rhs);free(work3);return -1;}
     int NQ=r,K=r; lw=-1; dorgqr_(&M,&NQ,&K,AT,&LDA,tau,&wq,&lw,&info); if(info){free(AT);free(jpvt);free(tau);free(work);free(Rtop);free(rhs);free(work3);return -1;} int lw2=(int)wq; double*work2=malloc((size_t)lw2*sizeof(double));
     dorgqr_(&M,&NQ,&K,AT,&LDA,tau,work2,&lw2,&info); if(info){free(AT);free(jpvt);free(tau);free(work);free(Rtop);free(rhs);free(work3);free(work2);return -1;}
-    bs_init(out,n);out->r=r; for(int l=0;l<r;l++){double*q=out->Q+(size_t)l*n;double c=rhs[l];for(int j=0;j<n;j++){q[j]=AT[j+(size_t)l*n];out->x[j]+=q[j]*c;}} bs_set_backend_orth_bound(out); if(wvalid)*wvalid=1;
+    if(bs_init(out,n)){free(AT);free(jpvt);free(tau);free(work);free(Rtop);free(rhs);free(work3);return -1;}out->r=r; for(int l=0;l<r;l++){double*q=out->Q+(size_t)l*n;double c=rhs[l];for(int j=0;j<n;j++){q[j]=AT[j+(size_t)l*n];out->x[j]+=q[j]*c;}} bs_set_backend_orth_bound(out); if(wvalid)*wvalid=1;
     double nr=0,ny=0;for(int i=0;i<rows;i++){double rr0=dot(Core+(size_t)i*n,out->x,n)-y[i];nr+=rr0*rr0;ny+=y[i]*y[i];}*relr=sqrt(nr)/(sqrt(ny)+1e-300);
     free(AT);free(jpvt);free(tau);free(work);free(Rtop);free(rhs);free(work3);free(work2);return 0;
 }
@@ -517,7 +521,7 @@ static int source_closure_no_growth(const BState*s,const double*A,const double*b
 }
 
 static Result solve_auto_qr(const double*A,const double*b,const double*xt,int m,int n,int sp,int qv,int alpha,int stall_limit,uint64_t seed,int do_full_residual,int allow_corefast){
- Result R={0}; double t0=now_sec(); double tr=1e-10,tc=2e-10; BState pre;bs_init(&pre,n); int p=0,stall=0;
+ Result R={0}; double t0=now_sec(); double tr=1e-10,tc=2e-10; BState pre;if(bs_init(&pre,n)){BS_FAIL_RESULT(R,t0);return R;} int p=0,stall=0;
  // Adaptive exact prefix: keep going while information keeps growing; switch after a redundancy streak.
  /* A grey (rc==2) prefix row needs no separate ambiguity flag: it does not
     raise pre.r, it is recorded by grey_record for diagnostics, and the row
@@ -548,16 +552,16 @@ static Result solve_auto_qr(const double*A,const double*b,const double*xt,int m,
  /* The former unverified tall-core UNIQUE shortcut is deliberately bypassed:
     QRCP now produces the proposal and the a-posteriori provenance witness in one pass. */
  (void)allow_corefast;
- g_core_undecidable=0; BState cand;double core_rr=0;if(core_qr_state(Core,cy,cr,n,&cand,&core_rr,1e-11,wpiv,wR,qdim,&wvalid)!=0){R.fallback=1;bs_copy(&cand,&pre);int samb0=reset_source_guarded(&cand,A,b,m,n,tc);if(samb0==2){R.cls=CLS_UNDECIDABLE;R.rank=cand.r;R.relres=NAN;R.relx=NAN;R.sec=now_sec()-t0;free(Core);free(cy);free(CoreEps);free(wpiv);free(wR);free(formT);free(formL);goto done;}}
+ g_core_undecidable=0; BState cand;double core_rr=0;if(core_qr_state(Core,cy,cr,n,&cand,&core_rr,1e-11,wpiv,wR,qdim,&wvalid)!=0){R.fallback=1;if(bs_copy(&cand,&pre)){R.cls=CLS_FAIL;R.rank=0;R.relres=NAN;R.relx=NAN;R.sec=now_sec()-t0;free(Core);free(cy);free(CoreEps);free(wpiv);free(wR);free(formT);free(formL);goto done;}int samb0=reset_source_guarded(&cand,A,b,m,n,tc);if(samb0<0){R.cls=CLS_FAIL;R.rank=0;R.relres=NAN;R.relx=NAN;R.sec=now_sec()-t0;free(Core);free(cy);free(CoreEps);free(wpiv);free(wR);free(formT);free(formL);goto done;}if(samb0==2){R.cls=CLS_UNDECIDABLE;R.rank=cand.r;R.relres=NAN;R.relx=NAN;R.sec=now_sec()-t0;free(Core);free(cy);free(CoreEps);free(wpiv);free(wR);free(formT);free(formL);goto done;}}
  g_fg_checks++;int form_lo=pre.r;if(wvalid && cand.r>form_lo && fg_qr_rank_certifies(Core,CoreEps,cr,n,cand.r,wpiv,wR,qdim,cand.Q))form_lo=cand.r;if(form_lo<cand.r){g_fg_escalations++;/* If only the compressed rows claim growth beyond a very small source prefix, first ask the source whether that fixed prefix already closes.  This is O(m n r_pre), never raises rank, and avoids QRCP over all m source columns in the common low-rank cancellation case. */if(pre.r<=8){double srr=0.0;int scl=source_closure_no_growth(&pre,A,b,m,n,tc,&srr);if(scl==1){R.cls=pre.r==n?CLS_UNIQUE:CLS_INFINITE;R.rank=pre.r;R.fallback=1;R.accepted_random=0;R.relres=srr;R.relx=relxerr(pre.x,xt,n);R.sec=now_sec()-t0;free(Core);free(cy);free(CoreEps);free(wpiv);free(wR);free(formT);free(formL);goto done;}if(scl==-1){R.cls=CLS_INCONSISTENT;R.rank=pre.r;R.fallback=1;R.accepted_random=0;R.relres=relres(A,b,pre.x,m,n);R.relx=relxerr(pre.x,xt,n);R.sec=now_sec()-t0;free(Core);free(cy);free(CoreEps);free(wpiv);free(wR);free(formT);free(formL);goto done;}}Result q={0};int qrc=source_qrcp_trusted(A,b,xt,m,n,tc,&q);if(qrc>=0){R=q;R.sec=now_sec()-t0;free(Core);free(cy);free(CoreEps);free(wpiv);free(wR);free(formT);free(formL);goto done;}R.cls=CLS_UNDECIDABLE;R.rank=form_lo;R.fallback=1;R.relres=NAN;R.relx=NAN;R.sec=now_sec()-t0;free(Core);free(cy);free(CoreEps);free(wpiv);free(wR);free(formT);free(formL);goto done;}
  free(Core);free(cy);free(CoreEps);free(wpiv);free(wR);free(formT);free(formL);
  if(g_core_undecidable){/* A boundary inside a rounded compressed core need not force a global source QRCP when a small source-derived prefix already closes deterministically.  Closure can only keep the existing source rank; it never promotes it. */if(pre.r<=8){double srr=0.0;int scl=source_closure_no_growth(&pre,A,b,m,n,tc,&srr);if(scl==1){R.cls=pre.r==n?CLS_UNIQUE:CLS_INFINITE;R.rank=pre.r;R.fallback=1;R.accepted_random=0;R.relres=srr;R.relx=relxerr(pre.x,xt,n);R.sec=now_sec()-t0;goto done;}if(scl==-1){R.cls=CLS_INCONSISTENT;R.rank=pre.r;R.fallback=1;R.accepted_random=0;R.relres=relres(A,b,pre.x,m,n);R.relx=relxerr(pre.x,xt,n);R.sec=now_sec()-t0;goto done;}}R.cls=CLS_UNDECIDABLE;R.rank=cand.r;R.relres=relres(A,b,cand.x,m,n);R.relx=relxerr(cand.x,xt,n);R.sec=now_sec()-t0;goto done;}
  if(core_rr>1e-8){/* A large residual of a rounded compressed core is rejection evidence, not a source contradiction.  For a very small source-derived prefix, try source closure at the already certified rank before invoking the global arbiter. */if(pre.r<=8){double srr=0.0;int scl=source_closure_no_growth(&pre,A,b,m,n,tc,&srr);if(scl==1){R.cls=pre.r==n?CLS_UNIQUE:CLS_INFINITE;R.rank=pre.r;R.fallback=1;R.accepted_random=0;R.relres=srr;R.relx=relxerr(pre.x,xt,n);R.sec=now_sec()-t0;goto done;}if(scl==-1){R.cls=CLS_INCONSISTENT;R.rank=pre.r;R.fallback=1;R.accepted_random=0;R.relres=relres(A,b,pre.x,m,n);R.relx=relxerr(pre.x,xt,n);R.sec=now_sec()-t0;goto done;}}R.cls=CLS_UNDECIDABLE;R.rank=cand.r;R.relres=relres(A,b,cand.x,m,n);R.relx=relxerr(cand.x,xt,n);R.sec=now_sec()-t0;goto done;}
- if(core_rr>1e-11){if(cand.r==n){Result q={0};int qrc=source_qrcp_trusted(A,b,xt,m,n,tc,&q);if(qrc>=0){R=q;R.sec=now_sec()-t0;goto done;}}R.fallback=1;int samb=reset_source_guarded(&cand,A,b,m,n,tc);R.cls=samb==2?CLS_UNDECIDABLE:(cand.inconsistent?CLS_INCONSISTENT:(cand.r==n?CLS_UNIQUE:CLS_INFINITE));R.rank=cand.r;R.relres=relres(A,b,cand.x,m,n);R.relx=relxerr(cand.x,xt,n);R.sec=now_sec()-t0;goto done;}
+ if(core_rr>1e-11){if(cand.r==n){Result q={0};int qrc=source_qrcp_trusted(A,b,xt,m,n,tc,&q);if(qrc>=0){R=q;R.sec=now_sec()-t0;goto done;}}R.fallback=1;int samb=reset_source_guarded(&cand,A,b,m,n,tc);R.cls=samb<0?CLS_FAIL:samb==2?CLS_UNDECIDABLE:(cand.inconsistent?CLS_INCONSISTENT:(cand.r==n?CLS_UNIQUE:CLS_INFINITE));R.rank=cand.r;R.relres=relres(A,b,cand.x,m,n);R.relx=relxerr(cand.x,xt,n);R.sec=now_sec()-t0;goto done;}
  int vfail=0;for(int v=0;v<qv;v++){int ck=bs_check_certified(&cand,E+(size_t)v*n,f[v],tc);if(ck!=1){vfail=1;break;}}
  if(!vfail){double rr=0;int bad=compat_scan_fused(A,b,cand.x,m,n,tc,&rr);if(bad)vfail=1;else{R.cls=(cand.r==n?CLS_UNIQUE:CLS_INFINITE);R.rank=cand.r;R.accepted_random=(cand.r==n?0:1);R.relres=rr;R.relx=relxerr(cand.x,xt,n);R.sec=now_sec()-t0;goto done;}}
  if(cand.r>=n-8){Result q={0};int qrc=source_qrcp_trusted(A,b,xt,m,n,tc,&q);if(qrc>=0){R=q;R.sec=now_sec()-t0;goto done;}}
- R.fallback=1;int samb=reset_source_guarded(&cand,A,b,m,n,tc);R.cls=samb==2?CLS_UNDECIDABLE:(cand.inconsistent?CLS_INCONSISTENT:(cand.r==n?CLS_UNIQUE:CLS_INFINITE));R.rank=cand.r;R.relres=relres(A,b,cand.x,m,n);R.relx=relxerr(cand.x,xt,n);R.sec=now_sec()-t0;
+ R.fallback=1;int samb=reset_source_guarded(&cand,A,b,m,n,tc);R.cls=samb<0?CLS_FAIL:samb==2?CLS_UNDECIDABLE:(cand.inconsistent?CLS_INCONSISTENT:(cand.r==n?CLS_UNIQUE:CLS_INFINITE));R.rank=cand.r;R.relres=relres(A,b,cand.x,m,n);R.relx=relxerr(cand.x,xt,n);R.sec=now_sec()-t0;
  done:free(C);free(d);free(E);free(f);bs_free(&cand);bs_free(&pre);return R;
 }
 void bsolve_auto_qr_api(const double*A,const double*b,const double*xt,int m,int n,int sp,int qv,int alpha,int stall,unsigned long long seed,int full,double*out){fill_out(solve_auto_qr(A,b,xt,m,n,sp,qv,alpha,stall,(uint64_t)seed,full,1),out);}
@@ -575,16 +579,16 @@ static Result solve_global_qr(const double*A,const double*b,const double*xt,int 
     int qdim=cr<n?cr:n;int*wpiv=malloc((size_t)(qdim>0?qdim:1)*sizeof(int));double*wR=calloc((size_t)(qdim>0?qdim:1)*(size_t)(qdim>0?qdim:1),sizeof(double));int wvalid=0;
     if(!wpiv||!wR){free(wpiv);free(wR);free(Core);free(cy);free(CoreEps);free(C);free(d);free(E);free(f);free(formT);free(formL);BS_FAIL_RESULT(R,t0);return R;}
     g_core_undecidable=0; BState cand; double core_rr=0; if(core_qr_state(Core,cy,cr,n,&cand,&core_rr,1e-11,wpiv,wR,qdim,&wvalid)!=0){
-        BState s;bs_init(&s,n); int samb=reset_source_guarded(&s,A,b,m,n,tc); R.fallback=1;R.cls=samb==2?CLS_UNDECIDABLE:(s.inconsistent?CLS_INCONSISTENT:(s.r==n?CLS_UNIQUE:CLS_INFINITE));R.rank=s.r;R.relres=relres(A,b,s.x,m,n);R.relx=relxerr(s.x,xt,n);R.sec=now_sec()-t0;bs_free(&s);goto done0;
+        BState s;if(bs_init(&s,n)){free(Core);free(cy);free(CoreEps);free(C);free(d);free(E);free(f);free(wpiv);free(wR);free(formT);free(formL);BS_FAIL_RESULT(R,t0);return R;} int samb=reset_source_guarded(&s,A,b,m,n,tc); R.fallback=1;R.cls=samb<0?CLS_FAIL:samb==2?CLS_UNDECIDABLE:(s.inconsistent?CLS_INCONSISTENT:(s.r==n?CLS_UNIQUE:CLS_INFINITE));R.rank=s.r;R.relres=relres(A,b,s.x,m,n);R.relx=relxerr(s.x,xt,n);R.sec=now_sec()-t0;bs_free(&s);goto done0;
     }
     g_fg_checks++;int form_lo=(wvalid&&fg_qr_rank_certifies(Core,CoreEps,cr,n,cand.r,wpiv,wR,qdim,cand.Q))?cand.r:0;if(form_lo<cand.r){g_fg_escalations++;Result q={0};int qrc=source_qrcp_trusted(A,b,xt,m,n,tc,&q);if(qrc>=0){R=q;R.sec=now_sec()-t0;goto done1;}R.cls=CLS_UNDECIDABLE;R.rank=form_lo;R.fallback=1;R.relres=NAN;R.relx=NAN;R.sec=now_sec()-t0;goto done1;}
     if(g_core_undecidable){R.cls=CLS_UNDECIDABLE;R.rank=cand.r;R.relres=relres(A,b,cand.x,m,n);R.relx=relxerr(cand.x,xt,n);R.sec=now_sec()-t0;goto done1;}
     if(core_rr>1e-8){ R.cls=CLS_UNDECIDABLE;R.rank=cand.r;R.relres=relres(A,b,cand.x,m,n);R.relx=relxerr(cand.x,xt,n);R.sec=now_sec()-t0;goto done1; }
-    if(core_rr>1e-11){ if(cand.r==n){Result q={0};int qrc=source_qrcp_trusted(A,b,xt,m,n,tc,&q);if(qrc>=0){R=q;R.sec=now_sec()-t0;goto done1;}} R.fallback=1;int samb=reset_source_guarded(&cand,A,b,m,n,tc);R.cls=samb==2?CLS_UNDECIDABLE:(cand.inconsistent?CLS_INCONSISTENT:(cand.r==n?CLS_UNIQUE:CLS_INFINITE));R.rank=cand.r;R.relres=relres(A,b,cand.x,m,n);R.relx=relxerr(cand.x,xt,n);R.sec=now_sec()-t0;goto done1; }
+    if(core_rr>1e-11){ if(cand.r==n){Result q={0};int qrc=source_qrcp_trusted(A,b,xt,m,n,tc,&q);if(qrc>=0){R=q;R.sec=now_sec()-t0;goto done1;}} R.fallback=1;int samb=reset_source_guarded(&cand,A,b,m,n,tc);R.cls=samb<0?CLS_FAIL:samb==2?CLS_UNDECIDABLE:(cand.inconsistent?CLS_INCONSISTENT:(cand.r==n?CLS_UNIQUE:CLS_INFINITE));R.rank=cand.r;R.relres=relres(A,b,cand.x,m,n);R.relx=relxerr(cand.x,xt,n);R.sec=now_sec()-t0;goto done1; }
     int vfail=0; for(int v=0;v<qv;v++){int ck=bs_check_certified(&cand,E+(size_t)v*n,f[v],tc);if(ck!=1){vfail=1;break;}}
     if(!vfail){double rr=0;int bad=compat_scan_fused(A,b,cand.x,m,n,tc,&rr);if(bad)vfail=1;else{R.cls=(cand.r==n?CLS_UNIQUE:CLS_INFINITE);R.rank=cand.r;R.accepted_random=(cand.r==n?0:1);R.relres=rr;R.relx=relxerr(cand.x,xt,n);R.sec=now_sec()-t0;goto done1;}}
     if(cand.r>=n-8){Result q={0};int qrc=source_qrcp_trusted(A,b,xt,m,n,tc,&q);if(qrc>=0){R=q;R.sec=now_sec()-t0;goto done1;}}
-    R.fallback=1;int samb=reset_source_guarded(&cand,A,b,m,n,tc);R.cls=samb==2?CLS_UNDECIDABLE:(cand.inconsistent?CLS_INCONSISTENT:(cand.r==n?CLS_UNIQUE:CLS_INFINITE));R.rank=cand.r;R.relres=relres(A,b,cand.x,m,n);R.relx=relxerr(cand.x,xt,n);R.sec=now_sec()-t0;
+    R.fallback=1;int samb=reset_source_guarded(&cand,A,b,m,n,tc);R.cls=samb<0?CLS_FAIL:samb==2?CLS_UNDECIDABLE:(cand.inconsistent?CLS_INCONSISTENT:(cand.r==n?CLS_UNIQUE:CLS_INFINITE));R.rank=cand.r;R.relres=relres(A,b,cand.x,m,n);R.relx=relxerr(cand.x,xt,n);R.sec=now_sec()-t0;
 done1: bs_free(&cand);
 done0: free(formT);free(formL);free(CoreEps);free(wpiv);free(wR);free(C);free(d);free(E);free(f);free(Core);free(cy);return R;
 }
@@ -614,8 +618,13 @@ static void secant_downdate(double*z,const double*q,int n,uint64_t salt,const BS
     double c=dot(z,q,n);for(int j=0;j<n;j++)z[j]-=c*q[j]; double zn=norm2(z,n);
     if(zn<1e-12)secant_refresh(z,s,salt);else for(int j=0;j<n;j++)z[j]/=zn;
 }
+/* Returns 1 when the tail produced a result, 0 when it declined, and -1
+   when a state could not be allocated.  The three are deliberately distinct:
+   0 lets the caller try another route, which is right for a decline and
+   wrong for a resource failure -- a smaller route that then succeeds would
+   turn an allocation failure into a verdict about the data. */
 static int try_secant_tail(const double*A,const double*b,const double*xt,int m,int n,int p,const BState*pre,uint64_t seed,double tc,Result*R){
-    enum{NS=2,NV=2,W=2048};uint64_t rseed=sm64(seed^0xA4093822299F31D0ULL),vseed=sm64(seed^0x082EFA98EC4E6C89ULL);BState s;bs_copy(&s,pre);double*Z=malloc((size_t)2*n*sizeof(double)),*E=calloc((size_t)2*n,sizeof(double));double f[2]={0,0};for(int t=0;t<2;t++)secant_refresh(Z+(size_t)t*n,&s,rseed+(uint64_t)(t+1)*0xD1B54A32D192ED03ULL);
+    enum{NS=2,NV=2,W=2048};uint64_t rseed=sm64(seed^0xA4093822299F31D0ULL),vseed=sm64(seed^0x082EFA98EC4E6C89ULL);BState s;if(bs_copy(&s,pre))return -1;double*Z=malloc((size_t)2*n*sizeof(double)),*E=calloc((size_t)2*n,sizeof(double));double f[2]={0,0};for(int t=0;t<2;t++)secant_refresh(Z+(size_t)t*n,&s,rseed+(uint64_t)(t+1)*0xD1B54A32D192ED03ULL);
     int nt=omp_get_max_threads(),parallel_ok=(pre->r>=n/2 && nt>1),i=p,streak=0,covered=p,growths=0;double invm=1.0/sqrt((double)(m-p>0?m-p:1)),xn=norm2(s.x,n);unsigned char*hit=calloc(W,1);double*LE=calloc((size_t)nt*2*n,sizeof(double)),*Lf=calloc((size_t)nt*2,sizeof(double));
     while(i<m && !s.inconsistent && s.r<n){
       int ishit=0;
@@ -668,7 +677,9 @@ static Result solve_blockprefix_qr(const double*A,const double*b,const double*xt
  /* Secant-tail remains a proposal accelerator.  Until its selected source rows are
     exported as an explicit witness, any rank growth beyond the certified prefix is
     resolved by the source arbiter rather than being silently promoted. */
- if(n>=192 && n-pre.r<=256){Result SR={0};if(try_secant_tail(A,b,xt,m,n,p,&pre,seed,tc,&SR)){
+ if(n>=192 && n-pre.r<=256){Result SR={0};int strc=try_secant_tail(A,b,xt,m,n,p,&pre,seed,tc,&SR);
+   if(strc<0){R.cls=CLS_FAIL;R.rank=0;R.relres=NAN;R.relx=NAN;R.sec=now_sec()-t0;goto cleanup;}
+   if(strc){
    if(SR.rank<=pre_lo){SR.sec=now_sec()-t0;R=SR;goto cleanup;}
    g_fg_checks++;g_fg_escalations++;Result q={0};int qrc=source_qrcp_trusted(A,b,xt,m,n,tc,&q);
    if(qrc>=0){R=q;R.sec=now_sec()-t0;goto cleanup;}R.cls=CLS_UNDECIDABLE;R.rank=pre_lo;R.fallback=1;R.relres=NAN;R.relx=NAN;R.sec=now_sec()-t0;goto cleanup;
@@ -682,7 +693,7 @@ static Result solve_blockprefix_qr(const double*A,const double*b,const double*xt
  for(int i=0;i<k;i++){double er=fg_sketch_formation_eps(formT[i],formL[i],n);if(proof_rows_add_normalized(&proof,C+(size_t)i*n,er)<0){R.cls=CLS_UNDECIDABLE;R.rank=pre_lo;R.fallback=1;R.sec=now_sec()-t0;goto cleanup;}}
  for(int v=0;v<qv;v++){double er=fg_sketch_formation_eps(valT[v],valL[v],n);if(proof_rows_add_normalized(&proof,E+(size_t)v*n,er)<0){R.cls=CLS_UNDECIDABLE;R.rank=pre_lo;R.fallback=1;R.sec=now_sec()-t0;goto cleanup;}}
 
- bs_copy(&fcan,&pre);fcan_live=1;int famb=0;for(int i=0;i<k;i++){int rc=bs_insert_guarded(&fcan,C+(size_t)i*n,d[i],tc);if(rc==2){famb=1;break;}if(fcan.inconsistent)break;}
+ if(bs_copy(&fcan,&pre)){R.cls=CLS_FAIL;R.rank=0;R.relres=NAN;R.relx=NAN;R.sec=now_sec()-t0;goto cleanup;}fcan_live=1;int famb=0;for(int i=0;i<k;i++){int rc=bs_insert_guarded(&fcan,C+(size_t)i*n,d[i],tc);if(rc==2){famb=1;break;}if(fcan.inconsistent)break;}
  if(!famb){
    int vf=fcan.inconsistent?2:0;fcan.inconsistent=0;
    for(int v=0;v<qv;v++){int ck=bs_check_certified(&fcan,E+(size_t)v*n,f[v],tc);if(ck!=1){vf=1;if(ck==-1||ck==2){vf=2;break;}int rc=bs_insert_guarded(&fcan,E+(size_t)v*n,f[v],tc);if(rc==2){vf=2;break;}}}
@@ -702,7 +713,7 @@ static Result solve_blockprefix_qr(const double*A,const double*b,const double*xt
      free(C2);free(d2);free(E2);free(f2);free(t2);free(vt2);free(l2);free(vl2);if(fcan.inconsistent){vf=2;fcan.inconsistent=0;}
      if(vf==0){double rr=0;int bad=compat_scan_fused(A,b,fcan.x,m,n,tc,&rr);if(!bad){g_fg_checks++;int lo=certified_proof_rank_lo(&proof,fcan.r);if(lo>=fcan.r){R.cls=fcan.r==n?CLS_UNIQUE:CLS_INFINITE;R.rank=fcan.r;R.accepted_random=(fcan.r==n?0:1);R.relres=rr;R.relx=relxerr(fcan.x,xt,n);R.sec=now_sec()-t0;goto cleanup;}g_fg_escalations++;Result q={0};int qrc=source_qrcp_trusted(A,b,xt,m,n,tc,&q);if(qrc>=0){R=q;R.sec=now_sec()-t0;goto cleanup;}vf=2;}else vf=1;}
    }
-   if(vf!=0){R.fallback=1;int samb=reset_source_guarded(&fcan,A,b,m,n,tc);R.cls=samb==2?CLS_UNDECIDABLE:(fcan.inconsistent?CLS_INCONSISTENT:(fcan.r==n?CLS_UNIQUE:CLS_INFINITE));R.rank=fcan.r;R.relres=relres(A,b,fcan.x,m,n);R.relx=relxerr(fcan.x,xt,n);R.sec=now_sec()-t0;goto cleanup;}
+   if(vf!=0){R.fallback=1;int samb=reset_source_guarded(&fcan,A,b,m,n,tc);R.cls=samb<0?CLS_FAIL:samb==2?CLS_UNDECIDABLE:(fcan.inconsistent?CLS_INCONSISTENT:(fcan.r==n?CLS_UNIQUE:CLS_INFINITE));R.rank=fcan.r;R.relres=relres(A,b,fcan.x,m,n);R.relx=relxerr(fcan.x,xt,n);R.sec=now_sec()-t0;goto cleanup;}
  }
  if(fcan_live){bs_free(&fcan);fcan_live=0;}
 
@@ -717,7 +728,7 @@ static Result solve_blockprefix_qr(const double*A,const double*b,const double*xt
   if(core_rr>1e-11){R.cls=CLS_UNDECIDABLE;R.rank=lo;R.relres=relres(A,b,cand.x,m,n);R.relx=relxerr(cand.x,xt,n);R.sec=now_sec()-t0;goto cleanup;}
   int vfail=0;for(int v=0;v<qv;v++){int ck=bs_check_certified(&cand,E+(size_t)v*n,f[v],tc);if(ck!=1){vfail=1;break;}}
   if(!vfail){double rr=0;int bad=compat_scan_fused(A,b,cand.x,m,n,tc,&rr);if(!bad){R.cls=cand.r==n?CLS_UNIQUE:CLS_INFINITE;R.rank=cand.r;R.accepted_random=(cand.r==n?0:1);R.relres=rr;R.relx=relxerr(cand.x,xt,n);R.sec=now_sec()-t0;goto cleanup;}}
-  R.fallback=1;int samb=reset_source_guarded(&cand,A,b,m,n,tc);R.cls=samb==2?CLS_UNDECIDABLE:(cand.inconsistent?CLS_INCONSISTENT:(cand.r==n?CLS_UNIQUE:CLS_INFINITE));R.rank=cand.r;R.relres=relres(A,b,cand.x,m,n);R.relx=relxerr(cand.x,xt,n);R.sec=now_sec()-t0;
+  R.fallback=1;int samb=reset_source_guarded(&cand,A,b,m,n,tc);R.cls=samb<0?CLS_FAIL:samb==2?CLS_UNDECIDABLE:(cand.inconsistent?CLS_INCONSISTENT:(cand.r==n?CLS_UNIQUE:CLS_INFINITE));R.rank=cand.r;R.relres=relres(A,b,cand.x,m,n);R.relx=relxerr(cand.x,xt,n);R.sec=now_sec()-t0;
  }
 cleanup:
  if(cand_live)bs_free(&cand);if(fcan_live)bs_free(&fcan);if(pre_live)bs_free(&pre);proof_rows_free(&proof);
@@ -800,7 +811,7 @@ static int try_sampled_source_fullrank(const double*A,const double*b,const doubl
 
 static Result solve_router_raw(const double*A,const double*b,const double*xt,int m,int n,int sp,int qv,int alpha,uint64_t seed,int do_full_residual){
     if(n < 48) return solve_auto_qr(A,b,xt,m,n,sp,qv,alpha,1,seed,do_full_residual,0);
-    BState probe;bs_init(&probe,n);int target=(n<96?2:4);int p0=n<target?n:target;int allgrow=1;for(int i=0;i<p0;i++){int rc=bs_insert_certified(&probe,A+(size_t)i*n,b[i],2e-10); if(rc==2)grey_record(i);if(probe.inconsistent){Result R={0};R.cls=CLS_INCONSISTENT;R.rank=probe.r;R.relres=relres(A,b,probe.x,m,n);R.relx=relxerr(probe.x,xt,n);bs_free(&probe);return R;}if(rc!=1)allgrow=0;}bs_free(&probe);
+    BState probe;if(bs_init(&probe,n)){Result R={0};BS_FAIL_RESULT(R,now_sec());return R;}int target=(n<96?2:4);int p0=n<target?n:target;int allgrow=1;for(int i=0;i<p0;i++){int rc=bs_insert_certified(&probe,A+(size_t)i*n,b[i],2e-10); if(rc==2)grey_record(i);if(probe.inconsistent){Result R={0};R.cls=CLS_INCONSISTENT;R.rank=probe.r;R.relres=relres(A,b,probe.x,m,n);R.relx=relxerr(probe.x,xt,n);bs_free(&probe);return R;}if(rc!=1)allgrow=0;}bs_free(&probe);
     if(allgrow){Result fast={0};double tfast=now_sec();int frc=try_square_lu_unique(A,b,xt,m,n,2e-10,&fast);if(frc==1){fast.sec=now_sec()-tfast;return fast;}if(frc==2)return solve_global_qr(A,b,xt,m,n,sp,qv,alpha,seed,do_full_residual); if(n>=192) return solve_blockprefix_qr(A,b,xt,m,n,sp,qv,alpha,seed,do_full_residual); return solve_auto_qr(A,b,xt,m,n,sp,qv,alpha,1,seed,do_full_residual,0);}
     int allow_corefast=(n>=192 || m<8192);
     return solve_auto_qr(A,b,xt,m,n,sp,qv,alpha,1,seed,do_full_residual,allow_corefast);
@@ -949,18 +960,9 @@ ABSStream *abs_stream_create(int n)
     st = (ABSStream*)calloc(1, sizeof(*st));
     if (!st) return NULL;
 
-    /* bs_init does not report failure, so the allocation is done here where
-       it can be checked.  Q is n*n doubles. */
-    st->s.n = n;
-    st->s.r = 0;
-    st->s.inconsistent = 0;
-    st->s.orth_frob2 = 0.0L;
-    st->s.Q = (double*)calloc((size_t)n * (size_t)n, sizeof(double));
-    st->s.x = (double*)calloc((size_t)n, sizeof(double));
-    if (!st->s.Q || !st->s.x) {
-        free(st->s.Q); free(st->s.x); free(st);
-        return NULL;
-    }
+    /* bs_init now reports failure, so this no longer has to duplicate its
+       body to get a checkable allocation.  Q is n*n doubles. */
+    if (bs_init(&st->s, n)) { free(st); return NULL; }
     st->n = n;
     st->closed = 0;
     st->seen = 0;

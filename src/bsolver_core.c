@@ -64,8 +64,27 @@ static void bs_set_backend_orth_bound(BState*s){
     long double e=64.0L*(long double)DBL_EPSILON*(long double)(s->r>0?s->r:1);
     s->orth_frob2=e*e;
 }
-static void bs_init(BState*s,int n){ s->n=n;s->r=0;s->inconsistent=0;s->orth_frob2=0.0L;s->Q=calloc((size_t)n*n,sizeof(double));s->x=calloc(n,sizeof(double)); }
-static void bs_copy(BState*d,const BState*s){ bs_init(d,s->n); d->r=s->r;d->inconsistent=s->inconsistent;d->orth_frob2=s->orth_frob2; memcpy(d->Q,s->Q,(size_t)s->n*s->n*sizeof(double));memcpy(d->x,s->x,s->n*sizeof(double)); }
+/* Return 0 on success and 1 when either allocation fails.  These were
+   `static void`, which is why the allocation sites inside them appear in
+   experiments/allocation_audit.py: a caller had no way to learn that Q was
+   NULL and went on to write into it.  On failure the state is left with both
+   pointers NULL and r = 0, so bs_free is safe on it and no caller needs a
+   separate cleanup path.  A caller that ignores the return value gets the
+   old behaviour, so every one of them is checked; the compiler cannot
+   enforce that here without a warn_unused_result attribute the strict
+   kernels do not use. */
+static int bs_init(BState*s,int n){
+    s->n=n;s->r=0;s->inconsistent=0;s->orth_frob2=0.0L;
+    s->Q=calloc((size_t)n*n,sizeof(double));s->x=calloc(n,sizeof(double));
+    if(!s->Q||!s->x){free(s->Q);free(s->x);s->Q=NULL;s->x=NULL;return 1;}
+    return 0;
+}
+static int bs_copy(BState*d,const BState*s){
+    if(bs_init(d,s->n))return 1;
+    d->r=s->r;d->inconsistent=s->inconsistent;d->orth_frob2=s->orth_frob2;
+    memcpy(d->Q,s->Q,(size_t)s->n*s->n*sizeof(double));memcpy(d->x,s->x,s->n*sizeof(double));
+    return 0;
+}
 static void bs_free(BState*s){ free(s->Q);free(s->x); }
 
 static int bs_insert(BState*s,const double*a0,double beta0,double tolrank,double tolcon){
@@ -101,7 +120,7 @@ static double relres(const double*A,const double*b,const double*x,int m,int n){ 
 for(int i=0;i<m;i++){ long double t=(long double)dot(A+(size_t)i*n,x,n)-(long double)b[i];nr+=t*t;long double bi=(long double)b[i];nb+=bi*bi;} long double den=sqrtl(nb);if(den==0)den=1;return (double)(sqrtl(nr)/den); }
 static double relxerr(const double*x,const double*xt,int n){ if(!xt)return NAN; double a=0,b=0;for(int i=0;i<n;i++){double d=x[i]-xt[i];a+=d*d;b+=xt[i]*xt[i];}return sqrt(a)/(sqrt(b)+1e-300); }
 
-static Result solve_seq(const double*A,const double*b,const double*xt,int m,int n){ Result R={0}; double t0=now_sec(); BState s;bs_init(&s,n); double tr=1e-10,tc=2e-10;
+static Result solve_seq(const double*A,const double*b,const double*xt,int m,int n){ Result R={0}; double t0=now_sec(); BState s;if(bs_init(&s,n)){BS_FAIL_RESULT(R,t0);return R;} double tr=1e-10,tc=2e-10;
  for(int i=0;i<m;i++){ if(s.r==n){ double an=norm2(A+(size_t)i*n,n); double rho=b[i]-dot(A+(size_t)i*n,s.x,n); if(an>0 && fabs(rho/an)>tc*(1+fabs(b[i]/an)+norm2(s.x,n))){s.inconsistent=1;break;} } else bs_insert(&s,A+(size_t)i*n,b[i],tr,tc); if(s.inconsistent)break; }
  R.sec=now_sec()-t0; R.rank=s.r; R.cls=s.inconsistent?CLS_INCONSISTENT:(s.r==n?CLS_UNIQUE:CLS_INFINITE); R.relres=relres(A,b,s.x,m,n);R.relx=relxerr(s.x,xt,n);bs_free(&s);return R; }
 
@@ -110,6 +129,16 @@ static void sketch_remainder(const double*A,const double*b,int start,int m,int n
     double invs=1.0/sqrt((double)sp),invm=1.0/sqrt((double)(m-start>0?m-start:1));long long work=(long long)(m-start)*n;
     if(sp==1 && qv==2 && work>=1000000LL && omp_get_max_threads()>1){
         int nt=omp_get_max_threads();double *LC=calloc((size_t)nt*k*n,sizeof(double)),*Ld=calloc((size_t)nt*k,sizeof(double)),*LE=calloc((size_t)nt*2*n,sizeof(double)),*Lf=calloc((size_t)nt*2,sizeof(double)); double *LT=formT?calloc((size_t)nt*k,sizeof(double)):NULL; int *LL=formL?calloc((size_t)nt*k,sizeof(int)):NULL; double *LVT=valT?calloc((size_t)nt*qv,sizeof(double)):NULL; int *LVL=valL?calloc((size_t)nt*qv,sizeof(int)):NULL;
+        if(!LC||!Ld||!LE||!Lf||(formT&&!LT)||(formL&&!LL)||(valT&&!LVT)||(valL&&!LVL)){
+            /* Per-thread scratch could not be allocated.  The serial loop
+               below computes the same sketch without any of it, so fall
+               through instead of failing: this costs parallelism, not
+               information, and a resource shortage must not reach the
+               caller as anything it could mistake for a statement about
+               the data. */
+            free(LVT);free(LVL);free(LT);free(LL);free(LC);free(Ld);free(LE);free(Lf);
+            goto serial_sketch;
+        }
         #pragma omp parallel
         {
           int tid=omp_get_thread_num();double *cbase=LC+(size_t)tid*k*n,*dbase=Ld+(size_t)tid*k,*ebase=LE+(size_t)tid*2*n,*fbase=Lf+(size_t)tid*2; double *tbase=LT?LT+(size_t)tid*k:NULL; int *lbase=LL?LL+(size_t)tid*k:NULL; double *vtbase=LVT?LVT+(size_t)tid*qv:NULL; int *vlbase=LVL?LVL+(size_t)tid*qv:NULL;
@@ -125,6 +154,7 @@ static void sketch_remainder(const double*A,const double*b,int start,int m,int n
         for(int t=0;t<nt;t++){double*cbase=LC+(size_t)t*k*n,*dbase=Ld+(size_t)t*k,*ebase=LE+(size_t)t*2*n,*fbase=Lf+(size_t)t*2;for(size_t z=0;z<(size_t)k*n;z++)C[z]+=cbase[z];for(int z=0;z<k;z++){d[z]+=dbase[z]; if(formT)formT[z]=fg_up_add(formT[z],LT[(size_t)t*k+z]); if(formL)formL[z]+=LL[(size_t)t*k+z];}for(int z=0;z<2*n;z++)E[z]+=ebase[z];for(int v=0;v<qv;v++){if(valT)valT[v]=fg_up_add(valT[v],LVT[(size_t)t*qv+v]);if(valL)valL[v]+=LVL[(size_t)t*qv+v];}f[0]+=fbase[0];f[1]+=fbase[1];}
         free(LVT);free(LVL);free(LT);free(LL);free(LC);free(Ld);free(LE);free(Lf);return;
     }
+serial_sketch:
     for(int i=start;i<m;i++){
         const double*row=A+(size_t)i*n;double an=norm2(row,n);if(an==0)continue;double invan=1.0/an,beta=b[i]*invan;
         if(sp==1 && qv==2){uint64_t h=sm64(sseed ^ ((uint64_t)i*0x9e3779b97f4a7c15ULL) ^ 0xbf58476d1ce4e5b9ULL);int bucket=(int)(h%(uint64_t)k);double sg=(h>>63)?invs:-invs;double w0=uhash(vseed+0xD1B54A32D192ED03ULL*(uint64_t)(i+1)+0x94D049BB133111EBULL)*invm,w1=uhash(vseed+0xD1B54A32D192ED03ULL*(uint64_t)(i+1)+2ULL*0x94D049BB133111EBULL)*invm;double*cr=C+(size_t)bucket*n,*e0=E,*e1=E+n;double cs=sg*invan,c0=w0*invan,c1=w1*invan;double mx=0.0;for(int j=0;j<n;j++){double v=row[j],av=fabs(v);if(av>mx)mx=av;cr[j]+=cs*v;e0[j]+=c0*v;e1[j]+=c1*v;}{double rnup=(formT||valT)?fg_row_norm_upper_from_max(mx,n):0.0;if(formT)formT[bucket]=fg_up_mul_add(formT[bucket],cs,rnup);if(valT){valT[0]=fg_up_mul_add(valT[0],c0,rnup);valT[1]=fg_up_mul_add(valT[1],c1,rnup);}}if(formL)formL[bucket]++;if(valL){valL[0]++;valL[1]++;}d[bucket]+=sg*beta;f[0]+=w0*beta;f[1]+=w1*beta;continue;}
@@ -135,7 +165,7 @@ static void sketch_remainder(const double*A,const double*b,int start,int m,int n
 static int core_svd_state(const double*Core,const double*y,int rows,int n,BState*out,double*relr,double ranktol);
 
 static Result solve_fast(const double*A,const double*b,const double*xt,int m,int n,int sp,int qv,int alpha,uint64_t seed,int do_full_residual){
- Result R={0}; double t0=now_sec(); double tr=1e-10,tc=2e-10; BState pre;bs_init(&pre,n); int p=n<m?n:m;
+ Result R={0}; double t0=now_sec(); double tr=1e-10,tc=2e-10; BState pre;if(bs_init(&pre,n)){BS_FAIL_RESULT(R,t0);return R;} int p=n<m?n:m;
  for(int i=0;i<p;i++){bs_insert(&pre,A+(size_t)i*n,b[i],tr,tc);if(pre.inconsistent)break;}
  if(pre.inconsistent){R.cls=CLS_INCONSISTENT;R.rank=pre.r;R.sec=now_sec()-t0;R.relres=relres(A,b,pre.x,m,n);R.relx=relxerr(pre.x,xt,n);bs_free(&pre);return R;}
  if(pre.r==n){ // residual stream
@@ -149,10 +179,10 @@ static Result solve_fast(const double*A,const double*b,const double*xt,int m,int
  int crmax=p+k, cr=0; double*Core=malloc((size_t)crmax*n*sizeof(double)), *cy=malloc(crmax*sizeof(double));
  for(int i=0;i<p;i++){double an=norm2(A+(size_t)i*n,n);if(an==0)continue;for(int j=0;j<n;j++)Core[(size_t)cr*n+j]=A[(size_t)i*n+j]/an;cy[cr]=b[i]/an;cr++;}
  for(int i=0;i<k;i++){double an=norm2(C+(size_t)i*n,n);if(an==0)continue;for(int j=0;j<n;j++)Core[(size_t)cr*n+j]=C[(size_t)i*n+j]/an;cy[cr]=d[i]/an;cr++;}
- BState cand; double core_rr=0; if(core_svd_state(Core,cy,cr,n,&cand,&core_rr,1e-11)!=0){R.fallback=1;bs_copy(&cand,&pre);for(int i=p;i<m;i++){bs_insert(&cand,A+(size_t)i*n,b[i],tr,tc);if(cand.inconsistent)break;}}
+ BState cand; double core_rr=0; if(core_svd_state(Core,cy,cr,n,&cand,&core_rr,1e-11)!=0){R.fallback=1;if(bs_copy(&cand,&pre)){free(C);free(d);free(E);free(f);bs_free(&pre);BS_FAIL_RESULT(R,t0);return R;}for(int i=p;i<m;i++){bs_insert(&cand,A+(size_t)i*n,b[i],tr,tc);if(cand.inconsistent)break;}}
  free(Core);free(cy);
  if(core_rr>1e-8){ /* robust contradiction in a subsystem of linear combinations */ cand.inconsistent=1; R.cls=CLS_INCONSISTENT;R.rank=cand.r;R.relres=relres(A,b,cand.x,m,n);R.relx=relxerr(cand.x,xt,n);R.sec=now_sec()-t0;goto done; }
- if(core_rr>1e-11){ /* numerical grey zone */ R.fallback=1; bs_free(&cand);bs_copy(&cand,&pre);for(int i=p;i<m;i++){bs_insert(&cand,A+(size_t)i*n,b[i],tr,tc);if(cand.inconsistent)break;}R.cls=cand.inconsistent?CLS_INCONSISTENT:(cand.r==n?CLS_UNIQUE:CLS_INFINITE);R.rank=cand.r;R.relres=relres(A,b,cand.x,m,n);R.relx=relxerr(cand.x,xt,n);R.sec=now_sec()-t0;goto done; }
+ if(core_rr>1e-11){ /* numerical grey zone */ R.fallback=1; bs_free(&cand);if(bs_copy(&cand,&pre)){free(C);free(d);free(E);free(f);bs_free(&pre);BS_FAIL_RESULT(R,t0);return R;}for(int i=p;i<m;i++){bs_insert(&cand,A+(size_t)i*n,b[i],tr,tc);if(cand.inconsistent)break;}R.cls=cand.inconsistent?CLS_INCONSISTENT:(cand.r==n?CLS_UNIQUE:CLS_INFINITE);R.rank=cand.r;R.relres=relres(A,b,cand.x,m,n);R.relx=relxerr(cand.x,xt,n);R.sec=now_sec()-t0;goto done; }
  /* A validator may report contra=1, i.e. the compressed row looks
     contradictory.  That signal is deliberately NOT acted on here: a
     sketched residual must not be promoted to source-level inconsistency.
@@ -179,7 +209,7 @@ static int core_svd_state(const double*Core,const double*y,int rows,int n,BState
     dgesvd_(&ju,&jv,&M,&N,Ac,&LDA,sv,U,&LDU,VT,&LDVT,work,&lw,&info);
     if(info){free(Ac);free(sv);free(U);free(VT);free(work);return -1;}
     int r=0; double thresh=(minmn?sv[0]:0)*ranktol; for(int l=0;l<minmn;l++)if(sv[l]>thresh)r++;
-    bs_init(out,n); out->r=r;
+    if(bs_init(out,n)){free(Ac);free(sv);free(U);free(VT);free(work);return -1;} out->r=r;
     for(int l=0;l<r;l++){ double*q=out->Q+(size_t)l*n; for(int j=0;j<n;j++)q[j]=VT[l+(size_t)j*N]; }
     bs_set_backend_orth_bound(out);
     // min-norm x = V Sigma^-1 U^T y

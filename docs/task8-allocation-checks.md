@@ -25,7 +25,27 @@ That is worth stating plainly: the part of the library whose output is a
 certificate does not have this defect. A narrower scan reports these files as
 unchecked and is wrong; the audit script documents the window it uses.
 
-## Why it is not a sweep
+## Status
+
+The refactor part is done. `bs_init` and `bs_copy` return a status,
+`reset_source_guarded` and `try_secant_tail` carry a resource code distinct
+from every value that is a statement about the data, `core_qr_state` and
+`core_svd_state` free and return -1, and every caller maps the resource code
+to `CLS_FAIL`. `sketch_remainder` needed no channel after all: its
+per-thread scratch is an optimisation, so on allocation failure it falls
+through to the serial loop, which computes the same sketch.
+`abs_stream_create` no longer duplicates `bs_init`'s body to get a checkable
+allocation.
+
+The count on library paths is 55 -> 35. The remaining 35 are LAPACK
+workspaces and local buffers inside functions that now all have a failure
+channel, so they are the mechanical part: check after the group, free what
+was allocated, return through the channel.
+
+Router output stayed bit-identical on 64 systems across 8 shapes and 2
+seeds, and the changed paths are clean under ASan and UBSan.
+
+## Why it was not a sweep
 
 Most of the remaining sites sit in functions that cannot report failure:
 
