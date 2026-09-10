@@ -195,7 +195,14 @@ def main() -> int:
     for battery, path, lo, hi, where in RANGE_CLAIMS:
         got = dig(results[battery], path)
         checked += 1
-        ok = isinstance(got, (int, float)) and lo - 1e-12 <= got <= hi + 1e-12
+        # Asymmetric on purpose, matching the comment on RANGE_CLAIMS: the
+        # lower bound is the soundness statement and admits no slack, while
+        # the upper bound is descriptive of the sampled corpus and a value one
+        # ulp over it is a property of the platform.  The check used to apply
+        # 1e-12 to both sides, which would have passed a shadow ratio of
+        # 0.9999999999995 -- a strict radius below the shadow value, which is
+        # the one thing this claim exists to exclude.
+        ok = isinstance(got, (int, float)) and lo <= got <= hi + 1e-12
         shown = f"{got:.6f}" if isinstance(got, (int, float)) else str(got)
         print(f"  [{'ok ' if ok else 'FAIL'}] {battery}:{'.'.join(path)} "
               f"= {shown}  (paper: within [{lo}, {hi}])")
