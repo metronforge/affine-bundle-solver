@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.2](https://github.com/metronforge/affine-bundle-solver/compare/v0.4.1...v0.4.2) (2026-09-10)
+
+
+### Manuscript and documentation
+
+* report the negative and contextual benchmark results ([637135b](https://github.com/metronforge/affine-bundle-solver/commit/637135b5ee6c70e73f30e57d22ca04f7c0c4b744))
+* restate the allocation-check task with a reproducible count ([a6840e3](https://github.com/metronforge/affine-bundle-solver/commit/a6840e330b28c0b4e4b4a9bd377a86da77dbaa36))
+
 ## [0.4.1](https://github.com/metronforge/affine-bundle-solver/compare/v0.4.0...v0.4.1) (2026-09-09)
 
 
