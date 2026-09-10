@@ -146,7 +146,7 @@ for t in test_certified_api test_verifier_adversarial \
          test_status_profile_semantics test_meta_api_absent_solution_quality \
          test_threshold_contract test_streaming_equivalence \
          test_public_diagnostics test_core_rank_boundary \
-         test_blockprefix_guard; do
+         test_blockprefix_guard test_route_agreement; do
   python3 tests/$t.py
 done
 
