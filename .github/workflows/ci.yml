@@ -119,7 +119,8 @@ jobs:
                    test_streaming_equivalence \
                    test_threshold_contract \
                    test_public_diagnostics \
-                   test_core_rank_boundary; do
+                   test_core_rank_boundary \
+                   test_blockprefix_guard; do
             echo "::group::$t"
             python tests/$t.py
             echo "::endgroup::"

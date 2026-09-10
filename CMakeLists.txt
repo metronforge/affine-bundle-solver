@@ -332,7 +332,8 @@ if(ABS_BUILD_TESTING)
             test_streaming_equivalence
             test_threshold_contract
             test_public_diagnostics
-            test_core_rank_boundary)
+            test_core_rank_boundary
+            test_blockprefix_guard)
       add_test(NAME ${_battery}
                COMMAND ${Python3_EXECUTABLE}
                        ${CMAKE_CURRENT_SOURCE_DIR}/tests/${_battery}.py)
