@@ -102,13 +102,32 @@ jobs:
       - name: Compiler warnings (informational)
         continue-on-error: true
         run: |
-          echo "::group::strict warning scan"
+          # Two corrections to this scan, both found by it reporting nothing.
+          #
+          # -Iinclude: the public headers moved to include/, so every file
+          # that includes affine_bundle/*.h stopped compiling here.  The
+          # failure was swallowed by `|| true` and the grep then found no
+          # warnings, so the scan reported a clean bsolver.c while the real
+          # build had a dozen.  Errors are now printed instead of hidden.
+          #
+          # src/bsolver_core.c is #included into bsolver.c and is not a
+          # translation unit.  Compiled alone it reports functions as unused
+          # that its includer does use, which is noise, not signal.
+          log=$(mktemp)
           for f in src/*.c; do
+            case "$f" in */bsolver_core.c) continue ;; esac
             ${{ matrix.cc }} -std=c11 -Wall -Wextra -Wshadow \
-              -c "$f" -o /dev/null -Isrc 2>&1 || true
-          done | grep "warning:" | sed 's/.*warning: //' \
-               | sort | uniq -c | sort -rn || true
+              -c "$f" -o /dev/null -Isrc -Iinclude >>"$log" 2>&1 || true
+          done
+          echo "::group::strict warning scan"
+          grep "warning:" "$log" | sed 's/.*warning: //' \
+            | sort | uniq -c | sort -rn || true
           echo "::endgroup::"
+          if grep -q "error:" "$log"; then
+            echo "::group::the scan itself failed to compile something"
+            grep "error:" "$log" || true
+            echo "::endgroup::"
+          fi
 
       - name: Regression tests
         run: |
@@ -120,7 +139,8 @@ jobs:
                    test_threshold_contract \
                    test_public_diagnostics \
                    test_core_rank_boundary \
-                   test_blockprefix_guard; do
+                   test_blockprefix_guard \
+                   test_route_agreement; do
             echo "::group::$t"
             python tests/$t.py
             echo "::endgroup::"
