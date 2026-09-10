@@ -326,60 +326,6 @@ static int left_null_projection_rank_qrcp(const double *A,const double *b,int m,
     free(v);return 0;
 }
 
-/* For m>n, compute a single left-null direction aligned with b without
-   forming a full m-by-m Q.  DGEQRF stores n Householder reflectors for A=QR;
-   DORMQR applies Q^T to b, we discard the first n coordinates, and then apply
-   Q back.  The resulting vector lies in the computed orthogonal complement
-   of col(A), up to the numerical QR/apply errors.  Normalization is important:
-   the verifier's one-row correction radius is scale invariant in y. */
-static int left_null_projection_qr(const double *A,const double *b,int m,int n,double *y) {
-    if(!A||!b||!y||m<=n||n<=0)return 1;
-    int M=m,N=n,LDA=m,K=n,info=0,lwork=-1,one=1,LDC=m;
-    double *Ac=(double*)malloc((size_t)m*n*sizeof(double));
-    double *tau=(double*)malloc((size_t)n*sizeof(double));
-    double *v=(double*)malloc((size_t)m*sizeof(double));
-    if(!Ac||!tau||!v){free(Ac);free(tau);free(v);return 2;}
-    for(int j=0;j<n;j++)for(int i=0;i<m;i++)Ac[i+(size_t)j*m]=A[(size_t)i*n+j];
-    memcpy(v,b,(size_t)m*sizeof(double));
-
-    double wq=0.0;
-    dgeqrf_(&M,&N,Ac,&LDA,tau,&wq,&lwork,&info);
-    if(info){free(Ac);free(tau);free(v);return 3;}
-    int lwqrf=(int)wq;if(lwqrf<1)lwqrf=1;
-    double *work=(double*)malloc((size_t)lwqrf*sizeof(double));
-    if(!work){free(Ac);free(tau);free(v);return 4;}
-    dgeqrf_(&M,&N,Ac,&LDA,tau,work,&lwqrf,&info);
-    free(work);
-    if(info){free(Ac);free(tau);free(v);return 5;}
-
-    char side='L',trans='T'; lwork=-1; wq=0.0;
-    dormqr_(&side,&trans,&M,&one,&K,Ac,&LDA,tau,v,&LDC,&wq,&lwork,&info);
-    if(info){free(Ac);free(tau);free(v);return 6;}
-    int lw=(int)wq;if(lw<1)lw=1;
-    work=(double*)malloc((size_t)lw*sizeof(double));
-    if(!work){free(Ac);free(tau);free(v);return 7;}
-    dormqr_(&side,&trans,&M,&one,&K,Ac,&LDA,tau,v,&LDC,work,&lw,&info);
-    free(work);
-    if(info){free(Ac);free(tau);free(v);return 8;}
-
-    for(int i=0;i<n;i++)v[i]=0.0;
-    trans='N'; lwork=-1; wq=0.0;
-    dormqr_(&side,&trans,&M,&one,&K,Ac,&LDA,tau,v,&LDC,&wq,&lwork,&info);
-    if(info){free(Ac);free(tau);free(v);return 9;}
-    lw=(int)wq;if(lw<1)lw=1;
-    work=(double*)malloc((size_t)lw*sizeof(double));
-    if(!work){free(Ac);free(tau);free(v);return 10;}
-    dormqr_(&side,&trans,&M,&one,&K,Ac,&LDA,tau,v,&LDC,work,&lw,&info);
-    free(work);free(Ac);free(tau);
-    if(info){free(v);return 11;}
-
-    long double yn2=0.0L;
-    for(int i=0;i<m;i++){long double t=v[i];yn2+=t*t;}
-    if(!(yn2>0.0L)){free(v);return 12;}
-    long double inv=1.0L/sqrtl(yn2);
-    for(int i=0;i<m;i++)y[i]=(double)((long double)v[i]*inv);
-    free(v);return 0;
-}
 
 int bs_generate_inconsistent_witness(const double *A,const double *b,int m,int n,BSInconsistentWitness *w) {
     if(!A||!b||!w||m<=0||n<0||!finite_array(A,(size_t)m*n)||!finite_array(b,(size_t)m))return 1;
