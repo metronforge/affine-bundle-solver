@@ -73,6 +73,8 @@ LSMR_ACCEPTED_ISTOP = frozenset((0, 1, 4))
 BUILD_MANIFEST_NAME = ".abs-build-manifest.json"
 BUILD_MANIFEST_SCHEMA_VERSION = 1
 ROW_SCHEMA_VERSION = 2
+CANONICAL_SEED = 20260909
+CANONICAL_DRIVER = "gelsy"
 REQUIRED_THREAD_CONTROLS = (
     "OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
     "VECLIB_MAXIMUM_THREADS")
@@ -110,6 +112,30 @@ CANONICAL_REFERENCE_SIGNATURE = (
     ("near_transition.eps_1e-12", 1500, 12, "lapack"),
     ("near_transition.eps_1e-10", 1500, 12, "lapack"),
 )
+CANONICAL_CASES_BY_ID = {
+    case_id: (m, n, baseline_kind)
+    for case_id, m, n, baseline_kind in CANONICAL_REFERENCE_SIGNATURE
+}
+HISTORICAL_REFERENCE_CASE_IDS = frozenset((
+    "tall.8000x32", "tall.7680x64", "tall.7680x128",
+    "grouped_vs_lapack.16384x64", "grouped_vs_lsmr.16384x64",
+    "grouped_vs_lapack.131072x64", "grouped_vs_lsmr.131072x64",
+    "grouped_vs_lapack.16384x256", "grouped_vs_lsmr.16384x256",
+    "square.256x256", "square.512x512", "wide.128x512",
+    "wide.256x2048", "tall_large.8000x2000",
+    "tall_large.20000x2000", "square_large.2000x2000",
+    "wide_large.2000x8000",
+))
+ROW_REQUIRED_FIELDS = (
+    "schema_version", "case_id", "family", "baseline_kind",
+    "baseline_name", "numerical_contract", "historical_claim",
+    "historical_claim_scope", "historical_claim_applicable", "m", "n",
+    "note", "status", "rank", "rank_lo", "rank_hi", "berr",
+    "numerical_valid", "validation_reason", "router_timings_s",
+    "baseline_timings_s", "router_s", "baseline_s", "router_mad_s",
+    "baseline_mad_s", "ratio_direction", "baseline_over_router",
+    "historical_ratio_min", "historical_ratio_max",
+    "performance_observation", "baseline_diagnostics")
 
 
 def sha256_file(path):
@@ -196,6 +222,18 @@ def verify_build_manifest(*, router_path, manifest_path, build_script_path,
     if compiler_argv and link_argv and \
             link_argv[:len(compiler_argv)] != compiler_argv:
         result["reasons"].append("router_link_compiler_mismatch")
+    arch_flags = router.get("arch_flags")
+    if compiler_argv and compile_argv:
+        arch_tokens = (arch_flags.split()
+                       if isinstance(arch_flags, str) else None)
+        arch_start = len(compiler_argv) + 1
+        if arch_tokens is None or len(compile_argv) <= len(compiler_argv) or \
+                compile_argv[len(compiler_argv)] != "-O3" or \
+                compile_argv[arch_start:arch_start + len(arch_tokens)] != \
+                arch_tokens:
+            result["reasons"].append("router_arch_flags_mismatch")
+    if router_library.get("basename") != router_path.name:
+        result["reasons"].append("router_library_basename_mismatch")
     openblas_hash = openblas.get("sha256")
     if not openblas_hash:
         result["reasons"].append("openblas_hash_missing")
@@ -209,8 +247,6 @@ def verify_build_manifest(*, router_path, manifest_path, build_script_path,
                     result["reasons"].append("openblas_hash_mismatch")
             except OSError:
                 result["reasons"].append("openblas_library_unreadable")
-        else:
-            result["reasons"].append("openblas_library_unavailable")
         if link_argv and openblas_path not in link_argv:
             result["reasons"].append("openblas_link_argv_mismatch")
     if openblas.get("basename") != (Path(openblas.get("resolved_path")).name
@@ -374,6 +410,172 @@ def _valid_git_identity(value):
             all(character in "0123456789abcdefABCDEF" for character in value))
 
 
+def _valid_sha256(value):
+    return (isinstance(value, str) and len(value) == 64 and
+            all(character in "0123456789abcdefABCDEF" for character in value))
+
+
+def _append_reason(reasons, reason):
+    if reason not in reasons:
+        reasons.append(reason)
+
+
+def _is_number(value):
+    return isinstance(value, (int, float, np.integer, np.floating)) and \
+        not isinstance(value, (bool, np.bool_))
+
+
+def validate_schema_v2_row(row, repeats):
+    """Validate one publication row and return all machine-readable blockers."""
+    reasons = []
+    if not isinstance(row, dict):
+        return ["row_field_invalid:row"]
+    for field in ROW_REQUIRED_FIELDS:
+        if field not in row:
+            reasons.append(f"row_required_field_missing:{field}")
+
+    if row.get("schema_version") != ROW_SCHEMA_VERSION:
+        reasons.append("row_schema_invalid")
+    case_id = row.get("case_id")
+    expected = CANONICAL_CASES_BY_ID.get(case_id)
+    if expected is None or (row.get("m"), row.get("n"),
+                            row.get("baseline_kind")) != expected:
+        reasons.append("row_canonical_signature_mismatch")
+    if isinstance(case_id, str) and row.get("family") != case_id.split(".", 1)[0]:
+        reasons.append("row_family_mismatch")
+
+    baseline_kind = row.get("baseline_kind")
+    expected_baseline = {"lapack": "DGELSY", "lu": "DGESV",
+                         "lsmr": "LSMR"}.get(baseline_kind)
+    if expected_baseline is None:
+        reasons.append("row_field_invalid:baseline_kind")
+    elif row.get("baseline_name") != expected_baseline:
+        reasons.append("row_baseline_name_mismatch")
+    for field in ("case_id", "family", "baseline_name",
+                  "numerical_contract", "validation_reason"):
+        if field in row and (not isinstance(row[field], str) or not row[field]):
+            reasons.append(f"row_field_invalid:{field}")
+    if "note" in row and not isinstance(row["note"], str):
+        reasons.append("row_field_invalid:note")
+    if row.get("status") not in CLS.values():
+        reasons.append("row_field_invalid:status")
+
+    dimensions_valid = all(
+        isinstance(row.get(field), (int, np.integer)) and
+        not isinstance(row.get(field), (bool, np.bool_)) and row[field] > 0
+        for field in ("m", "n"))
+    rank_fields_valid = all(
+        isinstance(row.get(field), (int, np.integer)) and
+        not isinstance(row.get(field), (bool, np.bool_))
+        for field in ("rank", "rank_lo", "rank_hi"))
+    if not dimensions_valid:
+        reasons.append("row_dimensions_invalid")
+    if not rank_fields_valid or (dimensions_valid and not (
+            0 <= row["rank_lo"] <= row["rank"] <= row["rank_hi"] <=
+            min(row["m"], row["n"]))):
+        reasons.append("row_rank_structure_invalid")
+    berr = row.get("berr")
+    if not _is_number(berr) or math.isinf(float(berr)) or (
+            math.isnan(float(berr)) and row.get("status") == "UNIQUE") or (
+            math.isfinite(float(berr)) and float(berr) < 0):
+        reasons.append("row_field_invalid:berr")
+    if row.get("numerical_valid") is not True:
+        reasons.append("numerical_contract_failed")
+
+    valid_timings = {}
+    for label in ("router", "baseline"):
+        values = row.get(f"{label}_timings_s")
+        valid = (isinstance(values, list) and len(values) == int(repeats) and
+                 all(_is_number(value) and math.isfinite(float(value)) and
+                     float(value) > 0 for value in values))
+        valid_timings[label] = valid
+        if valid:
+            median = float(statistics.median(values))
+            mad = float(statistics.median(abs(value - median)
+                                          for value in values))
+            if not _is_number(row.get(f"{label}_s")) or not math.isclose(
+                    float(row[f"{label}_s"]), median,
+                    rel_tol=1e-12, abs_tol=1e-15):
+                reasons.append(f"row_timing_median_mismatch:{label}")
+            if not _is_number(row.get(f"{label}_mad_s")) or not math.isclose(
+                    float(row[f"{label}_mad_s"]), mad,
+                    rel_tol=1e-12, abs_tol=1e-15):
+                reasons.append(f"row_timing_mad_mismatch:{label}")
+
+    router_s = row.get("router_s")
+    baseline_s = row.get("baseline_s")
+    ratio = row.get("baseline_over_router")
+    ratio_valid = (row.get("ratio_direction") == "baseline_over_router" and
+                   _is_number(router_s) and math.isfinite(float(router_s)) and
+                   float(router_s) > 0 and _is_number(baseline_s) and
+                   math.isfinite(float(baseline_s)) and float(baseline_s) > 0 and
+                   _is_number(ratio) and math.isfinite(float(ratio)) and
+                   math.isclose(float(ratio),
+                                float(baseline_s) / float(router_s),
+                                rel_tol=1e-12, abs_tol=1e-15))
+    if not ratio_valid:
+        reasons.append("timing_ratio_invalid")
+
+    historical = case_id in HISTORICAL_REFERENCE_CASE_IDS
+    if row.get("historical_claim_applicable") is not historical:
+        reasons.append("row_historical_applicability_invalid")
+    if historical:
+        expected_scope = {
+            "dimensions": {"m": expected[0], "n": expected[1]},
+            "scale": 1.0, "driver": CANONICAL_DRIVER,
+            "reference_baseline": expected_baseline,
+            "machine_scope": "named-reference-machine",
+            "threading": "single-thread",
+        } if expected is not None else None
+        if not isinstance(row.get("historical_claim"), str) or \
+                not row["historical_claim"]:
+            reasons.append("row_historical_claim_invalid")
+        if row.get("historical_claim_scope") != expected_scope:
+            reasons.append("row_historical_scope_invalid")
+        lo, hi = row.get("historical_ratio_min"), row.get("historical_ratio_max")
+        if not (_is_number(lo) and _is_number(hi) and
+                math.isfinite(float(lo)) and math.isfinite(float(hi)) and
+                0 < float(lo) <= float(hi)):
+            reasons.append("row_historical_range_invalid")
+        if row.get("performance_observation") not in (
+                "inside-reference-range", "outside-reference-range"):
+            reasons.append("row_performance_observation_invalid")
+    elif any((row.get("historical_claim") is not None,
+              row.get("historical_claim_scope") is not None,
+              row.get("historical_ratio_min") is not None,
+              row.get("historical_ratio_max") is not None,
+              row.get("performance_observation") != "not-scoped")):
+        reasons.append("row_historical_fields_unexpected")
+
+    diagnostics = row.get("baseline_diagnostics")
+    if baseline_kind == "lsmr":
+        required = ("valid", "reason", "istop", "iterations",
+                    "relative_residual", "reported_normr", "reported_normar",
+                    "reported_norma", "reported_conda", "reported_normx")
+        diagnostics_valid = isinstance(diagnostics, dict) and \
+            all(field in diagnostics for field in required)
+        if diagnostics_valid:
+            numeric = ("relative_residual", "reported_normr",
+                       "reported_normar", "reported_norma", "reported_conda",
+                       "reported_normx")
+            diagnostics_valid = (
+                diagnostics.get("valid") is True and
+                diagnostics.get("reason") == "ok" and
+                diagnostics.get("istop") in LSMR_ACCEPTED_ISTOP and
+                isinstance(diagnostics.get("iterations"), (int, np.integer)) and
+                0 <= diagnostics["iterations"] <= min(row["m"], row["n"]) and
+                all(_is_number(diagnostics[field]) and
+                    math.isfinite(float(diagnostics[field])) and
+                    float(diagnostics[field]) >= 0 for field in numeric) and
+                diagnostics["relative_residual"] <=
+                LSMR_RELATIVE_RESIDUAL_TOLERANCE)
+        if not diagnostics_valid:
+            reasons.append("row_lsmr_diagnostics_invalid")
+    elif diagnostics is not None:
+        reasons.append("row_baseline_diagnostics_unexpected")
+    return reasons
+
+
 def evaluate_publication_eligibility(*, args, rows, source_state, machine,
                                      software, thread_control, threadpools,
                                      build_verification):
@@ -382,6 +584,10 @@ def evaluate_publication_eligibility(*, args, rows, source_state, machine,
     if not isinstance(args.reference_machine, str) or \
             not args.reference_machine.strip():
         reasons.append("reference_machine_missing")
+    if args.seed != CANONICAL_SEED:
+        reasons.append("benchmark_seed_noncanonical")
+    if args.driver != CANONICAL_DRIVER:
+        reasons.append("benchmark_driver_noncanonical")
     if not _valid_git_identity(source_state.get("git_sha")):
         reasons.append("source_git_sha_invalid")
     if not _valid_git_identity(source_state.get("git_tree_sha")):
@@ -427,6 +633,8 @@ def evaluate_publication_eligibility(*, args, rows, source_state, machine,
     timing_ratio_invalid = False
     row_schema_invalid = False
     for row in rows:
+        for reason in validate_schema_v2_row(row, args.repeats):
+            _append_reason(reasons, reason)
         if row.get("schema_version") != ROW_SCHEMA_VERSION:
             row_schema_invalid = True
         for key in ("router_timings_s", "baseline_timings_s"):
@@ -486,6 +694,17 @@ def evaluate_publication_eligibility(*, args, rows, source_state, machine,
     elif any(not pool.get("internal_api") or not pool.get("version")
              for pool in blas_pools):
         reasons.append("blas_provider_identity_missing")
+    runtime_hashes = [pool.get("sha256") for pool in blas_pools
+                      if _valid_sha256(pool.get("sha256"))]
+    if not runtime_hashes:
+        reasons.append("runtime_blas_identity_unavailable")
+    else:
+        manifest = (build_verification.get("manifest")
+                    if isinstance(build_verification, dict) else None) or {}
+        built_openblas_hash = (manifest.get("openblas") or {}).get("sha256")
+        if _valid_sha256(built_openblas_hash) and \
+                built_openblas_hash not in runtime_hashes:
+            reasons.append("runtime_blas_hash_mismatch")
 
     for key in ("cpu_model", "physical_cores", "logical_cores", "ram_bytes",
                 "smt_enabled", "os", "os_version", "kernel"):
@@ -502,17 +721,35 @@ def evaluate_publication_eligibility(*, args, rows, source_state, machine,
         if not build_verification.get("verified") and \
                 not build_verification.get("reasons"):
             reasons.append("build_verification_failed")
+    reasons = list(dict.fromkeys(reasons))
     return {"eligible": not reasons, "reasons": reasons}
+
+
+def describe_runtime_threadpools(threadpools):
+    """Replace runtime BLAS paths with relocatable binary identities."""
+    described = []
+    for pool in threadpools:
+        record = {key: value for key, value in pool.items()
+                  if key != "filepath"}
+        path = pool.get("filepath")
+        if path:
+            record["basename"] = Path(path).name
+            try:
+                record["sha256"] = sha256_file(path)
+            except OSError:
+                record["sha256"] = None
+        else:
+            record.setdefault("basename", None)
+            record.setdefault("sha256", None)
+        described.append(record)
+    return described
 
 
 def build_metadata_document(*, timestamp_utc, source_state, argv, args, rows,
                             machine, threadpools, software, thread_control,
                             build_verification):
     """Assemble the reference-machine sidecar and eligibility verdict."""
-    clean_threadpools = []
-    for pool in threadpools:
-        clean_threadpools.append({key: value for key, value in pool.items()
-                                  if key != "filepath"})
+    clean_threadpools = describe_runtime_threadpools(threadpools)
     machine = dict(machine)
     machine["reference_name"] = args.reference_machine
     eligibility = evaluate_publication_eligibility(

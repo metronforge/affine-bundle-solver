@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")"
+# A manifest describes the last *successful* invocation, not merely the last
+# binary still present on disk. Invalidate it before discovery or compilation
+# so every failure path is fail-closed.
+rm -f .abs-build-manifest.json
 PYTHON=${PYTHON:-python3}
 CC=${CC:-gcc}
 read -r -a CC_ARGV <<< "$CC"

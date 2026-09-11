@@ -6,6 +6,7 @@ import hashlib
 import json
 import math
 import os
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -25,25 +26,71 @@ def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+HISTORICAL_CASE_IDS = {
+    "tall.8000x32", "tall.7680x64", "tall.7680x128",
+    "grouped_vs_lapack.16384x64", "grouped_vs_lsmr.16384x64",
+    "grouped_vs_lapack.131072x64", "grouped_vs_lsmr.131072x64",
+    "grouped_vs_lapack.16384x256", "grouped_vs_lsmr.16384x256",
+    "square.256x256", "square.512x512", "wide.128x512",
+    "wide.256x2048", "tall_large.8000x2000",
+    "tall_large.20000x2000", "square_large.2000x2000",
+    "wide_large.2000x8000",
+}
+
+
 def complete_rows(repeats=11):
-    return [
-        {
+    rows = []
+    for case_id, m, n, baseline_kind in bench.CANONICAL_REFERENCE_SIGNATURE:
+        historical = case_id in HISTORICAL_CASE_IDS
+        baseline = {"lapack": "DGELSY", "lu": "DGESV",
+                    "lsmr": "LSMR"}[baseline_kind]
+        diagnostics = None
+        if baseline_kind == "lsmr":
+            diagnostics = {
+                "valid": True, "reason": "ok", "istop": 1,
+                "iterations": 1, "relative_residual": 0.0,
+                "reported_normr": 0.0, "reported_normar": 0.0,
+                "reported_norma": 1.0, "reported_conda": 1.0,
+                "reported_normx": 1.0,
+            }
+        rows.append({
             "schema_version": 2,
             "case_id": case_id,
             "family": case_id.split(".", 1)[0],
             "m": m,
             "n": n,
             "baseline_kind": baseline_kind,
+            "baseline_name": baseline,
+            "numerical_contract": "portable numerical contract",
+            "historical_claim": ("reference observation"
+                                 if historical else None),
+            "historical_claim_scope": ({
+                "dimensions": {"m": m, "n": n}, "scale": 1.0,
+                "driver": "gelsy", "reference_baseline": baseline,
+                "machine_scope": "named-reference-machine",
+                "threading": "single-thread",
+            } if historical else None),
+            "historical_claim_applicable": historical,
+            "note": "", "status": "UNIQUE", "rank": min(m, n),
+            "rank_lo": min(m, n), "rank_hi": min(m, n),
+            "berr": 1e-16,
             "numerical_valid": True,
+            "validation_reason": "ok",
             "router_timings_s": [1.0] * repeats,
             "baseline_timings_s": [2.0] * repeats,
             "router_s": 1.0,
             "baseline_s": 2.0,
+            "router_mad_s": 0.0,
+            "baseline_mad_s": 0.0,
             "ratio_direction": "baseline_over_router",
             "baseline_over_router": 2.0,
-        }
-        for case_id, m, n, baseline_kind in bench.CANONICAL_REFERENCE_SIGNATURE
-    ]
+            "historical_ratio_min": (0.1 if historical else None),
+            "historical_ratio_max": (100.0 if historical else None),
+            "performance_observation": ("inside-reference-range"
+                                        if historical else "not-scoped"),
+            "baseline_diagnostics": diagnostics,
+        })
+    return rows
 
 
 def eligibility_inputs(**overrides):
@@ -70,11 +117,13 @@ def eligibility_inputs(**overrides):
         },
         "threadpools": [
             {"user_api": "blas", "internal_api": "openblas",
-             "num_threads": 1, "version": "1"}
+             "num_threads": 1, "version": "1",
+             "basename": "libscipy_openblas.so", "sha256": "c" * 64}
         ],
         "build_verification": {
             "verified": True, "reasons": [],
-            "manifest": {"schema_version": 1},
+            "manifest": {"schema_version": 1,
+                         "openblas": {"sha256": "c" * 64}},
         },
     }
     values.update(overrides)
@@ -234,17 +283,24 @@ class OutputSchemaTests(unittest.TestCase):
 
 class MetadataTests(unittest.TestCase):
     def test_metadata_is_machine_scoped_and_copies_verified_build_record(self):
-        inputs = eligibility_inputs()
-        inputs["threadpools"][0]["filepath"] = "/tmp/build/libblas.so"
-        document = bench.build_metadata_document(
-            timestamp_utc="2026-09-11T12:00:00Z",
-            source_state=inputs["source_state"],
-            argv=["experiments/synthetic_bench.py", "--driver", "gelsy"],
-            args=inputs["args"], rows=inputs["rows"],
-            machine=inputs["machine"], threadpools=inputs["threadpools"],
-            software=inputs["software"],
-            thread_control=inputs["thread_control"],
-            build_verification=inputs["build_verification"])
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory) / "libblas.so"
+            library.write_bytes(b"runtime blas")
+            inputs = eligibility_inputs()
+            runtime_hash = digest(library)
+            inputs["threadpools"][0].update(
+                filepath=str(library), sha256=runtime_hash)
+            inputs["build_verification"]["manifest"]["openblas"][
+                "sha256"] = runtime_hash
+            document = bench.build_metadata_document(
+                timestamp_utc="2026-09-11T12:00:00Z",
+                source_state=inputs["source_state"],
+                argv=["experiments/synthetic_bench.py", "--driver", "gelsy"],
+                args=inputs["args"], rows=inputs["rows"],
+                machine=inputs["machine"], threadpools=inputs["threadpools"],
+                software=inputs["software"],
+                thread_control=inputs["thread_control"],
+                build_verification=inputs["build_verification"])
 
         self.assertEqual(document["schema_version"], 2)
         self.assertEqual(document["scope"],
@@ -320,8 +376,8 @@ class BuildManifestTests(unittest.TestCase):
                 "identity": "gcc test",
             },
             "router": {
-                "compile_argv": ["ccache", "gcc", "-O3", "-c",
-                                 "src/bsolver.c"],
+                "compile_argv": ["ccache", "gcc", "-O3",
+                                 "-march=native", "-c", "src/bsolver.c"],
                 "link_argv": ["ccache", "gcc", "-shared",
                               str(self.openblas.resolve())],
                 "arch_flags": "-march=native",
@@ -412,6 +468,57 @@ class BuildManifestTests(unittest.TestCase):
         self.assertIn("openblas_link_argv_mismatch",
                       verification["reasons"])
 
+    def test_arch_flags_must_match_compile_argv_at_the_build_position(self):
+        manifest = copy.deepcopy(self.manifest)
+        manifest["router"]["arch_flags"] = "-march=haswell -mtune=generic"
+        manifest["router"]["compile_argv"].extend(
+            ["-march=haswell", "-mtune=generic"])
+        self.write_manifest(manifest)
+
+        verification = self.verify()
+
+        self.assertIn("router_arch_flags_mismatch", verification["reasons"])
+
+    def test_router_manifest_is_relocatable_by_hash_and_basename(self):
+        manifest = copy.deepcopy(self.manifest)
+        manifest["router"]["library"]["resolved_path"] = \
+            "/old/build/location/libaffine_bundle_solver.so"
+        self.write_manifest(manifest)
+
+        self.assertTrue(self.verify()["verified"])
+
+    def test_recorded_openblas_path_is_only_an_observation(self):
+        manifest = copy.deepcopy(self.manifest)
+        old_path = "/old/build/location/libscipy_openblas.so"
+        manifest["router"]["link_argv"][-1] = old_path
+        manifest["openblas"]["resolved_path"] = old_path
+        self.write_manifest(manifest)
+
+        verification = self.verify()
+
+        self.assertTrue(verification["verified"], verification["reasons"])
+
+    def test_failed_build_invalidates_a_previous_manifest(self):
+        source_script = ROOT / "build.sh"
+        for failing_environment in ({"PYTHON": "false"}, {"CC": "false"}):
+            with self.subTest(environment=failing_environment):
+                root = self.root / ("case-" + next(iter(failing_environment)))
+                root.mkdir()
+                script = root / "build.sh"
+                script.write_bytes(source_script.read_bytes())
+                script.chmod(0o755)
+                manifest = root / ".abs-build-manifest.json"
+                manifest.write_text('{"stale": true}\n')
+                environment = os.environ.copy()
+                environment.update(failing_environment)
+
+                completed = subprocess.run(
+                    [str(script)], cwd=root, env=environment,
+                    capture_output=True, text=True, timeout=30)
+
+                self.assertNotEqual(completed.returncode, 0)
+                self.assertFalse(manifest.exists())
+
     def test_valid_manifest_matches_exact_router_and_dependencies(self):
         self.write_manifest()
         verification = self.verify()
@@ -429,6 +536,102 @@ class PublicationEligibilityTests(unittest.TestCase):
 
     def test_complete_verified_reference_run_is_eligible(self):
         self.assertEqual(self.evaluate(), {"eligible": True, "reasons": []})
+
+    def test_seed_driver_and_required_historical_rows_are_canonical(self):
+        seed_args = copy.copy(eligibility_inputs()["args"])
+        seed_args.seed = 7
+        driver_args = copy.copy(eligibility_inputs()["args"])
+        driver_args.driver = "gelsd"
+        rows = complete_rows()
+        historical = next(row for row in rows
+                          if row["historical_claim_applicable"])
+        historical["historical_claim_applicable"] = False
+
+        self.assertIn("benchmark_seed_noncanonical",
+                      self.evaluate(args=seed_args)["reasons"])
+        self.assertIn("benchmark_driver_noncanonical",
+                      self.evaluate(args=driver_args)["reasons"])
+        self.assertIn("row_historical_applicability_invalid",
+                      self.evaluate(rows=rows)["reasons"])
+
+    def test_every_row_schema_field_is_required(self):
+        required = (
+            "schema_version", "case_id", "family", "baseline_kind",
+            "baseline_name", "numerical_contract", "historical_claim",
+            "historical_claim_scope", "historical_claim_applicable", "m",
+            "n", "note", "status", "rank", "rank_lo", "rank_hi", "berr",
+            "numerical_valid", "validation_reason", "router_timings_s",
+            "baseline_timings_s", "router_s", "baseline_s", "router_mad_s",
+            "baseline_mad_s", "ratio_direction", "baseline_over_router",
+            "historical_ratio_min", "historical_ratio_max",
+            "performance_observation", "baseline_diagnostics")
+        for field in required:
+            with self.subTest(field=field):
+                rows = complete_rows()
+                rows[0].pop(field)
+                self.assertIn(
+                    f"row_required_field_missing:{field}",
+                    self.evaluate(rows=rows)["reasons"])
+
+    def test_row_types_and_canonical_cross_fields_are_validated(self):
+        variants = {
+            "family": ("wrong-family", "row_family_mismatch"),
+            "baseline_kind": ("lsmr", "row_canonical_signature_mismatch"),
+            "baseline_name": ("DGELSD", "row_baseline_name_mismatch"),
+            "numerical_contract": ("", "row_field_invalid:numerical_contract"),
+            "m": (0, "row_canonical_signature_mismatch"),
+            "status": ("NOT_A_STATUS", "row_field_invalid:status"),
+            "rank_hi": (-1, "row_rank_structure_invalid"),
+            "berr": ("unknown", "row_field_invalid:berr"),
+            "validation_reason": ("", "row_field_invalid:validation_reason"),
+        }
+        for field, (value, reason) in variants.items():
+            with self.subTest(field=field):
+                rows = complete_rows()
+                rows[0][field] = value
+                self.assertIn(reason, self.evaluate(rows=rows)["reasons"])
+
+    def test_timing_medians_and_mads_are_recomputed(self):
+        variants = {
+            "router_s": (3.0, "row_timing_median_mismatch:router"),
+            "baseline_s": (3.0, "row_timing_median_mismatch:baseline"),
+            "router_mad_s": (1.0, "row_timing_mad_mismatch:router"),
+            "baseline_mad_s": (1.0, "row_timing_mad_mismatch:baseline"),
+        }
+        for field, (value, reason) in variants.items():
+            with self.subTest(field=field):
+                rows = complete_rows()
+                rows[0][field] = value
+                self.assertIn(reason, self.evaluate(rows=rows)["reasons"])
+
+    def test_historical_scope_and_lsmr_diagnostics_are_validated(self):
+        rows = complete_rows()
+        historical = next(row for row in rows
+                          if row["historical_claim_applicable"])
+        historical["historical_claim_scope"]["driver"] = "gelsd"
+        lsmr = next(row for row in rows if row["baseline_kind"] == "lsmr")
+        lsmr["baseline_diagnostics"]["istop"] = 7
+
+        reasons = self.evaluate(rows=rows)["reasons"]
+
+        self.assertIn("row_historical_scope_invalid", reasons)
+        self.assertIn("row_lsmr_diagnostics_invalid", reasons)
+
+    def test_runtime_blas_binary_must_match_build_manifest(self):
+        mismatched = [{
+            "user_api": "blas", "internal_api": "openblas", "version": "1",
+            "num_threads": 1, "basename": "libopenblas.so",
+            "sha256": "d" * 64,
+        }]
+        unavailable = [{
+            "user_api": "blas", "internal_api": "openblas", "version": "1",
+            "num_threads": 1, "basename": "libopenblas.so", "sha256": None,
+        }]
+
+        self.assertIn("runtime_blas_hash_mismatch",
+                      self.evaluate(threadpools=mismatched)["reasons"])
+        self.assertIn("runtime_blas_identity_unavailable",
+                      self.evaluate(threadpools=unavailable)["reasons"])
 
     def test_case_set_failures_are_distinguished(self):
         canonical = complete_rows()
@@ -463,12 +666,12 @@ class PublicationEligibilityTests(unittest.TestCase):
         verdict = self.evaluate(rows=rows)
 
         self.assertFalse(verdict["eligible"])
-        self.assertEqual(
-            verdict["reasons"],
-            ["numerical_contract_failed", "timing_array_missing",
-             "timing_repeat_count_mismatch", "timing_nonfinite",
-             "timing_nonpositive", "timing_summary_nonfinite",
-             "timing_summary_nonpositive", "timing_ratio_invalid"])
+        for reason in (
+                "numerical_contract_failed", "timing_array_missing",
+                "timing_repeat_count_mismatch", "timing_nonfinite",
+                "timing_nonpositive", "timing_summary_nonfinite",
+                "timing_summary_nonpositive", "timing_ratio_invalid"):
+            self.assertIn(reason, verdict["reasons"])
 
     def test_row_schema_must_be_current(self):
         rows = complete_rows()
