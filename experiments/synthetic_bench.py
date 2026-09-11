@@ -41,6 +41,7 @@ a clean checkout and a stable reference-machine name in the metadata sidecar.
 import argparse
 import csv
 import ctypes
+import hashlib
 import json
 import math
 import os
@@ -69,15 +70,154 @@ LSMR_RELATIVE_RESIDUAL_TOLERANCE = 1e-10
 # exits, and 7 is the iteration limit; none establishes the Ax=b comparison
 # made by this harness.
 LSMR_ACCEPTED_ISTOP = frozenset((0, 1, 4))
+BUILD_MANIFEST_NAME = ".abs-build-manifest.json"
+BUILD_MANIFEST_SCHEMA_VERSION = 1
+ROW_SCHEMA_VERSION = 2
+REQUIRED_THREAD_CONTROLS = (
+    "OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
+    "VECLIB_MAXIMUM_THREADS")
+
+# Ordered protocol signature. Order is part of the reference configuration:
+# it fixes warm-up, cache and thermal history as well as the set of cases.
+CANONICAL_REFERENCE_SIGNATURE = (
+    ("tall.8000x32", 8000, 32, "lapack"),
+    ("tall.7680x64", 7680, 64, "lapack"),
+    ("tall.7680x128", 7680, 128, "lapack"),
+    ("grouped_vs_lapack.16384x64", 16384, 64, "lapack"),
+    ("grouped_vs_lsmr.16384x64", 16384, 64, "lsmr"),
+    ("grouped_vs_lapack.131072x64", 131072, 64, "lapack"),
+    ("grouped_vs_lsmr.131072x64", 131072, 64, "lsmr"),
+    ("grouped_vs_lapack.16384x256", 16384, 256, "lapack"),
+    ("grouped_vs_lsmr.16384x256", 16384, 256, "lsmr"),
+    ("square.256x256", 256, 256, "lu"),
+    ("square.512x512", 512, 512, "lu"),
+    ("wide.128x512", 128, 512, "lapack"),
+    ("wide.256x2048", 256, 2048, "lapack"),
+    ("wide_extreme.32x12800", 32, 12800, "lapack"),
+    ("cond_1e+02.4000x64", 4000, 64, "lapack"),
+    ("cond_1e+08.4000x64", 4000, 64, "lapack"),
+    ("cond_1e+14.4000x64", 4000, 64, "lapack"),
+    ("rank_deficient.4000x64", 4000, 64, "lapack"),
+    ("inconsistent.4000x64", 4000, 64, "lapack"),
+    ("tall_large.8000x2000", 8000, 2000, "lapack"),
+    ("tall_large.20000x2000", 20000, 2000, "lapack"),
+    ("square_large.2000x2000", 2000, 2000, "lu"),
+    ("wide_large.2000x8000", 2000, 8000, "lapack"),
+    ("cond_large_1e+08.6000x2000", 6000, 2000, "lapack"),
+    ("cond_large_1e+14.6000x2000", 6000, 2000, "lapack"),
+    ("rank_deficient_large.6000x2000", 6000, 2000, "lapack"),
+    ("near_transition_large.eps_1e-11", 6000, 2000, "lapack"),
+    ("near_transition.eps_1e-12", 1500, 12, "lapack"),
+    ("near_transition.eps_1e-10", 1500, 12, "lapack"),
+)
 
 
-def load_router():
-    lib = ctypes.CDLL(str(LIBDIR / "libaffine_bundle_solver.so"))
+def sha256_file(path):
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def load_router(router_path=None):
+    path = Path(router_path or LIBDIR / "libaffine_bundle_solver.so").resolve()
+    lib = ctypes.CDLL(str(path))
     lib.bsolve_router_meta_api.argtypes = [
         DP, DP, DP, ctypes.c_int, ctypes.c_int, ctypes.c_int,
         ctypes.c_int, ctypes.c_int, ctypes.c_ulonglong, ctypes.c_int, DP]
     lib.bsolve_router_meta_api.restype = None
     return lib
+
+
+def verify_build_manifest(*, router_path, manifest_path, build_script_path,
+                          benchmark_git_sha, benchmark_git_tree_sha):
+    """Verify the build record against the exact router selected for loading."""
+    router_path = Path(router_path).resolve()
+    manifest_path = Path(manifest_path)
+    build_script_path = Path(build_script_path)
+    result = {"verified": False, "reasons": [], "manifest": None,
+              "router_path": str(router_path), "router_sha256": None}
+    try:
+        result["router_sha256"] = sha256_file(router_path)
+    except OSError:
+        result["reasons"].append("router_library_unreadable")
+    if not manifest_path.is_file():
+        result["reasons"].append("build_manifest_missing")
+        return result
+    try:
+        manifest = json.loads(manifest_path.read_text())
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        result["reasons"].append("build_manifest_invalid_json")
+        return result
+    result["manifest"] = manifest
+    if not isinstance(manifest, dict) or \
+            manifest.get("schema_version") != BUILD_MANIFEST_SCHEMA_VERSION:
+        result["reasons"].append("build_manifest_schema_invalid")
+        return result
+
+    source = manifest.get("source") or {}
+    script = manifest.get("build_script") or {}
+    compiler = manifest.get("compiler") or {}
+    router = manifest.get("router") or {}
+    router_library = router.get("library") or {}
+    openblas = manifest.get("openblas") or {}
+    if result["router_sha256"] is not None and \
+            router_library.get("sha256") != result["router_sha256"]:
+        result["reasons"].append("router_library_hash_mismatch")
+    if source.get("git_sha") != benchmark_git_sha:
+        result["reasons"].append("build_source_sha_mismatch")
+    if source.get("git_tree_sha") != benchmark_git_tree_sha:
+        result["reasons"].append("build_source_tree_mismatch")
+    if source.get("git_dirty") is not False:
+        result["reasons"].append("build_source_dirty")
+    if not manifest.get("built_at_utc"):
+        result["reasons"].append("build_timestamp_missing")
+    try:
+        script_hash = sha256_file(build_script_path)
+    except OSError:
+        script_hash = None
+    if not script.get("sha256") or script.get("sha256") != script_hash:
+        result["reasons"].append("build_script_hash_mismatch")
+    compiler_argv = compiler.get("command_argv")
+    if not isinstance(compiler_argv, list) or not compiler_argv:
+        result["reasons"].append("build_compiler_command_missing")
+    if not compiler.get("identity"):
+        result["reasons"].append("build_compiler_identity_missing")
+    compile_argv = router.get("compile_argv")
+    link_argv = router.get("link_argv")
+    if not isinstance(compile_argv, list) or not compile_argv:
+        result["reasons"].append("router_compile_argv_missing")
+    if not isinstance(link_argv, list) or not link_argv:
+        result["reasons"].append("router_link_argv_missing")
+    if compiler_argv and compile_argv and \
+            compile_argv[:len(compiler_argv)] != compiler_argv:
+        result["reasons"].append("router_compile_compiler_mismatch")
+    if compiler_argv and link_argv and \
+            link_argv[:len(compiler_argv)] != compiler_argv:
+        result["reasons"].append("router_link_compiler_mismatch")
+    openblas_hash = openblas.get("sha256")
+    if not openblas_hash:
+        result["reasons"].append("openblas_hash_missing")
+    else:
+        openblas_path = openblas.get("resolved_path")
+        if not openblas_path:
+            result["reasons"].append("openblas_path_missing")
+        elif Path(openblas_path).is_file():
+            try:
+                if sha256_file(openblas_path) != openblas_hash:
+                    result["reasons"].append("openblas_hash_mismatch")
+            except OSError:
+                result["reasons"].append("openblas_library_unreadable")
+        else:
+            result["reasons"].append("openblas_library_unavailable")
+        if link_argv and openblas_path not in link_argv:
+            result["reasons"].append("openblas_link_argv_mismatch")
+    if openblas.get("basename") != (Path(openblas.get("resolved_path")).name
+                                    if openblas.get("resolved_path") else None):
+        result["reasons"].append("openblas_basename_mismatch")
+    result["verified"] = not result["reasons"]
+    return result
 
 
 def ptr(a):
@@ -112,16 +252,25 @@ def comparison_contract(case, driver, scale):
     kind = case.get(
         "baseline_kind", "lu" if case["m"] == case["n"] else "lapack")
     name = baseline_name(kind, driver)
-    claim = case["claim"]
-    if kind == "lapack":
-        claim = claim.replace("DGELSY", name).replace("DGELSD", name)
     historical_range = case.get("historical_range")
-    if float(scale) != 1.0 or (kind == "lapack" and driver != "gelsy"):
-        historical_range = None
+    applicable = (historical_range is not None and float(scale) == 1.0 and
+                  driver == "gelsy")
+    scoped_range = historical_range if applicable else None
     return {
         "baseline_name": name,
-        "claim": claim,
-        "historical_range": historical_range,
+        "numerical_contract": case["numerical_contract"],
+        "historical_claim": case.get("historical_claim"),
+        "historical_claim_scope": ({
+            "dimensions": {"m": case["reference_m"],
+                           "n": case["reference_n"]},
+            "scale": 1.0,
+            "driver": "gelsy",
+            "reference_baseline": baseline_name(kind, "gelsy"),
+            "machine_scope": "named-reference-machine",
+            "threading": "single-thread",
+        } if historical_range is not None else None),
+        "historical_claim_applicable": applicable,
+        "historical_range": scoped_range,
     }
 
 
@@ -166,7 +315,10 @@ def validate_lsmr_result(result, A, b, *, maxiter,
             "reported_normx": float(normx)}
 
 
-def make_result_row(*, family, claim, baseline_name, m, n, note, status,
+def make_result_row(*, case_id, family, baseline_kind, baseline_name,
+                    numerical_contract, historical_claim,
+                    historical_claim_scope, historical_claim_applicable,
+                    m, n, note, status,
                     rank, rank_lo, rank_hi, berr, router_timings,
                     baseline_timings, numerical_valid, validation_reason,
                     historical_range=None, baseline_diagnostics=None):
@@ -185,8 +337,13 @@ def make_result_row(*, family, claim, baseline_name, m, n, note, status,
         observation = ("inside-reference-range" if lo <= ratio <= hi
                        else "outside-reference-range")
     return {
-        "schema_version": 1,
-        "family": family, "claim": claim, "baseline_name": baseline_name,
+        "schema_version": ROW_SCHEMA_VERSION,
+        "case_id": case_id, "family": family,
+        "baseline_kind": baseline_kind, "baseline_name": baseline_name,
+        "numerical_contract": numerical_contract,
+        "historical_claim": historical_claim,
+        "historical_claim_scope": historical_claim_scope,
+        "historical_claim_applicable": bool(historical_claim_applicable),
         "m": int(m), "n": int(n), "note": note, "status": status,
         "rank": int(rank), "rank_lo": int(rank_lo), "rank_hi": int(rank_hi),
         "berr": float(berr), "numerical_valid": bool(numerical_valid),
@@ -212,48 +369,164 @@ def portable_failures(rows):
             if not row.get("numerical_valid", False)]
 
 
-def build_metadata_document(*, timestamp_utc, source_git_sha, git_dirty,
-                            argv, args, rows, machine, compiler, threadpools,
-                            software, thread_control):
-    """Assemble the path-free reference-machine sidecar schema."""
+def _valid_git_identity(value):
+    return (isinstance(value, str) and len(value) == 40 and
+            all(character in "0123456789abcdefABCDEF" for character in value))
+
+
+def evaluate_publication_eligibility(*, args, rows, source_state, machine,
+                                     software, thread_control, threadpools,
+                                     build_verification):
+    """Return every reason this run cannot be publication evidence."""
+    reasons = []
+    if not isinstance(args.reference_machine, str) or \
+            not args.reference_machine.strip():
+        reasons.append("reference_machine_missing")
+    if not _valid_git_identity(source_state.get("git_sha")):
+        reasons.append("source_git_sha_invalid")
+    if not _valid_git_identity(source_state.get("git_tree_sha")):
+        reasons.append("source_git_tree_invalid")
+    dirty = source_state.get("git_dirty")
+    if dirty is None:
+        reasons.append("source_git_dirty_unknown")
+    elif dirty:
+        reasons.append("source_git_dirty")
+    if float(args.scale) != 1.0:
+        reasons.append("scale_not_one")
+    if args.no_large:
+        reasons.append("large_cases_disabled")
+    if int(args.repeats) < 11:
+        reasons.append("insufficient_repeats")
+
+    expected = CANONICAL_REFERENCE_SIGNATURE
+    if not rows:
+        reasons.append("case_set_empty")
+    actual = tuple((row.get("case_id"), row.get("m"), row.get("n"),
+                    row.get("baseline_kind")) for row in rows)
+    expected_ids = [entry[0] for entry in expected]
+    actual_ids = [entry[0] for entry in actual]
+    if len(actual) < len(expected) or set(expected_ids) - set(actual_ids):
+        reasons.append("case_set_incomplete")
+    if len(actual_ids) != len(set(actual_ids)):
+        reasons.append("case_set_duplicate")
+    if set(actual_ids) - set(expected_ids) or any(
+            entry not in expected for entry in actual):
+        reasons.append("case_set_unexpected")
+    if (len(actual) == len(expected) and set(actual) == set(expected) and
+            actual != expected):
+        reasons.append("case_order_mismatch")
+
+    numerical_failed = any(row.get("numerical_valid") is not True
+                           for row in rows)
+    timing_array_missing = False
+    timing_repeat_count_mismatch = False
+    timing_nonfinite = False
+    timing_nonpositive = False
+    timing_summary_nonfinite = False
+    timing_summary_nonpositive = False
+    timing_ratio_invalid = False
+    row_schema_invalid = False
+    for row in rows:
+        if row.get("schema_version") != ROW_SCHEMA_VERSION:
+            row_schema_invalid = True
+        for key in ("router_timings_s", "baseline_timings_s"):
+            values = row.get(key)
+            if not isinstance(values, list):
+                timing_array_missing = True
+                continue
+            if len(values) != int(args.repeats):
+                timing_repeat_count_mismatch = True
+            for value in values:
+                if not isinstance(value, (int, float)) or \
+                        not math.isfinite(value):
+                    timing_nonfinite = True
+                elif value <= 0:
+                    timing_nonpositive = True
+        for key in ("router_s", "baseline_s"):
+            value = row.get(key)
+            if not isinstance(value, (int, float)) or not math.isfinite(value):
+                timing_summary_nonfinite = True
+            elif value <= 0:
+                timing_summary_nonpositive = True
+        ratio = row.get("baseline_over_router")
+        if not isinstance(ratio, (int, float)) or not math.isfinite(ratio) or \
+                ratio <= 0:
+            timing_ratio_invalid = True
+        elif row.get("ratio_direction") != "baseline_over_router" or not (
+                isinstance(row.get("router_s"), (int, float)) and
+                isinstance(row.get("baseline_s"), (int, float)) and
+                row["router_s"] > 0 and math.isclose(
+                    ratio, row["baseline_s"] / row["router_s"],
+                    rel_tol=1e-12, abs_tol=0.0)):
+            timing_ratio_invalid = True
+    for failed, reason in (
+            (row_schema_invalid, "row_schema_invalid"),
+            (numerical_failed, "numerical_contract_failed"),
+            (timing_array_missing, "timing_array_missing"),
+            (timing_repeat_count_mismatch, "timing_repeat_count_mismatch"),
+            (timing_nonfinite, "timing_nonfinite"),
+            (timing_nonpositive, "timing_nonpositive"),
+            (timing_summary_nonfinite, "timing_summary_nonfinite"),
+            (timing_summary_nonpositive, "timing_summary_nonpositive"),
+            (timing_ratio_invalid, "timing_ratio_invalid")):
+        if failed:
+            reasons.append(reason)
+
+    for name in REQUIRED_THREAD_CONTROLS:
+        if name not in thread_control or thread_control[name] is None:
+            reasons.append(f"thread_control_missing:{name}")
+        elif thread_control[name] != "1":
+            reasons.append(f"thread_control_not_one:{name}")
+    blas_pools = [pool for pool in threadpools
+                  if pool.get("user_api") == "blas"]
+    if not blas_pools:
+        reasons.append("blas_provider_missing")
+    elif any(pool.get("num_threads") != 1 for pool in blas_pools):
+        reasons.append("blas_threadpool_not_single_thread")
+    elif any(not pool.get("internal_api") or not pool.get("version")
+             for pool in blas_pools):
+        reasons.append("blas_provider_identity_missing")
+
+    for key in ("cpu_model", "physical_cores", "logical_cores", "ram_bytes",
+                "smt_enabled", "os", "os_version", "kernel"):
+        if machine.get(key) in (None, ""):
+            reasons.append(f"machine_identity_missing:{key}")
+    for key in ("python", "numpy", "scipy"):
+        if software.get(key) in (None, ""):
+            reasons.append(f"software_identity_missing:{key}")
+
+    if not isinstance(build_verification, dict):
+        reasons.append("build_verification_missing")
+    else:
+        reasons.extend(build_verification.get("reasons") or [])
+        if not build_verification.get("verified") and \
+                not build_verification.get("reasons"):
+            reasons.append("build_verification_failed")
+    return {"eligible": not reasons, "reasons": reasons}
+
+
+def build_metadata_document(*, timestamp_utc, source_state, argv, args, rows,
+                            machine, threadpools, software, thread_control,
+                            build_verification):
+    """Assemble the reference-machine sidecar and eligibility verdict."""
     clean_threadpools = []
     for pool in threadpools:
         clean_threadpools.append({key: value for key, value in pool.items()
                                   if key != "filepath"})
     machine = dict(machine)
     machine["reference_name"] = args.reference_machine
-    publication_reasons = []
-    if not isinstance(args.reference_machine, str) or \
-            not args.reference_machine.strip():
-        publication_reasons.append("reference_machine_missing")
-    if not isinstance(source_git_sha, str) or len(source_git_sha) != 40 or \
-            any(character not in "0123456789abcdefABCDEF"
-                for character in source_git_sha):
-        publication_reasons.append("source_git_sha_invalid")
-    if git_dirty is None:
-        publication_reasons.append("source_git_dirty_unknown")
-    elif git_dirty:
-        publication_reasons.append("source_git_dirty")
-    if float(args.scale) != 1.0:
-        publication_reasons.append("scale_not_one")
-    if args.no_large:
-        publication_reasons.append("large_cases_disabled")
-    if int(args.repeats) < 11:
-        publication_reasons.append("insufficient_repeats")
+    eligibility = evaluate_publication_eligibility(
+        args=args, rows=rows, source_state=source_state, machine=machine,
+        software=software, thread_control=thread_control,
+        threadpools=clean_threadpools, build_verification=build_verification)
     document = {
-        "schema_version": 1,
+        "schema_version": 2,
         "scope": "reference-machine-performance-observation",
         "timestamp_utc": timestamp_utc,
-        "source": {
-            "git_sha": source_git_sha,
-            "git_dirty": (None if git_dirty is None else bool(git_dirty)),
-        },
+        "source": source_state,
         "command": shlex.join(["python3", *argv]),
         "command_argv": list(argv),
-        "publication_eligibility": {
-            "eligible": not publication_reasons,
-            "reasons": publication_reasons,
-        },
+        "publication_eligibility": eligibility,
         "benchmark": {
             "seed": int(args.seed), "router_seed": 20260909,
             "driver": args.driver, "scale": float(args.scale),
@@ -262,11 +535,15 @@ def build_metadata_document(*, timestamp_utc, source_git_sha, git_dirty,
             "repeats": int(args.repeats),
             "summary_statistic": "median",
             "dispersion_statistic": "median-absolute-deviation",
-            "cases": [{"family": row["family"], "m": row["m"],
-                       "n": row["n"]} for row in rows],
+            "canonical_reference_signature": CANONICAL_REFERENCE_SIGNATURE,
+            "cases": [{"case_id": row.get("case_id"),
+                       "family": row["family"], "m": row["m"],
+                       "n": row["n"],
+                       "baseline_kind": row.get("baseline_kind")}
+                      for row in rows],
         },
         "machine": machine,
-        "compiler": compiler,
+        "build_provenance": build_verification,
         "linear_algebra": {"threadpools": clean_threadpools},
         "software": software,
         "thread_control": thread_control,
@@ -297,8 +574,10 @@ def _command_output(command):
 
 def _git_source_state():
     sha = _command_output(["git", "rev-parse", "HEAD"])
+    tree = _command_output(["git", "rev-parse", "HEAD^{tree}"])
     status = _command_output(["git", "status", "--porcelain"])
-    return sha, None if status is None else bool(status)
+    return {"git_sha": sha, "git_tree_sha": tree,
+            "git_dirty": None if status is None else bool(status)}
 
 
 def _machine_info():
@@ -332,47 +611,19 @@ def _machine_info():
     }
 
 
-def _compiler_info():
-    command = os.environ.get("CC") or None
-    identity = (_command_output([*shlex.split(command), "--version"])
-                if command else None)
-    if identity:
-        identity = identity.splitlines()[0]
-    arch_flags = (os.environ["ARCH_FLAGS"]
-                  if "ARCH_FLAGS" in os.environ else "-march=native")
-    hard_coded_flags = ["-O3", "-fopenmp", "-fPIC", "-ffast-math",
-                        "-Iinclude", "-Isrc", "-DABS_SCIPY_BLAS"]
-    effective_flags = ["-O3", *shlex.split(arch_flags),
-                       "-fopenmp", "-fPIC", "-ffast-math",
-                       "-Iinclude", "-Isrc", "-DABS_SCIPY_BLAS"]
-    return {
-        "command": command, "identity": identity,
-        "router_build": {
-            "script": "build.sh",
-            "hard_coded_compile_flags": hard_coded_flags,
-            "arch_flags": arch_flags,
-            "effective_compile_flags": effective_flags,
-        },
-        "environment_flags": {
-            name: os.environ.get(name)
-            for name in ("CFLAGS", "CPPFLAGS", "LDFLAGS", "ARCH_FLAGS")
-        },
-    }
-
-
-def collect_metadata(args, rows, threadpools, scipy_version, source_state):
-    sha, dirty = source_state
-    thread_names = ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS",
-                    "MKL_NUM_THREADS", "VECLIB_MAXIMUM_THREADS")
+def collect_metadata(args, rows, threadpools, scipy_version, source_state,
+                     build_verification):
     return build_metadata_document(
         timestamp_utc=datetime.now(timezone.utc).isoformat(
             timespec="seconds").replace("+00:00", "Z"),
-        source_git_sha=sha, git_dirty=dirty, argv=sys.argv,
+        source_state=source_state, argv=sys.argv,
         args=args, rows=rows, machine=_machine_info(),
-        compiler=_compiler_info(), threadpools=threadpools,
+        threadpools=threadpools,
         software={"python": platform.python_version(), "numpy": np.__version__,
                   "scipy": scipy_version},
-        thread_control={name: os.environ.get(name) for name in thread_names})
+        thread_control={name: os.environ.get(name)
+                        for name in REQUIRED_THREAD_CONTROLS},
+        build_verification=build_verification)
 
 
 # ---------------------------------------------------------------------------
@@ -447,66 +698,86 @@ def gen_near_transition(rng, m, n, eps):
 
 
 # ---------------------------------------------------------------------------
-# Cases: family, claim, generator, expectation.
-# speed=(lo, hi) checks the ratio; status=... checks the classification.
+# Cases: stable identity, portable numerical contract, scoped historical
+# observation, generator, and expected classification.
 # ---------------------------------------------------------------------------
 
 def build_cases(rng, scale, large):
     s = scale
     C = []
+
+    def add(case_id, reference_m, reference_n, **case):
+        case.update(case_id=case_id, reference_m=reference_m,
+                    reference_n=reference_n)
+        C.append(case)
+
     # Aspect stays high on purpose. The claim is about m >> n, and an earlier
     # version included a 6000 x 3000 case whose aspect is 2: measuring the
     # m >> n range against it says nothing about the claim.
     for n, aspect in ((32, 250), (64, 120), (128, 60)):
-        m = int(n * aspect * s)
-        C.append(dict(family="tall", claim="20-80x on m >> n",
-                      gen=lambda r, m=m, n=n: gen_tall(r, m, n),
-                      m=m, n=n, expected_status="UNIQUE",
-                      historical_range=(20.0, 80.0)))
+        reference_m = n * aspect
+        m = int(reference_m * s)
+        add(f"tall.{reference_m}x{n}", reference_m, n, family="tall",
+            numerical_contract="router status is UNIQUE",
+            historical_claim="20-80x baseline/router on m >> n",
+            gen=lambda r, m=m, n=n: gen_tall(r, m, n), m=m, n=n,
+            expected_status="UNIQUE", historical_range=(20.0, 80.0))
     # These are the shapes named by the current manuscript.  The ranges are
     # retained as reference-machine observations, never portable pass/fail
     # criteria.  All ratios are baseline/router: the manuscript's statement
     # that LSMR is 2.6--5.9x faster maps to [1/5.9, 1/2.6].
     for n, m in ((64, 16384), (64, 131072), (256, 16384)):
-        m = int(m * s)
-        C.append(dict(family="grouped_vs_lapack",
-                      claim="reference-machine DGELSY/router observation",
-                      gen=lambda r, m=m, n=n: gen_tall_grouped(r, m, n),
-                      m=m, n=n, baseline_kind="lapack",
-                      expected_status="UNIQUE",
-                      historical_range=(12.0, 25.0)))
-        C.append(dict(family="grouped_vs_lsmr",
-                      claim="reference-machine LSMR/router observation",
-                      gen=lambda r, m=m, n=n: gen_tall_grouped(r, m, n),
-                      m=m, n=n, baseline_kind="lsmr",
-                      expected_status="UNIQUE",
-                      historical_range=(1.0 / 5.9, 1.0 / 2.6)))
+        reference_m = m
+        m = int(reference_m * s)
+        add(f"grouped_vs_lapack.{reference_m}x{n}", reference_m, n,
+            family="grouped_vs_lapack",
+            numerical_contract="router status is UNIQUE",
+            historical_claim="12-25x DGELSY/router observation",
+            gen=lambda r, m=m, n=n: gen_tall_grouped(r, m, n),
+            m=m, n=n, baseline_kind="lapack", expected_status="UNIQUE",
+            historical_range=(12.0, 25.0))
+        add(f"grouped_vs_lsmr.{reference_m}x{n}", reference_m, n,
+            family="grouped_vs_lsmr",
+            numerical_contract=("router status is UNIQUE and LSMR has a "
+                                "compatible-system exit and residual"),
+            historical_claim="0.169-0.385x LSMR/router observation",
+            gen=lambda r, m=m, n=n: gen_tall_grouped(r, m, n),
+            m=m, n=n, baseline_kind="lsmr", expected_status="UNIQUE",
+            historical_range=(1.0 / 5.9, 1.0 / 2.6))
     for n in (256, 512):
-        C.append(dict(family="square", claim="0.6-0.9x on square",
-                      gen=lambda r, n=n: gen_square(r, n),
-                      m=n, n=n, expected_status="UNIQUE",
-                      baseline_kind="lu", historical_range=(0.6, 0.9)))
+        add(f"square.{n}x{n}", n, n, family="square",
+            numerical_contract="router status is UNIQUE",
+            historical_claim="0.6-0.9x DGESV/router on square systems",
+            gen=lambda r, n=n: gen_square(r, n), m=n, n=n,
+            expected_status="UNIQUE", baseline_kind="lu",
+            historical_range=(0.6, 0.9))
     for m, n in ((128, 512), (256, 2048)):
-        C.append(dict(family="wide", claim="0.24-0.43x underdetermined",
-                      gen=lambda r, m=m, n=n: gen_wide(r, m, n),
-                      m=m, n=n, expected_status="INFINITE",
-                      historical_range=(0.24, 0.43)))
-    C.append(dict(family="wide_extreme", claim="no claim; 0.02x seen at n/m=420",
-                  gen=lambda r: gen_wide(r, 32, 12800),
-                  m=32, n=12800, expected_status="INFINITE",
-                  historical_range=None))
+        add(f"wide.{m}x{n}", m, n, family="wide",
+            numerical_contract="router status is INFINITE",
+            historical_claim="0.24-0.43x DGELSY/router underdetermined",
+            gen=lambda r, m=m, n=n: gen_wide(r, m, n), m=m, n=n,
+            expected_status="INFINITE", historical_range=(0.24, 0.43))
+    add("wide_extreme.32x12800", 32, 12800, family="wide_extreme",
+        numerical_contract="router status is INFINITE", historical_claim=None,
+        gen=lambda r: gen_wide(r, 32, 12800), m=32, n=12800,
+        expected_status="INFINITE", historical_range=None)
     for kappa in (1e2, 1e8, 1e14):
         m, n = int(4000 * s), 64
-        C.append(dict(family=f"cond_{kappa:.0e}",
-                      claim="UNIQUE with berr <= 1e-14, or declines",
-                      gen=lambda r, m=m, n=n, k=kappa: gen_cond(r, m, n, k),
-                      m=m, n=n, status="UNIQUE", quality=True))
-    C.append(dict(family="rank_deficient", claim="INFINITE",
-                  gen=lambda r: gen_rank_deficient(r, int(4000 * s), 64, 40),
-                  m=int(4000 * s), n=64, status="INFINITE"))
-    C.append(dict(family="inconsistent", claim="INCONSISTENT",
-                  gen=lambda r: gen_inconsistent(r, int(4000 * s), 64),
-                  m=int(4000 * s), n=64, status="INCONSISTENT"))
+        add(f"cond_{kappa:.0e}.4000x64", 4000, 64,
+            family=f"cond_{kappa:.0e}",
+            numerical_contract="UNIQUE with berr <= 1e-14, or UNDECIDABLE",
+            historical_claim=None,
+            gen=lambda r, m=m, n=n, k=kappa: gen_cond(r, m, n, k),
+            m=m, n=n, status="UNIQUE", quality=True)
+    add("rank_deficient.4000x64", 4000, 64, family="rank_deficient",
+        numerical_contract="router status is INFINITE", historical_claim=None,
+        gen=lambda r: gen_rank_deficient(r, int(4000 * s), 64, 40),
+        m=int(4000 * s), n=64, status="INFINITE")
+    add("inconsistent.4000x64", 4000, 64, family="inconsistent",
+        numerical_contract="router status is INCONSISTENT",
+        historical_claim=None,
+        gen=lambda r: gen_inconsistent(r, int(4000 * s), 64),
+        m=int(4000 * s), n=64, status="INCONSISTENT")
     # Large systems. Everything above keeps n at 128 or below for the timed
     # families, which leaves the regime a user is most likely to care about
     # untested: the manuscript's numbers were taken on narrow systems and
@@ -514,40 +785,53 @@ def build_cases(rng, scale, large):
     # with n in the thousands, and they dominate the runtime of this script.
     # Skip with --no-large when iterating on something else.
     if large:
-        for m, n, fam, claim, sp in (
+        for m, n, fam, historical_claim, sp in (
                 (8000, 2000, "tall_large", "20-80x on m >> n", (20.0, 80.0)),
                 (20000, 2000, "tall_large", "20-80x on m >> n", (20.0, 80.0)),
                 (2000, 2000, "square_large", "0.6-0.9x on square", (0.6, 0.9)),
                 (2000, 8000, "wide_large", "0.24-0.43x underdetermined",
                  (0.24, 0.43))):
-            C.append(dict(family=fam, claim=claim,
-                          gen=lambda r, m=m, n=n: (gen_square(r, n) if m == n
-                                                   else gen_tall(r, m, n)),
-                          m=m, n=n,
-                          expected_status=("INFINITE" if m < n else "UNIQUE"),
-                          baseline_kind=("lu" if m == n else "lapack"),
-                          historical_range=sp))
+            add(f"{fam}.{m}x{n}", m, n, family=fam,
+                numerical_contract=("router status is INFINITE" if m < n
+                                    else "router status is UNIQUE"),
+                historical_claim=historical_claim,
+                gen=lambda r, m=m, n=n: (gen_square(r, n) if m == n
+                                         else gen_tall(r, m, n)),
+                m=m, n=n,
+                expected_status=("INFINITE" if m < n else "UNIQUE"),
+                baseline_kind=("lu" if m == n else "lapack"),
+                historical_range=sp)
         # Conditioning at scale: the quality invariant is the one claim that
         # could plausibly weaken with n, since the backward error grows about
         # like n * eps and the threshold does not move.
         for kappa in (1e8, 1e14):
-            C.append(dict(family=f"cond_large_{kappa:.0e}",
-                          claim="UNIQUE with berr <= 1e-14, or declines",
-                          gen=lambda r, k=kappa: gen_cond(r, 6000, 2000, k),
-                          m=6000, n=2000, status="UNIQUE", quality=True))
-        C.append(dict(family="rank_deficient_large", claim="INFINITE",
-                      gen=lambda r: gen_rank_deficient(r, 6000, 2000, 1500),
-                      m=6000, n=2000, status="INFINITE"))
-        C.append(dict(family="near_transition_large",
-                      claim="UNDECIDABLE with a rank interval",
-                      gen=lambda r: gen_near_transition(r, 6000, 2000, 1e-11),
-                      m=6000, n=2000, status="UNDECIDABLE", interval=True))
+            add(f"cond_large_{kappa:.0e}.6000x2000", 6000, 2000,
+                family=f"cond_large_{kappa:.0e}",
+                numerical_contract=("UNIQUE with berr <= 1e-14, or "
+                                    "UNDECIDABLE"), historical_claim=None,
+                gen=lambda r, k=kappa: gen_cond(r, 6000, 2000, k),
+                m=6000, n=2000, status="UNIQUE", quality=True)
+        add("rank_deficient_large.6000x2000", 6000, 2000,
+            family="rank_deficient_large",
+            numerical_contract="router status is INFINITE",
+            historical_claim=None,
+            gen=lambda r: gen_rank_deficient(r, 6000, 2000, 1500),
+            m=6000, n=2000, status="INFINITE")
+        add("near_transition_large.eps_1e-11", 6000, 2000,
+            family="near_transition_large",
+            numerical_contract="UNDECIDABLE with a non-point rank interval",
+            historical_claim=None,
+            gen=lambda r: gen_near_transition(r, 6000, 2000, 1e-11),
+            m=6000, n=2000, status="UNDECIDABLE", interval=True)
 
     for eps in (1e-12, 1e-10):
-        C.append(dict(family="near_transition",
-                      claim="UNDECIDABLE with a rank interval",
-                      gen=lambda r, e=eps: gen_near_transition(r, 1500, 12, e),
-                      m=1500, n=12, status="UNDECIDABLE", interval=True))
+        eps_id = f"{eps:.0e}".replace("e-0", "e-")
+        add(f"near_transition.eps_{eps_id}", 1500, 12,
+            family="near_transition",
+            numerical_contract="UNDECIDABLE with a non-point rank interval",
+            historical_claim=None,
+            gen=lambda r, e=eps: gen_near_transition(r, 1500, 12, e),
+            m=1500, n=12, status="UNDECIDABLE", interval=True)
     return C
 
 
@@ -573,7 +857,14 @@ def main():
     from threadpoolctl import threadpool_info, threadpool_limits
 
     source_state = _git_source_state()
-    lib = load_router()
+    router_path = (LIBDIR / "libaffine_bundle_solver.so").resolve()
+    build_verification = verify_build_manifest(
+        router_path=router_path,
+        manifest_path=router_path.parent / BUILD_MANIFEST_NAME,
+        build_script_path=ROOT / "build.sh",
+        benchmark_git_sha=source_state.get("git_sha"),
+        benchmark_git_tree_sha=source_state.get("git_tree_sha"))
+    lib = load_router(router_path)
     rng = np.random.default_rng(args.seed)
 
     # Process-level warm up, before anything is timed.
@@ -641,7 +932,8 @@ def main():
 
             comparison = comparison_contract(case, args.driver, args.scale)
             row = make_result_row(
-                family=case["family"], m=m, n=n,
+                case_id=case["case_id"], family=case["family"],
+                baseline_kind=kind, m=m, n=n,
                 note=note, status=status, rank=int(out[2]), rank_lo=lo,
                 rank_hi=hi, berr=berr, router_timings=router_timings,
                 baseline_timings=baseline_timings, numerical_valid=valid,
@@ -677,7 +969,8 @@ def main():
 
     if args.metadata_out:
         metadata = collect_metadata(args, rows, effective_threadpools,
-                                    scipy.__version__, source_state)
+                                    scipy.__version__, source_state,
+                                    build_verification)
         metadata_path = ROOT / args.metadata_out
         metadata_path.parent.mkdir(parents=True, exist_ok=True)
         metadata_path.write_text(json.dumps(metadata, indent=2,

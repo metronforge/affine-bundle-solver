@@ -5,6 +5,8 @@
 *.gcda
 .rounding_probe
 .mxcsr_probe
+.abs-build-manifest.json
+.abs-build-manifest.json.tmp.*
 .cfg/
 
 # CMake build trees.  The pattern is deliberately broad: a configured tree is

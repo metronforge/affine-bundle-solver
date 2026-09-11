@@ -88,6 +88,13 @@ timeout 2700s env REFERENCE_MACHINE_ID=YOUR_STABLE_MACHINE_ID \
 The result and sidecar require review before either can replace a historical
 artifact or support a manuscript edit.
 
+The benchmark emits row schema v2.  Each row has a stable `case_id`, a
+portable `numerical_contract`, separately scoped historical claim fields, and
+raw plus summary timings.  `build.sh` atomically writes the ignored
+`.abs-build-manifest.json` next to the router library; publication eligibility
+requires that record to match the exact loaded router, current clean source
+commit/tree, build script, compiler argv, and linked OpenBLAS binary.
+
 ## Method notes
 
 Both harnesses pin BLAS to one thread, which is the comparison the manuscript
