@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.4](https://github.com/metronforge/affine-bundle-solver/compare/v0.4.3...v0.4.4) (2026-09-11)
+
+
+### Performance
+
+* tile row-major packing for square LAPACK routes ([456d2b2](https://github.com/metronforge/affine-bundle-solver/commit/456d2b24602a854615bc12922c97e410b07983e4))
+
+
+### Manuscript and documentation
+
+* record LAPACK workspace allocation audit ([64ea347](https://github.com/metronforge/affine-bundle-solver/commit/64ea3478c85f3d0e920e8187c8e777a8430f46e4))
+
 ## [0.4.3](https://github.com/metronforge/affine-bundle-solver/compare/v0.4.2...v0.4.3) (2026-09-10)
 
 

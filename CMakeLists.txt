@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(affine-bundle-solver
-        VERSION 0.4.3 # x-release-please-version
+        VERSION 0.4.4 # x-release-please-version
         DESCRIPTION "Certifying dense solver for Ax = b that assumes neither consistency, nor full rank, nor uniqueness"
         HOMEPAGE_URL "https://github.com/metronforge/affine-bundle-solver"
         LANGUAGES C)
