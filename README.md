@@ -66,10 +66,11 @@ Two things to be clear about:
 
 ## Where it is fast, and where it is not
 
-Single-threaded BLAS. The baseline differs by shape and must: square systems
-compare against `dgesv`, everything else against `dgelsy` — comparing a square
-system against a least-squares driver measures the cost of column pivoting
-rather than anything about this method.
+Single-threaded BLAS. The baseline is explicit per case: square systems use
+`dgesv`, dense rectangular cases use the selected `dgelsy`/`gelsd` driver,
+and grouped sparse cases also report LSMR. Comparing a square system against
+a least-squares driver measures the cost of column pivoting rather than
+anything about this method.
 
 | Shape | Measured | Baseline |
 |---|---|---|
@@ -83,16 +84,19 @@ previously stated as 0.6–0.9× and measures at parity: the method was
 understated there. The extreme underdetermined case was covered by a stated
 0.24–0.43× that was measured at moderate aspect only; at `n/m` of 44 and 420
 the penalty is an order beyond that, and `LPnetlib/lp_fit2d` at 25×10524 runs
-at 0.02×. A regression on "overdetermined with heavily grouped rows"
-previously reported as 0.56× has not been reproduced — the generator here
-comes out faster, not slower — and is recorded as open rather than restated.
+at 0.02×. The checked-in grouped-row CSV used an unconfirmed generator and is
+retained as historical evidence only. The corrected harness separates
+portable numerical validation from timing observations; a designated
+reference-machine run and metadata review are required before changing the
+manuscript numbers.
 
 Every number above comes from a harness in `experiments/`, and the two
 findings documents say what each one does and does not support:
 [`docs/benchmark-findings.md`](docs/benchmark-findings.md) and
 [`docs/suitesparse-findings.md`](docs/suitesparse-findings.md).
-`experiments/synthetic_bench.py` exits nonzero when a claim stops
-reproducing, so this table can be checked rather than trusted.
+`experiments/synthetic_bench.py` exits nonzero when a portable numerical
+contract fails. Hardware-dependent timing ranges are reported separately and
+require review on the named reference machine.
 
 The speed argument applies to overdetermined equality classification only. On
 square and underdetermined shapes the argument is the classification output
