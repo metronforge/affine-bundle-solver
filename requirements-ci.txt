@@ -1,0 +1,7 @@
+# Exact environment used by required CI and release verification.
+# requirements.txt intentionally keeps supported lower bounds for users and
+# for the scheduled dependency canary.
+numpy==2.5.3
+scipy==1.18.1
+mpmath==1.4.1
+threadpoolctl==3.6.0

@@ -1,138 +1,49 @@
-name: release
+name: release-pr
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
-# Least privilege by default.  Only the job below is allowed to write, and it
-# is the only job in this file.
+concurrency:
+  group: release-pr-main
+  cancel-in-progress: false
+
 permissions:
   contents: read
 
 jobs:
   release-please:
-    runs-on: ubuntu-latest
+    name: update release pull request
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
       pull-requests: write
     steps:
-      # The release is created as a DRAFT.  That is configured in
-      # .release-please-config.json, not here: `draft` is a package option of
-      # release-please and not an input of this action, and an unknown `with:`
-      # input is silently ignored.  It was set here before and had no effect,
-      # so every release was published the moment it was created.
-      #
-      # Two things follow from the release being a real draft.
-      #
-      # A draft carries no git tag.  The tag is created when the draft is
-      # published, at the end of this job, so a tag cannot come from a commit
-      # that has not been checked below.  A tag is what Zenodo archives and
-      # what a citation points at; it should not exist until the commit behind
-      # it has been shown to build and to reproduce the manuscript.
-      #
-      # A draft is also still mutable.  This repository has immutable releases
-      # enabled, so assets cannot be added to a release once it is published:
-      # the previous arrangement failed here with
-      #   HTTP 422: Cannot upload assets to an immutable release
-      # on v0.2.1, leaving a published release with no source archive.
-      - uses: googleapis/release-please-action@v4
-        id: release
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect the merge of a release pull request
+        id: release-commit
+        shell: bash
+        run: |
+          current=$(jq -r '."."' .release-please-manifest.json)
+          previous=$(git show HEAD^:.release-please-manifest.json 2>/dev/null \
+            | jq -r '."."' 2>/dev/null || true)
+          if [ -n "$previous" ] && [ "$current" != "$previous" ]; then
+            echo "merged=true" >> "$GITHUB_OUTPUT"
+            echo "release commit: $previous -> $current"
+          else
+            echo "merged=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # PR creation and release publication are intentionally separate. On a
+      # release commit this job does nothing; the publish workflow consumes
+      # the exact candidate saved by successful CI.
+      - uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4
+        if: steps.release-commit.outputs.merged != 'true'
         with:
           config-file: .release-please-config.json
           manifest-file: .release-please-manifest.json
-
-      # Everything below runs only on the push that MERGES the release pull
-      # request, i.e. when a release was actually created.
-      - uses: actions/checkout@v4
-        if: ${{ steps.release.outputs.release_created }}
-
-      - uses: actions/setup-python@v5
-        if: ${{ steps.release.outputs.release_created }}
-        with:
-          python-version: '3.12'
-
-      # The gate.  Nothing below this point runs if the released commit does
-      # not build or does not reproduce the numbers in the manuscript, and
-      # since the release is still a draft, nothing has been published and no
-      # tag exists yet.
-      - name: Verify the released commit builds and reproduces the manuscript
-        if: ${{ steps.release.outputs.release_created }}
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          chmod +x build.sh
-          ./build.sh
-          python tests/check_paper_claims.py
-
-      - name: Attach the source archive to the draft
-        if: ${{ steps.release.outputs.release_created }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ steps.release.outputs.tag_name }}
-        run: |
-          # HEAD, not the tag: while the release is a draft the tag does not
-          # exist yet, and HEAD is the commit the draft was cut from.
-          git archive --format=tar.gz --prefix="affine-bundle-solver-${TAG}/" \
-            -o "affine-bundle-solver-${TAG}.tar.gz" HEAD
-          gh release upload "$TAG" "affine-bundle-solver-${TAG}.tar.gz" --clobber
-
-      - name: Publish the release
-        if: ${{ steps.release.outputs.release_created }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ steps.release.outputs.tag_name }}
-        run: gh release edit "$TAG" --draft=false
-
-      # Publishing is the step that makes the release immutable, so this is the
-      # last moment the archive can still be confirmed present.  Without it a
-      # future upload failure would again leave a published release missing its
-      # archive and nothing would say so.
-      - name: Confirm the published release carries its archive
-        if: ${{ steps.release.outputs.release_created }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ steps.release.outputs.tag_name }}
-        run: |
-          if ! gh release view "$TAG" --json assets \
-                 --jq '.assets[].name' | grep -qx "affine-bundle-solver-${TAG}.tar.gz"; then
-            echo "the published release has no source archive attached"
-            exit 1
-          fi
-
-      # release-please runs as the FIRST step of this job, while the release it
-      # is creating is still a draft and therefore carries no tag.  Unable to
-      # find the tag of the release it has just made, it treats the whole
-      # history as unreleased and opens a follow-up release pull request
-      # listing commits that shipped in earlier versions.  Observed on v0.3.0:
-      # a "release 0.4.0" pull request proposing, among others, the initial
-      # public release that went out in v0.2.0.
-      #
-      # Any such pull request is wrong by construction.  It was computed before
-      # the tag published above existed, and at this point main is exactly the
-      # release commit, so there is nothing left to release.  Closing it is
-      # safe: release-please opens a correct one on the next push to main that
-      # actually has something in it, which is how a manual re-run after v0.3.0
-      # behaved once the tag was there.
-      - name: Discard the release pull request computed before the tag existed
-        if: ${{ steps.release.outputs.release_created }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: release-please--branches--main
-          NOTE: >-
-            Computed before the release tag existed, so it lists commits that
-            shipped in earlier versions. release-please will open a correct one
-            on the next push to main that has something to release.
-        run: |
-          num=$(gh pr list --head "$BRANCH" --state open \
-                  --json number --jq '.[0].number // empty')
-          if [ -n "$num" ]; then
-            # No --delete-branch: the pull request's own CI is still running
-            # against that branch, and removing it mid-run fails the check for
-            # no reason.  release-please force-updates the branch on the next
-            # release anyway.
-            gh pr close "$num" --comment "$NOTE"
-            echo "closed stale release pull request #$num"
-          else
-            echo "no release pull request was opened during this run"
-          fi
+          skip-github-release: true

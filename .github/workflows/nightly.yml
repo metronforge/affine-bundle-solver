@@ -1,6 +1,7 @@
 name: nightly
 
-# Coverage is informational: it reports a number, it does not gate anything.
+# The coverage percentage is informational: it reports a number, it does not
+# gate anything. Build and test-process failures still fail this canary.
 # Running it on every pull request cost minutes and told nobody anything they
 # acted on, so it runs weekly and on demand instead.
 on:
@@ -14,14 +15,13 @@ permissions:
 jobs:
   coverage:
     name: branch coverage (informational)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Reported, not enforced.  A threshold would invite writing tests that
     # move the number rather than tests that check something, which is the
     # opposite of what the property batteries are for.
-    continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12'
       - name: Install Python dependencies
@@ -38,7 +38,9 @@ jobs:
                    test_status_profile_semantics \
                    test_meta_api_absent_solution_quality \
                    pbt_certificate_equivariance pbt_equivalence_orbits; do
-            python tests/$t.py > /dev/null 2>&1 || true
+            echo "::group::$t"
+            python tests/$t.py
+            echo "::endgroup::"
           done
       - name: Report
         run: |
@@ -50,9 +52,22 @@ jobs:
           echo "::endgroup::"
       - name: Upload gcov output
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: coverage-gcov
           path: "*.gcov"
           retention-days: 14
           if-no-files-found: warn
+
+      - name: Record compiler vectorization decisions
+        if: always()
+        run: tools/vectorization_report.sh vectorization-report
+
+      - name: Upload vectorization report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: vectorization-report
+          path: vectorization-report/
+          retention-days: 30
+          if-no-files-found: error
