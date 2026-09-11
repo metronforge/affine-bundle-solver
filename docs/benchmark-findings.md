@@ -70,6 +70,24 @@ manuscript numbers and that CSV must remain unchanged until the documented
 reference-machine command has produced both a new result and its metadata
 sidecar for review.
 
+From a clean checkout, replace `YOUR_STABLE_MACHINE_ID` with the persistent
+name of the designated host and run exactly:
+
+```bash
+timeout 2700s env REFERENCE_MACHINE_ID=YOUR_STABLE_MACHINE_ID \
+  CC=gcc ARCH_FLAGS=-march=native \
+  OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 \
+  MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 \
+  sh -c './build.sh && python3 experiments/synthetic_bench.py \
+    --driver gelsy --seed 20260909 --repeats 11 \
+    --out results/synthetic-reference.csv \
+    --metadata-out results/synthetic-reference.metadata.json \
+    --reference-machine "$REFERENCE_MACHINE_ID"'
+```
+
+The result and sidecar require review before either can replace a historical
+artifact or support a manuscript edit.
+
 ## Method notes
 
 Both harnesses pin BLAS to one thread, which is the comparison the manuscript

@@ -147,6 +147,21 @@ jobs:
       - name: Synthetic benchmark contract
         run: python tests/test_synthetic_bench_contract.py
 
+      - name: Synthetic benchmark smoke
+        env:
+          CC: ${{ matrix.cc }}
+          ARCH_FLAGS: ${{ matrix.arch }}
+          OMP_NUM_THREADS: '1'
+          OPENBLAS_NUM_THREADS: '1'
+          MKL_NUM_THREADS: '1'
+          VECLIB_MAXIMUM_THREADS: '1'
+        run: |
+          python experiments/synthetic_bench.py \
+            --no-large --repeats 1 --seed 20260909 --driver gelsy \
+            --out /tmp/synthetic-smoke.csv \
+            --metadata-out /tmp/synthetic-smoke.metadata.json \
+            --reference-machine ci-smoke
+
       - name: Property batteries
         run: |
           echo "::group::pbt_equivalence_orbits"

@@ -900,7 +900,7 @@ random512 & 8.722 & 326.942 & 37.5 & 512 & 6.75e-15 \\
 The geometric mean of these contextual ratios is 69.5 and the median is 36.5. The magnitude is workload- and task-dependent and is not a claim that the router replaces DGELSY as a general least-squares solver. In particular, sparse, structured, multi-right-hand-side, accelerator, and distributed-memory regimes require separate implementations and competitors.
 
 \subsection{Negative and contextual results}\label{sec:negative}
-Three further measurements are reported because they bound the claim rather than support it. The scripts are \path{experiments/synthetic_bench.py} and \path{experiments/suitesparse_bench.py}; the first states each expected range, measures, and exits nonzero when a measurement falls outside it.
+Three further measurements are reported because they bound the claim rather than support it. The scripts are \path{experiments/synthetic_bench.py} and \path{experiments/suitesparse_bench.py}; for the first, exit status is controlled by portable numerical validity, while timing ranges are recorded as reference-machine observations.
 
 \paragraph{Extreme underdetermined aspect.} The underdetermined penalty grows sharply with $n/m$ and exceeds anything visible in the tables above. At $32\times12800$ the router runs at $0.03\times$ DGELSY, and on \texttt{LPnetlib/lp\_fit2d} ($25\times10524$) at $0.02\times$. This is the same direction as the \texttt{well1033} control but two orders further, and it is a property of the aspect ratio rather than of conditioning: the router must still establish a status where a least-squares driver may stop at a solution.
 

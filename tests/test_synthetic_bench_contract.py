@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """Focused contract tests for the portable synthetic benchmark harness."""
 
+import json
 import math
+import os
 import sys
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest import mock
 
 import numpy as np
 
@@ -118,6 +121,39 @@ class OutputSchemaTests(unittest.TestCase):
         self.assertEqual(lapack["expected_status"], "UNIQUE")
         self.assertEqual(lsmr["expected_status"], "UNIQUE")
 
+    def test_gelsd_grouped_lapack_row_is_driver_aware_everywhere(self):
+        case = next(
+            case for case in bench.build_cases(
+                np.random.default_rng(1), 1.0, False)
+            if case["family"] == "grouped_vs_lapack")
+        comparison = bench.comparison_contract(case, "gelsd", 1.0)
+        row = bench.make_result_row(
+            family=case["family"], m=case["m"], n=case["n"], note="",
+            status="UNIQUE", rank=case["n"], rank_lo=case["n"],
+            rank_hi=case["n"], berr=1e-16, router_timings=[1.0],
+            baseline_timings=[10.0], numerical_valid=True,
+            validation_reason="ok", **comparison)
+
+        self.assertIn("DGELSD", row["claim"])
+        self.assertNotIn("DGELSY", json.dumps(row, sort_keys=True))
+
+    def test_scaled_case_does_not_use_original_historical_range(self):
+        case = next(
+            case for case in bench.build_cases(
+                np.random.default_rng(1), 0.5, False)
+            if case["family"] == "grouped_vs_lapack")
+        comparison = bench.comparison_contract(case, "gelsy", 0.5)
+        row = bench.make_result_row(
+            family=case["family"], m=case["m"], n=case["n"], note="",
+            status="UNIQUE", rank=case["n"], rank_lo=case["n"],
+            rank_hi=case["n"], berr=1e-16, router_timings=[1.0],
+            baseline_timings=[100.0], numerical_valid=True,
+            validation_reason="ok", **comparison)
+
+        self.assertEqual(row["performance_observation"], "not-scoped")
+        self.assertIsNone(row["historical_ratio_min"])
+        self.assertIsNone(row["historical_ratio_max"])
+
 
 class MetadataTests(unittest.TestCase):
     def test_metadata_is_machine_scoped_and_omits_library_paths(self):
@@ -156,6 +192,10 @@ class MetadataTests(unittest.TestCase):
         self.assertEqual(document["command_argv"],
                          ["experiments/synthetic_bench.py", "--driver",
                           "gelsy"])
+        self.assertFalse(document["publication_eligibility"]["eligible"])
+        self.assertEqual(
+            document["publication_eligibility"]["reasons"],
+            ["large_cases_disabled", "insufficient_repeats"])
 
     def test_unknown_source_dirty_state_remains_unknown(self):
         args = SimpleNamespace(seed=17, repeats=5, driver="gelsy",
@@ -169,6 +209,71 @@ class MetadataTests(unittest.TestCase):
             thread_control={})
 
         self.assertIsNone(document["source"]["git_dirty"])
+        self.assertFalse(document["publication_eligibility"]["eligible"])
+        self.assertEqual(
+            document["publication_eligibility"]["reasons"],
+            ["reference_machine_missing", "source_git_sha_invalid",
+             "source_git_dirty_unknown", "large_cases_disabled",
+             "insufficient_repeats"])
+
+    def test_clean_canonical_run_is_publication_eligible(self):
+        args = SimpleNamespace(seed=17, repeats=11, driver="gelsy",
+                               scale=1.0, no_large=False,
+                               reference_machine="lab-host-01")
+        document = bench.build_metadata_document(
+            timestamp_utc="2026-09-11T12:00:00Z",
+            source_git_sha="a" * 40, git_dirty=False,
+            argv=["experiments/synthetic_bench.py"], args=args, rows=[],
+            machine={}, compiler={}, threadpools=[], software={},
+            thread_control={})
+
+        self.assertTrue(document["publication_eligibility"]["eligible"])
+        self.assertEqual(document["publication_eligibility"]["reasons"], [])
+
+    def test_dirty_scaled_run_records_each_publication_blocker(self):
+        args = SimpleNamespace(seed=17, repeats=11, driver="gelsy",
+                               scale=0.5, no_large=False,
+                               reference_machine=" ")
+        document = bench.build_metadata_document(
+            timestamp_utc="2026-09-11T12:00:00Z",
+            source_git_sha="not-a-sha", git_dirty=True,
+            argv=["experiments/synthetic_bench.py"], args=args, rows=[],
+            machine={}, compiler={}, threadpools=[], software={},
+            thread_control={})
+
+        self.assertFalse(document["publication_eligibility"]["eligible"])
+        self.assertEqual(
+            document["publication_eligibility"]["reasons"],
+            ["reference_machine_missing", "source_git_sha_invalid",
+             "source_git_dirty", "scale_not_one"])
+
+    def test_compiler_metadata_separates_effective_router_build_flags(self):
+        with mock.patch.dict(
+                os.environ,
+                {"CC": "gcc", "ARCH_FLAGS": "-march=x86-64",
+                 "CFLAGS": "-funroll-loops"}, clear=True):
+            compiler = bench._compiler_info()
+
+        self.assertEqual(
+            compiler["router_build"]["effective_compile_flags"],
+            ["-O3", "-march=x86-64", "-fopenmp", "-fPIC",
+             "-ffast-math", "-Iinclude", "-Isrc", "-DABS_SCIPY_BLAS"])
+        self.assertEqual(compiler["router_build"]["arch_flags"],
+                         "-march=x86-64")
+        self.assertEqual(compiler["environment_flags"]["CFLAGS"],
+                         "-funroll-loops")
+        self.assertNotIn(
+            "-funroll-loops",
+            compiler["router_build"]["effective_compile_flags"])
+
+    def test_compiler_identity_is_unknown_when_cc_was_not_preserved(self):
+        with mock.patch.dict(os.environ, {}, clear=True):
+            compiler = bench._compiler_info()
+
+        self.assertIsNone(compiler["command"])
+        self.assertIsNone(compiler["identity"])
+        self.assertEqual(compiler["router_build"]["arch_flags"],
+                         "-march=native")
 
 
 if __name__ == "__main__":

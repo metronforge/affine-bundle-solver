@@ -107,6 +107,24 @@ def baseline_name(kind, driver):
     raise ValueError(f"unknown baseline kind/driver: {kind}/{driver}")
 
 
+def comparison_contract(case, driver, scale):
+    """Return the driver- and configuration-scoped comparison fields."""
+    kind = case.get(
+        "baseline_kind", "lu" if case["m"] == case["n"] else "lapack")
+    name = baseline_name(kind, driver)
+    claim = case["claim"]
+    if kind == "lapack":
+        claim = claim.replace("DGELSY", name).replace("DGELSD", name)
+    historical_range = case.get("historical_range")
+    if float(scale) != 1.0 or (kind == "lapack" and driver != "gelsy"):
+        historical_range = None
+    return {
+        "baseline_name": name,
+        "claim": claim,
+        "historical_range": historical_range,
+    }
+
+
 def validate_lsmr_result(result, A, b, *, maxiter,
                          residual_tolerance=LSMR_RELATIVE_RESIDUAL_TOLERANCE):
     """Validate SciPy LSMR as a solution of this compatible Ax=b case."""
@@ -204,6 +222,24 @@ def build_metadata_document(*, timestamp_utc, source_git_sha, git_dirty,
                                   if key != "filepath"})
     machine = dict(machine)
     machine["reference_name"] = args.reference_machine
+    publication_reasons = []
+    if not isinstance(args.reference_machine, str) or \
+            not args.reference_machine.strip():
+        publication_reasons.append("reference_machine_missing")
+    if not isinstance(source_git_sha, str) or len(source_git_sha) != 40 or \
+            any(character not in "0123456789abcdefABCDEF"
+                for character in source_git_sha):
+        publication_reasons.append("source_git_sha_invalid")
+    if git_dirty is None:
+        publication_reasons.append("source_git_dirty_unknown")
+    elif git_dirty:
+        publication_reasons.append("source_git_dirty")
+    if float(args.scale) != 1.0:
+        publication_reasons.append("scale_not_one")
+    if args.no_large:
+        publication_reasons.append("large_cases_disabled")
+    if int(args.repeats) < 11:
+        publication_reasons.append("insufficient_repeats")
     document = {
         "schema_version": 1,
         "scope": "reference-machine-performance-observation",
@@ -214,6 +250,10 @@ def build_metadata_document(*, timestamp_utc, source_git_sha, git_dirty,
         },
         "command": shlex.join(["python3", *argv]),
         "command_argv": list(argv),
+        "publication_eligibility": {
+            "eligible": not publication_reasons,
+            "reasons": publication_reasons,
+        },
         "benchmark": {
             "seed": int(args.seed), "router_seed": 20260909,
             "driver": args.driver, "scale": float(args.scale),
@@ -293,16 +333,30 @@ def _machine_info():
 
 
 def _compiler_info():
-    command = os.environ.get("CC")
-    identity = None
-    if command:
-        identity = _command_output([command, "--version"])
-        if identity:
-            identity = identity.splitlines()[0]
+    command = os.environ.get("CC") or None
+    identity = (_command_output([*shlex.split(command), "--version"])
+                if command else None)
+    if identity:
+        identity = identity.splitlines()[0]
+    arch_flags = (os.environ["ARCH_FLAGS"]
+                  if "ARCH_FLAGS" in os.environ else "-march=native")
+    hard_coded_flags = ["-O3", "-fopenmp", "-fPIC", "-ffast-math",
+                        "-Iinclude", "-Isrc", "-DABS_SCIPY_BLAS"]
+    effective_flags = ["-O3", *shlex.split(arch_flags),
+                       "-fopenmp", "-fPIC", "-ffast-math",
+                       "-Iinclude", "-Isrc", "-DABS_SCIPY_BLAS"]
     return {
         "command": command, "identity": identity,
-        "flags": {name: os.environ.get(name)
-                  for name in ("CFLAGS", "CPPFLAGS", "LDFLAGS", "ARCH_FLAGS")},
+        "router_build": {
+            "script": "build.sh",
+            "hard_coded_compile_flags": hard_coded_flags,
+            "arch_flags": arch_flags,
+            "effective_compile_flags": effective_flags,
+        },
+        "environment_flags": {
+            name: os.environ.get(name)
+            for name in ("CFLAGS", "CPPFLAGS", "LDFLAGS", "ARCH_FLAGS")
+        },
     }
 
 
@@ -585,17 +639,14 @@ def main():
                     valid = False
                     reason = diagnostics["reason"]
 
-            historical_range = case.get("historical_range")
-            if kind == "lapack" and args.driver != "gelsy":
-                historical_range = None
+            comparison = comparison_contract(case, args.driver, args.scale)
             row = make_result_row(
-                family=case["family"], claim=case["claim"],
-                baseline_name=baseline_name(kind, args.driver), m=m, n=n,
+                family=case["family"], m=m, n=n,
                 note=note, status=status, rank=int(out[2]), rank_lo=lo,
                 rank_hi=hi, berr=berr, router_timings=router_timings,
                 baseline_timings=baseline_timings, numerical_valid=valid,
-                validation_reason=reason, historical_range=historical_range,
-                baseline_diagnostics=diagnostics)
+                validation_reason=reason, baseline_diagnostics=diagnostics,
+                **comparison)
             rows.append(row)
             print(f"  {case['family']:<20s} {m:>7d}x{n:<6d} "
                   f"{row['baseline_name']:<7s}/router "
