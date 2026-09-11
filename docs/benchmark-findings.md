@@ -3,9 +3,9 @@
 Two harnesses, one corpus each. `experiments/suitesparse_bench.py` runs real
 matrices from the SuiteSparse Matrix Collection;
 `experiments/synthetic_bench.py` generates the families the manuscript makes
-claims about and reports, per family, whether the measurement lands inside
-the claimed range. The second returns a nonzero exit code when a claim is not
-reproduced, so it can be run as a scheduled job rather than read by hand.
+claims about. It returns nonzero for portable numerical-contract failures;
+hardware-dependent timing ranges are recorded as reference-machine
+observations and require review rather than controlling portable CI.
 
 Results below are from two machines. Where they disagreed, that is noted.
 
@@ -55,27 +55,32 @@ behaviour and to be conservative below that.
 the hundreds the penalty is an order beyond it. This belongs in the
 manuscript's limitations rather than being left to be found.
 
-## Open: the grouped-row regression
+## Grouped-row reference run pending
 
-The performance table reports 0.56x on "overdetermined with grouped rows"
-without describing how the grouping was built. The generator here draws rows
-from a few directions with small spread, and comes out at 26x and 38x --
-faster, not slower. Either that construction is not the one measured, or the
-regression has a narrower cause than the label suggests.
+The harness now reproduces the exact repeated normalized Hadamard directions
+used by the embedded C grouped generator and compares them separately with a
+selected LAPACK driver and with LSMR. LSMR termination, iteration count,
+finiteness, and residual quality are portable correctness checks. Timing
+ratios are reference-machine observations and never determine portable pass
+or failure.
 
-This is recorded, not asserted. Turning it into a passing check against a
-generator that may not be the right one would make the harness agree with the
-paper for the wrong reason.
+The checked-in `results/synthetic.csv` predates that correction and remains a
+historical, unconfirmed artifact. It is not publication-grade evidence. The
+manuscript numbers and that CSV must remain unchanged until the documented
+reference-machine command has produced both a new result and its metadata
+sidecar for review.
 
 ## Method notes
 
 Both harnesses pin BLAS to one thread, which is the comparison the manuscript
-makes.
+makes. The synthetic harness records raw repeats, median and median absolute
+deviation, thread-control variables, and the effective BLAS providers.
 
-The baseline differs by shape and must: square systems compare against dgesv,
-everything else against dgelsy. An early run compared square against gelsy
-and reported 2.5x where the manuscript claims 0.6-0.9x, entirely because
-gelsy is QR with column pivoting and costs far more than LU.
+The baseline is explicit per case: square systems compare against DGESV,
+dense rectangular systems use the selected DGELSY or DGELSD driver, and the
+grouped sparse comparison uses LSMR. An early run compared square against
+DGELSY and reported 2.5x where the manuscript claims 0.6-0.9x, entirely
+because DGELSY is QR with column pivoting and costs far more than LU.
 
 The first timed case needs a process-level warm-up. Without one it measured
 0.43x on one machine and 15.79x on another for the same 8000 x 32 system --

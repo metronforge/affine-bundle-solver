@@ -144,6 +144,9 @@ jobs:
             echo "::endgroup::"
           done
 
+      - name: Synthetic benchmark contract
+        run: python tests/test_synthetic_bench_contract.py
+
       - name: Property batteries
         run: |
           echo "::group::pbt_equivalence_orbits"
