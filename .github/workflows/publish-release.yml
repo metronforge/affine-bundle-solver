@@ -1,0 +1,157 @@
+name: publish-release
+
+on:
+  workflow_run:
+    workflows: [build-and-test]
+    types: [completed]
+
+concurrency:
+  group: publish-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: publish verified immutable release
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 2
+
+      - name: Detect and validate a release commit
+        id: release
+        env:
+          VERIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          version=$(jq -r '."."' .release-please-manifest.json)
+          previous=$(git show HEAD^:.release-please-manifest.json 2>/dev/null \
+            | jq -r '."."' 2>/dev/null || true)
+          if [ -z "$previous" ] || [ "$version" = "$previous" ]; then
+            echo "created=false" >> "$GITHUB_OUTPUT"
+            echo "ordinary main commit; nothing to publish"
+            exit 0
+          fi
+          citation=$(sed -n 's/^version: \([^ ]*\).*/\1/p' CITATION.cff)
+          cmake=$(sed -n 's/^[[:space:]]*VERSION \([^ ]*\).*/\1/p' CMakeLists.txt)
+          if [ "$version" != "$citation" ] || [ "$version" != "$cmake" ]; then
+            echo "release versions disagree: manifest=$version citation=$citation cmake=$cmake" >&2
+            exit 1
+          fi
+          if [ "$(git rev-parse HEAD)" != "$VERIFIED_SHA" ]; then
+            echo "checkout is not the commit verified by CI" >&2
+            exit 1
+          fi
+          echo "created=true" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+
+      - name: Download the candidate from the successful CI run
+        if: steps.release.outputs.created == 'true'
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: release-candidate
+          path: dist
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Verify candidate checksums and names
+        if: steps.release.outputs.created == 'true'
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          cd dist
+          test -f "affine-bundle-solver-$TAG.tar.gz"
+          test -f "affine-bundle-solver-$TAG-research.tar.gz"
+          test -f SHA256SUMS.txt
+          test "$(wc -l < SHA256SUMS.txt)" -eq 2
+          sha256sum -c SHA256SUMS.txt
+
+      - name: Create or resume the exact draft
+        if: steps.release.outputs.created == 'true'
+        id: draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.release.outputs.tag }}
+          VERIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          release=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" 2>/dev/null || true)
+          if [ -z "$release" ]; then
+            gh release create "$TAG" --draft --target "$VERIFIED_SHA" \
+              --title "$TAG" --generate-notes
+            echo "state=draft" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          target=$(jq -r '.target_commitish' <<<"$release")
+          immutable=$(jq -r '.immutable // false' <<<"$release")
+          draft=$(jq -r '.draft' <<<"$release")
+          if [ "$target" != "$VERIFIED_SHA" ]; then
+            echo "existing release targets $target, expected $VERIFIED_SHA" >&2
+            exit 1
+          fi
+          if [ "$immutable" = true ]; then
+            echo "state=immutable" >> "$GITHUB_OUTPUT"
+          elif [ "$draft" = true ]; then
+            echo "state=draft" >> "$GITHUB_OUTPUT"
+          else
+            echo "existing release is published but not immutable" >&2
+            exit 1
+          fi
+
+      - name: Attach exact assets without overwriting
+        if: steps.release.outputs.created == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          for path in dist/affine-bundle-solver-$TAG.tar.gz \
+                      dist/affine-bundle-solver-$TAG-research.tar.gz \
+                      dist/SHA256SUMS.txt; do
+            name=$(basename "$path")
+            asset_id=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" \
+              --jq ".assets[] | select(.name == \"$name\") | .id")
+            if [ -n "$asset_id" ]; then
+              tmp=$(mktemp -d)
+              gh api "repos/$GITHUB_REPOSITORY/releases/assets/$asset_id" \
+                -H 'Accept: application/octet-stream' > "$tmp/$name"
+              if ! cmp -s "$path" "$tmp/$name"; then
+                echo "existing asset $name has different bytes; refusing to overwrite" >&2
+                exit 1
+              fi
+              rm -rf "$tmp"
+              echo "$name already attached with the expected bytes"
+            else
+              gh release upload "$TAG" "$path"
+            fi
+          done
+
+      - name: Verify the attached bytes and publish
+        if: steps.release.outputs.created == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.release.outputs.tag }}
+          STATE: ${{ steps.draft.outputs.state }}
+        run: |
+          remote=$(mktemp -d)
+          gh release download "$TAG" --dir "$remote"
+          (cd "$remote" && sha256sum -c SHA256SUMS.txt)
+          if [ "$STATE" = draft ]; then
+            gh release edit "$TAG" --draft=false --latest
+          fi
+          immutable=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" --jq '.immutable // false')
+          if [ "$immutable" != true ]; then
+            echo "published release is not immutable" >&2
+            exit 1
+          fi
+          echo "$TAG is immutable and its downloaded assets match SHA256SUMS.txt"
