@@ -82,9 +82,8 @@ static void fill_out(Result r, double*out){
 #include "blas_symbols.h"
 extern void dgemv_(char*,int*,int*,double*,double*,int*,double*,int*,double*,double*,int*);
 
-static double project_cgs2(double*g,const double*Q,int r,int n){
+static double project_cgs2(double*g,const double*Q,int r,int n,double*c){
     if(r<=0)return 0.0;
-    double*c=alloca((size_t)r*sizeof(double));
     if(r<96){
         /* Matrix-form CGS2 without BLAS startup: compute all coefficients from
            the same pass state, then apply the block correction.  This is the
@@ -181,16 +180,19 @@ static int local_dependency_svd(const BState*s,const double*a){
     free(Ac);free(sv);free(work);return ans;
 }
 
-/* Certificate-critical insertion: compatibility is interpreted only after dependency is resolved.
-   Return: 1 growth, 0 redundant-compatible, -1 contradiction, 2 numerical-rank ambiguity. */
+/* Certificate-critical insertion: compatibility is interpreted only after
+   dependency is resolved.  Return: 1 growth, 0 redundant-compatible,
+   -1 contradiction, 2 numerical-rank ambiguity, BS_INSERT_NOMEM when basis
+   growth could not be allocated.  A resource failure leaves the mathematical
+   state unchanged. */
 static int bs_insert_certified(BState*s,const double*a0,double beta0,double tolcon){
     int n=s->n;if(s->inconsistent)return -1;double an=norm2(a0,n);
     if(an==0){if(fabs(beta0)>tolcon){s->inconsistent=1;return -1;}return 0;}
-    double*a=alloca((size_t)n*sizeof(double)),*g=alloca((size_t)n*sizeof(double));double inv=1.0/an;
+    double*restrict a=s->scratch,*restrict g=s->scratch+n;double inv=1.0/an;
     for(int j=0;j<n;j++){a[j]=a0[j]*inv;g[j]=a[j];}double beta=beta0*inv;
-    double c2n=project_cgs2(g,s->Q,s->r,n);double gn=norm2(g,n),rho=beta-dot(a,s->x,n),ct=tolcon*(1.0+fabs(beta)+norm2(s->x,n));
+    double c2n=project_cgs2(g,s->Q,s->r,n,s->scratch+2*n);double gn=norm2(g,n),rho=beta-dot(a,s->x,n),ct=tolcon*(1.0+fabs(beta)+norm2(s->x,n));
     double mu_lo=0.0,mu_hi=0.0; dependency_distance_interval(s,gn,&mu_lo,&mu_hi);
-    if(mu_lo>BS_GROW_THR){double*q=s->Q+(size_t)s->r*n;for(int j=0;j<n;j++)q[j]=g[j]/gn;bs_accumulate_certified_q_defect(s,q,c2n,gn);double al=rho/gn;for(int j=0;j<n;j++)s->x[j]+=al*q[j];s->r++;return 1;}
+    if(mu_lo>BS_GROW_THR){if(s->r>=n)return 2;if(bs_reserve_row(s))return BS_INSERT_NOMEM;double*q=s->Q+(size_t)s->r*n;for(int j=0;j<n;j++)q[j]=g[j]/gn;bs_accumulate_certified_q_defect(s,q,c2n,gn);double al=rho/gn;for(int j=0;j<n;j++)s->x[j]+=al*q[j];s->r++;return 1;}
     if(mu_hi<BS_DEP_THR){
         if(fabs(rho)>ct){
             if(s->r==n){s->inconsistent=1;return -1;}
@@ -203,11 +205,11 @@ static int bs_insert_certified(BState*s,const double*a0,double beta0,double tolc
     return 2;
 }
 /* Return 1 redundant-compatible, 0 definite growth, -1 contradiction, 2 ambiguous. */
-static int bs_check_certified(const BState*s,const double*a0,double beta0,double tolcon){
+static int bs_check_certified(BState*s,const double*a0,double beta0,double tolcon){
     int n=s->n;double an=norm2(a0,n);if(an==0)return fabs(beta0)>tolcon?-1:1;
-    double*a=alloca((size_t)n*sizeof(double)),*g=alloca((size_t)n*sizeof(double));double inv=1.0/an;
+    double*restrict a=s->scratch,*restrict g=s->scratch+n;double inv=1.0/an;
     for(int j=0;j<n;j++){a[j]=a0[j]*inv;g[j]=a[j];}double beta=beta0*inv;
-    project_cgs2(g,s->Q,s->r,n);double gn=norm2(g,n),rho=beta-dot(a,s->x,n),ct=tolcon*(1.0+fabs(beta)+norm2(s->x,n));
+    project_cgs2(g,s->Q,s->r,n,s->scratch+2*n);double gn=norm2(g,n),rho=beta-dot(a,s->x,n),ct=tolcon*(1.0+fabs(beta)+norm2(s->x,n));
     double mu_lo=0.0,mu_hi=0.0; dependency_distance_interval(s,gn,&mu_lo,&mu_hi);
     if(mu_lo>BS_GROW_THR)return 0;
     if(mu_hi<BS_DEP_THR){
@@ -231,7 +233,7 @@ void bsolve_fast_api(const double*A,const double*b,const double*xt,int m,int n,i
 static int compat_scan_fused(const double*A,const double*b,const double*x,int m,int n,double tc,double*rr_out);
 static int reset_source_guarded(BState*s,const double*A,const double*b,int m,int n,double tc);
 static int source_qrcp_trusted(const double*A,const double*b,const double*xt,int m,int n,double tc,Result*R);
-static int source_closure_no_growth(const BState*s,const double*A,const double*b,int m,int n,double tc,double*rr_out);
+static int source_closure_no_growth(BState*s,const double*A,const double*b,int m,int n,double tc,double*rr_out);
 
 
 #define BS_GREY_STORE_MAX 64
@@ -520,7 +522,7 @@ static int source_qrcp_trusted(const double*A,const double*b,const double*xt,
    rank without paying for a full source QRCP when the source itself closes at
    that rank.  Return 1=closed compatible, -1=source contradiction,
    0=definite additional source direction, 2=grey. */
-static int source_closure_no_growth(const BState*s,const double*A,const double*b,int m,int n,double tc,double*rr_out){
+static int source_closure_no_growth(BState*s,const double*A,const double*b,int m,int n,double tc,double*rr_out){
     for(int i=0;i<m;i++){
         int ck=bs_check_certified(s,A+(size_t)i*n,b[i],tc);
         if(ck==-1)return -1;
@@ -630,12 +632,12 @@ static int bs_insert_tail_guarded(BState*s,const double*a0,double beta0,double t
     int rc=bs_insert_certified(s,a0,beta0,tolcon); if(rc==2)grey_record(row_index); return rc;
 }
 
-static void secant_refresh(double*z,const BState*s,uint64_t salt){
+static void secant_refresh(double*z,BState*s,uint64_t salt){
     int n=s->n; for(int j=0;j<n;j++)z[j]=uhash(salt + 0x9e3779b97f4a7c15ULL*(uint64_t)(j+1));
-    project_cgs2(z,s->Q,s->r,n);
+    project_cgs2(z,s->Q,s->r,n,s->scratch+2*n);
     double zn=norm2(z,n); if(zn>0)for(int j=0;j<n;j++)z[j]/=zn;
 }
-static void secant_downdate(double*z,const double*q,int n,uint64_t salt,const BState*s){
+static void secant_downdate(double*z,const double*q,int n,uint64_t salt,BState*s){
     double c=dot(z,q,n);for(int j=0;j<n;j++)z[j]-=c*q[j]; double zn=norm2(z,n);
     if(zn<1e-12)secant_refresh(z,s,salt);else for(int j=0;j<n;j++)z[j]/=zn;
 }
@@ -1021,10 +1023,9 @@ int bsolve_last_core_qr_rank_api(void){return g_last_core_qr_rank;}
  * interface would put a decision with nothing behind it at the front of the
  * API.
  *
- * The per-row scratch inside bs_insert_certified is alloca'd and therefore
- * proportional to n.  That is safe here only because abs_stream_create
- * checks its own O(n^2) allocation first: an n large enough to overflow the
- * stack with 2n doubles needs a Q of n^2 doubles, which fails long before.
+ * Per-row scratch is allocated once with the stream.  The row-major Q basis
+ * grows geometrically with the number of independent rows, so a rank-r
+ * stream stores O(n*r) basis data rather than reserving n*n doubles.
  * ========================================================================== */
 
 struct ABSStream {
@@ -1043,9 +1044,7 @@ ABSStream *abs_stream_create(int n)
     st = (ABSStream*)calloc(1, sizeof(*st));
     if (!st) return NULL;
 
-    /* bs_init now reports failure, so this no longer has to duplicate its
-       body to get a checkable allocation.  Q is n*n doubles. */
-    if (bs_init(&st->s, n)) { free(st); return NULL; }
+    if (bs_init_adaptive(&st->s, n)) { free(st); return NULL; }
     st->n = n;
     st->closed = 0;
     st->seen = 0;
@@ -1060,8 +1059,7 @@ ABSStream *abs_stream_create(int n)
 void abs_stream_destroy(ABSStream *st)
 {
     if (!st) return;
-    free(st->s.Q);
-    free(st->s.x);
+    bs_free(&st->s);
     free(st);
 }
 
@@ -1078,9 +1076,10 @@ int abs_stream_insert(ABSStream *st, const double *row, double rhs)
 
     if (st->closed) return ABS_INSERT_CONTRA;
 
-    st->seen++;
     rc = bs_insert_certified(&st->s, row, rhs, st->tolcon);
 
+    if (rc == BS_INSERT_NOMEM) return ABS_INSERT_ENOMEM;
+    st->seen++;
     if (rc == -1) { st->closed = 1; return ABS_INSERT_CONTRA; }
     if (rc ==  2) { st->deferred++; return ABS_INSERT_DEFER;  }
     return rc; /* 1 grow, 0 absorb */

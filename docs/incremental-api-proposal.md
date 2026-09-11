@@ -72,10 +72,10 @@ depends on state history the caller cannot see. If a streaming caller needs
 to know that orthogonality is degrading, that has to be a separate,
 explicitly specified quantity, not this field.
 
-**`Q`** — `n x n`, allocated in full at init regardless of how many rows ever
-arrive. Rows `0..r-1` are the basis; the rest are whatever `calloc` left or
-`bs_copy` copied. Exposing the buffer would freeze both the row-major layout
-and the over-allocation.
+**`Q`** — row-major internal basis storage.  The streaming implementation now
+grows it geometrically with the rank; batch states may still reserve `n x n`.
+Rows `0..r-1` are the basis and capacity beyond them is not state.  Exposing
+the buffer would freeze both the layout and the growth policy.
 
 **`r`** — the current rank of the accumulated row space. It is not a
 classification. `r == n` means UNIQUE only along the sequential reading; the
@@ -93,13 +93,12 @@ state is closed, not left to discover that its inserts stopped having effect.
 Inside the library these are reachable only through the router, which
 validates its inputs first. Exported, they become the caller's problem.
 
-- `bs_insert` calls `alloca(n * sizeof(double))` **twice per row**. Unchecked
-  stack allocation proportional to `n`. A caller streaming into a state with
-  large `n` gets a stack overflow, not `CLS_FAIL`.
-- `bs_init` calls `calloc((size_t)n*n, sizeof(double))` and `calloc(n, ...)`
-  and checks neither. `n = 10000` asks for 800 MB. This is the same class of
-  omission the review already flagged elsewhere in `bsolver.c`, but here it
-  sits in the constructor of the type being exported.
+- The original `bs_insert` used two `alloca(n * sizeof(double))` buffers per
+  row.  The implemented stream keeps this scratch on the heap and reuses it;
+  large `n` no longer turns an insertion into an unchecked stack allocation.
+- The original `bs_init` reserved `n x n` doubles for `Q` up front.  The
+  implemented stream starts with O(n) state and grows `Q` geometrically.  A
+  growth failure is reported separately and leaves the state unchanged.
 - `tolrank` and `tolcon` are parameters of `bs_insert`, and the batch path
   passes `1e-10` and `2e-10` unconditionally. Exporting them makes the
   classification a function of caller-chosen constants. Exporting them
@@ -116,8 +115,7 @@ Opaque handle, certified insertion, refusal preserved as a return value.
 ```c
 typedef struct ABSStream ABSStream;
 
-/* n columns.  Returns NULL on allocation failure: O(n^2) is requested up
-   front, so this is a real outcome and not a formality. */
+/* n columns.  Returns NULL if the O(n) initial state cannot be allocated. */
 ABSStream *abs_stream_create(int n);
 void       abs_stream_destroy(ABSStream *s);
 
@@ -125,8 +123,10 @@ enum {
     ABS_INSERT_GROW       =  1, /* the row enlarged the row space          */
     ABS_INSERT_ABSORB     =  0, /* dependent and compatible                */
     ABS_INSERT_CONTRA     = -1, /* contradiction; the stream is now closed */
-    ABS_INSERT_AMBIGUOUS  =  2  /* neither could be established; the state
+    ABS_INSERT_DEFER      =  2, /* neither could be established; the state
                                    is unchanged and the stream stays open  */
+    ABS_INSERT_EINVAL     = -2, /* invalid or non-finite input              */
+    ABS_INSERT_ENOMEM     = -3  /* basis growth failed; retry is allowed    */
 };
 
 /* One row of length n and its right-hand side.  Rejects non-finite input at
@@ -138,10 +138,10 @@ int abs_stream_insert(ABSStream *s, const double *row, double rhs);
 void abs_stream_status(const ABSStream *s, double *out);
 ```
 
-Four points the header would have to state, all of them consequences of the
+Five points the header would have to state, all of them consequences of the
 above rather than choices:
 
-1. `ABS_INSERT_AMBIGUOUS` is a normal outcome, not an error. A caller that
+1. `ABS_INSERT_DEFER` is a normal outcome, not an error. A caller that
    treats it as failure has re-created the threshold API.
 2. After `ABS_INSERT_CONTRA` the stream is closed. Further inserts are
    rejected; the classification does not change.
@@ -149,6 +149,8 @@ above rather than choices:
    land on different sides of a threshold. This is a property of incremental
    classification, not of this implementation.
 4. Not thread safe. One stream, one thread.
+5. `ABS_INSERT_ENOMEM` is not a rank verdict. The row is not counted, the
+   mathematical state is unchanged, and the caller may retry it.
 
 Tolerances stay out of the signature. If they must be settable, that belongs
 in a separate `abs_stream_create_ex`, so that the default path cannot make

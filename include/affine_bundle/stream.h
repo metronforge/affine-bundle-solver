@@ -59,19 +59,22 @@ enum {
                                The stream is now CLOSED: further inserts
                                are rejected and the status stays
                                INCONSISTENT.                               */
-    ABS_INSERT_EINVAL = -2  /* null argument, or a non-finite entry in the
+    ABS_INSERT_EINVAL = -2, /* null argument, or a non-finite entry in the
                                row or the right-hand side.  Nothing about
                                the data is asserted and the state is
                                unchanged.                                  */
+    ABS_INSERT_ENOMEM = -3  /* the basis could not grow.  The row is not
+                               counted and the mathematical state is
+                               unchanged; the caller may retry.            */
 };
 
 /*
  * Create a stream over n columns.
  *
- * Returns NULL if n is not positive or if the state could not be allocated.
- * The allocation is O(n^2) doubles and is made up front, so failure here is
- * a real outcome rather than a formality: a caller that ignores the return
- * value will crash on the first insert.
+ * Returns NULL if n is not positive or if the O(n) initial state and scratch
+ * could not be allocated.  Basis storage grows geometrically as independent
+ * rows arrive and is O(n*r) at rank r; a later growth failure is reported by
+ * abs_stream_insert as ABS_INSERT_ENOMEM.
  */
 ABSStream *abs_stream_create(int n);
 
