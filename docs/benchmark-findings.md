@@ -88,6 +88,40 @@ timeout 2700s env REFERENCE_MACHINE_ID=YOUR_STABLE_MACHINE_ID \
 The result and sidecar require review before either can replace a historical
 artifact or support a manuscript edit.
 
+## Manuscript claim coverage
+
+Performance-claim coverage is tracked separately from benchmark protocol
+eligibility.  The bounded registry in
+`experiments/manuscript_performance_claims.json` names every current
+manuscript-facing performance claim, fixes its numerator/denominator and ratio
+direction, and classifies its evidence.  Its `paper.tex` hash is deliberate:
+changing manuscript text requires reviewing this explicit inventory, without
+attempting to parse arbitrary LaTeX.
+
+Ordinary CI may require the inventory to be complete even while known
+publication blockers remain.  The lightweight commands are:
+
+```bash
+python3 tests/check_paper_claims.py --check-performance-inventory
+python3 tests/check_paper_claims.py --audit-performance-artifacts CHECKOUT
+python3 tests/check_paper_claims.py --audit-performance-artifacts CHECKOUT \
+  --require-publication-ready
+```
+
+The first two fail on missing mappings, malformed directions, damaged
+artifacts, or protocol-invalid results.  Only the explicit strict form fails
+because a fully inventoried claim is not yet publication-ready.  This keeps
+artifact integrity, benchmark-protocol eligibility, manuscript coverage, and
+manuscript readiness distinct.
+
+For the immutable laptop candidate, protocol eligibility does not resolve two
+manuscript blockers.  The historical `32x12800` claim lacks source/build/machine
+provenance and used a different exact RNG state; its ratio direction is
+DGELSY/router.  The three current grouped LSMR observations do not support the
+historical “2.6--5.9x faster” wording, and LSMR and the router do not solve
+equivalent tasks.  Both facts must remain visible until a separate manuscript
+correction is reviewed.
+
 The benchmark emits row schema v2.  Each row has a stable `case_id`, a
 portable `numerical_contract`, separately scoped historical claim fields, and
 raw plus summary timings.  `build.sh` atomically writes the ignored
