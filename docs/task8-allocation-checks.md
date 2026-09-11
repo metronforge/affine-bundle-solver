@@ -89,3 +89,38 @@ near a rank transition. Since `v0.4.0` those two are distinct values in
 Acceptance is unchanged and easy to check: the router output stays
 bit-identical on clean input, and `experiments/allocation_audit.py` reports
 zero on library paths.
+
+## Runtime workspace follow-up
+
+The absence of unchecked allocations does not answer a separate performance
+question: should repeated solves receive an opaque reusable workspace instead
+of allocating LAPACK scratch internally?  A warmed, one-thread allocation
+trace was run on the fast router before changing its API.  The interposer was
+process-wide, so its time includes any allocation performed by BLAS and is an
+upper bound on time the router could remove.
+
+| shape | allocation calls | requested bytes | median router time | time inside allocation |
+|---:|---:|---:|---:|---:|
+| 256 x 256 | 9 | 1,067,008 | 0.868 ms | 0.011 ms (1.25%) |
+| 512 x 512 | 9 | 4,231,168 | 4.576 ms | 0.077 ms (1.68%) |
+| 1024 x 1024 | 9 | 16,850,944 | 24.145 ms | 0.302 ms (1.25%) |
+| 8000 x 128 | 9 | 271,360 | 0.572 ms | 0.007 ms (1.22%) |
+| 128 x 512 | 51 | 13,479,740 | 9.770 ms | 0.397 ms (4.07%) |
+| 256 x 2048 | 51 | 166,738,748 | 127.315 ms | 1.868 ms (1.47%) |
+
+The byte count is not avoidable work.  Buffers returned by `calloc` still
+have to be cleared when reused, and every matrix consumed by LAPACK still has
+to be filled.  The percentages therefore overstate the benefit of a reusable
+workspace.  Even the 51-allocation wide route falls to 1.47% at its larger
+representative size.
+
+The three workspace queries in `core_qr_state` were measured separately by a
+direct C harness against the same SciPy OpenBLAS symbols.  Their combined
+median cost was 0.08--0.09 microseconds for QR cores from 512 x 128 through
+2048 x 256.  Caching those query results cannot affect end-to-end time at the
+reported precision.
+
+**Decision:** retain internal checked allocations and do not add a public
+workspace or an internal arena.  Revisit only with a batch/repeated-solve API
+and evidence that allocator time, excluding mandatory buffer clearing, is a
+material fraction of the call.  Requested bytes alone are not such evidence.
