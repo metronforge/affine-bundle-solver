@@ -23,7 +23,6 @@
 #include <math.h>
 #include <float.h>
 #include <time.h>
-#include <alloca.h>
 #include <omp.h>
 #include "formation_guard.h"
 #include "blas_symbols.h"
@@ -35,10 +34,11 @@
 extern void dgelsy_(int*,int*,int*,double*,int*,double*,int*,int*,double*,int*,double*,int*,int*);
 extern void dgesvd_(char*,char*,int*,int*,double*,int*,double*,double*,int*,double*,int*,double*,int*,int*);
 
-typedef struct { int n, r, inconsistent; double *Q; double *x; long double orth_frob2; } BState;
+typedef struct { int n, r, qcap, inconsistent; double *Q; double *x; double *scratch; long double orth_frob2; } BState;
 typedef struct { int cls; int rank; int fallback; int accepted_random; double sec; double relres; double relx; } Result;
 
 enum { CLS_UNIQUE=1, CLS_INFINITE=2, CLS_INCONSISTENT=3, CLS_FAIL=4, CLS_UNDECIDABLE=5 };
+enum { BS_INSERT_NOMEM=-2 };
 
 static double now_sec(){ struct timespec ts; clock_gettime(CLOCK_MONOTONIC,&ts); return ts.tv_sec+1e-9*ts.tv_nsec; }
 static uint64_t sm64(uint64_t x){ x+=0x9e3779b97f4a7c15ULL; x=(x^(x>>30))*0xbf58476d1ce4e5b9ULL; x=(x^(x>>27))*0x94d049bb133111ebULL; return x^(x>>31); }
@@ -64,33 +64,57 @@ static void bs_set_backend_orth_bound(BState*s){
     long double e=64.0L*(long double)DBL_EPSILON*(long double)(s->r>0?s->r:1);
     s->orth_frob2=e*e;
 }
-/* Return 0 on success and 1 when either allocation fails.  These were
+/* Return 0 on success and 1 when an allocation fails.  These were
    `static void`, which is why the allocation sites inside them appear in
    experiments/allocation_audit.py: a caller had no way to learn that Q was
-   NULL and went on to write into it.  On failure the state is left with both
-   pointers NULL and r = 0, so bs_free is safe on it and no caller needs a
+   NULL and went on to write into it.  On failure the state is left with all
+   owned pointers NULL and r = 0, so bs_free is safe on it and no caller needs a
    separate cleanup path.  A caller that ignores the return value gets the
    old behaviour, so every one of them is checked; the compiler cannot
    enforce that here without a warn_unused_result attribute the strict
    kernels do not use. */
-static int bs_init(BState*s,int n){
-    s->n=n;s->r=0;s->inconsistent=0;s->orth_frob2=0.0L;
-    s->Q=calloc((size_t)n*n,sizeof(double));s->x=calloc(n,sizeof(double));
-    if(!s->Q||!s->x){free(s->Q);free(s->x);s->Q=NULL;s->x=NULL;return 1;}
+static int bs_init_capacity(BState*s,int n,int qcap){
+    s->n=n;s->r=0;s->qcap=qcap;s->inconsistent=0;s->orth_frob2=0.0L;
+    s->Q=NULL;s->x=NULL;s->scratch=NULL;
+    if(n<=0||qcap<0||qcap>n)return 1;
+    if((size_t)n>SIZE_MAX/(3u*sizeof(double)))return 1;
+    if(qcap>0){
+        if((size_t)qcap>SIZE_MAX/sizeof(double)/(size_t)n)return 1;
+        s->Q=calloc((size_t)qcap*n,sizeof(double));
+    }
+    s->x=calloc((size_t)n,sizeof(double));
+    s->scratch=malloc((size_t)3*n*sizeof(double));
+    if((qcap>0&&!s->Q)||!s->x||!s->scratch){free(s->Q);free(s->x);free(s->scratch);s->Q=NULL;s->x=NULL;s->scratch=NULL;s->qcap=0;return 1;}
     return 0;
+}
+static int bs_init(BState*s,int n){return bs_init_capacity(s,n,n);}
+static int bs_init_adaptive(BState*s,int n){return bs_init_capacity(s,n,0);}
+/* Grow only the row capacity.  Existing basis rows and the mathematical state
+   remain unchanged if realloc fails. */
+static int bs_reserve_row(BState*s){
+    if(s->r<s->qcap)return 0;
+    int nc=s->qcap;
+    if(nc<8)nc=s->n<8?s->n:8;
+    else if(nc>s->n/4)nc=s->n;
+    else nc*=4;
+    if(nc<=s->qcap||(size_t)nc>SIZE_MAX/sizeof(double)/(size_t)s->n)return 1;
+    double *q=realloc(s->Q,(size_t)nc*s->n*sizeof(double));
+    if(!q)return 1;
+    s->Q=q;s->qcap=nc;return 0;
 }
 static int bs_copy(BState*d,const BState*s){
     if(bs_init(d,s->n))return 1;
     d->r=s->r;d->inconsistent=s->inconsistent;d->orth_frob2=s->orth_frob2;
-    memcpy(d->Q,s->Q,(size_t)s->n*s->n*sizeof(double));memcpy(d->x,s->x,s->n*sizeof(double));
+    if(s->r>0)memcpy(d->Q,s->Q,(size_t)s->r*s->n*sizeof(double));
+    memcpy(d->x,s->x,s->n*sizeof(double));
     return 0;
 }
-static void bs_free(BState*s){ free(s->Q);free(s->x); }
+static void bs_free(BState*s){ free(s->Q);free(s->x);free(s->scratch); }
 
 static int bs_insert(BState*s,const double*a0,double beta0,double tolrank,double tolcon){
     int n=s->n; if(s->inconsistent)return -1;
     double an=norm2(a0,n); if(an==0){ if(fabs(beta0)>tolcon){s->inconsistent=1;return -1;} return 0; }
-    double *a=alloca(n*sizeof(double)); double *g=alloca(n*sizeof(double));
+    double *restrict a=s->scratch; double *restrict g=s->scratch+n;
     double inv=1.0/an; for(int j=0;j<n;j++){a[j]=a0[j]*inv;g[j]=a[j];} double beta=beta0*inv;
     // two-pass MGS residual
     for(int pass=0;pass<2;pass++) for(int k=0;k<s->r;k++){ double *q=s->Q+(size_t)k*n; double c=dot(g,q,n); for(int j=0;j<n;j++)g[j]-=c*q[j]; }
@@ -98,6 +122,7 @@ static int bs_insert(BState*s,const double*a0,double beta0,double tolrank,double
     double rt=tolrank;
     double ct=tolcon*(1.0+fabs(beta)+norm2(s->x,n));
     if(gn>rt){
+        if(bs_reserve_row(s))return BS_INSERT_NOMEM;
         double *q=s->Q+(size_t)s->r*n; for(int j=0;j<n;j++)q[j]=g[j]/gn;
         bs_accumulate_new_q_defect(s,q);
         double alpha=rho/gn; for(int j=0;j<n;j++)s->x[j]+=alpha*q[j]; s->r++; return 1;
@@ -106,9 +131,9 @@ static int bs_insert(BState*s,const double*a0,double beta0,double tolrank,double
     return 0;
 }
 
-static int bs_check_row(const BState*s,const double*a0,double beta0,double tolrank,double tolcon,int *is_contra){
+static int bs_check_row(BState*s,const double*a0,double beta0,double tolrank,double tolcon,int *is_contra){
     int n=s->n; *is_contra=0; double an=norm2(a0,n); if(an==0){ if(fabs(beta0)>tolcon){*is_contra=1;return 0;} return 1; }
-    double *a=alloca(n*sizeof(double)); double *g=alloca(n*sizeof(double)); double inv=1.0/an;
+    double *restrict a=s->scratch; double *restrict g=s->scratch+n; double inv=1.0/an;
     for(int j=0;j<n;j++){a[j]=a0[j]*inv;g[j]=a[j];} double beta=beta0*inv;
     for(int pass=0;pass<2;pass++) for(int k=0;k<s->r;k++){ const double*q=s->Q+(size_t)k*n; double c=dot(g,q,n); for(int j=0;j<n;j++)g[j]-=c*q[j]; }
     double gn=norm2(g,n); double rho=beta-dot(a,s->x,n); double ct=tolcon*(1+fabs(beta)+norm2(s->x,n));

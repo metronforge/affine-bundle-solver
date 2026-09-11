@@ -56,11 +56,10 @@ seeds, and the changed paths are clean under ASan and UBSan.
 
 Most of the remaining sites sit in functions that cannot report failure:
 
-- `bs_init(BState*, int)` — `static void`. It allocates `n*n` doubles for `Q`
-  and `n` for `x`, checks neither, and has no way to say so. Its callers
-  proceed to write into `Q`. Closing this means changing the signature to
-  return a status and updating every caller so the failure reaches
-  `CLS_FAIL`.
+- The original `bs_init(BState*, int)` was `static void`, allocated `n*n`
+  doubles for `Q` and `n` for `x`, and checked neither.  It now returns a
+  status.  Batch states retain full basis capacity; the public stream uses
+  checked O(n) initial state and grows basis rows separately.
 - `sketch_remainder(...)` — `static void`. Allocates four per-thread buffers
   (`LC`, `Ld`, `LE`, `Lf`) before an OpenMP region.
 - Several routes allocate a group and then enter a parallel region or a

@@ -294,9 +294,10 @@ abs_stream_status(s, out);                /* out has the router.h layout */
 abs_stream_destroy(s);
 ```
 
-The allocation in `abs_stream_create` is `O(n²)` doubles and made up front, so
-a `NULL` return is a real outcome: a caller that ignores it crashes on the
-first insert.
+`abs_stream_create` allocates O(n) state and reusable insertion scratch.  The
+row-major basis grows geometrically with independent rows and occupies O(n·r)
+at rank r.  A constructor failure returns `NULL`; a later basis-growth failure
+is distinct and leaves the row retryable.
 
 | Insert code | Value | Meaning |
 |---|---|---|
@@ -305,6 +306,7 @@ first insert.
 | `ABS_INSERT_DEFER` | 2 | neither could be established; the row is **not** in the state and the stream stays open |
 | `ABS_INSERT_CONTRA` | −1 | the row contradicts the accumulated system; the stream is now **closed** |
 | `ABS_INSERT_EINVAL` | −2 | null argument or non-finite entry; nothing asserted, state unchanged |
+| `ABS_INSERT_ENOMEM` | −3 | basis growth failed; row not counted, state unchanged, retry allowed |
 
 Three properties worth knowing before designing around this:
 
@@ -372,13 +374,11 @@ What is not:
 - **Property-based testing falsifies; it does not prove.** The batteries
   (8 335 and 2 271 checks) rule out large classes of implementation error and
   are not a substitute for the manuscript's argument.
-- **The failure channel is not yet complete on every internal path.** Some
-  internal routines are `static void` and cannot report an allocation failure
-  at all. The large allocations upstream are checked and return `FAIL` before
-  those are reached, so this is hygiene rather than a live defect, but it is
-  an open item rather than a closed one — see
-  [`task8-allocation-checks.md`](task8-allocation-checks.md). The strict layer
-  checks every allocation and is clean.
+- **Resource failure is not numerical uncertainty.** Checked batch allocation
+  failures return `FAIL`; stream basis-growth failure returns
+  `ABS_INSERT_ENOMEM` without changing the rank or row count.  The allocation
+  audit reports zero unchecked sites on library paths; see
+  [`task8-allocation-checks.md`](task8-allocation-checks.md).
 - **This is a dense solver.** Sparse problems need a different implementation.
 
 Performance is not a guarantee of this API and is deliberately not summarised
