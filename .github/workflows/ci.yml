@@ -147,6 +147,43 @@ jobs:
       - name: Synthetic benchmark contract
         run: python tests/test_synthetic_bench_contract.py
 
+      - name: Manuscript performance claim coverage
+        if: matrix.cc == 'gcc' && matrix.arch_label == 'portable'
+        env:
+          PR34_HEAD: ed240df3cc0bd644996f475a6d0e77d95eb6c568
+        run: |
+          python tests/check_paper_claims.py --check-performance-inventory
+          git fetch --no-tags --depth=1 origin pull/34/head
+          test "$(git rev-parse FETCH_HEAD)" = "$PR34_HEAD"
+          mkdir -p /tmp/pr34-candidate/results
+          for artifact in synthetic-reference.csv \
+                          synthetic-reference.metadata.json \
+                          synthetic-reference.sha256; do
+            git show "$PR34_HEAD:results/$artifact" \
+              > "/tmp/pr34-candidate/results/$artifact"
+          done
+          python tests/check_paper_claims.py \
+            --audit-performance-artifacts /tmp/pr34-candidate
+          if python tests/check_paper_claims.py \
+              --audit-performance-artifacts /tmp/pr34-candidate \
+              --require-publication-ready > /tmp/pr34-strict-readiness.json; then
+            echo "::error::known manuscript blockers were not detected"
+            exit 1
+          fi
+          python - <<'PY'
+          import json
+          report = json.load(open('/tmp/pr34-strict-readiness.json'))
+          reasons = report['manuscript_publication_readiness']['reasons']
+          required = {
+              'manuscript_blocker:wide_extreme.32x12800',
+              'manuscript_blocker:grouped.lsmr',
+              'manuscript_blocker:methodology.quantitative_results_freshness',
+          }
+          missing = required - set(reasons)
+          if report['manuscript_publication_readiness']['ready'] or missing:
+              raise SystemExit(f'strict readiness blockers missing: {sorted(missing)}')
+          PY
+
       - name: Synthetic benchmark smoke
         env:
           CC: ${{ matrix.cc }}

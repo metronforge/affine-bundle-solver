@@ -34,11 +34,11 @@
       "baseline_driver": "preceding certificate audit",
       "generator_dataset": "tests/benchmark_certified_audit.py matched six-case corpus",
       "task_relationship": "direct-reproduction",
-      "evidence_class": "historical-confirmed",
+      "evidence_class": "historical-unconfirmed",
       "artifact_case_mapping": null,
       "historical_source_identity": "tracked certified-audit result package",
       "machine_protocol_scope": {"machine": "paper reference environment", "protocol": "two warmups, nine timed calls"},
-      "publication_status": "publication-ready"
+      "publication_status": "publication-blocker"
     },
     {
       "claim_id": "standard.sequential_reference",
@@ -51,11 +51,11 @@
       "baseline_driver": "sequential affine-bundle reference",
       "generator_dataset": "standard synthetic and Digits gate",
       "task_relationship": "direct-reproduction",
-      "evidence_class": "historical-confirmed",
+      "evidence_class": "historical-unconfirmed",
       "artifact_case_mapping": null,
       "historical_source_identity": "tracked standard-gate result package",
       "machine_protocol_scope": {"machine": "paper reference environment", "protocol": "standard gate warmup/repeats"},
-      "publication_status": "publication-ready"
+      "publication_status": "publication-blocker"
     },
     {
       "claim_id": "parallel.openmp_scaling",
@@ -68,11 +68,11 @@
       "baseline_driver": "same router at one OpenMP thread",
       "generator_dataset": "OpenMP scaling gate",
       "task_relationship": "direct-reproduction",
-      "evidence_class": "historical-confirmed",
+      "evidence_class": "historical-unconfirmed",
       "artifact_case_mapping": null,
       "historical_source_identity": "tracked scaling result package",
       "machine_protocol_scope": {"machine": "paper reference environment", "protocol": "BLAS one thread; OpenMP 1,2,4"},
-      "publication_status": "publication-ready"
+      "publication_status": "publication-blocker"
     },
     {
       "claim_id": "structural.stress_timings",
@@ -314,6 +314,23 @@
       "artifact_case_mapping": null,
       "historical_source_identity": "tracked application result package",
       "machine_protocol_scope": {"machine": "paper reference environment", "protocol": "application-specific repetitions"},
+      "publication_status": "publication-blocker"
+    },
+    {
+      "claim_id": "methodology.quantitative_results_freshness",
+      "manuscript_anchor": "paper.tex:738,743",
+      "text_anchor": "All quantitative results in this section were regenerated",
+      "numerator": "current-code quantitative results",
+      "denominator": "earlier wall-time results",
+      "ratio_direction": "not_a_timing_ratio",
+      "dimensions_case_identity": ["all quantitative results in sec:experiments and sec:results"],
+      "baseline_driver": "multiple manuscript baselines",
+      "generator_dataset": "multiple manuscript generators and stored JSON outputs",
+      "task_relationship": "outside-candidate",
+      "evidence_class": "historical-unconfirmed",
+      "artifact_case_mapping": null,
+      "historical_source_identity": "manuscript asserts regeneration but no single immutable provenance contract covers all cited outputs",
+      "machine_protocol_scope": {"machine": "paper reference environment", "protocol": "mixed manuscript protocols"},
       "publication_status": "publication-blocker"
     }
   ]

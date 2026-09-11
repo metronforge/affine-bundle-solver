@@ -505,18 +505,22 @@ def validate_canonical_numerical_semantics(row):
         if not quality_unavailable:
             reasons.append(f"row_semantic_quality_mismatch:{case_id}")
     elif case_id.startswith(("cond_", "cond_large_")):
-        if status not in ("UNIQUE", "UNDECIDABLE"):
+        expected_status = ("UNDECIDABLE" if "1e+14" in case_id
+                           else "UNIQUE")
+        if status != expected_status:
             reasons.append(f"row_semantic_status_mismatch:{case_id}")
-        elif status == "UNIQUE":
+        if expected_status == "UNIQUE" and status == "UNIQUE":
             if not full_unique:
                 reasons.append(f"row_semantic_rank_mismatch:{case_id}")
             if not good_quality:
                 reasons.append(f"row_semantic_quality_mismatch:{case_id}")
-        elif not (isinstance(rank_lo, (int, np.integer)) and
-                  isinstance(rank_hi, (int, np.integer)) and
-                  rank == rank_lo and 0 <= rank_lo < rank_hi <= n):
+        elif expected_status == "UNDECIDABLE" and status == "UNDECIDABLE" \
+                and not (isinstance(rank_lo, (int, np.integer)) and
+                         isinstance(rank_hi, (int, np.integer)) and
+                         rank == rank_lo and 0 <= rank_lo < rank_hi <= n):
             reasons.append(f"row_semantic_rank_mismatch:{case_id}")
-        if status == "UNDECIDABLE" and not quality_unavailable:
+        if expected_status == "UNDECIDABLE" and status == "UNDECIDABLE" and \
+                not quality_unavailable:
             reasons.append(f"row_semantic_quality_mismatch:{case_id}")
     return reasons
 

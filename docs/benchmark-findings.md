@@ -49,11 +49,15 @@ not invites the reader to distrust the places it says it wins.
 2000 x 8000, inside it. The claim appears to describe the large-system
 behaviour and to be conservative below that.
 
-**Extreme underdetermined is far worse than the range says.** 0.03x at
-32 x 12800, and the SuiteSparse run found 0.02x on LPnetlib/lp_fit2d at
-25 x 10524. The stated 0.24-0.43x was measured at moderate aspect; at n/m in
-the hundreds the penalty is an order beyond it. This belongs in the
-manuscript's limitations rather than being left to be found.
+**The historical extreme-underdetermined result is unconfirmed.** The old
+`32 x 12800` observation was DGELSY/router = 0.0341123 (equivalently,
+router/DGELSY = 29.315), but its source commit, build, machine, and exact input
+are unknown. It is therefore not a reproduced result. The immutable laptop
+candidate separately records DGELSY/router = 1.20614 (router/DGELSY =
+0.829088) for the same dimensions and distributional generator but a
+different exact RNG state/input. The historical SuiteSparse observation of
+DGELSY/router = 0.02 on LPnetlib/lp_fit2d at 25 x 10524 is likewise outside
+the candidate and remains unconfirmed until its own provenance is established.
 
 ## Grouped-row reference run pending
 
@@ -114,10 +118,12 @@ because a fully inventoried claim is not yet publication-ready.  This keeps
 artifact integrity, benchmark-protocol eligibility, manuscript coverage, and
 manuscript readiness distinct.
 
-For the immutable laptop candidate, protocol eligibility does not resolve two
-manuscript blockers.  The historical `32x12800` claim lacks source/build/machine
-provenance and used a different exact RNG state; its ratio direction is
-DGELSY/router.  The three current grouped LSMR observations do not support the
+For the immutable laptop candidate, protocol eligibility does not establish
+manuscript readiness. Two blockers are directly exposed by the candidate: the
+historical `32x12800` claim lacks source/build/machine provenance and used a
+different exact RNG state; its DGELSY/router value is 0.0341123, while the
+separate candidate observation is 1.20614. The three current grouped LSMR
+observations do not support the
 historical “2.6--5.9x faster” wording, and LSMR and the router do not solve
 equivalent tasks.  Both facts must remain visible until a separate manuscript
 correction is reviewed.

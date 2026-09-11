@@ -2,6 +2,7 @@
 """Focused contract tests for the portable synthetic benchmark harness."""
 
 import copy
+import csv
 import hashlib
 import json
 import math
@@ -159,6 +160,24 @@ def eligibility_inputs(**overrides):
     }
     values.update(overrides)
     return values
+
+
+def write_candidate_csv(path, rows):
+    with Path(path).open("w", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=bench.ROW_REQUIRED_FIELDS)
+        writer.writeheader()
+        for row in rows:
+            encoded = {}
+            for field in bench.ROW_REQUIRED_FIELDS:
+                value = row.get(field)
+                if isinstance(value, (dict, list)):
+                    encoded[field] = json.dumps(value, sort_keys=True)
+                elif value is None or (isinstance(value, float) and
+                                       math.isnan(value)):
+                    encoded[field] = ""
+                else:
+                    encoded[field] = value
+            writer.writerow(encoded)
 
 
 class LsmrValidationTests(unittest.TestCase):
@@ -836,6 +855,24 @@ class CanonicalNumericalSemanticsTests(unittest.TestCase):
         self.assertIn("row_semantic_quality_mismatch:wide_extreme.32x12800",
                       bench.validate_schema_v2_row(row, 11))
 
+    def test_well_conditioned_case_cannot_be_undecidable(self):
+        row = next(item for item in complete_rows()
+                   if item["case_id"] == "cond_1e+08.4000x64")
+        row.update(status="UNDECIDABLE", rank=63, rank_lo=63, rank_hi=64,
+                   berr=math.nan, numerical_valid=True)
+
+        self.assertIn("row_semantic_status_mismatch:cond_1e+08.4000x64",
+                      bench.validate_schema_v2_row(row, 11))
+
+    def test_ill_conditioned_case_must_remain_undecidable(self):
+        row = next(item for item in complete_rows()
+                   if item["case_id"] == "cond_1e+14.4000x64")
+        row.update(status="UNIQUE", rank=64, rank_lo=64, rank_hi=64,
+                   berr=1e-16, numerical_valid=True)
+
+        self.assertIn("row_semantic_status_mismatch:cond_1e+14.4000x64",
+                      bench.validate_schema_v2_row(row, 11))
+
     def test_all_canonical_case_specific_semantics_are_accepted(self):
         for row in complete_rows():
             with self.subTest(case_id=row["case_id"]):
@@ -879,6 +916,87 @@ class ManuscriptClaimCoverageTests(unittest.TestCase):
                                "validate_performance_claim_registry"))
         return paper_claims.validate_performance_claim_registry(
             registry, manuscript_text=(ROOT / "paper.tex").read_text())
+
+    def fixture_rows(self):
+        rows = complete_rows()
+        candidate_ratios = {
+            "wide_extreme.32x12800": 1.206144,
+            "grouped_vs_lsmr.16384x64": 0.623705,
+            "grouped_vs_lsmr.131072x64": 1.603333,
+            "grouped_vs_lsmr.16384x256": 0.636454,
+        }
+        for row in rows:
+            if isinstance(row["berr"], float) and math.isnan(row["berr"]):
+                row["berr"] = None
+            if row["case_id"] in candidate_ratios:
+                ratio = candidate_ratios[row["case_id"]]
+                row["baseline_timings_s"] = [ratio] * 11
+                row["baseline_s"] = ratio
+                row["baseline_mad_s"] = 0.0
+                row["baseline_over_router"] = ratio
+        return rows
+
+    def write_candidate_package(self, root, registry, *, csv_rows=None,
+                                metadata_rows=None):
+        results = Path(root) / "results"
+        results.mkdir()
+        csv_path = results / "synthetic-reference.csv"
+        metadata_path = results / "synthetic-reference.metadata.json"
+        checksum_path = results / "synthetic-reference.sha256"
+        metadata_rows = metadata_rows or self.fixture_rows()
+        csv_rows = metadata_rows if csv_rows is None else csv_rows
+        write_candidate_csv(csv_path, csv_rows)
+        metadata = {
+            "source": {
+                "git_sha": registry["candidate_artifact"]["source_sha"],
+                "git_tree_sha": registry["candidate_artifact"]["source_tree"],
+                "git_dirty": False,
+            },
+            "benchmark": {
+                "seed": bench.CANONICAL_SEED,
+                "driver": bench.CANONICAL_DRIVER,
+                "scale": 1.0,
+                "repeats": 11,
+                "large_cases": True,
+            },
+            "build_provenance": {
+                "verified": True, "reasons": [],
+                "router_sha256": "a" * 64,
+                "manifest": {
+                    "source": {
+                        "git_sha":
+                            registry["candidate_artifact"]["source_sha"],
+                        "git_tree_sha":
+                            registry["candidate_artifact"]["source_tree"],
+                        "git_dirty": False,
+                    },
+                    "router": {"library": {"sha256": "a" * 64}},
+                    "openblas": {"sha256": "b" * 64},
+                },
+            },
+            "publication_eligibility": {"eligible": True, "reasons": []},
+            "thread_control": {
+                name: "1" for name in bench.REQUIRED_THREAD_CONTROLS},
+            "linear_algebra": {"threadpools": [{
+                "user_api": "blas", "num_threads": 1,
+                "sha256": "b" * 64}]},
+            "machine": {
+                "cpu_model": "CPU", "physical_cores": 1,
+                "logical_cores": 1, "ram_bytes": 1, "os": "Linux",
+                "kernel": "test", "reference_name": "reference"},
+            "software": {"python": "3", "numpy": "2", "scipy": "1"},
+            "results": metadata_rows,
+        }
+        metadata_path.write_text(json.dumps(metadata, allow_nan=False))
+        registry["candidate_artifact"]["csv"]["sha256"] = digest(csv_path)
+        registry["candidate_artifact"]["metadata"]["sha256"] = \
+            digest(metadata_path)
+        checksum_path.write_text(
+            f"{digest(csv_path)}  {csv_path.name}\n"
+            f"{digest(metadata_path)}  {metadata_path.name}\n")
+        registry["candidate_artifact"]["checksum"]["sha256"] = \
+            digest(checksum_path)
+        return metadata
 
     def test_unmapped_manuscript_claim_is_fail_closed(self):
         registry = self.registry()
@@ -964,6 +1082,9 @@ class ManuscriptClaimCoverageTests(unittest.TestCase):
             self.registry(), benchmark_protocol={"eligible": True,
                                                  "reasons": []})
         expected = {
+            "manuscript_blocker:audit.certified_call_overhead",
+            "manuscript_blocker:standard.sequential_reference",
+            "manuscript_blocker:parallel.openmp_scaling",
             "manuscript_blocker:structural.stress_timings",
             "manuscript_blocker:transition.rank_gate",
             "manuscript_blocker:guard.rank1_cost",
@@ -976,88 +1097,166 @@ class ManuscriptClaimCoverageTests(unittest.TestCase):
             "manuscript_blocker:applications.radio_timings",
             "manuscript_blocker:applications.harmonic_timings",
             "manuscript_blocker:applications.lens_timings",
+            "manuscript_blocker:methodology.quantitative_results_freshness",
         }
         self.assertEqual(set(verdicts[
             "manuscript_publication_readiness"]["reasons"]), expected)
+
+    def test_artifact_case_mapping_is_structural_and_semantic(self):
+        variants = (
+            (None, "claim_artifact_mapping_invalid:grouped.dgelsy"),
+            ([], "claim_artifact_mapping_invalid:grouped.dgelsy"),
+            ("grouped_vs_lapack.16384x64",
+             "claim_artifact_mapping_invalid:grouped.dgelsy"),
+            ([123], "claim_artifact_mapping_invalid:grouped.dgelsy"),
+            (["unknown.case"],
+             "claim_artifact_mapping_unknown:grouped.dgelsy:unknown.case"),
+            (["grouped_vs_lapack.16384x64"] * 2,
+             "claim_artifact_mapping_duplicate:grouped.dgelsy"),
+            (["grouped_vs_lapack.16384x256",
+              "grouped_vs_lapack.131072x64",
+              "grouped_vs_lapack.16384x64"],
+             "claim_artifact_mapping_semantic_mismatch:grouped.dgelsy"),
+        )
+        for mapping, reason in variants:
+            with self.subTest(mapping=mapping):
+                registry = self.registry()
+                claim = next(item for item in registry["claims"]
+                             if item["claim_id"] == "grouped.dgelsy")
+                claim["artifact_case_mapping"] = mapping
+                self.assertIn(reason, self.validate(registry))
+
+    def test_registry_entry_removal_never_crashes_artifact_audit(self):
+        registry = self.registry()
+        registry["claims"] = [claim for claim in registry["claims"]
+                              if claim["claim_id"] !=
+                              "wide_extreme.32x12800"]
+        with tempfile.TemporaryDirectory() as directory:
+            self.write_candidate_package(directory, registry)
+            try:
+                verdicts = paper_claims.audit_candidate_package(
+                    directory, registry)
+            except Exception as error:  # fail as an assertion, not a test error
+                self.fail(f"audit raised instead of returning blockers: {error}")
+
+        self.assertIn("manuscript_claim_unmapped:wide_extreme.32x12800",
+                      verdicts["manuscript_claim_coverage"]["reasons"])
+
+    def test_vague_historical_identity_is_not_confirmed_provenance(self):
+        registry = self.registry()
+        claim = registry["claims"][0]
+        claim["evidence_class"] = "historical-confirmed"
+        claim["historical_source_identity"] = "tracked result package"
+        claim.pop("historical_provenance", None)
+        claim["publication_status"] = "publication-ready"
+
+        reasons = self.validate(registry)
+
+        self.assertIn(
+            f"claim_confirmed_provenance_invalid:{claim['claim_id']}", reasons)
+        self.assertIn(
+            f"claim_unsupported_evidence_ready:{claim['claim_id']}", reasons)
+
+    def test_freshness_methodology_claim_is_mandatory(self):
+        claim_id = "methodology.quantitative_results_freshness"
+        self.assertIn(claim_id, paper_claims.REQUIRED_PERFORMANCE_CLAIM_IDS)
+        registry = self.registry()
+        registry["claims"] = [claim for claim in registry["claims"]
+                              if claim["claim_id"] != claim_id]
+
+        self.assertIn(f"manuscript_claim_unmapped:{claim_id}",
+                      self.validate(registry))
+
+    def test_extreme_wide_contradiction_cannot_be_reclassified_ready(self):
+        registry = self.registry()
+        claim = next(item for item in registry["claims"]
+                     if item["claim_id"] == "wide_extreme.32x12800")
+        claim["evidence_class"] = "current-artifact"
+        claim["publication_status"] = "publication-ready"
+
+        self.assertIn(
+            "claim_extreme_wide_contradiction_unresolved:"
+            "wide_extreme.32x12800", self.validate(registry))
+
+    def test_registry_validation_aggregates_independent_blockers(self):
+        registry = self.registry()
+        grouped = next(item for item in registry["claims"]
+                       if item["claim_id"] == "grouped.dgelsy")
+        grouped["artifact_case_mapping"] = ["unknown.case", "unknown.case"]
+        extreme = next(item for item in registry["claims"]
+                       if item["claim_id"] == "wide_extreme.32x12800")
+        extreme["ratio_direction"] = "router_over_dgelsy"
+        confirmed = registry["claims"][0]
+        confirmed["evidence_class"] = "historical-confirmed"
+        confirmed.pop("historical_provenance", None)
+
+        reasons = self.validate(registry)
+
+        for reason in (
+                "claim_artifact_mapping_unknown:grouped.dgelsy:unknown.case",
+                "claim_artifact_mapping_duplicate:grouped.dgelsy",
+                "claim_ratio_direction_invalid:wide_extreme.32x12800",
+                f"claim_confirmed_provenance_invalid:{confirmed['claim_id']}"):
+            self.assertIn(reason, reasons)
+
+    def test_csv_and_metadata_rows_must_match_semantically(self):
+        variants = {}
+        rows = self.fixture_rows()
+        variants["missing"] = (rows[:-1], "candidate_csv_row_missing")
+        extra = copy.deepcopy(rows)
+        extra.append({**copy.deepcopy(rows[-1]), "case_id": "unexpected.case"})
+        variants["extra"] = (extra, "candidate_csv_row_extra")
+        reordered = copy.deepcopy(rows)
+        reordered[0], reordered[1] = reordered[1], reordered[0]
+        variants["reordered"] = (reordered, "candidate_csv_order_mismatch")
+        duplicated = copy.deepcopy(rows[:-1]) + [copy.deepcopy(rows[0])]
+        variants["duplicated"] = (duplicated,
+                                  "candidate_csv_case_duplicate")
+        divergent = copy.deepcopy(rows)
+        divergent[0]["note"] = "CSV differs from metadata"
+        variants["divergent"] = (
+            divergent, "candidate_csv_metadata_divergence:tall.8000x32")
+
+        for name, (csv_rows, reason) in variants.items():
+            with self.subTest(name=name), \
+                    tempfile.TemporaryDirectory() as directory:
+                registry = self.registry()
+                self.write_candidate_package(
+                    directory, registry, csv_rows=csv_rows,
+                    metadata_rows=copy.deepcopy(rows))
+                verdicts = paper_claims.audit_candidate_package(
+                    directory, registry)
+                self.assertFalse(verdicts["artifact_integrity"]["valid"])
+                self.assertIn(reason,
+                              verdicts["artifact_integrity"]["reasons"])
+
+    def test_ci_runs_inventory_exact_candidate_and_strict_readiness(self):
+        workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text()
+
+        for required in (
+                "--check-performance-inventory",
+                "ed240df3cc0bd644996f475a6d0e77d95eb6c568",
+                "--audit-performance-artifacts /tmp/pr34-candidate",
+                "--require-publication-ready"):
+            self.assertIn(required, workflow)
+
+    def test_inventory_cli_runs_without_pythonpath(self):
+        environment = os.environ.copy()
+        environment.pop("PYTHONPATH", None)
+
+        completed = subprocess.run(
+            [sys.executable, "tests/check_paper_claims.py",
+             "--check-performance-inventory"],
+            cwd=ROOT, env=environment, capture_output=True, text=True,
+            check=False)
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
 
     def test_immutable_candidate_integrity_and_readiness_are_separate(self):
         registry = self.registry()
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            results = root / "results"
-            results.mkdir()
-            csv_path = results / "synthetic-reference.csv"
-            metadata_path = results / "synthetic-reference.metadata.json"
-            checksum_path = results / "synthetic-reference.sha256"
-            csv_path.write_text("immutable candidate fixture\n")
-            fixture_rows = complete_rows()
-            candidate_ratios = {
-                "wide_extreme.32x12800": 1.206144,
-                "grouped_vs_lsmr.16384x64": 0.623705,
-                "grouped_vs_lsmr.131072x64": 1.603333,
-                "grouped_vs_lsmr.16384x256": 0.636454,
-            }
-            for row in fixture_rows:
-                if isinstance(row["berr"], float) and math.isnan(row["berr"]):
-                    row["berr"] = None
-                if row["case_id"] in candidate_ratios:
-                    ratio = candidate_ratios[row["case_id"]]
-                    row["baseline_timings_s"] = [ratio] * 11
-                    row["baseline_s"] = ratio
-                    row["baseline_mad_s"] = 0.0
-                    row["baseline_over_router"] = ratio
-            metadata = {
-                "source": {
-                    "git_sha": registry["candidate_artifact"]["source_sha"],
-                    "git_tree_sha":
-                        registry["candidate_artifact"]["source_tree"],
-                    "git_dirty": False,
-                },
-                "benchmark": {
-                    "seed": bench.CANONICAL_SEED,
-                    "driver": bench.CANONICAL_DRIVER,
-                    "scale": 1.0,
-                    "repeats": 11,
-                    "large_cases": True,
-                },
-                "build_provenance": {
-                    "verified": True, "reasons": [],
-                    "router_sha256": "a" * 64,
-                    "manifest": {
-                        "source": {
-                            "git_sha":
-                                registry["candidate_artifact"]["source_sha"],
-                            "git_tree_sha": registry["candidate_artifact"]
-                                ["source_tree"],
-                            "git_dirty": False,
-                        },
-                        "router": {"library": {"sha256": "a" * 64}},
-                        "openblas": {"sha256": "b" * 64},
-                    },
-                },
-                "publication_eligibility": {"eligible": True, "reasons": []},
-                "thread_control": {
-                    name: "1" for name in bench.REQUIRED_THREAD_CONTROLS},
-                "linear_algebra": {"threadpools": [{
-                    "user_api": "blas", "num_threads": 1,
-                    "sha256": "b" * 64}]},
-                "machine": {
-                    "cpu_model": "CPU", "physical_cores": 1,
-                    "logical_cores": 1, "ram_bytes": 1, "os": "Linux",
-                    "kernel": "test", "reference_name": "reference"},
-                "software": {"python": "3", "numpy": "2", "scipy": "1"},
-                "results": fixture_rows,
-            }
-            metadata_path.write_text(json.dumps(metadata, allow_nan=False))
-            registry["candidate_artifact"]["csv"]["sha256"] = \
-                digest(csv_path)
-            registry["candidate_artifact"]["metadata"]["sha256"] = \
-                digest(metadata_path)
-            checksum_path.write_text(
-                f"{digest(csv_path)}  {csv_path.name}\n"
-                f"{digest(metadata_path)}  {metadata_path.name}\n")
-            registry["candidate_artifact"]["checksum"]["sha256"] = \
-                digest(checksum_path)
+            self.write_candidate_package(root, registry)
 
             verdicts = paper_claims.audit_candidate_package(root, registry)
 

@@ -17,19 +17,27 @@ Exit status: 0 = all claims reproduced, 1 = at least one mismatch.
 Usage:
     python3 tests/check_paper_claims.py            # run batteries, compare
     python3 tests/check_paper_claims.py --list     # print expectations only
+    python3 tests/check_paper_claims.py --check-performance-inventory
+    python3 tests/check_paper_claims.py --audit-performance-artifacts ROOT
+    python3 tests/check_paper_claims.py --audit-performance-artifacts ROOT \
+        --require-publication-ready
 """
 
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
 import json
 import math
 import subprocess
 import sys
+from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 TESTS = ROOT / "tests"
 PERFORMANCE_CLAIM_REGISTRY = ROOT / "experiments" / \
     "manuscript_performance_claims.json"
@@ -47,7 +55,8 @@ REQUIRED_PERFORMANCE_CLAIM_IDS = frozenset((
     "wide_extreme.lp_fit2d", "grouped.dgelsy", "grouped.lsmr",
     "limitations.square_underdetermined", "scope.tall_directional",
     "applications.radio_timings", "applications.harmonic_timings",
-    "applications.lens_timings"))
+    "applications.lens_timings",
+    "methodology.quantitative_results_freshness"))
 EXPECTED_RATIO_DIRECTIONS = {
     "audit.certified_call_overhead": "strengthened_audit_over_preceding_audit",
     "standard.sequential_reference": "sequential_reference_over_router",
@@ -66,6 +75,26 @@ EXPECTED_RATIO_DIRECTIONS = {
     "applications.radio_timings": "dgelsy_over_router",
     "applications.harmonic_timings": "baseline_over_router",
     "applications.lens_timings": "baseline_over_router",
+    "methodology.quantitative_results_freshness": "not_a_timing_ratio",
+}
+EXPECTED_ARTIFACT_CASE_MAPPINGS = {
+    "transition.rank_gate": (
+        "near_transition.eps_1e-12", "near_transition.eps_1e-10"),
+    "wide_extreme.32x12800": ("wide_extreme.32x12800",),
+    "grouped.dgelsy": (
+        "grouped_vs_lapack.16384x64",
+        "grouped_vs_lapack.131072x64",
+        "grouped_vs_lapack.16384x256"),
+    "grouped.lsmr": (
+        "grouped_vs_lsmr.16384x64",
+        "grouped_vs_lsmr.131072x64",
+        "grouped_vs_lsmr.16384x256"),
+    "limitations.square_underdetermined": (
+        "square.256x256", "square.512x512", "wide.128x512",
+        "wide.256x2048", "wide_large.2000x8000"),
+    "scope.tall_directional": (
+        "tall.8000x32", "tall.7680x64", "tall.7680x128",
+        "tall_large.8000x2000", "tall_large.20000x2000"),
 }
 CLAIM_REQUIRED_FIELDS = (
     "claim_id", "manuscript_anchor", "text_anchor", "numerator",
@@ -83,6 +112,32 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _valid_hex(value, length):
+    return (isinstance(value, str) and len(value) == length and
+            all(character in "0123456789abcdefABCDEF" for character in value))
+
+
+def _confirmed_provenance_valid(claim):
+    provenance = claim.get("historical_provenance")
+    if not isinstance(provenance, dict):
+        return False
+    artifact_path = provenance.get("artifact_path")
+    if not isinstance(artifact_path, str) or not artifact_path or \
+            Path(artifact_path).is_absolute():
+        return False
+    try:
+        path = (ROOT / artifact_path).resolve()
+        path.relative_to(ROOT.resolve())
+    except (OSError, ValueError):
+        return False
+    return (path.is_file() and
+            _valid_hex(provenance.get("artifact_sha256"), 64) and
+            _sha256(path) == provenance["artifact_sha256"] and
+            _valid_hex(provenance.get("source_git_sha"), 40) and
+            _valid_hex(provenance.get("source_git_tree_sha"), 40) and
+            _valid_hex(provenance.get("build_identity_sha256"), 64))
+
+
 def load_performance_claim_registry(path=PERFORMANCE_CLAIM_REGISTRY):
     """Load the bounded explicit registry; callers may safely mutate it."""
     return json.loads(Path(path).read_text())
@@ -96,6 +151,8 @@ def validate_performance_claim_registry(registry, manuscript_text=None):
     claims = registry.get("claims")
     if not isinstance(claims, list):
         return ["claim_registry_claims_invalid"]
+    from experiments import synthetic_bench as bench
+
     by_id = {}
     for claim in claims:
         if not isinstance(claim, dict):
@@ -123,6 +180,26 @@ def validate_performance_claim_registry(registry, manuscript_text=None):
         evidence = claim.get("evidence_class")
         if evidence not in EVIDENCE_CLASSES:
             reasons.append(f"claim_evidence_class_invalid:{claim_id}")
+        mapping = claim.get("artifact_case_mapping")
+        mapping_required = evidence in DIRECT_EVIDENCE_CLASSES or \
+            mapping is not None
+        mapping_valid = (isinstance(mapping, list) and bool(mapping) and
+                         all(isinstance(case_id, str) and case_id
+                             for case_id in mapping))
+        if mapping_required and not mapping_valid:
+            reasons.append(f"claim_artifact_mapping_invalid:{claim_id}")
+        if mapping_valid:
+            if len(mapping) != len(set(mapping)):
+                reasons.append(f"claim_artifact_mapping_duplicate:{claim_id}")
+            for case_id in dict.fromkeys(mapping):
+                if case_id not in bench.CANONICAL_CASES_BY_ID:
+                    reasons.append(
+                        f"claim_artifact_mapping_unknown:{claim_id}:{case_id}")
+            expected_mapping = EXPECTED_ARTIFACT_CASE_MAPPINGS.get(claim_id)
+            if expected_mapping is not None and tuple(mapping) != \
+                    expected_mapping:
+                reasons.append(
+                    f"claim_artifact_mapping_semantic_mismatch:{claim_id}")
         expected_direction = EXPECTED_RATIO_DIRECTIONS.get(claim_id)
         if claim.get("ratio_direction") != expected_direction:
             reasons.append(f"claim_ratio_direction_invalid:{claim_id}")
@@ -137,7 +214,12 @@ def validate_performance_claim_registry(registry, manuscript_text=None):
         if evidence in ("different-task", "different-generator") and \
                 claim.get("task_relationship") == "direct-reproduction":
             reasons.append(f"claim_evidence_not_direct:{claim_id}")
-        if evidence not in DIRECT_EVIDENCE_CLASSES and \
+        confirmed_provenance_valid = evidence != "historical-confirmed" or \
+            _confirmed_provenance_valid(claim)
+        if not confirmed_provenance_valid:
+            reasons.append(f"claim_confirmed_provenance_invalid:{claim_id}")
+        if (evidence not in DIRECT_EVIDENCE_CLASSES or
+                not confirmed_provenance_valid) and \
                 claim.get("publication_status") == "publication-ready":
             reasons.append(f"claim_unsupported_evidence_ready:{claim_id}")
         if claim.get("publication_status") not in (
@@ -147,6 +229,18 @@ def validate_performance_claim_registry(registry, manuscript_text=None):
                                                       str) and \
                 claim["text_anchor"] not in manuscript_text:
             reasons.append(f"claim_text_anchor_missing:{claim_id}")
+        if claim_id == "wide_extreme.32x12800":
+            historical = claim.get("historical_observation") or {}
+            candidate = claim.get("candidate_observation") or {}
+            contradiction = (
+                historical.get("dgelsy_over_router") !=
+                candidate.get("dgelsy_over_router"))
+            if contradiction and (claim.get("publication_status") ==
+                                  "publication-ready" or evidence in
+                                  DIRECT_EVIDENCE_CLASSES):
+                reasons.append(
+                    "claim_extreme_wide_contradiction_unresolved:"
+                    "wide_extreme.32x12800")
 
     for claim_id in sorted(REQUIRED_PERFORMANCE_CLAIM_IDS - set(by_id)):
         reasons.append(f"manuscript_claim_unmapped:{claim_id}")
@@ -187,6 +281,94 @@ def evaluate_performance_claims(registry, benchmark_protocol=None,
     }
 
 
+def parse_candidate_csv(path):
+    """Normalize the public CSV representation to schema-v2 JSON values."""
+    from experiments import synthetic_bench as bench
+
+    integer_fields = {"schema_version", "m", "n", "rank", "rank_lo",
+                      "rank_hi"}
+    float_fields = {"berr", "router_s", "baseline_s", "router_mad_s",
+                    "baseline_mad_s", "baseline_over_router",
+                    "historical_ratio_min", "historical_ratio_max"}
+    bool_fields = {"historical_claim_applicable", "numerical_valid"}
+    json_fields = {"historical_claim_scope", "router_timings_s",
+                   "baseline_timings_s", "baseline_diagnostics"}
+    nullable_strings = {"historical_claim"}
+    rows = []
+    reasons = []
+    try:
+        with Path(path).open(newline="") as stream:
+            reader = csv.DictReader(stream)
+            if (not isinstance(reader.fieldnames, list) or
+                    len(reader.fieldnames) != len(set(reader.fieldnames)) or
+                    set(reader.fieldnames) != set(bench.ROW_REQUIRED_FIELDS)):
+                return [], ["candidate_csv_schema_invalid"]
+            for row_number, raw in enumerate(reader, 2):
+                normalized = {}
+                for field in bench.ROW_REQUIRED_FIELDS:
+                    value = raw.get(field)
+                    try:
+                        if field in integer_fields:
+                            normalized[field] = int(value)
+                        elif field in float_fields:
+                            parsed = None if value == "" else float(value)
+                            normalized[field] = (
+                                None if field == "berr" and
+                                isinstance(parsed, float) and
+                                math.isnan(parsed) else parsed)
+                        elif field in bool_fields:
+                            if value not in ("True", "False"):
+                                raise ValueError("invalid boolean")
+                            normalized[field] = value == "True"
+                        elif field in json_fields:
+                            normalized[field] = (None if value == ""
+                                                 else json.loads(value))
+                        elif field in nullable_strings and value == "":
+                            normalized[field] = None
+                        else:
+                            normalized[field] = value
+                    except (TypeError, ValueError, json.JSONDecodeError):
+                        reasons.append(
+                            f"candidate_csv_field_invalid:{row_number}:{field}")
+                rows.append(normalized)
+    except (OSError, UnicodeError, csv.Error):
+        reasons.append("candidate_csv_invalid")
+    return rows, list(dict.fromkeys(reasons))
+
+
+def compare_candidate_rows(csv_rows, metadata_rows):
+    """Compare normalized CSV and metadata rows without raising on damage."""
+    reasons = []
+    if not isinstance(metadata_rows, list):
+        return ["candidate_metadata_results_invalid"]
+    csv_ids = [row.get("case_id") for row in csv_rows]
+    metadata_ids = [row.get("case_id") if isinstance(row, dict) else None
+                    for row in metadata_rows]
+    csv_counts = Counter(csv_ids)
+    metadata_counts = Counter(metadata_ids)
+    if any(count > 1 for count in csv_counts.values()):
+        reasons.append("candidate_csv_case_duplicate")
+    if any(metadata_counts[case_id] > csv_counts[case_id]
+           for case_id in metadata_counts):
+        reasons.append("candidate_csv_row_missing")
+    if any(csv_counts[case_id] > metadata_counts[case_id]
+           for case_id in csv_counts):
+        reasons.append("candidate_csv_row_extra")
+    if csv_counts == metadata_counts and csv_ids != metadata_ids:
+        reasons.append("candidate_csv_order_mismatch")
+
+    csv_by_id = {row.get("case_id"): row for row in csv_rows
+                 if csv_counts[row.get("case_id")] == 1}
+    metadata_by_id = {row.get("case_id"): row for row in metadata_rows
+                      if isinstance(row, dict) and
+                      metadata_counts[row.get("case_id")] == 1}
+    for case_id in metadata_ids:
+        if case_id in csv_by_id and case_id in metadata_by_id and \
+                csv_by_id[case_id] != metadata_by_id[case_id]:
+            reasons.append(f"candidate_csv_metadata_divergence:{case_id}")
+    return list(dict.fromkeys(reasons))
+
+
 def audit_candidate_package(package_root, registry=None):
     """Read-only audit of the immutable PR #34 package."""
     from experiments import synthetic_bench as bench
@@ -206,11 +388,18 @@ def audit_candidate_package(package_root, registry=None):
             integrity_reasons.append(f"artifact_hash_mismatch:{name}")
 
     metadata = None
+    csv_rows = []
+    if paths["csv"].is_file():
+        csv_rows, csv_reasons = parse_candidate_csv(paths["csv"])
+        integrity_reasons.extend(csv_reasons)
     if paths["metadata"].is_file():
         try:
             metadata = json.loads(paths["metadata"].read_text())
         except (OSError, UnicodeError, json.JSONDecodeError):
             integrity_reasons.append("artifact_metadata_invalid")
+    if isinstance(metadata, dict):
+        integrity_reasons.extend(compare_candidate_rows(
+            csv_rows, metadata.get("results")))
     if paths["checksum"].is_file():
         try:
             listed = {}
@@ -303,24 +492,34 @@ def audit_candidate_package(package_root, registry=None):
 
             by_id = {row["case_id"]: row for row in rows}
             extreme = by_id.get("wide_extreme.32x12800", {})
-            expected_extreme = next(
-                claim for claim in registry["claims"]
-                if claim["claim_id"] == "wide_extreme.32x12800")
-            observed = (expected_extreme.get("candidate_observation") or {}) \
-                .get("dgelsy_over_router")
-            if not math.isclose(extreme.get("baseline_over_router", math.nan),
-                                observed, rel_tol=1e-6):
-                protocol_reasons.append("candidate_extreme_wide_value_mismatch")
-            grouped = next(claim for claim in registry["claims"]
-                           if claim["claim_id"] == "grouped.lsmr")
-            expected_grouped = (grouped.get("candidate_observation") or {}) \
-                .get("lsmr_over_router", [])
-            actual_grouped = [by_id[case_id]["baseline_over_router"]
-                              for case_id in grouped["artifact_case_mapping"]]
-            if len(expected_grouped) != len(actual_grouped) or any(
-                    not math.isclose(a, b, rel_tol=1e-6)
-                    for a, b in zip(actual_grouped, expected_grouped)):
-                protocol_reasons.append("candidate_grouped_lsmr_value_mismatch")
+            claims_by_id = {claim.get("claim_id"): claim
+                            for claim in registry.get("claims", [])
+                            if isinstance(claim, dict)}
+            expected_extreme = claims_by_id.get("wide_extreme.32x12800")
+            if expected_extreme is not None:
+                observed = (expected_extreme.get("candidate_observation") or {}) \
+                    .get("dgelsy_over_router")
+                actual = extreme.get("baseline_over_router")
+                if not (isinstance(observed, (int, float)) and
+                        isinstance(actual, (int, float)) and
+                        math.isclose(actual, observed, rel_tol=1e-6)):
+                    protocol_reasons.append(
+                        "candidate_extreme_wide_value_mismatch")
+            grouped = claims_by_id.get("grouped.lsmr")
+            if grouped is not None:
+                expected_grouped = (grouped.get("candidate_observation") or {}) \
+                    .get("lsmr_over_router", [])
+                mapping = grouped.get("artifact_case_mapping")
+                actual_grouped = ([by_id[case_id]["baseline_over_router"]
+                                   for case_id in mapping
+                                   if isinstance(case_id, str) and
+                                   case_id in by_id]
+                                  if isinstance(mapping, list) else [])
+                if len(expected_grouped) != len(actual_grouped) or any(
+                        not math.isclose(a, b, rel_tol=1e-6)
+                        for a, b in zip(actual_grouped, expected_grouped)):
+                    protocol_reasons.append(
+                        "candidate_grouped_lsmr_value_mismatch")
     elif "artifact_metadata_invalid" not in integrity_reasons:
         protocol_reasons.append("candidate_metadata_missing")
 
