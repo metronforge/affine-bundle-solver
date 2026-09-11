@@ -772,6 +772,48 @@ extern void dgetrf_(int*,int*,double*,int*,int*,int*);
 extern void dgetrs_(char*,int*,int*,double*,int*,int*,double*,int*,int*);
 extern void dgecon_(char*,int*,double*,int*,double*,double*,double*,int*,int*);
 
+/* Pack a row-major square source subset into the column-major layout expected
+   by LAPACK while applying the already-computed row normalization.  For
+   n >= 192, eight adjacent source columns are kept together: this preserves
+   the exact per-column operation order of the scalar loop but avoids reading
+   the source at an n-double stride.  row_index is NULL for the leading square
+   block and supplies source row indices for a sampled block. */
+static double pack_scaled_square_lapack(double *dst,const double *src,
+                                         const double *row_norm,
+                                         const int *row_index,int n){
+    double anorm=0.0;
+    if(n<192){
+        for(int j=0;j<n;j++){
+            double cs=0.0;
+            for(int i=0;i<n;i++){
+                int ix=row_index?row_index[i]:i;
+                double v=src[(size_t)ix*n+j]/row_norm[i];
+                dst[i+(size_t)j*n]=v;
+                cs+=fabs(v);
+            }
+            if(cs>anorm)anorm=cs;
+        }
+        return anorm;
+    }
+    enum { TILE=8 };
+    for(int jb=0;jb<n;jb+=TILE){
+        int width=n-jb<TILE?n-jb:TILE;
+        double cs[TILE]={0.0};
+        for(int i=0;i<n;i++){
+            int ix=row_index?row_index[i]:i;
+            const double *row=src+(size_t)ix*n;
+            for(int q=0;q<width;q++){
+                int j=jb+q;
+                double v=row[j]/row_norm[i];
+                dst[i+(size_t)j*n]=v;
+                cs[q]+=fabs(v);
+            }
+        }
+        for(int q=0;q<width;q++)if(cs[q]>anorm)anorm=cs[q];
+    }
+    return anorm;
+}
+
 
 /* Meta-logic repair: status and solution quality are separate claims.
    A full-rank witness may establish UNIQUE while its anchor is not accurate enough.
@@ -785,12 +827,7 @@ static int try_square_lu_unique(const double*A,const double*b,const double*xt,in
     double *rhs=malloc((size_t)n*sizeof(double)); int *ipiv=malloc((size_t)n*sizeof(int)); double *rn=malloc((size_t)n*sizeof(double));
     if(!Ac||!rhs||!ipiv||!rn){free(Ac);free(rhs);free(ipiv);free(rn);return -1;}
     for(int i=0;i<n;i++){rn[i]=norm2(A+(size_t)i*n,n);if(rn[i]==0){free(Ac);free(rhs);free(ipiv);free(rn);return 0;}rhs[i]=b[i]/rn[i];}
-    double anorm=0.0;
-    for(int j=0;j<n;j++){
-        double cs=0.0;
-        for(int i=0;i<n;i++){double v=A[(size_t)i*n+j]/rn[i]; Ac[i+(size_t)j*n]=v; cs+=fabs(v);}
-        if(cs>anorm)anorm=cs;
-    }
+    double anorm=pack_scaled_square_lapack(Ac,A,rn,NULL,n);
     dgetrf_(&N,&N,Ac,&LDA,ipiv,&info); if(info!=0){free(Ac);free(rhs);free(ipiv);free(rn);return 0;}
     char one='1'; double rcond=0.0; double *work=malloc((size_t)4*n*sizeof(double)); int *iwork=malloc((size_t)n*sizeof(int));
     if(!work||!iwork){free(Ac);free(rhs);free(ipiv);free(rn);free(work);free(iwork);return -1;}
@@ -828,8 +865,7 @@ static int try_sampled_source_fullrank(const double*A,const double*b,const doubl
     int *idxs=malloc((size_t)n*sizeof(int));
     if(!idxs){free(Ac);free(rhs);free(rn);free(ipiv);return -1;}
     for(int i=0;i<n;i++){long long base=((long long)i*m)/n;int ix=(int)((base+off)%m);idxs[i]=ix;rn[i]=norm2(A+(size_t)ix*n,n);if(rn[i]==0.0){free(Ac);free(rhs);free(rn);free(ipiv);free(idxs);return 0;}rhs[i]=b[ix]/rn[i];}
-    double anorm=0.0;
-    for(int j=0;j<n;j++){double cs=0.0;for(int i=0;i<n;i++){int ix=idxs[i];double v=A[(size_t)ix*n+j]/rn[i];Ac[i+(size_t)j*n]=v;cs+=fabs(v);}if(cs>anorm)anorm=cs;}
+    double anorm=pack_scaled_square_lapack(Ac,A,rn,idxs,n);
     dgetrf_(&N,&N,Ac,&LDA,ipiv,&info);if(info){free(Ac);free(rhs);free(rn);free(ipiv);free(idxs);return 0;}
     char one='1';double rcond=0.0;double *work=malloc((size_t)4*n*sizeof(double));int *iwork=malloc((size_t)n*sizeof(int));
     if(!work||!iwork){free(Ac);free(rhs);free(rn);free(ipiv);free(idxs);free(work);free(iwork);return -1;}
