@@ -33,7 +33,7 @@ import math
 import subprocess
 import sys
 from collections import Counter
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
@@ -56,7 +56,9 @@ REQUIRED_PERFORMANCE_CLAIM_IDS = frozenset((
     "limitations.square_underdetermined", "scope.tall_directional",
     "applications.radio_timings", "applications.harmonic_timings",
     "applications.lens_timings",
-    "methodology.quantitative_results_freshness"))
+    "parallel.bundle_tree_late_growth",
+    "methodology.quantitative_results_freshness",
+    "methodology.json_environment_raw_outputs"))
 EXPECTED_RATIO_DIRECTIONS = {
     "audit.certified_call_overhead": "strengthened_audit_over_preceding_audit",
     "standard.sequential_reference": "sequential_reference_over_router",
@@ -75,7 +77,9 @@ EXPECTED_RATIO_DIRECTIONS = {
     "applications.radio_timings": "dgelsy_over_router",
     "applications.harmonic_timings": "baseline_over_router",
     "applications.lens_timings": "baseline_over_router",
+    "parallel.bundle_tree_late_growth": "tree_over_sequential_bundle",
     "methodology.quantitative_results_freshness": "not_a_timing_ratio",
+    "methodology.json_environment_raw_outputs": "not_a_timing_ratio",
 }
 EXPECTED_ARTIFACT_CASE_MAPPINGS = {
     "transition.rank_gate": (
@@ -117,25 +121,76 @@ def _valid_hex(value, length):
             all(character in "0123456789abcdefABCDEF" for character in value))
 
 
+def _safe_git_path(value):
+    if not isinstance(value, str) or not value or "\\" in value or \
+            ":" in value:
+        return None
+    path = PurePosixPath(value)
+    if path.is_absolute() or any(part in ("", ".", "..")
+                                 for part in path.parts):
+        return None
+    return str(path)
+
+
+def _git_output(*arguments):
+    try:
+        completed = subprocess.run(
+            ["git", *arguments], cwd=ROOT, stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL, check=False)
+    except OSError:
+        return None
+    return completed.stdout if completed.returncode == 0 else None
+
+
+def _git_commit_tree(commit):
+    if not _valid_hex(commit, 40) or \
+            _git_output("cat-file", "-e", f"{commit}^{{commit}}") is None:
+        return None
+    output = _git_output("rev-parse", f"{commit}^{{tree}}")
+    return output.decode().strip() if output is not None else None
+
+
+def _git_blob(commit, path):
+    if _git_commit_tree(commit) is None or _safe_git_path(path) is None:
+        return None
+    return _git_output("show", f"{commit}:{path}")
+
+
 def _confirmed_provenance_valid(claim):
     provenance = claim.get("historical_provenance")
     if not isinstance(provenance, dict):
         return False
-    artifact_path = provenance.get("artifact_path")
-    if not isinstance(artifact_path, str) or not artifact_path or \
-            Path(artifact_path).is_absolute():
+    source_sha = provenance.get("source_git_sha")
+    source_tree = provenance.get("source_git_tree_sha")
+    artifact_sha = provenance.get("artifact_git_sha")
+    artifact_path = _safe_git_path(provenance.get("artifact_path"))
+    build_sha = provenance.get("build_record_git_sha")
+    build_path = _safe_git_path(provenance.get("build_record_path"))
+    if _git_commit_tree(source_sha) != source_tree:
         return False
     try:
-        path = (ROOT / artifact_path).resolve()
-        path.relative_to(ROOT.resolve())
-    except (OSError, ValueError):
+        artifact_blob = _git_blob(artifact_sha, artifact_path)
+        build_blob = _git_blob(build_sha, build_path)
+        build_record = json.loads(build_blob) if build_blob is not None \
+            else None
+    except (TypeError, UnicodeDecodeError, json.JSONDecodeError):
         return False
-    return (path.is_file() and
-            _valid_hex(provenance.get("artifact_sha256"), 64) and
-            _sha256(path) == provenance["artifact_sha256"] and
-            _valid_hex(provenance.get("source_git_sha"), 40) and
-            _valid_hex(provenance.get("source_git_tree_sha"), 40) and
-            _valid_hex(provenance.get("build_identity_sha256"), 64))
+    return (
+        artifact_blob is not None and build_blob is not None and
+        isinstance(build_record, dict) and
+        isinstance(build_record.get("source"), dict) and
+        (build_record["source"].get("git_sha"),
+         build_record["source"].get("git_tree_sha"),
+         build_record["source"].get("git_dirty")) ==
+        (source_sha, source_tree, False) and
+        provenance.get("build_record_kind") in
+        ("build-manifest", "run-record") and
+        _valid_hex(provenance.get("artifact_sha256"), 64) and
+        hashlib.sha256(artifact_blob).hexdigest() ==
+        provenance["artifact_sha256"] and
+        _valid_hex(provenance.get("build_record_sha256"), 64) and
+        hashlib.sha256(build_blob).hexdigest() ==
+        provenance["build_record_sha256"])
 
 
 def load_performance_claim_registry(path=PERFORMANCE_CLAIM_REGISTRY):
@@ -263,7 +318,10 @@ def evaluate_performance_claims(registry, benchmark_protocol=None,
     coverage_reasons = validate_performance_claim_registry(
         registry, manuscript_text=manuscript_text)
     blockers = []
-    for claim in registry.get("claims", []):
+    claims = registry.get("claims", []) if isinstance(registry, dict) else []
+    if not isinstance(claims, list):
+        claims = []
+    for claim in claims:
         if not isinstance(claim, dict) or not claim.get("claim_id"):
             continue
         if claim.get("publication_status") != "publication-ready" or \
@@ -339,11 +397,29 @@ def parse_candidate_csv(path):
 def compare_candidate_rows(csv_rows, metadata_rows):
     """Compare normalized CSV and metadata rows without raising on damage."""
     reasons = []
+    if not isinstance(csv_rows, list):
+        return ["candidate_csv_rows_invalid"]
     if not isinstance(metadata_rows, list):
         return ["candidate_metadata_results_invalid"]
-    csv_ids = [row.get("case_id") for row in csv_rows]
-    metadata_ids = [row.get("case_id") if isinstance(row, dict) else None
-                    for row in metadata_rows]
+
+    def valid_rows(rows, label):
+        normalized = []
+        for index, row in enumerate(rows):
+            if not isinstance(row, dict):
+                reasons.append(f"candidate_{label}_row_invalid:{index}")
+                continue
+            case_id = row.get("case_id")
+            if not isinstance(case_id, str) or not case_id:
+                reasons.append(
+                    f"candidate_{label}_case_id_invalid:{index}")
+                continue
+            normalized.append((case_id, row))
+        return normalized
+
+    valid_csv = valid_rows(csv_rows, "csv")
+    valid_metadata = valid_rows(metadata_rows, "metadata")
+    csv_ids = [case_id for case_id, _ in valid_csv]
+    metadata_ids = [case_id for case_id, _ in valid_metadata]
     csv_counts = Counter(csv_ids)
     metadata_counts = Counter(metadata_ids)
     if any(count > 1 for count in csv_counts.values()):
@@ -357,11 +433,10 @@ def compare_candidate_rows(csv_rows, metadata_rows):
     if csv_counts == metadata_counts and csv_ids != metadata_ids:
         reasons.append("candidate_csv_order_mismatch")
 
-    csv_by_id = {row.get("case_id"): row for row in csv_rows
-                 if csv_counts[row.get("case_id")] == 1}
-    metadata_by_id = {row.get("case_id"): row for row in metadata_rows
-                      if isinstance(row, dict) and
-                      metadata_counts[row.get("case_id")] == 1}
+    csv_by_id = {case_id: row for case_id, row in valid_csv
+                 if csv_counts[case_id] == 1}
+    metadata_by_id = {case_id: row for case_id, row in valid_metadata
+                      if metadata_counts[case_id] == 1}
     for case_id in metadata_ids:
         if case_id in csv_by_id and case_id in metadata_by_id and \
                 csv_by_id[case_id] != metadata_by_id[case_id]:
@@ -373,18 +448,37 @@ def audit_candidate_package(package_root, registry=None):
     """Read-only audit of the immutable PR #34 package."""
     from experiments import synthetic_bench as bench
 
-    registry = registry or load_performance_claim_registry()
+    if registry is None:
+        registry = load_performance_claim_registry()
     package_root = Path(package_root)
-    artifact = registry.get("candidate_artifact") or {}
     integrity_reasons = []
+    registry_dict = registry if isinstance(registry, dict) else {}
+    artifact = registry_dict.get("candidate_artifact")
+    if not isinstance(artifact, dict):
+        integrity_reasons.append("artifact_registry_invalid")
+        artifact = {}
     paths = {}
+    records = {}
     for name in ("csv", "metadata", "checksum"):
-        record = artifact.get(name) or {}
-        path = package_root / str(record.get("path", ""))
+        record = artifact.get(name)
+        if not isinstance(record, dict):
+            integrity_reasons.append(
+                f"artifact_registry_record_invalid:{name}")
+            record = {}
+        records[name] = record
+        relative_path = _safe_git_path(record.get("path"))
+        if relative_path is None:
+            integrity_reasons.append(f"artifact_registry_path_invalid:{name}")
+            path = package_root / f".invalid-{name}"
+        else:
+            path = package_root / relative_path
         paths[name] = path
+        expected_hash = record.get("sha256")
+        if not _valid_hex(expected_hash, 64):
+            integrity_reasons.append(f"artifact_registry_hash_invalid:{name}")
         if not path.is_file():
             integrity_reasons.append(f"artifact_missing:{name}")
-        elif _sha256(path) != record.get("sha256"):
+        elif _sha256(path) != expected_hash:
             integrity_reasons.append(f"artifact_hash_mismatch:{name}")
 
     metadata = None
@@ -408,7 +502,7 @@ def audit_candidate_package(package_root, registry=None):
                 listed[filename.lstrip("* ")] = digest
             for name in ("csv", "metadata"):
                 expected_name = paths[name].name
-                if listed.get(expected_name) != (artifact[name]["sha256"]):
+                if listed.get(expected_name) != records[name].get("sha256"):
                     integrity_reasons.append(
                         f"artifact_checksum_entry_mismatch:{name}")
         except (OSError, UnicodeError, ValueError):
@@ -416,10 +510,20 @@ def audit_candidate_package(package_root, registry=None):
 
     protocol_reasons = []
     if isinstance(metadata, dict):
-        source = metadata.get("source") or {}
-        benchmark = metadata.get("benchmark") or {}
-        build = metadata.get("build_provenance") or {}
-        stored = metadata.get("publication_eligibility") or {}
+        def metadata_dict(name, reason):
+            value = metadata.get(name)
+            if not isinstance(value, dict):
+                protocol_reasons.append(reason)
+                return {}
+            return value
+
+        source = metadata_dict("source", "candidate_source_invalid")
+        benchmark = metadata_dict("benchmark", "candidate_benchmark_invalid")
+        build = metadata_dict(
+            "build_provenance", "candidate_build_provenance_invalid")
+        stored = metadata_dict(
+            "publication_eligibility",
+            "candidate_stored_protocol_invalid")
         rows = metadata.get("results")
         if source.get("git_sha") != artifact.get("source_sha"):
             protocol_reasons.append("candidate_source_sha_mismatch")
@@ -436,37 +540,68 @@ def audit_candidate_package(package_root, registry=None):
                     f"candidate_benchmark_configuration_mismatch:{field}")
         if not build.get("verified") or build.get("reasons"):
             protocol_reasons.append("candidate_build_provenance_unverified")
-        manifest = build.get("manifest") or {}
-        manifest_source = manifest.get("source") or {}
+        manifest = build.get("manifest")
+        if not isinstance(manifest, dict):
+            protocol_reasons.append("candidate_build_manifest_invalid")
+            manifest = {}
+        manifest_source = manifest.get("source")
+        if not isinstance(manifest_source, dict):
+            protocol_reasons.append("candidate_build_source_invalid")
+            manifest_source = {}
         if (manifest_source.get("git_sha"),
                 manifest_source.get("git_tree_sha"),
                 manifest_source.get("git_dirty")) != (
                     artifact.get("source_sha"), artifact.get("source_tree"),
                     False):
             protocol_reasons.append("candidate_build_source_mismatch")
-        manifest_router = ((manifest.get("router") or {}).get("library") or {})
+        manifest_router_record = manifest.get("router")
+        if not isinstance(manifest_router_record, dict):
+            manifest_router_record = {}
+        manifest_router = manifest_router_record.get("library")
+        if not isinstance(manifest_router, dict):
+            protocol_reasons.append("candidate_router_record_invalid")
+            manifest_router = {}
         if not manifest_router.get("sha256") or \
                 manifest_router.get("sha256") != build.get("router_sha256"):
             protocol_reasons.append("candidate_router_identity_mismatch")
-        thread_control = metadata.get("thread_control") or {}
+        thread_control = metadata_dict(
+            "thread_control", "candidate_thread_control_invalid")
         for name in bench.REQUIRED_THREAD_CONTROLS:
             if thread_control.get(name) != "1":
                 protocol_reasons.append(
                     f"candidate_thread_control_not_one:{name}")
-        blas_pools = [pool for pool in
-                      ((metadata.get("linear_algebra") or {}).get(
-                          "threadpools") or [])
-                      if pool.get("user_api") == "blas"]
+        linear_algebra = metadata_dict(
+            "linear_algebra", "candidate_linear_algebra_invalid")
+        raw_blas_pools = linear_algebra.get("threadpools")
+        if not isinstance(raw_blas_pools, list):
+            protocol_reasons.append("candidate_blas_pools_invalid")
+            raw_blas_pools = []
+        blas_pools = []
+        for index, pool in enumerate(raw_blas_pools):
+            if not isinstance(pool, dict):
+                protocol_reasons.append(
+                    f"candidate_blas_pool_invalid:{index}")
+            elif pool.get("user_api") == "blas":
+                blas_pools.append(pool)
+                if not isinstance(pool.get("sha256"), str) or \
+                        not isinstance(pool.get("num_threads"), int):
+                    protocol_reasons.append(
+                        f"candidate_blas_pool_invalid:{index}")
         if not blas_pools:
             protocol_reasons.append("candidate_blas_provider_missing")
         elif any(pool.get("num_threads") != 1 for pool in blas_pools):
             protocol_reasons.append("candidate_blas_pool_not_single_thread")
-        linked_blas = (manifest.get("openblas") or {}).get("sha256")
-        runtime_blas = {pool.get("sha256") for pool in blas_pools}
-        if not linked_blas or linked_blas not in runtime_blas:
+        openblas = manifest.get("openblas")
+        if not isinstance(openblas, dict):
+            openblas = {}
+        linked_blas = openblas.get("sha256")
+        runtime_blas = {pool.get("sha256") for pool in blas_pools
+                        if isinstance(pool.get("sha256"), str)}
+        if not isinstance(linked_blas, str) or \
+                linked_blas not in runtime_blas:
             protocol_reasons.append("candidate_runtime_blas_identity_mismatch")
-        machine = metadata.get("machine") or {}
-        software = metadata.get("software") or {}
+        machine = metadata_dict("machine", "candidate_machine_invalid")
+        software = metadata_dict("software", "candidate_software_invalid")
         if any(machine.get(key) in (None, "") for key in
                ("cpu_model", "physical_cores", "logical_cores", "ram_bytes",
                 "os", "kernel", "reference_name")):
@@ -479,21 +614,33 @@ def audit_candidate_package(package_root, registry=None):
         if not isinstance(rows, list) or len(rows) != len(
                 bench.CANONICAL_REFERENCE_SIGNATURE):
             protocol_reasons.append("candidate_case_set_incomplete")
-        else:
+        if isinstance(rows, list):
+            valid_rows = []
+            for index, row in enumerate(rows):
+                if not isinstance(row, dict):
+                    continue
+                if not isinstance(row.get("case_id"), str) or not \
+                        row.get("case_id"):
+                    continue
+                valid_rows.append(row)
             actual = tuple((row.get("case_id"), row.get("m"), row.get("n"),
-                            row.get("baseline_kind")) for row in rows)
+                            row.get("baseline_kind")) for row in valid_rows)
             if actual != bench.CANONICAL_REFERENCE_SIGNATURE:
                 protocol_reasons.append("candidate_case_signature_mismatch")
-            for row in rows:
-                for reason in bench.validate_schema_v2_row(
-                        row, benchmark.get("repeats", 0)):
+            for index, row in enumerate(valid_rows):
+                try:
+                    row_reasons = bench.validate_schema_v2_row(
+                        row, benchmark.get("repeats", 0))
+                except Exception:
+                    row_reasons = [f"candidate_row_validation_error:{index}"]
+                for reason in row_reasons:
                     if reason not in protocol_reasons:
                         protocol_reasons.append(reason)
 
-            by_id = {row["case_id"]: row for row in rows}
+            by_id = {row["case_id"]: row for row in valid_rows}
             extreme = by_id.get("wide_extreme.32x12800", {})
             claims_by_id = {claim.get("claim_id"): claim
-                            for claim in registry.get("claims", [])
+                            for claim in registry_dict.get("claims", [])
                             if isinstance(claim, dict)}
             expected_extreme = claims_by_id.get("wide_extreme.32x12800")
             if expected_extreme is not None:

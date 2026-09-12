@@ -317,6 +317,23 @@
       "publication_status": "publication-blocker"
     },
     {
+      "claim_id": "parallel.bundle_tree_late_growth",
+      "manuscript_anchor": "paper.tex:726",
+      "text_anchor": "On some late-growth cases the tree was several times slower than the sequential bundle route",
+      "numerator": "naive affine-bundle tree wall time",
+      "denominator": "sequential bundle route wall time",
+      "ratio_direction": "tree_over_sequential_bundle",
+      "dimensions_case_identity": ["unspecified late-growth development cases"],
+      "baseline_driver": "sequential bundle route",
+      "generator_dataset": "unidentified development benchmark",
+      "task_relationship": "historical-development-comparison",
+      "evidence_class": "historical-unconfirmed",
+      "artifact_case_mapping": null,
+      "historical_source_identity": "no immutable artifact, source/build identity, or machine protocol is recorded",
+      "machine_protocol_scope": {"machine": "unknown historical machine", "protocol": "unknown development protocol"},
+      "publication_status": "publication-blocker"
+    },
+    {
       "claim_id": "methodology.quantitative_results_freshness",
       "manuscript_anchor": "paper.tex:738,743",
       "text_anchor": "All quantitative results in this section were regenerated",
@@ -331,6 +348,23 @@
       "artifact_case_mapping": null,
       "historical_source_identity": "manuscript asserts regeneration but no single immutable provenance contract covers all cited outputs",
       "machine_protocol_scope": {"machine": "paper reference environment", "protocol": "mixed manuscript protocols"},
+      "publication_status": "publication-blocker"
+    },
+    {
+      "claim_id": "methodology.json_environment_raw_outputs",
+      "manuscript_anchor": "paper.tex:743",
+      "text_anchor": "The JSON result files contain the exact environment and raw per-case outputs",
+      "numerator": "JSON result packages containing exact environment and raw per-case outputs",
+      "denominator": "all JSON result packages referenced by the quantitative manuscript claims",
+      "ratio_direction": "not_a_timing_ratio",
+      "dimensions_case_identity": ["all manuscript-referenced JSON result packages"],
+      "baseline_driver": "multiple manuscript baselines",
+      "generator_dataset": "multiple manuscript generators and stored JSON outputs",
+      "task_relationship": "outside-candidate",
+      "evidence_class": "historical-unconfirmed",
+      "artifact_case_mapping": null,
+      "historical_source_identity": "not every referenced JSON package has been checked for exact environment and raw per-case outputs",
+      "machine_protocol_scope": {"machine": "mixed and incompletely verified", "protocol": "per-result provenance audit required"},
       "publication_status": "publication-blocker"
     }
   ]

@@ -998,6 +998,43 @@ class ManuscriptClaimCoverageTests(unittest.TestCase):
             digest(checksum_path)
         return metadata
 
+    def rewrite_candidate_metadata(self, root, registry, metadata):
+        results = Path(root) / "results"
+        csv_path = results / "synthetic-reference.csv"
+        metadata_path = results / "synthetic-reference.metadata.json"
+        checksum_path = results / "synthetic-reference.sha256"
+        metadata_path.write_text(json.dumps(metadata, allow_nan=False))
+        registry["candidate_artifact"]["metadata"]["sha256"] = \
+            digest(metadata_path)
+        checksum_path.write_text(
+            f"{digest(csv_path)}  {csv_path.name}\n"
+            f"{digest(metadata_path)}  {metadata_path.name}\n")
+        registry["candidate_artifact"]["checksum"]["sha256"] = \
+            digest(checksum_path)
+
+    def historical_provenance_fixture(self):
+        source_sha = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+        source_tree = subprocess.check_output(
+            ["git", "rev-parse", "HEAD^{tree}"], cwd=ROOT,
+            text=True).strip()
+        build_path = "results/numerical_final_suite.json"
+        build_bytes = subprocess.check_output(
+            ["git", "show", f"{source_sha}:{build_path}"], cwd=ROOT)
+        artifact_path = "paper.tex"
+        return {
+            "artifact_path": artifact_path,
+            "artifact_sha256": digest(ROOT / artifact_path),
+            "source_git_sha": source_sha,
+            "source_git_tree_sha": source_tree,
+            "artifact_git_sha": source_sha,
+            "build_identity_sha256": hashlib.sha256(build_bytes).hexdigest(),
+            "build_record_git_sha": source_sha,
+            "build_record_kind": "run-record",
+            "build_record_path": build_path,
+            "build_record_sha256": hashlib.sha256(build_bytes).hexdigest(),
+        }
+
     def test_unmapped_manuscript_claim_is_fail_closed(self):
         registry = self.registry()
         registry["claims"] = registry["claims"][1:]
@@ -1097,7 +1134,9 @@ class ManuscriptClaimCoverageTests(unittest.TestCase):
             "manuscript_blocker:applications.radio_timings",
             "manuscript_blocker:applications.harmonic_timings",
             "manuscript_blocker:applications.lens_timings",
+            "manuscript_blocker:parallel.bundle_tree_late_growth",
             "manuscript_blocker:methodology.quantitative_results_freshness",
+            "manuscript_blocker:methodology.json_environment_raw_outputs",
         }
         self.assertEqual(set(verdicts[
             "manuscript_publication_readiness"]["reasons"]), expected)
@@ -1166,6 +1205,189 @@ class ManuscriptClaimCoverageTests(unittest.TestCase):
 
         self.assertIn(f"manuscript_claim_unmapped:{claim_id}",
                       self.validate(registry))
+
+    def test_tree_route_performance_claim_is_mandatory(self):
+        claim_id = "parallel.bundle_tree_late_growth"
+
+        self.assertIn(claim_id, paper_claims.REQUIRED_PERFORMANCE_CLAIM_IDS)
+
+    def test_json_environment_and_raw_outputs_claim_is_mandatory(self):
+        claim_id = "methodology.json_environment_raw_outputs"
+
+        self.assertIn(claim_id, paper_claims.REQUIRED_PERFORMANCE_CLAIM_IDS)
+
+    def test_formatted_but_fabricated_git_provenance_is_rejected(self):
+        registry = self.registry()
+        claim = next(item for item in registry["claims"]
+                     if item["claim_id"] == "grouped.dgelsy")
+        claim.update(evidence_class="historical-confirmed",
+                     publication_status="publication-ready")
+        provenance = self.historical_provenance_fixture()
+        provenance.update(source_git_sha="f" * 40,
+                          source_git_tree_sha="e" * 40,
+                          artifact_git_sha="d" * 40,
+                          build_record_git_sha="c" * 40,
+                          build_record_sha256="b" * 64)
+        claim["historical_provenance"] = provenance
+
+        self.assertIn("claim_confirmed_provenance_invalid:grouped.dgelsy",
+                      self.validate(registry))
+
+    def test_nonexistent_source_commit_is_rejected(self):
+        registry = self.registry()
+        claim = next(item for item in registry["claims"]
+                     if item["claim_id"] == "grouped.dgelsy")
+        claim.update(evidence_class="historical-confirmed",
+                     publication_status="publication-ready")
+        provenance = self.historical_provenance_fixture()
+        provenance["source_git_sha"] = "0" * 40
+        claim["historical_provenance"] = provenance
+
+        self.assertIn("claim_confirmed_provenance_invalid:grouped.dgelsy",
+                      self.validate(registry))
+
+    def test_real_commit_with_mismatched_tree_is_rejected(self):
+        registry = self.registry()
+        claim = next(item for item in registry["claims"]
+                     if item["claim_id"] == "grouped.dgelsy")
+        claim.update(evidence_class="historical-confirmed",
+                     publication_status="publication-ready")
+        provenance = self.historical_provenance_fixture()
+        other_tree = subprocess.check_output(
+            ["git", "rev-parse", "HEAD:tests"], cwd=ROOT,
+            text=True).strip()
+        self.assertNotEqual(provenance["source_git_tree_sha"], other_tree)
+        provenance["source_git_tree_sha"] = other_tree
+        claim["historical_provenance"] = provenance
+
+        self.assertIn("claim_confirmed_provenance_invalid:grouped.dgelsy",
+                      self.validate(registry))
+
+    def test_artifact_hash_must_exist_at_recorded_commit_and_path(self):
+        registry = self.registry()
+        claim = next(item for item in registry["claims"]
+                     if item["claim_id"] == "grouped.dgelsy")
+        claim.update(evidence_class="historical-confirmed",
+                     publication_status="publication-ready")
+        provenance = self.historical_provenance_fixture()
+        provenance["artifact_sha256"] = "0" * 64
+        claim["historical_provenance"] = provenance
+
+        self.assertIn("claim_confirmed_provenance_invalid:grouped.dgelsy",
+                      self.validate(registry))
+
+    def test_hash_verified_record_without_source_identity_is_rejected(self):
+        registry = self.registry()
+        claim = next(item for item in registry["claims"]
+                     if item["claim_id"] == "grouped.dgelsy")
+        claim.update(evidence_class="historical-confirmed",
+                     publication_status="publication-ready")
+        claim["historical_provenance"] = self.historical_provenance_fixture()
+
+        self.assertIn("claim_confirmed_provenance_invalid:grouped.dgelsy",
+                      self.validate(registry))
+
+    def test_malformed_candidate_rows_return_blockers(self):
+        variants = (None, [], "not-a-row")
+        for invalid_row in variants:
+            with self.subTest(row=invalid_row), \
+                    tempfile.TemporaryDirectory() as directory:
+                registry = self.registry()
+                metadata = self.write_candidate_package(directory, registry)
+                metadata["results"][0] = invalid_row
+                self.rewrite_candidate_metadata(directory, registry, metadata)
+
+                try:
+                    verdicts = paper_claims.audit_candidate_package(
+                        directory, registry)
+                except Exception as error:
+                    self.fail(f"malformed row raised: {error}")
+                self.assertIn("candidate_metadata_row_invalid:0",
+                              verdicts["artifact_integrity"]["reasons"])
+
+    def test_unhashable_case_id_returns_a_blocker(self):
+        with tempfile.TemporaryDirectory() as directory:
+            registry = self.registry()
+            metadata = self.write_candidate_package(directory, registry)
+            metadata["results"][0]["case_id"] = ["unhashable"]
+            self.rewrite_candidate_metadata(directory, registry, metadata)
+
+            try:
+                verdicts = paper_claims.audit_candidate_package(
+                    directory, registry)
+            except Exception as error:
+                self.fail(f"unhashable case_id raised: {error}")
+            self.assertIn("candidate_metadata_case_id_invalid:0",
+                          verdicts["artifact_integrity"]["reasons"])
+
+    def test_malformed_blas_pool_returns_a_blocker(self):
+        with tempfile.TemporaryDirectory() as directory:
+            registry = self.registry()
+            metadata = self.write_candidate_package(directory, registry)
+            metadata["linear_algebra"]["threadpools"] = [None, [], "pool"]
+            metadata["build_provenance"]["manifest"]["openblas"][
+                "sha256"] = ["unhashable"]
+            self.rewrite_candidate_metadata(directory, registry, metadata)
+
+            try:
+                verdicts = paper_claims.audit_candidate_package(
+                    directory, registry)
+            except Exception as error:
+                self.fail(f"malformed BLAS pool raised: {error}")
+            for index in range(3):
+                self.assertIn(f"candidate_blas_pool_invalid:{index}",
+                              verdicts[
+                                  "benchmark_protocol_eligibility"]["reasons"])
+
+    def test_malformed_artifact_registry_record_returns_blockers(self):
+        with tempfile.TemporaryDirectory() as directory:
+            registry = self.registry()
+            self.write_candidate_package(directory, registry)
+            registry["candidate_artifact"]["checksum"] = ["invalid"]
+
+            try:
+                verdicts = paper_claims.audit_candidate_package(
+                    directory, registry)
+            except Exception as error:
+                self.fail(f"malformed artifact record raised: {error}")
+            self.assertIn("artifact_registry_record_invalid:checksum",
+                          verdicts["artifact_integrity"]["reasons"])
+
+    def test_malformed_candidate_faults_are_aggregated(self):
+        with tempfile.TemporaryDirectory() as directory:
+            registry = self.registry()
+            metadata = self.write_candidate_package(directory, registry)
+            metadata["results"][0] = None
+            metadata["results"][1]["case_id"] = ["unhashable"]
+            metadata["linear_algebra"]["threadpools"] = [None]
+            self.rewrite_candidate_metadata(directory, registry, metadata)
+            registry["candidate_artifact"]["checksum"] = "invalid"
+            confirmed = next(item for item in registry["claims"]
+                             if item["claim_id"] == "grouped.dgelsy")
+            confirmed.update(evidence_class="historical-confirmed",
+                             publication_status="publication-ready")
+            confirmed["historical_provenance"] = \
+                self.historical_provenance_fixture()
+            confirmed["historical_provenance"]["source_git_sha"] = "0" * 40
+
+            try:
+                verdicts = paper_claims.audit_candidate_package(
+                    directory, registry)
+            except Exception as error:
+                self.fail(f"fault aggregation raised: {error}")
+
+            self.assertIn("artifact_registry_record_invalid:checksum",
+                          verdicts["artifact_integrity"]["reasons"])
+            self.assertIn("candidate_metadata_row_invalid:0",
+                          verdicts["artifact_integrity"]["reasons"])
+            self.assertIn("candidate_metadata_case_id_invalid:1",
+                          verdicts["artifact_integrity"]["reasons"])
+            self.assertIn("candidate_blas_pool_invalid:0",
+                          verdicts[
+                              "benchmark_protocol_eligibility"]["reasons"])
+            self.assertIn(
+                "claim_confirmed_provenance_invalid:grouped.dgelsy",
+                verdicts["manuscript_claim_coverage"]["reasons"])
 
     def test_extreme_wide_contradiction_cannot_be_reclassified_ready(self):
         registry = self.registry()
@@ -1237,7 +1459,9 @@ class ManuscriptClaimCoverageTests(unittest.TestCase):
                 "--check-performance-inventory",
                 "ed240df3cc0bd644996f475a6d0e77d95eb6c568",
                 "--audit-performance-artifacts /tmp/pr34-candidate",
-                "--require-publication-ready"):
+                "--require-publication-ready",
+                "manuscript_blocker:parallel.bundle_tree_late_growth",
+                "manuscript_blocker:methodology.json_environment_raw_outputs"):
             self.assertIn(required, workflow)
 
     def test_inventory_cli_runs_without_pythonpath(self):
