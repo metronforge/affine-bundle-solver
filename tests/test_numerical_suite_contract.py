@@ -757,7 +757,8 @@ class RegistryAuditAndCiTests(ContractTestCase):
         for required in ("matrix.cc == 'gcc' && matrix.arch_label == 'portable'",
                          "requirements-numerical-suite.txt",
                          "tests/test_numerical_suite_contract.py",
-                         "--check-performance-inventory", "-m py_compile"):
+                         "--check-performance-inventory", "-m py_compile",
+                         "line.strip().split('==', 1)"):
             self.assertIn(required, step)
         for forbidden in ("rerun_numerical_suite.py --", "build.sh",
                           "synthetic_bench.py", "pbt_", "upload-artifact"):
