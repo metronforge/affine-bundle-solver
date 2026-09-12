@@ -906,16 +906,59 @@ class CanonicalNumericalSemanticsTests(unittest.TestCase):
 
 
 class PublicationFirstClaimTests(unittest.TestCase):
-    def test_removed_claim_does_not_remain_an_artificial_blocker(self):
-        registry = paper_claims.load_performance_claim_registry()
+    def test_required_manuscript_claim_cannot_be_deleted_silently(self):
+        registry = copy.deepcopy(
+            paper_claims.load_performance_claim_registry())
         registry["claims"] = [
             claim for claim in registry["claims"]
-            if claim["claim_id"] != "audit.certified_call_overhead"]
+            if claim["claim_id"] != "grouped.dgelsy"]
 
-        reasons = paper_claims.validate_performance_claim_registry(registry)
+        verdicts = paper_claims.evaluate_performance_claims(
+            registry,
+            benchmark_protocol={"eligible": True, "reasons": []},
+            manuscript_text=(ROOT / "paper.tex").read_text())
 
-        self.assertNotIn(
-            "manuscript_claim_unmapped:audit.certified_call_overhead", reasons)
+        self.assertIn(
+            "manuscript_claim_unmapped:grouped.dgelsy",
+            verdicts["manuscript_claim_coverage"]["reasons"])
+        self.assertFalse(verdicts["manuscript_claim_coverage"]["complete"])
+        self.assertFalse(verdicts["manuscript_publication_readiness"]["ready"])
+
+    def test_numeric_claim_anchors_detect_printed_ratio_changes(self):
+        registry = paper_claims.load_performance_claim_registry()
+        manuscript = (ROOT / "paper.tex").read_text()
+        replacements = {
+            "grouped.lsmr": (
+                "the LSMR/router ratios are 0.624, 1.603, and 0.636",
+                "the LSMR/router ratios are 0.625, 1.603, and 0.636"),
+            "wide_extreme.32x12800": (
+                "The more extreme $32\\times12800$ input instead has ratio 1.206",
+                "The more extreme $32\\times12800$ input instead has ratio 1.207"),
+        }
+
+        for claim_id, (printed, changed) in replacements.items():
+            with self.subTest(claim_id=claim_id):
+                altered = manuscript.replace(printed, changed)
+                reasons = paper_claims.validate_performance_claim_registry(
+                    registry, manuscript_text=altered)
+                self.assertIn(f"claim_text_anchor_missing:{claim_id}", reasons)
+
+    def test_property_batteries_are_invoked_in_strict_mode(self):
+        completed = SimpleNamespace(
+            returncode=0, stdout='{"checks": 1}', stderr="")
+
+        for battery in (
+                "pbt_equivalence_orbits",
+                "pbt_certificate_equivariance"):
+            with self.subTest(battery=battery), mock.patch.object(
+                    paper_claims.subprocess, "run",
+                    return_value=completed) as run:
+                self.assertEqual(paper_claims.run_battery(battery),
+                                 {"checks": 1})
+                run.assert_called_once_with(
+                    [sys.executable, str(ROOT / "tests" / f"{battery}.py"),
+                     "--strict"],
+                    capture_output=True, text=True, cwd=str(ROOT))
 
     def test_tracked_reference_package_is_manuscript_ready(self):
         registry = paper_claims.load_performance_claim_registry()

@@ -45,6 +45,14 @@ PERFORMANCE_CLAIM_REGISTRY = ROOT / "experiments" / \
 
 CLAIM_REQUIRED_FIELDS = (
     "claim_id", "text_anchor", "ratio_direction", "artifact_case_mapping")
+REQUIRED_PERFORMANCE_CLAIM_IDS = frozenset({
+    "transition.rank_gate",
+    "wide_extreme.32x12800",
+    "grouped.dgelsy",
+    "grouped.lsmr",
+    "limitations.square_underdetermined",
+    "scope.tall_directional",
+})
 
 
 def _sha256(path: Path) -> str:
@@ -166,6 +174,11 @@ def validate_performance_claim_registry(registry, manuscript_text=None):
                 reasons.append(f"claim_expected_status_invalid:{claim_id}")
         else:
             reasons.append(f"claim_ratio_direction_invalid:{claim_id}")
+
+    for claim_id in sorted(REQUIRED_PERFORMANCE_CLAIM_IDS - seen):
+        reasons.append(f"manuscript_claim_unmapped:{claim_id}")
+    for claim_id in sorted(seen - REQUIRED_PERFORMANCE_CLAIM_IDS):
+        reasons.append(f"claim_registry_unretained:{claim_id}")
 
     if manuscript_text is not None:
         expected_hash = manuscript.get("sha256")
@@ -641,7 +654,7 @@ def run_battery(name: str) -> dict:
     script = TESTS / f"{name}.py"
     if not script.is_file():
         raise SystemExit(f"missing battery: {script}")
-    proc = subprocess.run([sys.executable, str(script)],
+    proc = subprocess.run([sys.executable, str(script), "--strict"],
                           capture_output=True, text=True, cwd=str(ROOT))
     if proc.returncode != 0:
         sys.stderr.write(proc.stdout)

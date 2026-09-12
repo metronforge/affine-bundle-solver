@@ -2,7 +2,7 @@
   "schema_version": 1,
   "manuscript": {
     "path": "paper.tex",
-    "sha256": "75bba60360a11b0476211a24526c8241812e3f5238380a2b110abaaa1455a51f"
+    "sha256": "36d41fdfaf688215074a54232eff255921d61cfe12697aac12a43456135baef0"
   },
   "candidate_artifact": {
     "source_sha": "67eef1fbda6f7486357cba200f01c9f355ac854a",
@@ -34,7 +34,7 @@
     },
     {
       "claim_id": "wide_extreme.32x12800",
-      "text_anchor": "The more extreme $32\\times12800$ input instead has",
+      "text_anchor": "The more extreme $32\\times12800$ input instead has ratio 1.206",
       "ratio_direction": "baseline_over_router",
       "artifact_case_mapping": ["wide_extreme.32x12800"],
       "expected_baseline_over_router": [1.2061440629515139]
@@ -56,7 +56,7 @@
     },
     {
       "claim_id": "grouped.lsmr",
-      "text_anchor": "the LSMR/router ratios are",
+      "text_anchor": "the LSMR/router ratios are 0.624, 1.603, and 0.636",
       "ratio_direction": "baseline_over_router",
       "artifact_case_mapping": [
         "grouped_vs_lsmr.16384x64",
