@@ -86,7 +86,7 @@ LITERAL_CASES_BY_ID = {
     item["case_id"]: item for item in PROTOCOL_FIXTURE["cases"]
 }
 LITERAL_PROTOCOL_SIGNATURE = \
-    "31e84400f2bb347bf3e076a8179b9a361c8e5cb7377eec0da7824e7e63a5ab04"
+    "b9f774b376c525a111139f0a1c786c4262f88903d064a2860e78795bf57ae1f5"
 
 EXACT_BLOCKERS = {
     "manuscript_blocker:audit.certified_call_overhead",
@@ -195,6 +195,53 @@ class ContractTestCase(unittest.TestCase):
             "unit": "s", "warmups": spec["warmups"],
             "repetitions": spec["repetitions"], "raw": raw,
             "median": median, "mad": mad,
+            "measurement_envelope": spec["measurement_envelope"],
+        }
+
+    def decoded_router_diagnostics(self, spec, duration):
+        status = spec["expected_status"]
+        certainty = "none" if status in ("fail", "undecidable") \
+            else "deterministic"
+        return {
+            "status": status,
+            "status_code": {"unique": 1, "infinite": 2,
+                            "inconsistent": 3, "fail": 4,
+                            "undecidable": 5}[status],
+            "certainty": certainty,
+            "certainty_code": {"deterministic": 1, "randomised": 2,
+                               "none": 3}[certainty],
+            "rank": spec["expected_rank"],
+            "rank_lo": spec["expected_rank_lo"],
+            "rank_hi": spec["expected_rank_hi"],
+            "router_relres": (None if status in ("fail", "undecidable")
+                              else 1e-16),
+            "router_relx": (None if status in
+                            ("inconsistent", "fail", "undecidable")
+                            else 1e-16),
+            "solver_seconds": duration,
+            "fallback": False,
+            "raw_class": {"unique": 1, "infinite": 2,
+                          "inconsistent": 3, "fail": 4,
+                          "undecidable": 5}[status],
+            "router_berr": (1e-16 if status == "unique" else None),
+        }
+
+    def decoded_comparator_diagnostics(self, spec, duration):
+        status = spec["expected_status"]
+        return {
+            "status": status,
+            "status_code": {"unique": 1, "infinite": 2,
+                            "inconsistent": 3, "fail": 4,
+                            "undecidable": 5}[status],
+            "rank": spec["expected_rank"],
+            "fallback": False,
+            "accepted_random": False,
+            "solver_seconds": duration,
+            "relres": (None if status in ("fail", "undecidable")
+                       else 1e-16),
+            "relx": (None if status in
+                     ("inconsistent", "fail", "undecidable")
+                     else 1e-16),
         }
 
     def result_document(self, sections=None):
@@ -235,18 +282,13 @@ class ContractTestCase(unittest.TestCase):
                         "observed_omp_threads":
                             run_contract["requested_omp_threads"][index],
                         "openmp_runtime_identity": {
-                            "runtime_id": "libgomp.so.1|openmp|fixture",
+                            "runtime_id": "libgomp.so.1|openmp|test",
                             "basename": "libgomp.so.1", "user_api": "openmp",
-                            "internal_api": "openmp", "version": "fixture",
+                            "internal_api": "openmp", "version": "test",
                         },
                         "duration": {"value": duration, "unit": "s"},
-                        "diagnostics": {
-                            "status": status, "rank": spec["expected_rank"],
-                            "rank_lo": spec["expected_rank_lo"],
-                            "rank_hi": spec["expected_rank_hi"],
-                            "router_relres": None, "router_berr": None,
-                            "fallback": False, "solver_seconds": duration,
-                        },
+                        "diagnostics": self.decoded_router_diagnostics(
+                            spec, duration),
                         "numerical_contract": {
                             "expected": run_expected,
                             "actual": {
@@ -259,6 +301,28 @@ class ContractTestCase(unittest.TestCase):
                             "valid": True, "reasons": [],
                         },
                     })
+                comparator_runs = []
+                for comparator in spec["comparator_run_contracts"]:
+                    raw = next(item["raw"] for item in timings
+                               if item["operation"] == comparator["operation"])
+                    for index, duration in enumerate(raw):
+                        comparator_runs.append({
+                            "run_id": comparator["run_id_format"].format(
+                                case_id=case_id, repetition_index=index),
+                            "case_id": case_id,
+                            "operation": comparator["operation"],
+                            "repetition_index": index,
+                            "duration": {"value": duration, "unit": "s"},
+                            "diagnostics": self.decoded_comparator_diagnostics(
+                                spec, duration),
+                            "numerical_contract": {
+                                "expected": {"status": spec["expected_status"],
+                                             "rank": spec["expected_rank"]},
+                                "actual": {"status": spec["expected_status"],
+                                           "rank": spec["expected_rank"]},
+                                "valid": True, "reasons": [],
+                            },
+                        })
                 ratios = []
                 medians = {item["operation"]: item["median"]
                            for item in timings}
@@ -270,6 +334,14 @@ class ContractTestCase(unittest.TestCase):
                         numerator = medians[required["numerator_operation"]]
                         denominator = medians[required["denominator_operation"]]
                     ratios.append({**required, "value": numerator / denominator})
+                case_diagnostics = self.decoded_router_diagnostics(
+                    spec, timings[0]["median"])
+                for comparator in spec["comparator_run_contracts"]:
+                    operation_runs = [
+                        run for run in comparator_runs
+                        if run["operation"] == comparator["operation"]]
+                    case_diagnostics[comparator["operation"]] = copy.deepcopy(
+                        operation_runs[-1]["diagnostics"])
                 cases.append({
                     "case_id": case_id,
                     "inputs": [self.input_record(case_id, seed)
@@ -277,13 +349,8 @@ class ContractTestCase(unittest.TestCase):
                     "timings": timings,
                     "ratios": ratios,
                     "runs": runs,
-                    "diagnostics": {
-                        "status": spec["expected_status"],
-                        "rank": spec["expected_rank"],
-                        "rank_lo": spec["expected_rank_lo"],
-                        "rank_hi": spec["expected_rank_hi"],
-                        "router_relres": None, "router_berr": None,
-                    },
+                    "comparator_runs": comparator_runs,
+                    "diagnostics": case_diagnostics,
                     "numerical_contract": {
                         "expected": expected,
                         "actual": {"status": spec["expected_status"],
@@ -298,23 +365,53 @@ class ContractTestCase(unittest.TestCase):
                 })
             summary = {"case_count": len(cases)}
             if section_name == "structural":
-                summary.update({"hard_failure_count": 0,
-                                "reported_hard_failure_count": 0})
+                router_values = [value for case in cases
+                                 for value in case["timings"][0]["raw"]]
+                summary.update({
+                    "routing_seeds_per_instance": 3,
+                    "check_count": 3 * len(cases),
+                    "hard_failure_count": 0,
+                    "reported_hard_failure_count": 0,
+                    "failures": [],
+                    "max_consistent_relres": 1e-16,
+                    "median_router_seconds": float(np.median(router_values)),
+                })
             ratios = [ratio["value"] for case in cases
                       for ratio in case["ratios"]]
             if ratios:
                 summary.update({
+                    "ratio_name": PROTOCOL_FIXTURE[
+                        "section_summary_contracts"][section_name]["ratio_name"],
                     "ratio_count": len(ratios),
                     "ratio_geomean": float(np.exp(np.mean(np.log(ratios)))),
+                    "ratio_median": float(np.median(ratios)),
                 })
             rows.append({"section_id": section_name,
                          "output_name": dict(EXPECTED_SECTIONS)[section_name],
                          "cases": cases, "summary": summary})
+        router_count = sum(len(case["runs"]) for section in rows
+                           for case in section["cases"])
+        comparator_counts = {
+            operation: sum(
+                run["operation"] == operation
+                for section in rows for case in section["cases"]
+                for run in case["comparator_runs"])
+            for operation in ("sequential_reference", "dgelsy")
+        }
+        ratio_count = sum(len(case["ratios"]) for section in rows
+                          for case in section["cases"])
         return {
             "schema_version": 2,
             "protocol_id": "affine-bundle-numerical-suite-v2",
             "protocol_signature": LITERAL_PROTOCOL_SIGNATURE,
             "sections": rows,
+            "evidence_counts": {
+                "router_runs": router_count,
+                "sequential_reference_runs":
+                    comparator_counts["sequential_reference"],
+                "dgelsy_runs": comparator_counts["dgelsy"],
+                "ratios": ratio_count,
+            },
             "numerical_contract": {"valid": True, "reasons": []},
         }
 
@@ -376,6 +473,11 @@ class ContractTestCase(unittest.TestCase):
                                   "internal_api": "openmp",
                                   "num_threads": 4, "version": "test",
                                   "runtime_id": "libgomp.so.1|openmp|test"}],
+                "selected_router_openmp_identity": {
+                    "basename": "libgomp.so.1", "user_api": "openmp",
+                    "internal_api": "openmp", "version": "test",
+                    "runtime_id": "libgomp.so.1|openmp|test",
+                },
                 "thread_controls": {
                     "OMP_NUM_THREADS": "4", "OPENBLAS_NUM_THREADS": "1",
                     "MKL_NUM_THREADS": "1", "VECLIB_MAXIMUM_THREADS": "1",
@@ -402,6 +504,8 @@ class ProtocolTests(ContractTestCase):
         self.assertEqual(sum(map(len, EXPECTED_CASE_IDS.values())), 82)
         self.assertEqual(contract.PROTOCOL_SIGNATURE,
                          LITERAL_PROTOCOL_SIGNATURE)
+        self.assertEqual(PROTOCOL_FIXTURE["protocol_signature"],
+                         LITERAL_PROTOCOL_SIGNATURE)
 
     def test_complete_protocol_matches_independent_literal_fixture(self):
         actual_cases = [
@@ -416,6 +520,13 @@ class ProtocolTests(ContractTestCase):
         self.assertEqual(contract.CANONICAL_PROTOCOL["candidate_omp"], 4)
         self.assertEqual(contract.CANONICAL_PROTOCOL["scaling_openmp_schedule"],
                          [1, 2, 4])
+        self.assertEqual(contract.CANONICAL_PROTOCOL["execution_contract"],
+                         PROTOCOL_FIXTURE["execution_contract"])
+        self.assertEqual(contract.CANONICAL_PROTOCOL["evidence_counts"],
+                         PROTOCOL_FIXTURE["evidence_counts"])
+        self.assertEqual(contract.CANONICAL_PROTOCOL[
+            "section_summary_contracts"],
+            PROTOCOL_FIXTURE["section_summary_contracts"])
 
     def test_rank_transition_expectations_are_signed(self):
         first = contract.CANONICAL_CASES_BY_ID["rank.eps_1e-08"]
@@ -426,6 +537,15 @@ class ProtocolTests(ContractTestCase):
         self.assertEqual((last["expected_status"], last["expected_rank"],
                           last["expected_rank_lo"], last["expected_rank_hi"]),
                          ("undecidable", 255, 255, 256))
+
+    def test_scaled_structural_generator_identity_names_actual_callable(self):
+        scaled = [case for case in PROTOCOL_FIXTURE["cases"]
+                  if case["case_id"].startswith("structural.scaled_")]
+        self.assertEqual(len(scaled), 4)
+        self.assertTrue(all(case["generator"] == "make_structured_rank"
+                            for case in scaled))
+        self.assertTrue(all(case["generator_parameters"]["args"][-1] is True
+                            for case in scaled))
 
     def test_sections_fail_before_computation_for_bad_candidate_sets(self):
         exact = ",".join(name for name, _ in EXPECTED_SECTIONS)
@@ -459,7 +579,7 @@ class StatusMappingTests(ContractTestCase):
         self.assertEqual(self.runner.decode_status(5), "undecidable")
 
     def test_unknown_status_fails_closed(self):
-        for value in (0, 6, -1, 999):
+        for value in (0, 6, -1, 999, 4.9, True, "4", math.nan, math.inf):
             with self.subTest(value=value), self.assertRaises(ValueError):
                 self.runner.decode_status(value)
 
@@ -478,6 +598,80 @@ class StatusMappingTests(ContractTestCase):
         })
         self.assertEqual(self.runner.STATUS_CODES,
                          {value: name for name, value in header_values.items()})
+
+    def test_public_output_layout_certainty_and_quality_threshold_are_literal(self):
+        import re
+        header = (ROOT / "include/affine_bundle/router.h").read_text()
+        certainties = {
+            name.lower(): int(value)
+            for name, value in re.findall(
+                r"ABS_CERTAINTY_(DETERMINISTIC|RANDOMISED|NONE)\s*=\s*(\d+)",
+                header)
+        }
+        indices = {
+            name.lower(): int(value)
+            for name, value in re.findall(
+                r"ABS_OUT_(STATUS|CERTAINTY|RANK|RANK_LO|RANK_HI|RELRES|RELX|SECONDS|FALLBACK|CLS|BERR)\s*=\s*(\d+)",
+                header)
+        }
+        threshold = float(re.search(
+            r"#define\s+ABS_QUALITY_THRESHOLD\s+([^\s]+)", header).group(1))
+        self.assertEqual(certainties, {
+            "deterministic": 1, "randomised": 2, "none": 3})
+        self.assertEqual(indices, {
+            "status": 0, "certainty": 1, "rank": 2, "rank_lo": 3,
+            "rank_hi": 4, "relres": 5, "relx": 6, "seconds": 7,
+            "fallback": 8, "cls": 9, "berr": 10})
+        self.assertEqual(threshold, 1e-14)
+        self.assertEqual(self.runner.CERTAINTY_CODES,
+                         {1: "deterministic", 2: "randomised", 3: "none"})
+        self.assertEqual(self.runner.ROUTER_OUTPUT_INDICES, indices)
+        self.assertEqual(self.runner.ABS_QUALITY_THRESHOLD, threshold)
+
+    def test_router_output_decoder_rejects_coercions_and_semantic_damage(self):
+        valid = np.asarray([1, 1, 2, 2, 2, 1e-16, 2e-16, 0.003,
+                            0, 1, 3e-16], dtype=np.float64)
+        decoded = self.runner.decode_router_output(valid)
+        self.assertEqual((decoded["status"], decoded["certainty"],
+                          decoded["raw_class"], decoded["fallback"]),
+                         ("unique", "deterministic", 1, False))
+        self.assertEqual(decoded["router_relx"], 2e-16)
+        for index, value in ((0, 4.9), (1, 1.2), (2, -1), (3, math.inf),
+                             (4, math.nan), (8, 2), (9, 2), (10, math.inf)):
+            damaged = valid.copy(); damaged[index] = value
+            with self.subTest(index=index, value=value), self.assertRaises(ValueError):
+                self.runner.decode_router_output(damaged)
+
+    def test_router_output_decoder_enforces_unavailable_and_berr_semantics(self):
+        for status in (4, 5):
+            values = np.asarray([status, 3, 0, 0, 0, math.nan, math.nan,
+                                 0.003, 0, status, math.nan], dtype=np.float64)
+            decoded = self.runner.decode_router_output(values)
+            self.assertIsNone(decoded["router_relres"])
+            self.assertIsNone(decoded["router_relx"])
+            self.assertIsNone(decoded["router_berr"])
+            for index in (5, 6, 10):
+                damaged = values.copy(); damaged[index] = 0.0
+                with self.subTest(status=status, index=index), \
+                        self.assertRaises(ValueError):
+                    self.runner.decode_router_output(damaged)
+        for certainty, berr in ((1, 1.1e-14), (2, 1e-16)):
+            values = np.asarray([1, certainty, 2, 2, 2, 1e-16, 1e-16,
+                                 0.003, 0, 1, berr], dtype=np.float64)
+            with self.subTest(certainty=certainty), self.assertRaises(ValueError):
+                self.runner.decode_router_output(values)
+
+    def test_comparator_decoder_is_exact_and_status_aware(self):
+        valid = np.asarray([2, 1, 0, 0, 0.004, 1e-16, 1e-16])
+        decoded = self.runner.decode_comparator_output(valid)
+        self.assertEqual((decoded["status"], decoded["rank"],
+                          decoded["fallback"], decoded["accepted_random"]),
+                         ("infinite", 1, False, False))
+        for index, value in ((0, 2.5), (1, -1), (2, 0.2), (3, 2),
+                             (4, math.inf), (5, -1), (6, math.inf)):
+            damaged = valid.copy(); damaged[index] = value
+            with self.subTest(index=index), self.assertRaises(ValueError):
+                self.runner.decode_comparator_output(damaged)
 
     def test_all_protocol_statuses_are_representable(self):
         expected = {case["expected_status"]
@@ -614,6 +808,12 @@ class ResultValidationTests(ContractTestCase):
             if value is None: timing.pop(field)
             else: timing[field] = value
             self.assertIn(reason, contract.validate_result_document(damaged))
+        envelope = self.result_document()
+        envelope["sections"][0]["cases"][0]["timings"][0][
+            "measurement_envelope"] = "includes_runtime_discovery"
+        self.assertIn(
+            "result_timing_envelope_mismatch:standard.random64:router",
+            contract.validate_result_document(envelope))
 
     def test_every_required_run_identity_and_seed_sequence_is_mandatory(self):
         mutations = []
@@ -656,6 +856,68 @@ class ResultValidationTests(ContractTestCase):
         self.assertIn("result_run_timing_disagreement:standard.random64",
                       contract.validate_result_document(hidden))
 
+    def test_every_comparator_run_and_raw_duration_is_mandatory(self):
+        mutations = []
+        missing = self.result_document()
+        missing["sections"][0]["cases"][0]["comparator_runs"].pop(3)
+        mutations.append((missing,
+                          "result_comparator_run_shape_mismatch:standard.random64:sequential_reference"))
+        duplicate = self.result_document()
+        runs = duplicate["sections"][0]["cases"][0]["comparator_runs"]
+        runs[1] = copy.deepcopy(runs[0])
+        mutations.append((duplicate,
+                          "result_comparator_run_identity_duplicate:standard.random64:sequential_reference"))
+        reordered = self.result_document()
+        runs = reordered["sections"][0]["cases"][0]["comparator_runs"]
+        runs[0], runs[1] = runs[1], runs[0]
+        mutations.append((reordered,
+                          "result_comparator_run_order_mismatch:standard.random64:sequential_reference"))
+        hidden = self.result_document()
+        hidden["sections"][0]["cases"][0]["comparator_runs"][2][
+            "duration"]["value"] = 99.0
+        mutations.append((hidden,
+                          "result_comparator_timing_disagreement:standard.random64:sequential_reference"))
+        for document, reason in mutations:
+            with self.subTest(reason=reason):
+                self.assertIn(reason, contract.validate_result_document(document))
+
+    def test_failed_comparator_run_invalidates_case_and_ratio(self):
+        damaged = self.result_document()
+        row = damaged["sections"][0]["cases"][0]
+        failed = row["comparator_runs"][3]
+        failed["diagnostics"].update({"status": "fail", "status_code": 4,
+                                      "rank": 0, "relres": None,
+                                      "relx": None})
+        failed["numerical_contract"] = {
+            "expected": {"status": "unique", "rank": 64},
+            "actual": {"status": "fail", "rank": 0},
+            "valid": False, "reasons": ["status_mismatch"],
+        }
+        self.assertIn(
+            "result_comparator_run_numerical_contract_invalid:standard.random64:sequential_reference",
+            contract.validate_result_document(damaged))
+        self.assertIn("result_ratio_comparator_invalid:standard.random64",
+                      contract.validate_result_document(damaged))
+        self.assertIn("result_case_run_aggregate_mismatch:standard.random64",
+                      contract.validate_result_document(damaged))
+
+    def test_comparator_diagnostics_are_exact_and_expected(self):
+        for field, value in (("rank", 63), ("status", "infinite"),
+                             ("solver_seconds", math.inf),
+                             ("relres", math.inf)):
+            damaged = self.result_document()
+            run = damaged["sections"][0]["cases"][0]["comparator_runs"][0]
+            run["diagnostics"][field] = value
+            self.assertIn(
+                "result_comparator_run_diagnostics_invalid:standard.random64:sequential_reference",
+                contract.validate_result_document(damaged))
+        damaged = self.result_document()
+        damaged["sections"][0]["cases"][0]["diagnostics"][
+            "sequential_reference"]["rank"] = 63
+        self.assertIn(
+            "result_case_comparator_diagnostics_mismatch:standard.random64:sequential_reference",
+            contract.validate_result_document(damaged))
+
     def test_required_ratio_shape_is_exact(self):
         missing = self.result_document(); missing["sections"][0]["cases"][0]["ratios"] = []
         self.assertIn("result_ratio_shape_mismatch:standard.random64",
@@ -689,6 +951,40 @@ class ResultValidationTests(ContractTestCase):
         section["summary"].update({"ratio_count": 9, "ratio_geomean": 999.0})
         self.assertIn("result_summary_ratio_aggregate_mismatch:standard",
                       contract.validate_result_document(wrong))
+
+    def test_section_summary_shape_and_all_aggregates_are_exact(self):
+        for mutate, reason in (
+            (lambda summary: summary.pop("ratio_median"),
+             "result_summary_shape_mismatch:standard"),
+            (lambda summary: summary.update(extra=1),
+             "result_summary_shape_mismatch:standard"),
+            (lambda summary: summary.update(ratio_name="router_over_reference"),
+             "result_summary_ratio_name_mismatch:standard"),
+            (lambda summary: summary.update(ratio_median=999.0),
+             "result_summary_ratio_aggregate_mismatch:standard")):
+            damaged = self.result_document()
+            mutate(damaged["sections"][0]["summary"])
+            self.assertIn(reason, contract.validate_result_document(damaged))
+        inappropriate = self.result_document()
+        rank = next(section for section in inappropriate["sections"]
+                    if section["section_id"] == "rank")
+        rank["summary"]["ratio_count"] = 0
+        self.assertIn("result_summary_shape_mismatch:rank",
+                      contract.validate_result_document(inappropriate))
+
+    def test_top_level_contract_and_evidence_totals_are_exact(self):
+        for contract_value in (
+                {"valid": True},
+                {"valid": True, "reasons": [], "extra": True},
+                {"valid": False, "reasons": ["hidden"]}):
+            damaged = self.result_document()
+            damaged["numerical_contract"] = contract_value
+            self.assertIn("result_numerical_contract_invalid",
+                          contract.validate_result_document(damaged))
+        damaged = self.result_document()
+        damaged["evidence_counts"]["dgelsy_runs"] += 1
+        self.assertIn("result_evidence_counts_mismatch",
+                      contract.validate_result_document(damaged))
 
     def test_numerical_contract_status_rank_interval_fail_closed(self):
         false = self.result_document(); row = false["sections"][0]["cases"][0]
@@ -844,6 +1140,33 @@ class MetadataValidationTests(ContractTestCase):
         self.assertNotIn("runtime_blas_not_single_threaded:libgomp.so.1",
                          contract.validate_metadata_document(
                              metadata, result_bytes=b"{}"))
+
+    def test_router_openmp_identity_is_mandatory_and_cross_bound_to_runs(self):
+        metadata = self.metadata_document()
+        metadata["runtime"].pop("selected_router_openmp_identity")
+        self.assertIn("runtime_router_openmp_identity_missing",
+                      contract.validate_metadata_document(
+                          metadata, result_bytes=b"{}"))
+        result = self.result_document()
+        metadata = self.metadata_document(contract.canonical_json_bytes(result))
+        metadata["runtime"]["selected_router_openmp_identity"][
+            "runtime_id"] = "unrelated|openmp|runtime"
+        verdict = contract.evaluate_eligibility(
+            result=result, metadata=metadata, candidate=True, omp=4)
+        self.assertIn("result_metadata_router_openmp_identity_mismatch",
+                      verdict["reasons"])
+
+    def test_unrelated_openmp_pool_remains_recorded_without_invalidating_router(self):
+        metadata = self.metadata_document()
+        metadata["runtime"]["openmp_pools"].insert(0, {
+            "basename": "libgomp-sklearn-vendored.so",
+            "user_api": "openmp", "internal_api": "openmp",
+            "num_threads": 8, "version": "sklearn-test",
+            "runtime_id":
+                "libgomp-sklearn-vendored.so|openmp|sklearn-test",
+        })
+        self.assertEqual(contract.validate_metadata_document(
+            metadata, result_bytes=b"{}"), [])
 
     def test_machine_software_and_eligibility_identity_are_required(self):
         metadata = self.metadata_document(); metadata["machine"]["cpu_model"] = None
@@ -1078,7 +1401,7 @@ class RunnerIntegrationTests(ContractTestCase):
         self.x = np.ascontiguousarray([1.0, 2.0])
 
     @contextlib.contextmanager
-    def observed_openmp(self, requested, *, strict):
+    def observed_openmp(self, _library, requested, *, strict):
         yield {
             "valid": True, "reasons": [],
             "requested_num_threads": requested,
@@ -1096,7 +1419,7 @@ class RunnerIntegrationTests(ContractTestCase):
         published = []
 
         @contextlib.contextmanager
-        def runtime_context(requested, *, strict):
+        def runtime_context(_library, requested, *, strict):
             observation = {
                 "valid": requested == observed_threads,
                 "reasons": ([] if requested == observed_threads else
@@ -1115,12 +1438,11 @@ class RunnerIntegrationTests(ContractTestCase):
 
         def execute_sections(library, args):
             # This is the only numerical boundary exercised: one tiny 2x2 call.
-            output, observation = self.runner.router(
-                library, self.A, self.b, self.x, seed=877, omp=4,
-                candidate=args.candidate, runtime_context=runtime_context)
-            self.assertEqual(self.runner.decode_status(output[0]), "unique")
-            self.assertEqual(observation["observed_num_threads"],
-                             observed_threads)
+            with runtime_context(library, 4, strict=args.candidate) as observation:
+                output = self.runner.router(
+                    library, self.A, self.b, self.x, seed=877)
+            self.assertEqual(output["status"], "unique")
+            self.assertEqual(observation["observed_num_threads"], observed_threads)
             return copy.deepcopy(sections)
 
         state = {"git_sha": "1" * 40, "git_tree_sha": "2" * 40,
@@ -1196,53 +1518,205 @@ class RunnerIntegrationTests(ContractTestCase):
                          [ctypes.POINTER(ctypes.c_ulonglong)])
         self.assertIsNone(handle.bsolve_fg_counters_api.restype)
 
-    def test_threadpoolctl_controls_and_observes_exact_openmp_runtime(self):
-        calls = []
+    def test_openmp_control_and_observation_are_outside_timed_calls(self):
+        events = []
 
-        class Limits:
-            def __init__(self, *, limits, user_api):
-                calls.append((limits, user_api))
-            def __enter__(self): return self
-            def __exit__(self, *_args): return False
+        @contextlib.contextmanager
+        def runtime_context(_library, requested, *, strict):
+            events.extend(("runtime_identified", "control_entered",
+                           "threads_observed"))
+            yield {
+                "valid": True, "reasons": [],
+                "requested_num_threads": requested,
+                "observed_num_threads": requested,
+                "runtime_identity": {
+                    "runtime_id": "router-openmp", "basename": "libgomp.so.1",
+                    "user_api": "openmp", "internal_api": "openmp",
+                    "version": "fixture",
+                },
+            }
+            events.append("control_torn_down")
 
-        infos = lambda: [
-            {"user_api": "blas", "internal_api": "openblas",
-             "num_threads": 1, "version": "test",
-             "prefix": "libopenblas", "filepath": "/usr/lib/libopenblas.so"},
+        class Clock:
+            def __init__(self):
+                values = []
+                for index in range(7):
+                    values.extend((index * 100_000_000,
+                                   index * 100_000_000 + (index + 1) * 1_000_000))
+                self.values = iter(values)
+            def __call__(self):
+                events.append("timer")
+                return next(self.values)
+
+        handle = StrictFakeRouterHandle()
+        original = handle.bsolve_router_meta_api
+
+        def logged_call(*args):
+            events.append("router_call")
+            original(*args)
+        logged_call.argtypes = original.argtypes
+        logged_call.restype = original.restype
+        handle.bsolve_router_meta_api = logged_call
+        median, _last, raw, _runs = self.runner.med_router(
+            handle, self.A, self.b, self.x, case_id="lapack.random64",
+            generator_seed=101, omp=4, warm=2, reps=7,
+            warmup_seeds=[47001, 47001], source="perf_counter_ns",
+            candidate=True, runtime_context=runtime_context, clock_ns=Clock())
+        first_timer = events.index("timer")
+        last_timer = len(events) - 1 - events[::-1].index("timer")
+        self.assertLess(events.index("threads_observed"), first_timer)
+        self.assertGreater(events.index("control_torn_down"), last_timer)
+        self.assertEqual(raw, [0.001, 0.002, 0.003, 0.004,
+                               0.005, 0.006, 0.007])
+        self.assertEqual(median, 0.004)
+        ratio = self.runner._ratio("lapack.random64", 0.020, median)
+        self.assertEqual(ratio["direction"], "dgelsy/router")
+        self.assertEqual(ratio["value"], 5.0)
+
+    def test_comparator_runs_preserve_every_timed_result(self):
+        outputs = []
+        for index in range(7):
+            status = 4 if index == 3 else 1
+            outputs.append([status, 64 if status == 1 else 0, 0, 0,
+                            0.01 + index, (1e-16 if status == 1 else math.nan),
+                            (1e-16 if status == 1 else math.nan)])
+
+        class Symbol:
+            def __call__(self, *_args):
+                out = _args[-1]
+                for index, value in enumerate(outputs.pop(0)):
+                    out[index] = value
+
+        handle = type("Handle", (), {"bsolve_seq_api": Symbol()})()
+        median, last, raw, runs = self.runner.med_seq(
+            handle, self.A, self.b, self.x,
+            case_id="standard.random64", warm=0, reps=7)
+        self.assertEqual(len(runs), 7)
+        self.assertEqual([run["repetition_index"] for run in runs],
+                         list(range(7)))
+        self.assertEqual([run["duration"]["value"] for run in runs], raw)
+        self.assertFalse(runs[3]["numerical_contract"]["valid"])
+        self.assertEqual(last["status"], "unique")
+        self.assertEqual(median, 3.01)
+
+    def fake_controller_factory(self, pools, events=None, *, mismatch=False):
+        events = [] if events is None else events
+
+        class Limit:
+            def __init__(self, selected, requested):
+                self.selected = selected; self.requested = requested
+                self.previous = [pool["num_threads"] for pool in selected]
+            def __enter__(self):
+                events.append(("limit_enter", self.requested))
+                for pool in self.selected:
+                    pool["num_threads"] = (self.requested + 1 if mismatch
+                                           else self.requested)
+                return self
+            def __exit__(self, *_args):
+                events.append(("limit_exit", self.requested))
+                for pool, previous in zip(self.selected, self.previous):
+                    pool["num_threads"] = previous
+                return False
+
+        class Controller:
+            def __init__(self, selected=None):
+                self.selected = pools if selected is None else selected
+            def info(self):
+                events.append(("info", tuple(
+                    pool.get("filepath") for pool in self.selected)))
+                return [dict(pool) for pool in self.selected]
+            def select(self, **kwargs):
+                filepath = kwargs["filepath"]
+                selected = [pool for pool in self.selected
+                            if pool.get("filepath") == filepath]
+                events.append(("select", filepath, len(selected)))
+                return Controller(selected)
+            def limit(self, *, limits, user_api):
+                self.assert_user_api = user_api
+                return Limit(self.selected, limits)
+
+        return Controller
+
+    def mixed_runtime_pools(self):
+        return [
             {"user_api": "openmp", "internal_api": "openmp",
-             "num_threads": 4, "version": "test",
-             "prefix": "libgomp", "filepath": "/usr/lib/libgomp.so.1"},
+             "num_threads": 8, "version": "GOMP sklearn",
+             "prefix": "libgomp-sklearn",
+             "filepath": "/venv/sklearn.libs/libgomp-vendored.so"},
+            {"user_api": "blas", "internal_api": "openblas",
+             "num_threads": 1, "version": "0.3-test",
+             "prefix": "libopenblas",
+             "filepath": "/venv/numpy.libs/libopenblas.so"},
+            {"user_api": "openmp", "internal_api": "openmp",
+             "num_threads": 8, "version": "GOMP system",
+             "prefix": "libgomp",
+             "filepath": "/usr/lib/libgomp.so.1"},
         ]
+
+    def test_router_openmp_runtime_is_selected_among_unrelated_runtimes(self):
+        events = []; pools = self.mixed_runtime_pools()
+        controller = self.fake_controller_factory(pools, events)
         with self.runner.openmp_runtime_context(
-                4, strict=True, limits_factory=Limits,
-                info_provider=infos) as observation:
+                object(), 4, strict=True,
+                owner_resolver=lambda _library: "/usr/lib/libgomp.so.1",
+                controller_factory=controller) as observation:
             self.assertTrue(observation["valid"])
             self.assertEqual(observation["observed_num_threads"], 4)
             self.assertEqual(observation["runtime_identity"]["basename"],
                              "libgomp.so.1")
-        self.assertEqual(calls, [(4, "openmp")])
+            self.assertEqual(pools[0]["num_threads"], 8)
+        self.assertIn(("select", "/usr/lib/libgomp.so.1", 1), events)
+        self.assertEqual(pools[0]["num_threads"], 8)
 
-    def test_openmp_unavailable_ambiguous_or_mismatched_fails_candidate(self):
-        class Limits:
-            def __init__(self, **_kwargs): pass
-            def __enter__(self): return self
-            def __exit__(self, *_args): return False
+    def test_router_openmp_symbol_owner_resolution_is_injectable(self):
+        callback_type = ctypes.CFUNCTYPE(ctypes.c_int)
+        symbol = callback_type(lambda: 4)
 
-        fixtures = (
-            [],
-            [{"user_api": "openmp", "num_threads": 4,
-              "filepath": "/usr/lib/libgomp.so.1"},
-             {"user_api": "openmp", "num_threads": 4,
-              "filepath": "/usr/lib/libomp.so"}],
-            [{"user_api": "openmp", "num_threads": 2,
-              "filepath": "/usr/lib/libgomp.so.1"}],
+        class Dladdr:
+            def __call__(self, _address, info):
+                info._obj.filename = b"/usr/lib/libgomp.so.1"
+                return 1
+
+        process = type("Process", (), {"dladdr": Dladdr()})()
+        library = type("Library", (), {"omp_get_max_threads": symbol})()
+        owner = self.runner.resolve_router_openmp_owner(
+            library, dlopen=lambda _name: process)
+        self.assertEqual(owner, "/usr/lib/libgomp.so.1")
+
+    def test_router_openmp_runtime_failures_are_closed(self):
+        base = self.mixed_runtime_pools()
+        cases = (
+            (lambda _library: None, base, False,
+             "openmp_router_runtime_unidentified"),
+            (lambda _library: "/missing/libomp.so", base, False,
+             "openmp_router_runtime_pool_missing"),
+            (lambda _library: "/usr/lib/libgomp.so.1",
+             base + [dict(base[-1])], False,
+             "openmp_router_runtime_pool_ambiguous"),
+            (lambda _library: "/usr/lib/libgomp.so.1", base, True,
+             "openmp_requested_observed_mismatch"),
         )
-        for pools in fixtures:
-            with self.subTest(pools=pools), self.assertRaises(RuntimeError):
+        for resolver, pools, mismatch, reason in cases:
+            controller = self.fake_controller_factory(pools, mismatch=mismatch)
+            with self.subTest(reason=reason), self.assertRaisesRegex(
+                    RuntimeError, reason):
                 with self.runner.openmp_runtime_context(
-                        4, strict=True, limits_factory=Limits,
-                        info_provider=lambda pools=pools: pools):
+                        object(), 4, strict=True, owner_resolver=resolver,
+                        controller_factory=controller):
                     pass
+
+    def test_router_openmp_runtime_drift_is_closed(self):
+        pools = self.mixed_runtime_pools()
+        controller = self.fake_controller_factory(pools)
+        owners = iter(("/usr/lib/libgomp.so.1",
+                       "/venv/sklearn.libs/libgomp-vendored.so"))
+        with self.assertRaisesRegex(RuntimeError,
+                                    "openmp_router_runtime_changed"):
+            with self.runner.openmp_runtime_context(
+                    object(), 4, strict=True,
+                    owner_resolver=lambda _library: next(owners),
+                    controller_factory=controller):
+                pass
 
     def test_main_candidate_success_uses_only_injected_tiny_boundaries(self):
         result = self.result_document()
@@ -1302,16 +1776,17 @@ class RunnerIntegrationTests(ContractTestCase):
         self.assertEqual(published, [])
 
     def test_standard_records_raw_input_identity_and_router_berr(self):
-        router_out = np.zeros(11); router_out[[0, 2, 3, 4]] = [1, 2, 2, 2]
-        router_out[5] = 1e-16; router_out[10] = 2e-16
-        seq_out = np.zeros(7); seq_out[[0, 1]] = [1, 2]
+        case = self.result_case("standard.random64")
+        router_out = case["runs"][-1]["diagnostics"]
+        seq_out = case["comparator_runs"][-1]["diagnostics"]
         with mock.patch.object(self.runner, "standard_cases",
-                               return_value=iter((("random64", (self.A, self.b, self.x)),))), \
+                               return_value=iter((("random64", (self.A, self.b, self.x), 101),))), \
                 mock.patch.object(self.runner, "med_router", return_value=(
                     2.0, router_out, [float(i) for i in range(1, 12)],
-                    self.result_case("standard.random64")["runs"])), \
+                    case["runs"])), \
                 mock.patch.object(self.runner, "med_seq", return_value=(
-                    4.0, seq_out, [float(i) for i in range(1, 8)])), \
+                    4.0, seq_out, [float(i) for i in range(1, 8)],
+                    case["comparator_runs"])), \
                 contextlib.redirect_stdout(io.StringIO()):
             section = self.runner.run_standard(mock.Mock(), 4)
         row = section["cases"][0]
@@ -1320,6 +1795,31 @@ class RunnerIntegrationTests(ContractTestCase):
         self.assertNotIn("quality_eta_x", json.dumps(row))
         self.assertEqual(len(row["timings"][0]["raw"]), 11)
         self.assertEqual(len(row["timings"][1]["raw"]), 7)
+
+    def test_standard_generator_uses_the_same_seed_it_records(self):
+        made = (self.A, self.b, self.x)
+        seen = []
+        spec = contract.CANONICAL_CASES_BY_ID["standard.random64"]
+        old_seed = spec["input_seeds"][0]
+        try:
+            spec["input_seeds"][0] = 909
+
+            def random_generator(m, n, rank, seed):
+                seen.append((m, n, rank, seed)); return made
+
+            with mock.patch.object(self.runner, "make_random",
+                                   side_effect=random_generator), \
+                    mock.patch.object(self.runner, "make_grouped",
+                                      return_value=made), \
+                    mock.patch.object(self.runner, "make_digits",
+                                      return_value=made):
+                first_name, _arrays, actual_seed = next(
+                    self.runner.standard_cases())
+            self.assertEqual(first_name, "random64")
+            self.assertEqual(actual_seed, 909)
+            self.assertEqual(seen[0][-1], actual_seed)
+        finally:
+            spec["input_seeds"][0] = old_seed
 
     def test_guard_records_all_nine_solver_timings(self):
         output = np.zeros(11); output[[0, 2, 3, 4, 7]] = [2, 1, 1, 2, 1.0]
@@ -1351,17 +1851,20 @@ class RunnerIntegrationTests(ContractTestCase):
                             for row in section["cases"]))
 
     def test_lapack_keeps_separate_end_to_end_raw_timings(self):
-        router_output = np.zeros(11)
-        router_output[[0, 2, 3, 4, 7]] = [1, 2, 2, 2, 1.0]
-        lapack_output = np.zeros(7); lapack_output[[0, 1, 5]] = [1, 2, 1e-16]
         made = (self.A, self.b, self.x)
+        cases = {name: self.result_case(f"lapack.{name}") for name in (
+            "random64", "grouped64", "rankdef64", "random128",
+            "rankdef256", "random512")}
         with mock.patch.object(self.runner, "make_grouped", return_value=made), \
                 mock.patch.object(self.runner, "make_random", return_value=made), \
                 mock.patch.object(self.runner, "med_router", side_effect=lambda *_args, **kwargs: (
-                    2.0, router_output, [float(i) for i in range(1, 8)],
-                    self.result_case(kwargs["case_id"])["runs"])), \
-                mock.patch.object(self.runner, "end2end_seconds", return_value=(
-                    4.0, lapack_output, [float(i) for i in range(2, 9)])), \
+                    2.0, cases[kwargs["case_id"].removeprefix("lapack.")]["runs"][-1]["diagnostics"],
+                    [float(i) for i in range(1, 8)],
+                    cases[kwargs["case_id"].removeprefix("lapack.")]["runs"])), \
+                mock.patch.object(self.runner, "end2end_seconds", side_effect=lambda *_args, **kwargs: (
+                    4.0, cases[kwargs["case_id"].removeprefix("lapack.")]["comparator_runs"][-1]["diagnostics"],
+                    [float(i) for i in range(2, 9)],
+                    cases[kwargs["case_id"].removeprefix("lapack.")]["comparator_runs"])), \
                 contextlib.redirect_stdout(io.StringIO()):
             section = self.runner.run_lapack_context(mock.Mock(), 4)
         self.assertEqual(len(section["cases"]), 6)
@@ -1372,17 +1875,13 @@ class RunnerIntegrationTests(ContractTestCase):
                              [7, 7])
 
     def test_rank_transition_unavailable_residual_is_null_and_runs_identified(self):
-        output = np.zeros(11); output[[0, 2, 3, 4, 7]] = [5, 255, 255, 256, 1.0]
-        output[5] = math.nan
+        spec = LITERAL_CASES_BY_ID["rank.eps_1e-12"]
+        output = self.decoded_router_diagnostics(spec, 1.0)
         with mock.patch.object(self.runner, "make_rank_transition",
                                return_value=(self.A, self.b, self.x)), \
-                mock.patch.object(self.runner, "router", return_value=(
-                    output, {"observed_num_threads": 4,
-                             "runtime_identity": {
-                                 "runtime_id": "libgomp.so.1|openmp|fixture",
-                                 "basename": "libgomp.so.1",
-                                 "user_api": "openmp", "internal_api": "openmp",
-                                 "version": "fixture"}})), \
+                mock.patch.object(self.runner, "router", return_value=output), \
+                mock.patch.object(self.runner, "openmp_runtime_context",
+                                  self.observed_openmp), \
                 contextlib.redirect_stdout(io.StringIO()):
             section = self.runner.run_rank_transition(mock.Mock(), 4)
         for row in section["cases"]:
@@ -1393,18 +1892,16 @@ class RunnerIntegrationTests(ContractTestCase):
                                 for run in row["runs"]))
 
     def test_structural_records_actual_adjusted_seed(self):
-        output = np.zeros(11); output[[0, 2, 3, 4, 7]] = [1, 2, 2, 2, 1.0]
+        spec = LITERAL_CASES_BY_ID["structural.full_n32_x4"]
+        output = self.decoded_router_diagnostics(spec, 1.0)
         seen = []
-        def fake_router(_library, _A, _b, _x, seed, omp, **_kwargs):
-            seen.append(seed); return output, {
-                "observed_num_threads": omp,
-                "runtime_identity": {
-                    "runtime_id": "libgomp.so.1|openmp|fixture",
-                    "basename": "libgomp.so.1", "user_api": "openmp",
-                    "internal_api": "openmp", "version": "fixture"}}
+        def fake_router(_library, _A, _b, _x, seed):
+            seen.append(seed); return output
         with mock.patch.object(self.runner, "structural_cases", return_value=[
-                ("full_n32_x4", self.A, self.b, self.x, "unique", 2)]), \
+                ("full_n32_x4", self.A, self.b, self.x, "unique", 32, 20036)]), \
                 mock.patch.object(self.runner, "router", side_effect=fake_router), \
+                mock.patch.object(self.runner, "openmp_runtime_context",
+                                  self.observed_openmp), \
                 contextlib.redirect_stdout(io.StringIO()):
             section = self.runner.run_structural(mock.Mock(), 4)
         runs = section["cases"][0]["runs"]

@@ -111,11 +111,11 @@ Run `python3 tests/test_numerical_suite_contract.py`. Expected: pure contract te
 
 - [ ] **Step 1: Make loading exact and lazy**
 
-Set BLAS controls before NumPy/SciPy imports, resolve through the contract module, and control the router's observed OpenMP runtime through `threadpoolctl` without hard-coding or loading `libgomp` separately.
+Set BLAS controls before NumPy/SciPy imports, resolve through the contract module, and bind threadpoolctl control to the owner of an OpenMP symbol reached through the loaded router handle. Permit unrelated vendored OpenMP runtimes, control the selected router runtime around each whole case batch, and keep discovery/restoration outside repetition timers.
 
 - [ ] **Step 2: Add ABI checks and evidence records without changing generators**
 
-Call `ensure_abi_arrays` immediately before every router, sequential, and LAPACK API call. Replace discarded raw arrays with timing records; store every timed router invocation with stable case/run IDs, actual generator/routing seeds, repetition and requested/observed OpenMP identity, seconds, full diagnostics and per-run verdicts; retain input hashes, `router_berr`, and `null` when transition residuals are unavailable.
+Call `ensure_abi_arrays` immediately before every router, sequential, and LAPACK API call. Replace discarded raw arrays with timing records; store every timed router and comparator invocation with stable case/run IDs, actual generator/routing seeds where applicable, repetition and requested/observed OpenMP identity for router runs, seconds, strict public-output diagnostics and per-run verdicts; retain input hashes, `router_berr`, and `null` only for documented unavailable outputs.
 
 - [ ] **Step 3: Add numerical contracts and recomputable summaries**
 

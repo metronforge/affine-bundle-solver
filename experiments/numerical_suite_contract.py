@@ -46,7 +46,10 @@ CANONICAL_SECTIONS = (
 def _timing(operation: str, source: str, warmups: int,
             repetitions: int) -> dict[str, Any]:
     return {"operation": operation, "source": source, "unit": "s",
-            "warmups": warmups, "repetitions": repetitions}
+            "warmups": warmups, "repetitions": repetitions,
+            "measurement_envelope": (
+                "python_callable_only" if source == "perf_counter_ns" else
+                "solver_reported_call_only")}
 
 
 def _ratio(case_id: str, name: str, numerator: str, denominator: str,
@@ -83,6 +86,20 @@ def _case(case_id: str, section: str, family: str, generator: str,
             len(requested_threads) != repetitions or len(
                 warmup_routing_seeds) != router_timing["warmups"]:
         raise ValueError(f"invalid canonical run shape for {case_id}")
+    comparator_run_contracts = []
+    for timing in timings:
+        if timing["operation"] == "router":
+            continue
+        comparator_run_contracts.append({
+            "operation": timing["operation"],
+            "run_id_format": (
+                "{case_id}." + timing["operation"] +
+                ".rep_{repetition_index:02d}"),
+            "repetition_indices": list(range(timing["repetitions"])),
+            "timing_unit": timing["unit"],
+            "expected_status": expected_status,
+            "expected_rank": expected_rank,
+        })
     return {
         "case_id": case_id, "section": section, "family": family,
         "generator": generator,
@@ -106,6 +123,7 @@ def _case(case_id: str, section: str, family: str, generator: str,
                                       for value in requested_threads],
             "timing_unit": "s",
         },
+        "comparator_run_contracts": comparator_run_contracts,
         "required_ratios": [dict(item) for item in required_ratios],
     }
 
@@ -346,7 +364,7 @@ def _build_cases() -> tuple[dict[str, Any], ...]:
         index = sum(item["section"] == "structural" for item in cases)
         cases.append(_case(
             f"structural.scaled_n{n}_r{rank}", "structural", "row_scaled",
-            "make_structured_rank_scaled",
+            "make_structured_rank",
             _structured_parameters(4096, n, rank, 25000 + n + rank,
                                    scale_rows=True),
             4096, n, [25000 + n + rank],
@@ -390,6 +408,42 @@ CANONICAL_CASE_IDS = {
                    if item["section"] == section)
     for section, _ in CANONICAL_SECTIONS
 }
+SECTION_SUMMARY_CONTRACTS = {
+    "standard": {
+        "fields": ["case_count", "ratio_name", "ratio_count",
+                   "ratio_geomean", "ratio_median"],
+        "ratio_name": "sequential_reference_over_router",
+    },
+    "rank": {"fields": ["case_count"]},
+    "guard": {"fields": ["case_count"]},
+    "scaling": {
+        "fields": ["case_count", "ratio_name", "ratio_count",
+                   "ratio_geomean", "ratio_median"],
+        "ratio_name": "one_thread_router_over_router",
+    },
+    "structural": {
+        "fields": ["case_count", "routing_seeds_per_instance", "check_count",
+                   "hard_failure_count", "reported_hard_failure_count",
+                   "failures", "max_consistent_relres",
+                   "median_router_seconds"],
+    },
+    "lapack": {
+        "fields": ["case_count", "ratio_name", "ratio_count",
+                   "ratio_geomean", "ratio_median"],
+        "ratio_name": "dgelsy_over_router",
+    },
+}
+EXECUTION_CONTRACT = {
+    "openmp_control_scope": "router-associated-runtime-per-case-batch",
+    "comparator_evidence": "every-timed-invocation",
+    "result_metadata_openmp_identity_binding": True,
+}
+CANONICAL_EVIDENCE_COUNTS = {
+    "router_runs": 546,
+    "sequential_reference_runs": 63,
+    "dgelsy_runs": 42,
+    "ratios": 24,
+}
 CANONICAL_PROTOCOL = {
     "protocol_id": PROTOCOL_ID,
     "schema_version": RESULT_SCHEMA_VERSION,
@@ -400,6 +454,9 @@ CANONICAL_PROTOCOL = {
         for section, output in CANONICAL_SECTIONS],
     "candidate_omp": 4,
     "scaling_openmp_schedule": [1, 2, 4],
+    "execution_contract": EXECUTION_CONTRACT,
+    "evidence_counts": CANONICAL_EVIDENCE_COUNTS,
+    "section_summary_contracts": SECTION_SUMMARY_CONTRACTS,
 }
 
 
@@ -506,7 +563,10 @@ def timing_record(*, operation: str, source: str, warmups: int,
     mad = float(statistics.median(abs(value - median) for value in values))
     return {"operation": operation, "source": source, "unit": unit,
             "warmups": warmups, "repetitions": repetitions, "raw": values,
-            "median": median, "mad": mad}
+            "median": median, "mad": mad,
+            "measurement_envelope": (
+                "python_callable_only" if source == "perf_counter_ns" else
+                "solver_reported_call_only")}
 
 
 def ratio_record(*, name: str, numerator_operation: str,
@@ -570,6 +630,9 @@ def _timing_reasons(record: Any, expected: Mapping[str, Any],
         _append(reasons, f"result_timing_source_mismatch:{prefix}")
     if record.get("unit") != expected["unit"]:
         _append(reasons, f"result_timing_unit_mismatch:{prefix}")
+    if record.get("measurement_envelope") != expected[
+            "measurement_envelope"]:
+        _append(reasons, f"result_timing_envelope_mismatch:{prefix}")
     if record.get("warmups") != expected["warmups"]:
         _append(reasons, f"result_timing_warmups_mismatch:{prefix}")
     if record.get("repetitions") != expected["repetitions"]:
@@ -587,6 +650,150 @@ def _timing_reasons(record: Any, expected: Mapping[str, Any],
     if not _finite_number(record.get("mad")) or not math.isclose(
             float(record["mad"]), mad, rel_tol=1e-12, abs_tol=1e-15):
         _append(reasons, f"result_timing_mad_mismatch:{prefix}")
+    return reasons
+
+
+_STATUS_NUMBERS = {"unique": 1, "infinite": 2, "inconsistent": 3,
+                   "fail": 4, "undecidable": 5}
+_CERTAINTY_NUMBERS = {"deterministic": 1, "randomised": 2, "none": 3}
+_QUALITY_THRESHOLD = 1e-14
+
+
+def _nullable_nonnegative_valid(value: Any) -> bool:
+    return value is None or (_finite_number(value) and value >= 0)
+
+
+def _router_diagnostics_reasons(diagnostics: Any, spec: Mapping[str, Any],
+                                prefix: str) -> list[str]:
+    reason = f"result_run_diagnostics_invalid:{prefix}"
+    if not isinstance(diagnostics, dict):
+        return [reason]
+    required = {
+        "status", "status_code", "certainty", "certainty_code", "rank",
+        "rank_lo", "rank_hi", "router_relres", "router_relx",
+        "solver_seconds", "fallback", "raw_class", "router_berr",
+    }
+    if not required <= set(diagnostics):
+        return [reason]
+    status = diagnostics.get("status")
+    certainty = diagnostics.get("certainty")
+    rank = diagnostics.get("rank")
+    lo = diagnostics.get("rank_lo")
+    hi = diagnostics.get("rank_hi")
+    invalid = (
+        status not in _STATUS_NUMBERS or
+        diagnostics.get("status_code") != _STATUS_NUMBERS.get(status) or
+        diagnostics.get("raw_class") != _STATUS_NUMBERS.get(status) or
+        certainty not in _CERTAINTY_NUMBERS or
+        diagnostics.get("certainty_code") != _CERTAINTY_NUMBERS.get(certainty) or
+        not all(isinstance(value, int) and not isinstance(value, bool) and
+                value >= 0 for value in (rank, lo, hi)) or
+        not lo <= rank <= hi or
+        not isinstance(diagnostics.get("fallback"), bool) or
+        not _finite_number(diagnostics.get("solver_seconds")) or
+        diagnostics.get("solver_seconds") <= 0 or
+        not _nullable_nonnegative_valid(diagnostics.get("router_relres")) or
+        not _nullable_nonnegative_valid(diagnostics.get("router_relx")) or
+        not _nullable_nonnegative_valid(diagnostics.get("router_berr"))
+    )
+    if status in ("fail", "undecidable"):
+        invalid = invalid or certainty != "none" or any(
+            diagnostics.get(field) is not None
+            for field in ("router_relres", "router_relx", "router_berr"))
+    else:
+        invalid = invalid or certainty == "none" or \
+            diagnostics.get("router_relres") is None
+        if status == "inconsistent":
+            invalid = invalid or diagnostics.get("router_relx") is not None
+        else:
+            invalid = invalid or diagnostics.get("router_relx") is None
+        if status == "unique" and certainty == "deterministic":
+            berr = diagnostics.get("router_berr")
+            invalid = invalid or berr is None or berr > _QUALITY_THRESHOLD
+        else:
+            invalid = invalid or diagnostics.get("router_berr") is not None
+    if invalid:
+        return [reason]
+    if status != spec["expected_status"] or rank != spec["expected_rank"]:
+        return [f"result_run_outcome_mismatch:{prefix}"]
+    if (lo, hi) != (spec["expected_rank_lo"], spec["expected_rank_hi"]):
+        return [f"result_run_rank_interval_mismatch:{prefix}"]
+    return []
+
+
+def _comparator_diagnostics_reasons(diagnostics: Any,
+                                    expected: Mapping[str, Any],
+                                    prefix: str) -> list[str]:
+    reason = f"result_comparator_run_diagnostics_invalid:{prefix}"
+    if not isinstance(diagnostics, dict):
+        return [reason]
+    required = {"status", "status_code", "rank", "fallback",
+                "accepted_random", "solver_seconds", "relres", "relx"}
+    if not required <= set(diagnostics):
+        return [reason]
+    status = diagnostics.get("status")
+    rank = diagnostics.get("rank")
+    invalid = (
+        status not in _STATUS_NUMBERS or
+        diagnostics.get("status_code") != _STATUS_NUMBERS.get(status) or
+        not isinstance(rank, int) or isinstance(rank, bool) or rank < 0 or
+        not isinstance(diagnostics.get("fallback"), bool) or
+        not isinstance(diagnostics.get("accepted_random"), bool) or
+        not _finite_number(diagnostics.get("solver_seconds")) or
+        diagnostics.get("solver_seconds") <= 0 or
+        not _nullable_nonnegative_valid(diagnostics.get("relres")) or
+        not _nullable_nonnegative_valid(diagnostics.get("relx"))
+    )
+    if status in ("fail", "undecidable"):
+        invalid = invalid or diagnostics.get("relres") is not None or \
+            diagnostics.get("relx") is not None
+    else:
+        invalid = invalid or diagnostics.get("relres") is None
+        if status == "inconsistent":
+            invalid = invalid or diagnostics.get("relx") is not None
+        else:
+            invalid = invalid or diagnostics.get("relx") is None
+    if invalid or status != expected["expected_status"] or \
+            rank != expected["expected_rank"]:
+        return [reason]
+    return []
+
+
+def _comparator_run_reasons(run: Any, expected: Mapping[str, Any],
+                            index: int, case_id: str) -> list[str]:
+    operation = expected["operation"]
+    prefix = f"{case_id}:{operation}"
+    if not isinstance(run, dict):
+        return [f"result_comparator_run_invalid:{prefix}"]
+    reasons: list[str] = []
+    expected_id = expected["run_id_format"].format(
+        case_id=case_id, repetition_index=index)
+    if run.get("run_id") != expected_id or run.get("case_id") != case_id or \
+            run.get("operation") != operation or \
+            run.get("repetition_index") != expected["repetition_indices"][index]:
+        _append(reasons, f"result_comparator_run_order_mismatch:{prefix}")
+    duration = run.get("duration")
+    if not isinstance(duration, dict) or \
+            duration.get("unit") != expected["timing_unit"] or \
+            not _finite_number(duration.get("value")) or \
+            duration.get("value") <= 0:
+        _append(reasons, f"result_comparator_run_duration_invalid:{prefix}")
+    for item in _comparator_diagnostics_reasons(
+            run.get("diagnostics"), expected, prefix):
+        _append(reasons, item)
+    numerical = run.get("numerical_contract")
+    expected_outcome = {"status": expected["expected_status"],
+                        "rank": expected["expected_rank"]}
+    diagnostics = run.get("diagnostics")
+    actual = ({"status": diagnostics.get("status"),
+               "rank": diagnostics.get("rank")}
+              if isinstance(diagnostics, dict) else None)
+    if not isinstance(numerical, dict) or \
+            numerical.get("expected") != expected_outcome or \
+            numerical.get("actual") != actual or \
+            numerical.get("valid") is not True or numerical.get("reasons") != []:
+        _append(reasons,
+                f"result_comparator_run_numerical_contract_invalid:{prefix}")
     return reasons
 
 
@@ -628,27 +835,8 @@ def _run_reasons(run: Any, spec: Mapping[str, Any], index: int,
                 duration.get("value") <= 0:
             _append(reasons, f"result_run_duration_invalid:{case_id}")
     diagnostics = run.get("diagnostics")
-    if not isinstance(diagnostics, dict):
-        _append(reasons, f"result_run_diagnostics_invalid:{case_id}")
-    else:
-        rank_values = (diagnostics.get("rank"), diagnostics.get("rank_lo"),
-                       diagnostics.get("rank_hi"))
-        if diagnostics.get("status") != spec["expected_status"] or \
-                diagnostics.get("rank") != spec["expected_rank"]:
-            _append(reasons, f"result_run_outcome_mismatch:{case_id}")
-        if not all(isinstance(value, int) and not isinstance(value, bool)
-                   for value in rank_values) or not (
-                       spec["expected_rank_lo"] == diagnostics.get("rank_lo") and
-                       spec["expected_rank_hi"] == diagnostics.get("rank_hi")):
-            _append(reasons, f"result_run_rank_interval_mismatch:{case_id}")
-        for field in ("router_relres", "router_berr"):
-            value = diagnostics.get(field)
-            if value is not None and not _finite_number(value):
-                _append(reasons, f"result_run_diagnostics_invalid:{case_id}")
-        if not isinstance(diagnostics.get("fallback"), bool) or \
-                not _finite_number(diagnostics.get("solver_seconds")) or \
-                diagnostics.get("solver_seconds") <= 0:
-            _append(reasons, f"result_run_diagnostics_invalid:{case_id}")
+    for item in _router_diagnostics_reasons(diagnostics, spec, case_id):
+        _append(reasons, item)
     numerical = run.get("numerical_contract")
     if not isinstance(numerical, dict) or numerical.get("valid") is not True \
             or numerical.get("reasons") != []:
@@ -738,6 +926,14 @@ def validate_result_document(document: Any, *,
         summary = section.get("summary")
         if not isinstance(summary, dict) or summary.get("case_count") != len(cases):
             _append(reasons, f"result_summary_case_count_mismatch:{section_id}")
+        summary_contract = SECTION_SUMMARY_CONTRACTS[section_id]
+        if not isinstance(summary, dict) or set(summary) != set(
+                summary_contract["fields"]):
+            _append(reasons, f"result_summary_shape_mismatch:{section_id}")
+        if "ratio_name" in summary_contract and isinstance(summary, dict) and \
+                summary.get("ratio_name") != summary_contract["ratio_name"]:
+            _append(reasons,
+                    f"result_summary_ratio_name_mismatch:{section_id}")
         timing_by_case = {}
         for case in cases:
             if isinstance(case, dict):
@@ -841,6 +1037,63 @@ def validate_result_document(document: Any, *,
             if not isinstance(router_timing, dict) or \
                     run_durations != router_timing.get("raw"):
                 _append(reasons, f"result_run_timing_disagreement:{case_id}")
+            comparator_runs = case.get("comparator_runs")
+            if not isinstance(comparator_runs, list):
+                comparator_runs = []
+                _append(reasons, f"result_comparator_runs_invalid:{case_id}")
+            comparator_invalid = False
+            expected_comparator_total = sum(
+                len(item["repetition_indices"])
+                for item in spec["comparator_run_contracts"])
+            if len(comparator_runs) != expected_comparator_total:
+                comparator_invalid = True
+            offset = 0
+            for comparator in spec["comparator_run_contracts"]:
+                operation = comparator["operation"]
+                prefix = f"{case_id}:{operation}"
+                count = len(comparator["repetition_indices"])
+                operation_runs = comparator_runs[offset:offset + count]
+                actual_operation_runs = [run for run in comparator_runs
+                                         if isinstance(run, dict) and
+                                         run.get("operation") == operation]
+                if len(actual_operation_runs) != count:
+                    _append(reasons,
+                            f"result_comparator_run_shape_mismatch:{prefix}")
+                    comparator_invalid = True
+                run_ids = [run.get("run_id") if isinstance(run, dict) else None
+                           for run in actual_operation_runs]
+                if any(number > 1 for value, number in Counter(run_ids).items()
+                       if value is not None):
+                    _append(reasons,
+                            f"result_comparator_run_identity_duplicate:{prefix}")
+                    comparator_invalid = True
+                for index, run in enumerate(operation_runs):
+                    run_reasons = _comparator_run_reasons(
+                        run, comparator, index, case_id)
+                    if run_reasons:
+                        comparator_invalid = True
+                    for item in run_reasons:
+                        _append(reasons, item)
+                comparator_timing = next((item for item in timings
+                                          if isinstance(item, dict) and
+                                          item.get("operation") == operation),
+                                         None)
+                comparator_durations = [
+                    run.get("duration", {}).get("value")
+                    for run in operation_runs if isinstance(run, dict) and
+                    isinstance(run.get("duration"), dict)]
+                if not isinstance(comparator_timing, dict) or \
+                        comparator_durations != comparator_timing.get("raw"):
+                    _append(reasons,
+                            f"result_comparator_timing_disagreement:{prefix}")
+                    comparator_invalid = True
+                offset += count
+            if not spec["comparator_run_contracts"] and comparator_runs:
+                _append(reasons,
+                        f"result_comparator_run_shape_mismatch:{case_id}:unexpected")
+                comparator_invalid = True
+            if comparator_invalid and required_ratios:
+                _append(reasons, f"result_ratio_comparator_invalid:{case_id}")
             numerical = case.get("numerical_contract")
             if not isinstance(numerical, dict) or numerical.get("valid") is not True \
                     or not isinstance(numerical.get("reasons"), list):
@@ -872,6 +1125,9 @@ def validate_result_document(document: Any, *,
             if not isinstance(diagnostics, dict):
                 _append(reasons, f"result_diagnostics_invalid:{case_id}")
             else:
+                if _router_diagnostics_reasons(diagnostics, spec, case_id):
+                    _append(reasons,
+                            f"result_case_diagnostics_invalid:{case_id}")
                 rank = diagnostics.get("rank")
                 lo = diagnostics.get("rank_lo")
                 hi = diagnostics.get("rank_hi")
@@ -901,15 +1157,35 @@ def validate_result_document(document: Any, *,
                         _append(reasons,
                                 f"result_case_run_diagnostics_mismatch:{case_id}")
                         break
+                for comparator in spec["comparator_run_contracts"]:
+                    operation = comparator["operation"]
+                    field = ("sequential_reference" if operation ==
+                             "sequential_reference" else "dgelsy")
+                    operation_runs = [
+                        run for run in comparator_runs
+                        if isinstance(run, dict) and
+                        run.get("operation") == operation]
+                    if not operation_runs or diagnostics.get(field) != \
+                            operation_runs[-1].get("diagnostics"):
+                        _append(
+                            reasons,
+                            f"result_case_comparator_diagnostics_mismatch:{case_id}:{operation}")
             failed_runs = [run for run in runs if not isinstance(run, dict) or
                            not isinstance(run.get("numerical_contract"), dict) or
                            run["numerical_contract"].get("valid") is not True or
                            run["numerical_contract"].get("reasons")]
+            failed_comparator_runs = [
+                run for run in comparator_runs
+                if not isinstance(run, dict) or
+                not isinstance(run.get("numerical_contract"), dict) or
+                run["numerical_contract"].get("valid") is not True or
+                run["numerical_contract"].get("reasons")]
             hard_failures += len(failed_runs)
             if failed_runs and isinstance(numerical, dict) and \
                     numerical.get("valid") is True and not numerical.get("reasons"):
                 invalid_case_contracts += 1
-            if failed_runs or len(runs) != expected_run_count:
+            if failed_runs or failed_comparator_runs or comparator_invalid or \
+                    len(runs) != expected_run_count:
                 _append(reasons, f"result_case_run_aggregate_mismatch:{case_id}")
             elif not isinstance(numerical, dict) or \
                     numerical.get("valid") is not True or numerical.get("reasons"):
@@ -918,22 +1194,80 @@ def validate_result_document(document: Any, *,
             if summary.get("hard_failure_count") != hard_failures or \
                     summary.get("reported_hard_failure_count") != hard_failures:
                 _append(reasons, "result_structural_hard_failure_count_mismatch")
-        if isinstance(summary, dict) and (
-                "ratio_count" in summary or "ratio_geomean" in summary):
+            structural_runs = [
+                run for case in cases if isinstance(case, dict)
+                for run in case.get("runs", []) if isinstance(run, dict)]
+            consistent_residuals = [
+                run.get("diagnostics", {}).get("router_relres")
+                for case in cases if isinstance(case, dict) and
+                CANONICAL_CASES_BY_ID.get(case.get("case_id"), {}).get(
+                    "expected_status") != "inconsistent"
+                for run in case.get("runs", []) if isinstance(run, dict) and
+                _finite_number(run.get("diagnostics", {}).get(
+                    "router_relres"))]
+            structural_times = [
+                run.get("duration", {}).get("value")
+                for run in structural_runs
+                if _finite_number(run.get("duration", {}).get("value"))]
+            if summary.get("routing_seeds_per_instance") != 3 or \
+                    summary.get("check_count") != len(structural_runs) or \
+                    summary.get("failures") != [] or \
+                    summary.get("max_consistent_relres") != (
+                        max(consistent_residuals)
+                        if consistent_residuals else None) or \
+                    not structural_times or not _finite_number(
+                        summary.get("median_router_seconds")) or \
+                    not math.isclose(
+                        float(summary["median_router_seconds"]),
+                        float(statistics.median(structural_times)),
+                        rel_tol=1e-12, abs_tol=0):
+                _append(reasons, "result_structural_summary_mismatch")
+        if "ratio_name" in summary_contract and isinstance(summary, dict):
             count = len(section_ratios)
             geomean = (math.exp(statistics.mean(math.log(value)
                                                for value in section_ratios))
                        if section_ratios else None)
+            median = statistics.median(section_ratios) \
+                if section_ratios else None
             if summary.get("ratio_count") != count or geomean is None or \
                     not _finite_number(summary.get("ratio_geomean")) or \
                     not math.isclose(float(summary["ratio_geomean"]), geomean,
+                                     rel_tol=1e-12, abs_tol=0) or \
+                    median is None or not _finite_number(
+                        summary.get("ratio_median")) or \
+                    not math.isclose(float(summary["ratio_median"]), median,
                                      rel_tol=1e-12, abs_tol=0):
                 _append(reasons,
                         f"result_summary_ratio_aggregate_mismatch:{section_id}")
     if not saw_timing:
         _append(reasons, "result_raw_timings_missing")
+    actual_counts = {
+        "router_runs": sum(
+            len(case.get("runs", []))
+            for section in sections if isinstance(section, dict)
+            for case in section.get("cases", []) if isinstance(case, dict)),
+        "sequential_reference_runs": sum(
+            run.get("operation") == "sequential_reference"
+            for section in sections if isinstance(section, dict)
+            for case in section.get("cases", []) if isinstance(case, dict)
+            for run in case.get("comparator_runs", []) if isinstance(run, dict)),
+        "dgelsy_runs": sum(
+            run.get("operation") == "dgelsy"
+            for section in sections if isinstance(section, dict)
+            for case in section.get("cases", []) if isinstance(case, dict)
+            for run in case.get("comparator_runs", []) if isinstance(run, dict)),
+        "ratios": sum(
+            len(case.get("ratios", []))
+            for section in sections if isinstance(section, dict)
+            for case in section.get("cases", []) if isinstance(case, dict)),
+    }
+    expected_counts = (CANONICAL_EVIDENCE_COUNTS if require_complete
+                       else actual_counts)
+    if document.get("evidence_counts") != expected_counts or \
+            actual_counts != expected_counts:
+        _append(reasons, "result_evidence_counts_mismatch")
     top = document.get("numerical_contract")
-    if not isinstance(top, dict) or top.get("valid") is not True:
+    if top != {"valid": True, "reasons": []}:
         _append(reasons, "result_numerical_contract_invalid")
     if invalid_case_contracts and isinstance(top, dict) and \
             top.get("valid") is True:
@@ -1111,6 +1445,20 @@ def validate_metadata_document(document: Any, *,
                                           "internal_api")) or \
                     not isinstance(pool.get("num_threads"), int):
                 _append(reasons, "runtime_openmp_pool_identity_incomplete")
+    selected_openmp = runtime.get("selected_router_openmp_identity")
+    identity_fields = ("runtime_id", "basename", "user_api", "internal_api",
+                       "version")
+    if not isinstance(selected_openmp, dict) or \
+            selected_openmp.get("user_api") != "openmp" or not all(
+                isinstance(selected_openmp.get(field), str) and
+                selected_openmp.get(field) for field in identity_fields):
+        _append(reasons, "runtime_router_openmp_identity_missing")
+    elif isinstance(openmp_pools, list):
+        matches = [pool for pool in openmp_pools if isinstance(pool, dict) and
+                   all(pool.get(field) == selected_openmp.get(field)
+                       for field in identity_fields)]
+        if len(matches) != 1:
+            _append(reasons, "runtime_router_openmp_pool_identity_mismatch")
     controls = runtime.get("thread_controls") if isinstance(
         runtime.get("thread_controls"), dict) else {}
     if controls.get("OMP_NUM_THREADS") != "4":
@@ -1143,6 +1491,27 @@ def validate_metadata_document(document: Any, *,
     return reasons
 
 
+def _result_metadata_openmp_reasons(result: Mapping[str, Any],
+                                    metadata: Mapping[str, Any]) -> list[str]:
+    identities = []
+    for section in result.get("sections", []):
+        if not isinstance(section, dict):
+            continue
+        for case in section.get("cases", []):
+            if not isinstance(case, dict):
+                continue
+            for run in case.get("runs", []):
+                if isinstance(run, dict):
+                    identities.append(run.get("openmp_runtime_identity"))
+    runtime = metadata.get("runtime") if isinstance(
+        metadata.get("runtime"), dict) else {}
+    selected = runtime.get("selected_router_openmp_identity")
+    if not identities or not isinstance(selected, dict) or any(
+            identity != selected for identity in identities):
+        return ["result_metadata_router_openmp_identity_mismatch"]
+    return []
+
+
 def evaluate_eligibility(*, result: Mapping[str, Any],
                          metadata: Mapping[str, Any], candidate: bool,
                          omp: int) -> dict[str, Any]:
@@ -1160,6 +1529,8 @@ def evaluate_eligibility(*, result: Mapping[str, Any],
         _append(reasons, reason)
     result_bytes = canonical_json_bytes(result)
     for reason in validate_metadata_document(metadata, result_bytes=result_bytes):
+        _append(reasons, reason)
+    for reason in _result_metadata_openmp_reasons(result, metadata):
         _append(reasons, reason)
     return {"eligible": not reasons, "reasons": reasons}
 
@@ -1367,7 +1738,9 @@ def audit_package(root: os.PathLike[str] | str) -> dict[str, Any]:
         if metadata_document is not None else ["metadata_document_unavailable"])
     eligibility_reasons: list[str] = []
     if result_document is not None and metadata_document is not None:
-        for reason in result_reasons + metadata_reasons:
+        cross_reasons = _result_metadata_openmp_reasons(
+            result_document, metadata_document)
+        for reason in result_reasons + metadata_reasons + cross_reasons:
             _append(eligibility_reasons, reason)
         verdict = metadata_document.get("evidence_eligibility")
         if not isinstance(verdict, dict) or verdict.get("eligible") is not True:

@@ -40,8 +40,12 @@ candidate checksum.
 
 The 82-case protocol is independently frozen in a literal test fixture. Its
 signature is
-`31e84400f2bb347bf3e076a8179b9a361c8e5cb7377eec0da7824e7e63a5ab04`.
+`b9f774b376c525a111139f0a1c786c4262f88903d064a2860e78795bf57ae1f5`.
 It replaces
+`31e84400f2bb347bf3e076a8179b9a361c8e5cb7377eec0da7824e7e63a5ab04`
+because comparator-run records, callable-only timing envelopes,
+router-associated OpenMP control, exact summary shapes, and the actual scaled
+structural callable identity are now signed. That signature had replaced
 `ef22e2101de6a5b29a5e8319fcf04faf5af6ac6ca36f8430650070c6fa1ca7d8`
 because generator parameters/distributions, warmup and timed routing seeds,
 required run identities, `s` units, requested OpenMP threads, and required
@@ -79,11 +83,14 @@ machine-readable reasons for schema, hash, protocol, provenance, timing, input,
 diagnostic, and numerical failures. Timing-range misses remain observations and
 do not affect numerical or evidence eligibility.
 
-OpenMP control is runtime-neutral: `threadpoolctl` limits `user_api=openmp`
-inside each router-call context and observes that same context. Candidate mode
-requires exactly one identified OpenMP runtime and exact requested/observed
-thread equality. BLAS and OpenMP pools are partitioned by `user_api`, so a
-four-thread OpenMP pool is never mistaken for a four-thread BLAS pool.
+OpenMP control is runtime-neutral and router-specific: an OpenMP symbol reached
+from the loaded router identifies its owning runtime, and that exact
+threadpoolctl record is selected for a complete case batch. Unrelated vendored
+OpenMP pools may coexist. Candidate mode rejects missing or duplicate owner
+matches, requested/observed disagreement, and runtime drift. Discovery,
+observation, and restoration occur outside per-repetition timers; router and
+DGELSY `perf_counter_ns` measurements wrap equivalent callable-only envelopes.
+BLAS and OpenMP pools remain partitioned by `user_api`.
 
 Publication serializes with `allow_nan=False`, validates before any final
 replacement, uses temporary files in the destination directory, and replaces

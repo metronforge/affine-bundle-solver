@@ -10,9 +10,13 @@ make any manuscript claim current.
 Result schema version 2 uses protocol ID
 `affine-bundle-numerical-suite-v2`. The canonical protocol signature is:
 
-`31e84400f2bb347bf3e076a8179b9a361c8e5cb7377eec0da7824e7e63a5ab04`
+`b9f774b376c525a111139f0a1c786c4262f88903d064a2860e78795bf57ae1f5`
 
-The earlier signature
+The preceding signature
+`31e84400f2bb347bf3e076a8179b9a361c8e5cb7377eec0da7824e7e63a5ab04`
+did not bind comparator-run evidence, callable-only LAPACK timing envelopes,
+router-associated OpenMP selection, exact section-summary shapes, or the
+actual scaled structural callable name. The still earlier signature
 `ef22e2101de6a5b29a5e8319fcf04faf5af6ac6ca36f8430650070c6fa1ca7d8`
 did not sign a complete execution-evidence shape. The signature changed
 because the protocol now includes complete generator parameters and
@@ -42,12 +46,28 @@ and an individual numerical-contract verdict. A case is valid only when every
 required run is present exactly once, in order, and valid. Warmups have signed
 seed sequences but are not mixed into timed aggregates.
 
+Every timed sequential-reference and DGELSY invocation is separately retained
+as a comparator run with its own stable ID, duration, decoded status/rank and
+diagnostics, and numerical verdict. Canonical totals are 546 router runs, 63
+sequential-reference runs, 42 DGELSY runs, and 24 ratios. Missing or invalid
+comparator evidence invalidates the associated ratio and case.
+
+Router output is decoded without numeric coercion: status, certainty, rank,
+rank interval, fallback, and raw class must be exact finite integers in their
+public domains, and status must equal raw class. FAIL and UNDECIDABLE require
+certainty NONE and documented-NaN unavailable diagnostics; infinity is never
+treated as unavailable. BERR is finite only for deterministic UNIQUE and must
+lie in `[0, 1e-14]`.
+
 Each timed operation records one timing source, exact warmup and repetition
 counts, positive finite raw observations, median, and median absolute
 deviation. Solver-reported timings and Python `perf_counter_ns` timings remain
 separate. Required ratios have signed identities, numerator, denominator, and
 direction and are recomputed from named medians. Historical timing ranges are
 observations and never decide numerical validity or package eligibility.
+Each ratio section has an exact `ratio_name`, count, geomean, and median
+summary; non-ratio sections reject ratio aggregates. The top-level numerical
+contract is exactly `{"valid": true, "reasons": []}` for admissible evidence.
 
 ## Package and candidate admission
 
@@ -70,10 +90,20 @@ authorize that exact resolved library, and the verified path is the path
 passed to `CDLL`. Router, sequential, LAPACK, and counter symbols are configured
 on that same handle. The linked BLAS hash must occur in an observed runtime
 BLAS pool, and every runtime BLAS pool must use one thread. Runtime pools are
-split by `user_api`: BLAS pools remain single-threaded, while `threadpoolctl`
-sets and observes the OpenMP runtime associated with each router call at the
-suite's intentional 1/2/4 schedule. Missing, ambiguous, or mismatched OpenMP
-observation makes candidate execution fail closed.
+split by `user_api`: BLAS pools remain single-threaded. The owner of an OpenMP
+symbol resolved through the already loaded router handle selects one exact
+threadpoolctl runtime. That selected runtime is controlled once around each
+complete case batch and observed at the suite's intentional 1/2/4 schedule;
+unrelated OpenMP runtimes, including vendored scikit-learn runtimes, remain
+recorded but do not make selection ambiguous. Missing, multiply matched,
+mismatched, or drifting router-runtime evidence makes candidate execution fail
+closed. The selected identity is cross-bound between every result run and the
+metadata sidecar.
+
+For `perf_counter_ns` measurements, runtime discovery, control, observation,
+and restoration are outside the timer. Router and DGELSY measurements both
+time only their Python callable/C-call envelope. Solver-reported timings remain
+separate and time only the solver-reported call interval.
 
 Candidate mode requires a reference-machine ID, `--omp=4`, and the exact
 ordered six sections. Partial ordered runs remain useful diagnostics but are
