@@ -911,6 +911,18 @@ class ManuscriptClaimCoverageTests(unittest.TestCase):
                                "load_performance_claim_registry"))
         return paper_claims.load_performance_claim_registry()
 
+    def synthetic_candidate_registry(self):
+        registry = copy.deepcopy(self.registry())
+        registry["candidate_artifact"]["source_sha"] = \
+            subprocess.check_output(
+                ["git", "rev-parse", "HEAD"], cwd=ROOT,
+                text=True).strip()
+        registry["candidate_artifact"]["source_tree"] = \
+            subprocess.check_output(
+                ["git", "rev-parse", "HEAD^{tree}"], cwd=ROOT,
+                text=True).strip()
+        return registry
+
     def validate(self, registry):
         self.assertTrue(hasattr(paper_claims,
                                "validate_performance_claim_registry"))
@@ -1382,8 +1394,9 @@ class ManuscriptClaimCoverageTests(unittest.TestCase):
 
         self.assertEqual(completed.returncode, 0, completed.stderr)
 
-    def test_immutable_candidate_integrity_and_readiness_are_separate(self):
-        registry = self.registry()
+    def test_synthetic_candidate_fixture_integrity_and_readiness_are_separate(
+            self):
+        registry = self.synthetic_candidate_registry()
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             self.write_candidate_package(root, registry)
