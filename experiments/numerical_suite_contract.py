@@ -45,27 +45,129 @@ CANONICAL_SECTIONS = (
 
 def _timing(operation: str, source: str, warmups: int,
             repetitions: int) -> dict[str, Any]:
-    return {"operation": operation, "source": source,
+    return {"operation": operation, "source": source, "unit": "s",
             "warmups": warmups, "repetitions": repetitions}
 
 
-def _case(case_id: str, section: str, generator: str, m: int, n: int,
+def _ratio(case_id: str, name: str, numerator: str, denominator: str,
+           **case_ids: str) -> dict[str, Any]:
+    return {
+        "ratio_id": f"{case_id}.ratio.{name}", "name": name,
+        "direction": f"{numerator}/{denominator}",
+        "numerator_operation": numerator,
+        "denominator_operation": denominator,
+        **case_ids,
+    }
+
+
+def _case(case_id: str, section: str, family: str, generator: str,
+          generator_parameters: Mapping[str, Any], m: int, n: int,
           input_seeds: Sequence[int], *, expected_status: str,
           expected_rank: int, timings: Sequence[Mapping[str, Any]],
-          routing_seeds: Sequence[int] = (),
+          routing_seeds: Sequence[int], requested_threads: Sequence[int],
+          warmup_routing_seeds: Sequence[int],
+          required_ratios: Sequence[Mapping[str, Any]] = (),
           expected_rank_lo: int | None = None,
           expected_rank_hi: int | None = None) -> dict[str, Any]:
     lo = expected_rank if expected_rank_lo is None else expected_rank_lo
     hi = ((n if expected_status == "infinite" else expected_rank)
           if expected_rank_hi is None else expected_rank_hi)
+    router_timing = next(item for item in timings
+                         if item["operation"] == "router")
+    repetitions = router_timing["repetitions"]
+    if len(input_seeds) == repetitions:
+        generator_seeds = [int(seed) for seed in input_seeds]
+    else:
+        generator_seeds = [int(input_seeds[0])] * repetitions
+    if len(routing_seeds) != repetitions or \
+            len(requested_threads) != repetitions or len(
+                warmup_routing_seeds) != router_timing["warmups"]:
+        raise ValueError(f"invalid canonical run shape for {case_id}")
     return {
-        "case_id": case_id, "section": section, "generator": generator,
+        "case_id": case_id, "section": section, "family": family,
+        "generator": generator,
+        "generator_parameters": dict(generator_parameters),
         "m": int(m), "n": int(n),
         "input_seeds": [int(seed) for seed in input_seeds],
         "routing_seeds": [int(seed) for seed in routing_seeds],
         "expected_status": expected_status, "expected_rank": expected_rank,
         "expected_rank_lo": lo, "expected_rank_hi": hi,
         "timings": [dict(item) for item in timings],
+        "run_contract": {
+            "operation": "router",
+            "run_id_format":
+                "{case_id}.router.rep_{repetition_index:02d}",
+            "generator_seeds": generator_seeds,
+            "warmup_routing_seeds": [int(seed)
+                                     for seed in warmup_routing_seeds],
+            "routing_seeds": [int(seed) for seed in routing_seeds],
+            "repetition_indices": list(range(repetitions)),
+            "requested_omp_threads": [int(value)
+                                      for value in requested_threads],
+            "timing_unit": "s",
+        },
+        "required_ratios": [dict(item) for item in required_ratios],
+    }
+
+
+def _random_parameters(m: int, n: int, rank: int, seed: int) -> dict[str, Any]:
+    return {
+        "args": [m, n, rank, seed],
+        "basis": "scipy.linalg.hadamard(n,dtype=float64)/sqrt(n),first-r-rows",
+        "coefficient_distribution":
+            "default_rng(seed).standard_normal((m,r))",
+        "solution_distribution": "same_rng.standard_normal(n)",
+        "A": "ascontiguousarray(C@basis,float64)",
+        "b": "ascontiguousarray(A@x,float64)",
+    }
+
+
+def _grouped_parameters(m: int, n: int, rank: int, seed: int,
+                        inconsistent: bool = False) -> dict[str, Any]:
+    return {
+        "args": [m, n, rank, seed, inconsistent],
+        "basis": "scipy.linalg.hadamard(n,dtype=float64)/sqrt(n)",
+        "row_index": "clip(arange(m)*rank//m,max=rank-1)",
+        "solution_distribution": "default_rng(seed).standard_normal(n)",
+        "A": "ascontiguousarray(basis[row_index],float64)",
+        "b": "ascontiguousarray(A@x,float64)",
+        "contradiction": "b[-1]+=0.25" if inconsistent else None,
+    }
+
+
+def _structured_parameters(m: int, n: int, rank: int, seed: int, *,
+                           scale_rows: bool = False,
+                           inconsistent: bool = False) -> dict[str, Any]:
+    return {
+        "args": [m, n, rank, seed, scale_rows],
+        "basis": "normalized_hadamard(n)",
+        "independent_prefix": "first min(rank,m) basis rows",
+        "dependent_index_distribution":
+            "default_rng(seed).integers(0,rank,(remaining,4))",
+        "dependent_sign_distribution":
+            "same_rng.choice([-1.0,1.0],(remaining,4))",
+        "dependent_rows": "signed sum of four basis rows times 0.5",
+        "solution_distribution": "same_rng.standard_normal(n)",
+        "b": "ascontiguousarray(A@x)",
+        "row_scale_distribution":
+            "10**same_rng.uniform(-8,8,m)" if scale_rows else None,
+        "contradiction": "b[-1]+=0.25" if inconsistent else None,
+    }
+
+
+def _late_parameters(m: int, n: int, rank: int, seed: int, *,
+                     delay: bool) -> dict[str, Any]:
+    return {
+        "args": [m, n, rank, seed, delay],
+        "basis": "normalized_hadamard(n)",
+        "prefix_rows": "basis[arange(min(n,m))%max(r0,1)]",
+        "delay_rows": ("basis[0] through max(0,m-n-prefix)"
+                       if delay else None),
+        "growth_rows": "basis[r0:n]",
+        "tail_distribution":
+            "default_rng(seed).integers(0,n,remaining)",
+        "solution_distribution": "same_rng.standard_normal(n)",
+        "b": "ascontiguousarray(A@x)",
     }
 
 
@@ -84,12 +186,34 @@ def _build_cases() -> tuple[dict[str, Any], ...]:
         ("random512", "make_random", 4096, 512, 109, "unique", 512),
     )
     for name, generator, m, n, seed, status, rank in standard:
+        case_id = f"standard.{name}"
+        if generator == "make_random":
+            parameters = _random_parameters(m, n, rank, seed)
+        elif generator == "make_grouped":
+            parameters = _grouped_parameters(
+                m, n, rank, seed, name == "inconsistent64")
+        else:
+            parameters = {
+                "args": [seed],
+                "dataset":
+                    "sklearn.datasets.load_digits().data.astype(float64)",
+                "feature_filter": "ptp(X,axis=0)>0",
+                "solution_distribution":
+                    "default_rng(seed).standard_normal(filtered_columns)",
+                "A": "ascontiguousarray(X[:,keep])",
+                "b": "ascontiguousarray(A@x)",
+                "filtered_design_sha256": DIGITS_DESIGN_SHA256,
+            }
         cases.append(_case(
-            f"standard.{name}", "standard", generator, m, n, [seed],
+            case_id, "standard", name, generator, parameters, m, n, [seed],
             expected_status=status, expected_rank=rank,
             timings=[_timing("router", "solver-reported", 4, 11),
                      _timing("sequential_reference", "solver-reported", 2, 7)],
-            routing_seeds=tuple(range(777, 781)) + tuple(range(877, 888))))
+            routing_seeds=range(877, 888), requested_threads=[4] * 11,
+            warmup_routing_seeds=range(777, 781),
+            required_ratios=[_ratio(
+                case_id, "sequential_reference_over_router",
+                "sequential_reference", "router")]))
 
     levels = ("1e-08", "3e-09", "1e-09", "3e-10", "3e-11", "1e-12")
     for index, level in enumerate(levels):
@@ -97,22 +221,46 @@ def _build_cases() -> tuple[dict[str, Any], ...]:
                                 if index < 3 else
                                 ("undecidable", 255, 255, 256))
         cases.append(_case(
-            f"rank.eps_{level}", "rank", "make_rank_transition", 512, 256,
-            range(7000, 7020), expected_status=status, expected_rank=rank,
+            f"rank.eps_{level}", "rank", "rank_transition",
+            "make_rank_transition", {
+                "args": ["epsilon", "generator_seed", 512, 256],
+                "epsilon": float(level),
+                "basis": "normalized_hadamard(256)",
+                "rows": "basis[arange(512)%255]",
+                "weak_last_row": "basis[0]+epsilon*basis[255]",
+                "solution_distribution":
+                    "default_rng(generator_seed).standard_normal(256),projected_off basis[255]",
+                "b": "ascontiguousarray(A@x)",
+            }, 512, 256, range(7000, 7020),
+            expected_status=status, expected_rank=rank,
             expected_rank_lo=lo, expected_rank_hi=hi,
             timings=[_timing("router", "solver-reported", 0, 20)],
-            routing_seeds=range(8000, 8020)))
+            routing_seeds=range(8000, 8020), requested_threads=[4] * 20,
+            warmup_routing_seeds=[]))
 
     for m, n, rank in ((2000, 64, 63), (10000, 64, 63),
                        (50000, 64, 63), (5000, 96, 95),
                        (20000, 96, 95), (10000, 64, 32),
                        (10000, 64, 1), (512, 192, 191)):
+        seed = 12000 + m + n + rank
         cases.append(_case(
-            f"guard.{m}x{n}.r{rank}", "guard", "make_integer_rank", m, n,
-            [12000 + m + n + rank], expected_status="infinite",
+            f"guard.{m}x{n}.r{rank}", "guard",
+            "rank1_cost" if rank == 1 else "formation_guard",
+            "make_integer_rank", {
+                "args": [m, n, rank, seed],
+                "U_distribution":
+                    "default_rng(seed).integers(-3,4,(m,r),int64).astype(float64),first-r rows identity",
+                "V_distribution":
+                    "same_rng.integers(-3,4,(r,n),int64).astype(float64),first-r columns identity",
+                "solution_distribution":
+                    "same_rng.integers(-3,4,n).astype(float64)",
+                "A": "ascontiguousarray(U@V)",
+                "b": "ascontiguousarray(A@x)",
+            }, m, n, [seed], expected_status="infinite",
             expected_rank=rank,
             timings=[_timing("router", "solver-reported", 3, 9)],
-            routing_seeds=tuple(range(777, 780)) + tuple(range(877, 886))))
+            routing_seeds=range(877, 886), requested_threads=[4] * 9,
+            warmup_routing_seeds=range(777, 780)))
 
     scaling = (
         ("grouped64", "make_grouped", 65536, 64, 13000, "unique", 64),
@@ -121,12 +269,22 @@ def _build_cases() -> tuple[dict[str, Any], ...]:
     )
     for threads in (1, 2, 4):
         for name, generator, m, n, seed, status, rank in scaling:
+            case_id = f"scaling.omp{threads}.{name}"
+            parameters = (_grouped_parameters(m, n, rank, seed)
+                          if generator == "make_grouped" else
+                          _random_parameters(m, n, rank, seed))
             cases.append(_case(
-                f"scaling.omp{threads}.{name}", "scaling", generator, m, n,
-                [seed], expected_status=status, expected_rank=rank,
+                case_id, "scaling", name, generator, parameters, m, n, [seed],
+                expected_status=status, expected_rank=rank,
                 timings=[_timing("router", "solver-reported", 3, 9)],
-                routing_seeds=tuple(range(14000, 14003)) +
-                              tuple(range(14100, 14109))))
+                routing_seeds=range(14100, 14109),
+                requested_threads=[threads] * 9,
+                warmup_routing_seeds=range(14000, 14003),
+                required_ratios=[_ratio(
+                    case_id, "one_thread_router_over_router",
+                    "omp1_router", "router",
+                    numerator_case_id=f"scaling.omp1.{name}",
+                    denominator_case_id=case_id)]))
 
     for n in (32, 64, 128, 256, 512):
         for mult in (4, 16, 64):
@@ -138,50 +296,66 @@ def _build_cases() -> tuple[dict[str, Any], ...]:
                 index = sum(item["section"] == "structural" for item in cases)
                 cases.append(_case(
                     f"structural.{prefix}_n{n}_x{mult}", "structural",
-                    "make_structured_rank", m, n, [seed],
+                    "structured_rank", "make_structured_rank",
+                    _structured_parameters(m, n, rank, seed), m, n, [seed],
                     expected_status=status, expected_rank=rank,
                     timings=[_timing("router", "solver-reported", 0, 3)],
                     routing_seeds=[31001 + index * 17,
                                    31002 + index * 17,
-                                   31003 + index * 17]))
+                                   31003 + index * 17],
+                    requested_threads=[4] * 3, warmup_routing_seeds=[]))
     for rank in (1, 2, 4, 8, 16, 64):
         index = sum(item["section"] == "structural" for item in cases)
         cases.append(_case(
-            f"structural.late_n128_r0_{rank}", "structural",
-            "make_late_growth", 4096, 128, [22000 + rank],
+            f"structural.late_n128_r0_{rank}", "structural", "late_growth",
+            "make_late_growth",
+            _late_parameters(4096, 128, rank, 22000 + rank, delay=False),
+            4096, 128, [22000 + rank],
             expected_status="unique", expected_rank=128,
             timings=[_timing("router", "solver-reported", 0, 3)],
             routing_seeds=[31001 + index * 17, 31002 + index * 17,
-                           31003 + index * 17]))
+                           31003 + index * 17], requested_threads=[4] * 3,
+            warmup_routing_seeds=[]))
     for name, m, n, rank, seed in (
             ("delayed_n64", 8192, 64, 64, 23001),
             ("delayed_n128", 8192, 128, 128, 23002)):
         index = sum(item["section"] == "structural" for item in cases)
         cases.append(_case(
-            f"structural.{name}", "structural", "make_late_growth", m, n,
-            [seed], expected_status="unique", expected_rank=rank,
+            f"structural.{name}", "structural", "delayed_growth",
+            "make_late_growth",
+            _late_parameters(m, n, 1 if n == 64 else 2, seed, delay=True),
+            m, n, [seed], expected_status="unique", expected_rank=rank,
             timings=[_timing("router", "solver-reported", 0, 3)],
             routing_seeds=[31001 + index * 17, 31002 + index * 17,
-                           31003 + index * 17]))
+                           31003 + index * 17], requested_threads=[4] * 3,
+            warmup_routing_seeds=[]))
     for n in (64, 128):
         index = sum(item["section"] == "structural" for item in cases)
         cases.append(_case(
-            f"structural.inconsistent_n{n}", "structural",
-            "make_structured_rank", 4096, n, [24000 + n],
+            f"structural.inconsistent_n{n}", "structural", "inconsistent",
+            "make_structured_rank",
+            _structured_parameters(4096, n, n, 24000 + n,
+                                   inconsistent=True),
+            4096, n, [24000 + n],
             expected_status="inconsistent", expected_rank=n,
             timings=[_timing("router", "solver-reported", 0, 3)],
             routing_seeds=[31001 + index * 17, 31002 + index * 17,
-                           31003 + index * 17]))
+                           31003 + index * 17], requested_threads=[4] * 3,
+            warmup_routing_seeds=[]))
     for n, rank in ((64, 64), (64, 56), (128, 128), (128, 112)):
         index = sum(item["section"] == "structural" for item in cases)
         cases.append(_case(
-            f"structural.scaled_n{n}_r{rank}", "structural",
-            "make_structured_rank_scaled", 4096, n, [25000 + n + rank],
+            f"structural.scaled_n{n}_r{rank}", "structural", "row_scaled",
+            "make_structured_rank_scaled",
+            _structured_parameters(4096, n, rank, 25000 + n + rank,
+                                   scale_rows=True),
+            4096, n, [25000 + n + rank],
             expected_status="unique" if rank == n else "infinite",
             expected_rank=rank,
             timings=[_timing("router", "solver-reported", 0, 3)],
             routing_seeds=[31001 + index * 17, 31002 + index * 17,
-                           31003 + index * 17]))
+                           31003 + index * 17], requested_threads=[4] * 3,
+            warmup_routing_seeds=[]))
 
     lapack = (
         ("random64", "make_random", 32768, 64, 101, "unique", 64),
@@ -192,12 +366,20 @@ def _build_cases() -> tuple[dict[str, Any], ...]:
         ("random512", "make_random", 4096, 512, 109, "unique", 512),
     )
     for name, generator, m, n, seed, status, rank in lapack:
+        case_id = f"lapack.{name}"
         cases.append(_case(
-            f"lapack.{name}", "lapack", generator, m, n, [seed],
+            case_id, "lapack", name, generator,
+            (_grouped_parameters(m, n, rank, seed)
+             if generator == "make_grouped" else
+             _random_parameters(m, n, rank, seed)),
+            m, n, [seed],
             expected_status=status, expected_rank=rank,
             timings=[_timing("router", "perf_counter_ns", 2, 7),
                      _timing("dgelsy", "perf_counter_ns", 2, 7)],
-            routing_seeds=[47001] * 9))
+            routing_seeds=[47001] * 7, requested_threads=[4] * 7,
+            warmup_routing_seeds=[47001] * 2,
+            required_ratios=[_ratio(
+                case_id, "dgelsy_over_router", "dgelsy", "router")]))
     return tuple(cases)
 
 
@@ -311,7 +493,7 @@ def describe_input(A: np.ndarray, b: np.ndarray, x: np.ndarray, *,
 
 def timing_record(*, operation: str, source: str, warmups: int,
                   repetitions: int, raw: Sequence[float],
-                  unit: str = "seconds") -> dict[str, Any]:
+                  unit: str = "s") -> dict[str, Any]:
     values = [float(value) for value in raw]
     if not isinstance(warmups, int) or warmups < 0:
         raise ValueError("warmups must be a nonnegative integer")
@@ -386,6 +568,8 @@ def _timing_reasons(record: Any, expected: Mapping[str, Any],
         _append(reasons, f"result_timing_operation_mismatch:{prefix}")
     if record.get("source") != expected["source"]:
         _append(reasons, f"result_timing_source_mismatch:{prefix}")
+    if record.get("unit") != expected["unit"]:
+        _append(reasons, f"result_timing_unit_mismatch:{prefix}")
     if record.get("warmups") != expected["warmups"]:
         _append(reasons, f"result_timing_warmups_mismatch:{prefix}")
     if record.get("repetitions") != expected["repetitions"]:
@@ -403,6 +587,91 @@ def _timing_reasons(record: Any, expected: Mapping[str, Any],
     if not _finite_number(record.get("mad")) or not math.isclose(
             float(record["mad"]), mad, rel_tol=1e-12, abs_tol=1e-15):
         _append(reasons, f"result_timing_mad_mismatch:{prefix}")
+    return reasons
+
+
+def _run_reasons(run: Any, spec: Mapping[str, Any], index: int,
+                 case_id: str) -> list[str]:
+    reasons: list[str] = []
+    run_contract = spec["run_contract"]
+    if not isinstance(run, dict):
+        return [f"result_run_invalid:{case_id}"]
+    expected_id = run_contract["run_id_format"].format(
+        case_id=case_id, repetition_index=index)
+    if run.get("run_id") != expected_id or run.get("case_id") != case_id:
+        _append(reasons, f"result_run_order_mismatch:{case_id}")
+    if run.get("generator_seed") != run_contract["generator_seeds"][index]:
+        _append(reasons, f"result_run_generator_seed_mismatch:{case_id}")
+    if run.get("routing_seed") != run_contract["routing_seeds"][index]:
+        _append(reasons, f"result_run_routing_seed_mismatch:{case_id}")
+    if run.get("repetition_index") != run_contract["repetition_indices"][index]:
+        _append(reasons, f"result_run_repetition_index_mismatch:{case_id}")
+    requested = run_contract["requested_omp_threads"][index]
+    if run.get("requested_omp_threads") != requested:
+        _append(reasons, f"result_run_requested_openmp_mismatch:{case_id}")
+    observed = run.get("observed_omp_threads")
+    if observed != requested:
+        _append(reasons, f"result_run_observed_openmp_mismatch:{case_id}")
+    identity = run.get("openmp_runtime_identity")
+    if not isinstance(identity, dict) or \
+            identity.get("user_api") != "openmp" or not all(
+                isinstance(identity.get(field), str) and identity.get(field)
+                for field in ("runtime_id", "basename", "internal_api")):
+        _append(reasons, f"result_run_openmp_identity_invalid:{case_id}")
+    duration = run.get("duration")
+    if not isinstance(duration, dict):
+        _append(reasons, f"result_run_duration_invalid:{case_id}")
+    else:
+        if duration.get("unit") != run_contract["timing_unit"]:
+            _append(reasons, f"result_run_duration_unit_mismatch:{case_id}")
+        if not _finite_number(duration.get("value")) or \
+                duration.get("value") <= 0:
+            _append(reasons, f"result_run_duration_invalid:{case_id}")
+    diagnostics = run.get("diagnostics")
+    if not isinstance(diagnostics, dict):
+        _append(reasons, f"result_run_diagnostics_invalid:{case_id}")
+    else:
+        rank_values = (diagnostics.get("rank"), diagnostics.get("rank_lo"),
+                       diagnostics.get("rank_hi"))
+        if diagnostics.get("status") != spec["expected_status"] or \
+                diagnostics.get("rank") != spec["expected_rank"]:
+            _append(reasons, f"result_run_outcome_mismatch:{case_id}")
+        if not all(isinstance(value, int) and not isinstance(value, bool)
+                   for value in rank_values) or not (
+                       spec["expected_rank_lo"] == diagnostics.get("rank_lo") and
+                       spec["expected_rank_hi"] == diagnostics.get("rank_hi")):
+            _append(reasons, f"result_run_rank_interval_mismatch:{case_id}")
+        for field in ("router_relres", "router_berr"):
+            value = diagnostics.get(field)
+            if value is not None and not _finite_number(value):
+                _append(reasons, f"result_run_diagnostics_invalid:{case_id}")
+        if not isinstance(diagnostics.get("fallback"), bool) or \
+                not _finite_number(diagnostics.get("solver_seconds")) or \
+                diagnostics.get("solver_seconds") <= 0:
+            _append(reasons, f"result_run_diagnostics_invalid:{case_id}")
+    numerical = run.get("numerical_contract")
+    if not isinstance(numerical, dict) or numerical.get("valid") is not True \
+            or numerical.get("reasons") != []:
+        _append(reasons, f"result_run_numerical_contract_invalid:{case_id}")
+    else:
+        expected = {"status": spec["expected_status"],
+                    "rank": spec["expected_rank"]}
+        actual = {"status": spec["expected_status"],
+                  "rank": spec["expected_rank"]}
+        if spec["section"] == "rank":
+            interval = [spec["expected_rank_lo"], spec["expected_rank_hi"]]
+            expected["rank_interval"] = interval
+            actual["rank_interval"] = interval
+        if numerical.get("expected") != expected or \
+                numerical.get("actual") != actual:
+            _append(reasons, f"result_run_numerical_contract_invalid:{case_id}")
+        if isinstance(diagnostics, dict) and isinstance(
+                numerical.get("actual"), dict):
+            actual_record = numerical["actual"]
+            if actual_record.get("status") != diagnostics.get("status") or \
+                    actual_record.get("rank") != diagnostics.get("rank"):
+                _append(reasons,
+                        f"result_run_actual_diagnostics_mismatch:{case_id}")
     return reasons
 
 
@@ -444,6 +713,7 @@ def validate_result_document(document: Any, *,
 
     output_names = dict(CANONICAL_SECTIONS)
     saw_timing = False
+    invalid_case_contracts = 0
     for section in sections:
         if not isinstance(section, dict):
             _append(reasons, "result_section_invalid"); continue
@@ -510,31 +780,34 @@ def validate_result_document(document: Any, *,
             ratios = case.get("ratios", [])
             if not isinstance(ratios, list):
                 _append(reasons, f"result_ratios_invalid:{case_id}"); ratios = []
-            standard_directions = {
-                "sequential_reference_over_router":
-                    ("sequential_reference", "router"),
-                "dgelsy_over_router": ("dgelsy", "router"),
-            }
-            for ratio in ratios:
+            required_ratios = spec["required_ratios"]
+            ratio_ids = [item.get("ratio_id") if isinstance(item, dict) else None
+                         for item in ratios]
+            expected_ratio_ids = [item["ratio_id"] for item in required_ratios]
+            if ratio_ids != expected_ratio_ids:
+                _append(reasons, f"result_ratio_shape_mismatch:{case_id}")
+            if any(count > 1 for value, count in Counter(ratio_ids).items()
+                   if value is not None):
+                _append(reasons, f"result_ratio_identity_duplicate:{case_id}")
+            for ratio, expected_ratio in zip(ratios, required_ratios):
                 if not isinstance(ratio, dict):
                     _append(reasons, f"result_ratio_invalid:{case_id}"); continue
-                if ratio.get("name") == "one_thread_router_over_router":
-                    if ratio.get("direction") != "omp1_router/router":
-                        _append(reasons, f"result_ratio_direction_mismatch:{case_id}")
+                for field in ("ratio_id", "name", "direction",
+                              "numerator_operation", "denominator_operation",
+                              "numerator_case_id", "denominator_case_id"):
+                    if ratio.get(field) != expected_ratio.get(field):
+                        _append(reasons,
+                                f"result_ratio_direction_mismatch:{case_id}")
+                if expected_ratio["name"] == "one_thread_router_over_router":
                     numerator = timing_by_case.get(
-                        ratio.get("numerator_case_id"), {}).get("router")
+                        expected_ratio["numerator_case_id"], {}).get("router")
                     denominator = timing_by_case.get(
-                        ratio.get("denominator_case_id"), {}).get("router")
+                        expected_ratio["denominator_case_id"], {}).get("router")
                 else:
-                    operations = standard_directions.get(ratio.get("name"))
-                    if operations is None:
-                        _append(reasons, f"result_ratio_name_invalid:{case_id}")
-                        continue
-                    numerator_name, denominator_name = operations
-                    if ratio.get("direction") != f"{numerator_name}/{denominator_name}":
-                        _append(reasons, f"result_ratio_direction_mismatch:{case_id}")
-                    numerator = medians.get(numerator_name)
-                    denominator = medians.get(denominator_name)
+                    numerator = medians.get(
+                        expected_ratio["numerator_operation"])
+                    denominator = medians.get(
+                        expected_ratio["denominator_operation"])
                 expected_value = (numerator / denominator
                                   if _finite_number(numerator) and
                                   _finite_number(denominator) and
@@ -546,27 +819,36 @@ def validate_result_document(document: Any, *,
                 else:
                     section_ratios.append(expected_value)
             runs = case.get("runs")
-            if runs is not None:
-                if not isinstance(runs, list) or not runs:
-                    _append(reasons, f"result_runs_invalid:{case_id}")
-                else:
-                    run_ids = []
-                    for run in runs:
-                        if not isinstance(run, dict) or run.get("case_id") != case_id \
-                                or not isinstance(run.get("run_id"), str) \
-                                or not run.get("run_id"):
-                            _append(reasons, f"result_run_identity_invalid:{case_id}")
-                        else:
-                            run_ids.append(run["run_id"])
-                    if len(run_ids) != len(set(run_ids)):
-                        _append(reasons, f"result_run_identity_duplicate:{case_id}")
+            expected_run_count = len(spec["run_contract"]["repetition_indices"])
+            if not isinstance(runs, list) or len(runs) != expected_run_count:
+                _append(reasons, f"result_run_shape_mismatch:{case_id}")
+                runs = runs if isinstance(runs, list) else []
+            run_ids = [run.get("run_id") if isinstance(run, dict) else None
+                       for run in runs]
+            if any(count > 1 for value, count in Counter(run_ids).items()
+                   if value is not None):
+                _append(reasons, f"result_run_identity_duplicate:{case_id}")
+            for index, run in enumerate(runs[:expected_run_count]):
+                for reason in _run_reasons(run, spec, index, case_id):
+                    _append(reasons, reason)
+            router_timing = next((item for item in timings
+                                  if isinstance(item, dict) and
+                                  item.get("operation") == "router"), None)
+            run_durations = [
+                run.get("duration", {}).get("value")
+                for run in runs if isinstance(run, dict) and
+                isinstance(run.get("duration"), dict)]
+            if not isinstance(router_timing, dict) or \
+                    run_durations != router_timing.get("raw"):
+                _append(reasons, f"result_run_timing_disagreement:{case_id}")
             numerical = case.get("numerical_contract")
             if not isinstance(numerical, dict) or numerical.get("valid") is not True \
                     or not isinstance(numerical.get("reasons"), list):
                 _append(reasons, f"result_numerical_contract_invalid:{case_id}")
-                hard_failures += 1
+                invalid_case_contracts += 1
             elif numerical["reasons"]:
                 _append(reasons, f"result_numerical_contract_inconsistent:{case_id}")
+                invalid_case_contracts += 1
             expected = numerical.get("expected") if isinstance(numerical, dict) else None
             if not isinstance(expected, dict) or \
                     expected.get("status") != spec["expected_status"] or \
@@ -579,9 +861,13 @@ def validate_result_document(document: Any, *,
             actual = numerical.get("actual") if isinstance(numerical, dict) else None
             if not isinstance(actual, dict) or \
                     actual.get("status") != spec["expected_status"] or \
-                    (spec["expected_status"] != "inconsistent" and
-                     actual.get("rank") != spec["expected_rank"]):
+                    actual.get("rank") != spec["expected_rank"]:
                 _append(reasons, f"result_numerical_outcome_mismatch:{case_id}")
+            if section_id == "rank" and isinstance(actual, dict) and \
+                    actual.get("rank_interval") != [spec["expected_rank_lo"],
+                                                     spec["expected_rank_hi"]]:
+                _append(reasons,
+                        f"result_numerical_actual_interval_mismatch:{case_id}")
             diagnostics = case.get("diagnostics")
             if not isinstance(diagnostics, dict):
                 _append(reasons, f"result_diagnostics_invalid:{case_id}")
@@ -605,6 +891,29 @@ def validate_result_document(document: Any, *,
                             actual.get("rank") != diagnostics.get("rank")):
                     _append(reasons,
                             f"result_numerical_actual_diagnostics_mismatch:{case_id}")
+                for run in runs:
+                    run_diagnostics = (run.get("diagnostics")
+                                       if isinstance(run, dict) else None)
+                    if not isinstance(run_diagnostics, dict) or any(
+                            diagnostics.get(field) != run_diagnostics.get(field)
+                            for field in ("status", "rank", "rank_lo",
+                                          "rank_hi")):
+                        _append(reasons,
+                                f"result_case_run_diagnostics_mismatch:{case_id}")
+                        break
+            failed_runs = [run for run in runs if not isinstance(run, dict) or
+                           not isinstance(run.get("numerical_contract"), dict) or
+                           run["numerical_contract"].get("valid") is not True or
+                           run["numerical_contract"].get("reasons")]
+            hard_failures += len(failed_runs)
+            if failed_runs and isinstance(numerical, dict) and \
+                    numerical.get("valid") is True and not numerical.get("reasons"):
+                invalid_case_contracts += 1
+            if failed_runs or len(runs) != expected_run_count:
+                _append(reasons, f"result_case_run_aggregate_mismatch:{case_id}")
+            elif not isinstance(numerical, dict) or \
+                    numerical.get("valid") is not True or numerical.get("reasons"):
+                _append(reasons, f"result_case_run_aggregate_mismatch:{case_id}")
         if section_id == "structural" and isinstance(summary, dict):
             if summary.get("hard_failure_count") != hard_failures or \
                     summary.get("reported_hard_failure_count") != hard_failures:
@@ -626,6 +935,9 @@ def validate_result_document(document: Any, *,
     top = document.get("numerical_contract")
     if not isinstance(top, dict) or top.get("valid") is not True:
         _append(reasons, "result_numerical_contract_invalid")
+    if invalid_case_contracts and isinstance(top, dict) and \
+            top.get("valid") is True:
+        _append(reasons, "result_numerical_contract_aggregate_mismatch")
     return reasons
 
 
@@ -778,6 +1090,7 @@ def validate_metadata_document(document: Any, *,
     runtime_hashes = set()
     for pool in pools:
         if not isinstance(pool, dict) or not pool.get("basename") or \
+                pool.get("user_api") != "blas" or \
                 not _valid_hex(pool.get("sha256"), 64):
             _append(reasons, "runtime_blas_pool_identity_incomplete"); continue
         runtime_hashes.add(pool["sha256"])
@@ -787,6 +1100,17 @@ def validate_metadata_document(document: Any, *,
     if _valid_hex(linked.get("sha256"), 64) and \
             linked.get("sha256") not in runtime_hashes:
         _append(reasons, "runtime_linked_blas_hash_mismatch")
+    openmp_pools = runtime.get("openmp_pools")
+    if not isinstance(openmp_pools, list) or not openmp_pools:
+        _append(reasons, "runtime_openmp_pool_missing")
+    else:
+        for pool in openmp_pools:
+            if not isinstance(pool, dict) or pool.get("user_api") != "openmp" or \
+                    not all(isinstance(pool.get(field), str) and pool.get(field)
+                            for field in ("runtime_id", "basename",
+                                          "internal_api")) or \
+                    not isinstance(pool.get("num_threads"), int):
+                _append(reasons, "runtime_openmp_pool_identity_incomplete")
     controls = runtime.get("thread_controls") if isinstance(
         runtime.get("thread_controls"), dict) else {}
     if controls.get("OMP_NUM_THREADS") != "4":
@@ -1124,24 +1448,41 @@ def publish_package_atomic(*, result: Mapping[str, Any],
 
 
 def sanitize_threadpools(
-        pools: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]:
+        pools: Iterable[Mapping[str, Any]], *,
+        hash_libraries: bool = True) -> list[dict[str, Any]]:
     sanitized = []
     for pool in pools:
         filepath = pool.get("filepath")
         basename = Path(filepath).name if filepath else pool.get("basename")
         digest = None
-        if filepath:
+        if filepath and hash_libraries:
             try:
                 digest = sha256_file(filepath)
             except OSError:
                 pass
+        runtime_id = "|".join(str(value) for value in (
+            basename, pool.get("internal_api"), pool.get("version")))
         sanitized.append({
             "user_api": pool.get("user_api"),
             "internal_api": pool.get("internal_api"),
             "num_threads": pool.get("num_threads"),
             "version": pool.get("version"), "basename": basename,
-            "sha256": digest or pool.get("sha256")})
+            "sha256": digest or pool.get("sha256"),
+            "runtime_id": runtime_id})
     return sanitized
+
+
+def partition_threadpools(
+        pools: Iterable[Mapping[str, Any]], *,
+        hash_libraries: bool = True) -> dict[str, list[dict[str, Any]]]:
+    """Sanitize and split pools by API so OpenMP is never treated as BLAS."""
+    sanitized = sanitize_threadpools(pools, hash_libraries=hash_libraries)
+    return {
+        "blas_pools": [pool for pool in sanitized
+                       if pool.get("user_api") == "blas"],
+        "openmp_pools": [pool for pool in sanitized
+                         if pool.get("user_api") == "openmp"],
+    }
 
 
 def sanitized_build_evidence(evidence: Mapping[str, Any]) -> dict[str, Any]:

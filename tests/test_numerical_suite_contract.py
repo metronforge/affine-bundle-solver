@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import contextlib
 import copy
+import ctypes
 import hashlib
 import importlib.util
 import io
@@ -79,6 +80,14 @@ EXPECTED_CASE_IDS = {
     ),
 }
 
+PROTOCOL_FIXTURE = json.loads(
+    (ROOT / "tests/fixtures/numerical_suite_protocol_v2.json").read_text())
+LITERAL_CASES_BY_ID = {
+    item["case_id"]: item for item in PROTOCOL_FIXTURE["cases"]
+}
+LITERAL_PROTOCOL_SIGNATURE = \
+    "31e84400f2bb347bf3e076a8179b9a361c8e5cb7377eec0da7824e7e63a5ab04"
+
 EXACT_BLOCKERS = {
     "manuscript_blocker:audit.certified_call_overhead",
     "manuscript_blocker:standard.sequential_reference",
@@ -117,13 +126,46 @@ def load_runner_module():
     return module
 
 
+class StrictFakeSymbol:
+    def __init__(self, name):
+        object.__setattr__(self, "name", name)
+        object.__setattr__(self, "argtypes", None)
+        object.__setattr__(self, "restype", "unset")
+        object.__setattr__(self, "calls", [])
+
+    def __call__(self, *args):
+        self.calls.append(args)
+        if self.name == "bsolve_router_meta_api":
+            out = args[-1]
+            values = [1.0, 1.0, 2.0, 2.0, 2.0, 1e-16, 1e-16,
+                      0.002, 0.0, 1.0, 1e-16]
+            for index, value in enumerate(values):
+                out[index] = value
+        elif self.name in ("bsolve_seq_api", "bsolve_lapack_api"):
+            out = args[-1]
+            for index, value in enumerate([1.0, 2.0, 0.0, 0.0,
+                                           0.003, 1e-16, 1e-16]):
+                out[index] = value
+        elif self.name == "bsolve_fg_counters_api":
+            for index in range(3):
+                args[0][index] = 0
+
+
+class StrictFakeRouterHandle:
+    def __init__(self):
+        for name in ("bsolve_router_meta_api", "bsolve_seq_api",
+                     "bsolve_lapack_api", "bsolve_fg_counters_reset_api",
+                     "bsolve_fg_counters_api"):
+            setattr(self, name, StrictFakeSymbol(name))
+
+
 class ContractTestCase(unittest.TestCase):
     def setUp(self):
         self.assertIsNotNone(
             contract, "experiments.numerical_suite_contract is not implemented")
 
     def input_record(self, case_id, seed=None):
-        spec = contract.CANONICAL_CASES_BY_ID[case_id]
+        spec = LITERAL_CASES_BY_ID[case_id]
         m, n = spec["m"], spec["n"]
         seed = spec["input_seeds"][0] if seed is None else seed
         record = {
@@ -137,13 +179,20 @@ class ContractTestCase(unittest.TestCase):
             record["sha256"]["A"] = contract.DIGITS_DESIGN_SHA256
         return record
 
+    def result_case(self, case_id):
+        for section in self.result_document()["sections"]:
+            for case in section["cases"]:
+                if case["case_id"] == case_id:
+                    return copy.deepcopy(case)
+        raise AssertionError(f"missing fixture case {case_id}")
+
     def timing(self, spec, offset=1.0):
         raw = [offset + index for index in range(spec["repetitions"])]
         median = float(np.median(raw))
         mad = float(np.median(np.abs(np.asarray(raw) - median)))
         return {
             "operation": spec["operation"], "source": spec["source"],
-            "unit": "seconds", "warmups": spec["warmups"],
+            "unit": "s", "warmups": spec["warmups"],
             "repetitions": spec["repetitions"], "raw": raw,
             "median": median, "mad": mad,
         }
@@ -154,18 +203,80 @@ class ContractTestCase(unittest.TestCase):
         for section_name in chosen:
             cases = []
             for case_id in EXPECTED_CASE_IDS[section_name]:
-                spec = contract.CANONICAL_CASES_BY_ID[case_id]
+                spec = LITERAL_CASES_BY_ID[case_id]
                 expected = {"status": spec["expected_status"],
                             "rank": spec["expected_rank"]}
                 if section_name == "rank":
                     expected["rank_interval"] = [
                         spec["expected_rank_lo"], spec["expected_rank_hi"]]
+                timings = [self.timing(item, index + 1.0)
+                           for index, item in enumerate(spec["timings"])]
+                router_raw = next(item["raw"] for item in timings
+                                  if item["operation"] == "router")
+                runs = []
+                run_contract = spec["run_contract"]
+                for index, duration in enumerate(router_raw):
+                    status = spec["expected_status"]
+                    run_expected = {"status": status,
+                                    "rank": spec["expected_rank"]}
+                    if section_name == "rank":
+                        run_expected["rank_interval"] = [
+                            spec["expected_rank_lo"],
+                            spec["expected_rank_hi"]]
+                    runs.append({
+                        "run_id": run_contract["run_id_format"].format(
+                            case_id=case_id, repetition_index=index),
+                        "case_id": case_id,
+                        "generator_seed": run_contract["generator_seeds"][index],
+                        "routing_seed": run_contract["routing_seeds"][index],
+                        "repetition_index": index,
+                        "requested_omp_threads":
+                            run_contract["requested_omp_threads"][index],
+                        "observed_omp_threads":
+                            run_contract["requested_omp_threads"][index],
+                        "openmp_runtime_identity": {
+                            "runtime_id": "libgomp.so.1|openmp|fixture",
+                            "basename": "libgomp.so.1", "user_api": "openmp",
+                            "internal_api": "openmp", "version": "fixture",
+                        },
+                        "duration": {"value": duration, "unit": "s"},
+                        "diagnostics": {
+                            "status": status, "rank": spec["expected_rank"],
+                            "rank_lo": spec["expected_rank_lo"],
+                            "rank_hi": spec["expected_rank_hi"],
+                            "router_relres": None, "router_berr": None,
+                            "fallback": False, "solver_seconds": duration,
+                        },
+                        "numerical_contract": {
+                            "expected": run_expected,
+                            "actual": {
+                                "status": status,
+                                "rank": spec["expected_rank"],
+                                **({"rank_interval": [spec["expected_rank_lo"],
+                                                       spec["expected_rank_hi"]]}
+                                   if section_name == "rank" else {}),
+                            },
+                            "valid": True, "reasons": [],
+                        },
+                    })
+                ratios = []
+                medians = {item["operation"]: item["median"]
+                           for item in timings}
+                for required in spec["required_ratios"]:
+                    if required["name"] == "one_thread_router_over_router":
+                        numerator = medians["router"]
+                        denominator = medians["router"]
+                    else:
+                        numerator = medians[required["numerator_operation"]]
+                        denominator = medians[required["denominator_operation"]]
+                    ratios.append({**required, "value": numerator / denominator})
                 cases.append({
                     "case_id": case_id,
                     "inputs": [self.input_record(case_id, seed)
                                for seed in spec["input_seeds"]],
-                    "timings": [self.timing(item, index + 1.0)
-                                for index, item in enumerate(spec["timings"])],
+                    "timings": timings,
+                    "ratios": ratios,
+                    "runs": runs,
                     "diagnostics": {
                         "status": spec["expected_status"],
                         "rank": spec["expected_rank"],
@@ -176,7 +287,11 @@ class ContractTestCase(unittest.TestCase):
                     "numerical_contract": {
                         "expected": expected,
                         "actual": {"status": spec["expected_status"],
-                                   "rank": spec["expected_rank"]},
+                                   "rank": spec["expected_rank"],
+                                   **({"rank_interval": [
+                                       spec["expected_rank_lo"],
+                                       spec["expected_rank_hi"]]}
+                                      if section_name == "rank" else {})},
                         "valid": True, "reasons": [],
                     },
                     "observations": {"timing_range": "not-evaluated"},
@@ -185,13 +300,20 @@ class ContractTestCase(unittest.TestCase):
             if section_name == "structural":
                 summary.update({"hard_failure_count": 0,
                                 "reported_hard_failure_count": 0})
+            ratios = [ratio["value"] for case in cases
+                      for ratio in case["ratios"]]
+            if ratios:
+                summary.update({
+                    "ratio_count": len(ratios),
+                    "ratio_geomean": float(np.exp(np.mean(np.log(ratios)))),
+                })
             rows.append({"section_id": section_name,
                          "output_name": dict(EXPECTED_SECTIONS)[section_name],
                          "cases": cases, "summary": summary})
         return {
             "schema_version": 2,
             "protocol_id": "affine-bundle-numerical-suite-v2",
-            "protocol_signature": contract.PROTOCOL_SIGNATURE,
+            "protocol_signature": LITERAL_PROTOCOL_SIGNATURE,
             "sections": rows,
             "numerical_contract": {"valid": True, "reasons": []},
         }
@@ -205,7 +327,7 @@ class ContractTestCase(unittest.TestCase):
                 "filename": "numerical-suite-reference.json",
                 "sha256": sha_bytes(result_bytes), "schema_version": 2,
                 "protocol_id": "affine-bundle-numerical-suite-v2",
-                "protocol_signature": contract.PROTOCOL_SIGNATURE,
+                "protocol_signature": LITERAL_PROTOCOL_SIGNATURE,
             },
             "source": {
                 "before": {"git_sha": "1" * 40, "git_tree_sha": "2" * 40,
@@ -249,6 +371,11 @@ class ContractTestCase(unittest.TestCase):
                 "blas_pools": [{"basename": "libblas.so", "sha256": "9" * 64,
                                 "user_api": "blas", "internal_api": "openblas",
                                 "num_threads": 1, "version": "test"}],
+                "openmp_pools": [{"basename": "libgomp.so.1",
+                                  "user_api": "openmp",
+                                  "internal_api": "openmp",
+                                  "num_threads": 4, "version": "test",
+                                  "runtime_id": "libgomp.so.1|openmp|test"}],
                 "thread_controls": {
                     "OMP_NUM_THREADS": "4", "OPENBLAS_NUM_THREADS": "1",
                     "MKL_NUM_THREADS": "1", "VECLIB_MAXIMUM_THREADS": "1",
@@ -273,7 +400,22 @@ class ProtocolTests(ContractTestCase):
         self.assertEqual(contract.CANONICAL_SECTIONS, EXPECTED_SECTIONS)
         self.assertEqual(contract.CANONICAL_CASE_IDS, EXPECTED_CASE_IDS)
         self.assertEqual(sum(map(len, EXPECTED_CASE_IDS.values())), 82)
-        self.assertRegex(contract.PROTOCOL_SIGNATURE, r"^[0-9a-f]{64}$")
+        self.assertEqual(contract.PROTOCOL_SIGNATURE,
+                         LITERAL_PROTOCOL_SIGNATURE)
+
+    def test_complete_protocol_matches_independent_literal_fixture(self):
+        actual_cases = [
+            case
+            for section in contract.CANONICAL_PROTOCOL["sections"]
+            for case in section["cases"]
+        ]
+        self.assertEqual(actual_cases, PROTOCOL_FIXTURE["cases"])
+        self.assertEqual(
+            [[name, output] for name, output in contract.CANONICAL_SECTIONS],
+            PROTOCOL_FIXTURE["sections"])
+        self.assertEqual(contract.CANONICAL_PROTOCOL["candidate_omp"], 4)
+        self.assertEqual(contract.CANONICAL_PROTOCOL["scaling_openmp_schedule"],
+                         [1, 2, 4])
 
     def test_rank_transition_expectations_are_signed(self):
         first = contract.CANONICAL_CASES_BY_ID["rank.eps_1e-08"]
@@ -302,6 +444,47 @@ class ProtocolTests(ContractTestCase):
             candidate=False, omp=4)
         self.assertFalse(verdict["eligible"])
         self.assertIn("partial_diagnostic_run", verdict["reasons"])
+
+
+class StatusMappingTests(ContractTestCase):
+    def setUp(self):
+        super().setUp()
+        self.runner = load_runner_module()
+
+    def test_fail_is_never_decoded_as_undecidable(self):
+        self.assertEqual(self.runner.decode_status(4), "fail")
+        self.assertNotEqual(self.runner.decode_status(4), "undecidable")
+
+    def test_undecidable_is_decoded_from_public_value_five(self):
+        self.assertEqual(self.runner.decode_status(5), "undecidable")
+
+    def test_unknown_status_fails_closed(self):
+        for value in (0, 6, -1, 999):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                self.runner.decode_status(value)
+
+    def test_python_mapping_matches_public_header(self):
+        header = (ROOT / "include/affine_bundle/router.h").read_text()
+        import re
+        header_values = {
+            name.lower(): int(value)
+            for name, value in re.findall(
+                r"ABS_STATUS_(UNIQUE|INFINITE|INCONSISTENT|FAIL|UNDECIDABLE)"
+                r"\s*=\s*(\d+)", header)
+        }
+        self.assertEqual(header_values, {
+            "unique": 1, "infinite": 2, "inconsistent": 3,
+            "fail": 4, "undecidable": 5,
+        })
+        self.assertEqual(self.runner.STATUS_CODES,
+                         {value: name for name, value in header_values.items()})
+
+    def test_all_protocol_statuses_are_representable(self):
+        expected = {case["expected_status"]
+                    for case in PROTOCOL_FIXTURE["cases"]}
+        self.assertEqual(expected,
+                         {"unique", "infinite", "inconsistent", "undecidable"})
+        self.assertTrue(expected <= set(self.runner.STATUS_CODES.values()))
 
 
 class InputAndTimingTests(ContractTestCase):
@@ -432,6 +615,65 @@ class ResultValidationTests(ContractTestCase):
             else: timing[field] = value
             self.assertIn(reason, contract.validate_result_document(damaged))
 
+    def test_every_required_run_identity_and_seed_sequence_is_mandatory(self):
+        mutations = []
+        missing = self.result_document(); missing["sections"][0]["cases"][0]["runs"].pop(4)
+        mutations.append((missing, "result_run_shape_mismatch:standard.random64"))
+        extra = self.result_document(); extra_run = copy.deepcopy(
+            extra["sections"][0]["cases"][0]["runs"][-1])
+        extra_run["run_id"] += ".extra"; extra_run["repetition_index"] = 11
+        extra["sections"][0]["cases"][0]["runs"].append(extra_run)
+        mutations.append((extra, "result_run_shape_mismatch:standard.random64"))
+        duplicate = self.result_document(); duplicate["sections"][0]["cases"][0]["runs"][1] = copy.deepcopy(
+            duplicate["sections"][0]["cases"][0]["runs"][0])
+        mutations.append((duplicate, "result_run_identity_duplicate:standard.random64"))
+        reordered = self.result_document(); runs = reordered["sections"][0]["cases"][0]["runs"]
+        runs[0], runs[1] = runs[1], runs[0]
+        mutations.append((reordered, "result_run_order_mismatch:standard.random64"))
+        wrong_seed = self.result_document(); wrong_seed["sections"][0]["cases"][0]["runs"][2]["routing_seed"] += 1
+        mutations.append((wrong_seed, "result_run_routing_seed_mismatch:standard.random64"))
+        wrong_generator = self.result_document(); wrong_generator["sections"][0]["cases"][0]["runs"][2]["generator_seed"] += 1
+        mutations.append((wrong_generator, "result_run_generator_seed_mismatch:standard.random64"))
+        for document, reason in mutations:
+            with self.subTest(reason=reason):
+                self.assertIn(reason, contract.validate_result_document(document))
+
+    def test_run_duration_unit_and_timing_raw_must_agree(self):
+        wrong_unit = self.result_document()
+        wrong_unit["sections"][0]["cases"][0]["runs"][0]["duration"]["unit"] = "ms"
+        self.assertIn("result_run_duration_unit_mismatch:standard.random64",
+                      contract.validate_result_document(wrong_unit))
+        wrong_timing_unit = self.result_document()
+        wrong_timing_unit["sections"][0]["cases"][0]["timings"][0]["unit"] = "seconds"
+        self.assertIn("result_timing_unit_mismatch:standard.random64:router",
+                      contract.validate_result_document(wrong_timing_unit))
+        bad_duration = self.result_document()
+        bad_duration["sections"][0]["cases"][0]["runs"][0]["duration"]["value"] = 0.0
+        self.assertIn("result_run_duration_invalid:standard.random64",
+                      contract.validate_result_document(bad_duration))
+        hidden = self.result_document()
+        hidden["sections"][0]["cases"][0]["runs"][3]["duration"]["value"] = 999.0
+        self.assertIn("result_run_timing_disagreement:standard.random64",
+                      contract.validate_result_document(hidden))
+
+    def test_required_ratio_shape_is_exact(self):
+        missing = self.result_document(); missing["sections"][0]["cases"][0]["ratios"] = []
+        self.assertIn("result_ratio_shape_mismatch:standard.random64",
+                      contract.validate_result_document(missing))
+        duplicate = self.result_document(); ratios = duplicate["sections"][0]["cases"][0]["ratios"]
+        ratios.append(copy.deepcopy(ratios[0]))
+        self.assertIn("result_ratio_identity_duplicate:standard.random64",
+                      contract.validate_result_document(duplicate))
+        unexpected = self.result_document(); rank = next(
+            section for section in unexpected["sections"] if section["section_id"] == "rank")
+        rank["cases"][0]["ratios"] = [{
+            "ratio_id": "unexpected", "name": "dgelsy_over_router",
+            "direction": "dgelsy/router", "numerator_operation": "dgelsy",
+            "denominator_operation": "router", "value": 1.0,
+        }]
+        self.assertIn("result_ratio_shape_mismatch:rank.eps_1e-08",
+                      contract.validate_result_document(unexpected))
+
     def test_result_recomputes_ratio_direction_value_and_aggregate(self):
         wrong = self.result_document(); case = wrong["sections"][0]["cases"][0]
         case["ratios"] = [{"name": "sequential_reference_over_router",
@@ -465,10 +707,49 @@ class ResultValidationTests(ContractTestCase):
         self.assertIn("result_numerical_outcome_mismatch:standard.random64",
                       contract.validate_result_document(wrong))
 
+    def test_one_failed_intermediate_run_cannot_be_hidden(self):
+        damaged = self.result_document()
+        row = damaged["sections"][0]["cases"][0]
+        failed = row["runs"][4]
+        failed["diagnostics"].update({"status": "fail", "rank": 0,
+                                      "rank_lo": 0, "rank_hi": 0})
+        failed["numerical_contract"] = {
+            "expected": {"status": "unique", "rank": 64},
+            "actual": {"status": "fail", "rank": 0},
+            "valid": False, "reasons": ["status_mismatch"],
+        }
+        self.assertIn("result_run_numerical_contract_invalid:standard.random64",
+                      contract.validate_result_document(damaged))
+        self.assertIn("result_case_run_aggregate_mismatch:standard.random64",
+                      contract.validate_result_document(damaged))
+        self.assertIn("result_numerical_contract_aggregate_mismatch",
+                      contract.validate_result_document(damaged))
+
+    def test_run_case_diagnostic_and_rank_transition_interval_must_agree(self):
+        damaged = self.result_document(); row = damaged["sections"][0]["cases"][0]
+        row["diagnostics"]["rank"] = 63
+        self.assertIn("result_case_run_diagnostics_mismatch:standard.random64",
+                      contract.validate_result_document(damaged))
+        transition = self.result_document(); rank = next(
+            section for section in transition["sections"] if section["section_id"] == "rank")
+        rank["cases"][3]["runs"][6]["diagnostics"]["rank_hi"] = 255
+        self.assertIn("result_run_rank_interval_mismatch:rank.eps_3e-10",
+                      contract.validate_result_document(transition))
+        transition = self.result_document(); rank = next(
+            section for section in transition["sections"]
+            if section["section_id"] == "rank")
+        rank["cases"][3]["numerical_contract"]["actual"]["rank_interval"] = [
+            255, 255]
+        self.assertIn(
+            "result_numerical_actual_interval_mismatch:rank.eps_3e-10",
+            contract.validate_result_document(transition))
+
     def test_structural_count_and_unavailable_transition_residual(self):
         structural = self.result_document()
         section = next(s for s in structural["sections"] if s["section_id"] == "structural")
         section["cases"][0]["numerical_contract"]["valid"] = False
+        section["cases"][0]["runs"][0]["numerical_contract"].update(
+            valid=False, reasons=["status_mismatch"])
         self.assertIn("result_structural_hard_failure_count_mismatch",
                       contract.validate_result_document(structural))
         transition = self.result_document()
@@ -539,6 +820,30 @@ class MetadataValidationTests(ContractTestCase):
         metadata = self.metadata_document(); metadata["runtime"]["thread_controls"].pop("MKL_NUM_THREADS")
         self.assertIn("thread_control_not_one:MKL_NUM_THREADS",
                       contract.validate_metadata_document(metadata, result_bytes=b"{}"))
+
+    def test_mixed_blas_and_openmp_pools_are_classified_by_user_api(self):
+        pools = [
+            {"user_api": "blas", "internal_api": "openblas",
+             "num_threads": 1, "version": "0.3-test",
+             "basename": "libopenblas.so", "sha256": "9" * 64},
+            {"user_api": "openmp", "internal_api": "openmp",
+             "num_threads": 4, "version": "GOMP-test",
+             "basename": "libgomp.so.1"},
+        ]
+        split = contract.partition_threadpools(pools)
+        self.assertEqual([item["basename"] for item in split["blas_pools"]],
+                         ["libopenblas.so"])
+        self.assertEqual(split["blas_pools"][0]["num_threads"], 1)
+        self.assertEqual([item["basename"] for item in split["openmp_pools"]],
+                         ["libgomp.so.1"])
+        self.assertEqual(split["openmp_pools"][0]["num_threads"], 4)
+        metadata = self.metadata_document()
+        metadata["runtime"].update(split)
+        metadata["build"]["linked_blas"]["basename"] = "libopenblas.so"
+        metadata["runtime"]["blas_pools"][0]["sha256"] = "9" * 64
+        self.assertNotIn("runtime_blas_not_single_threaded:libgomp.so.1",
+                         contract.validate_metadata_document(
+                             metadata, result_bytes=b"{}"))
 
     def test_machine_software_and_eligibility_identity_are_required(self):
         metadata = self.metadata_document(); metadata["machine"]["cpu_model"] = None
@@ -772,6 +1077,85 @@ class RunnerIntegrationTests(ContractTestCase):
         self.b = np.ascontiguousarray([1.0, 2.0])
         self.x = np.ascontiguousarray([1.0, 2.0])
 
+    @contextlib.contextmanager
+    def observed_openmp(self, requested, *, strict):
+        yield {
+            "valid": True, "reasons": [],
+            "requested_num_threads": requested,
+            "observed_num_threads": requested,
+            "runtime_identity": {
+                "runtime_id": "libgomp.so.1|openmp|fixture",
+                "basename": "libgomp.so.1", "user_api": "openmp",
+                "internal_api": "openmp", "version": "fixture",
+            },
+        }
+
+    def main_hooks(self, sections, *, observed_threads=4):
+        handle = StrictFakeRouterHandle()
+        contract._configure_router_handle(handle)
+        published = []
+
+        @contextlib.contextmanager
+        def runtime_context(requested, *, strict):
+            observation = {
+                "valid": requested == observed_threads,
+                "reasons": ([] if requested == observed_threads else
+                            ["openmp_requested_observed_mismatch"]),
+                "requested_num_threads": requested,
+                "observed_num_threads": observed_threads,
+                "runtime_identity": {
+                    "runtime_id": "libgomp.so.1|openmp|fixture",
+                    "basename": "libgomp.so.1", "user_api": "openmp",
+                    "internal_api": "openmp", "version": "fixture",
+                },
+            }
+            if strict and not observation["valid"]:
+                raise RuntimeError("openmp_requested_observed_mismatch")
+            yield observation
+
+        def execute_sections(library, args):
+            # This is the only numerical boundary exercised: one tiny 2x2 call.
+            output, observation = self.runner.router(
+                library, self.A, self.b, self.x, seed=877, omp=4,
+                candidate=args.candidate, runtime_context=runtime_context)
+            self.assertEqual(self.runner.decode_status(output[0]), "unique")
+            self.assertEqual(observation["observed_num_threads"],
+                             observed_threads)
+            return copy.deepcopy(sections)
+
+        state = {"git_sha": "1" * 40, "git_tree_sha": "2" * 40,
+                 "git_dirty": False}
+        runtime = copy.deepcopy(self.metadata_document()["runtime"])
+        build = {"verified": True, "router_sha256": "8" * 64,
+                 "manifest_sha256": "6" * 64}
+
+        def metadata(**kwargs):
+            return self.metadata_document(
+                contract.canonical_json_bytes(kwargs["result"]))
+
+        hooks = {
+            "source_state": lambda: copy.deepcopy(state),
+            "load": lambda _state: (handle, copy.deepcopy(build)),
+            "execute_sections": execute_sections,
+            "runtime_info": lambda _build: copy.deepcopy(runtime),
+            "reverify": lambda evidence, _after: evidence,
+            "metadata": metadata,
+            "publish": lambda **kwargs: published.append(kwargs),
+            "atomic_json": lambda *_args, **_kwargs: None,
+            "utc_now": lambda: "2026-09-12T12:00:00Z",
+            "monotonic": lambda: 10.0,
+            "blas_context": contextlib.nullcontext,
+        }
+        return hooks, published, handle
+
+    def candidate_argv(self, directory):
+        root = Path(directory)
+        return ["--candidate", "--reference-machine", "fixture-machine",
+                "--sections", "standard,rank,guard,scaling,structural,lapack",
+                "--out", str(root / contract.RESULT_FILENAME),
+                "--metadata-out", str(root / contract.METADATA_FILENAME),
+                "--checksum-out", str(root / contract.CHECKSUM_FILENAME)]
+
     def test_load_delegates_abs_lib_dir_and_source(self):
         handle = mock.Mock(); evidence = {"verified": True}
         with tempfile.TemporaryDirectory() as directory, mock.patch.object(
@@ -789,6 +1173,134 @@ class RunnerIntegrationTests(ContractTestCase):
             self.runner.router(library, self.A.astype(np.float32), self.b, self.x)
         library.bsolve_router_meta_api.assert_not_called()
 
+    def test_router_handle_uses_exact_public_ctypes_signatures(self):
+        handle = StrictFakeRouterHandle()
+        contract._configure_router_handle(handle)
+        pointer = ctypes.POINTER(ctypes.c_double)
+        self.assertEqual(handle.bsolve_router_meta_api.argtypes, [
+            pointer, pointer, pointer, ctypes.c_int, ctypes.c_int,
+            ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_ulonglong,
+            ctypes.c_int, pointer])
+        self.assertIsNone(handle.bsolve_router_meta_api.restype)
+        self.assertEqual(handle.bsolve_seq_api.argtypes,
+                         [pointer, pointer, pointer, ctypes.c_int,
+                          ctypes.c_int, pointer])
+        self.assertIsNone(handle.bsolve_seq_api.restype)
+        self.assertEqual(handle.bsolve_lapack_api.argtypes,
+                         [pointer, pointer, pointer, ctypes.c_int,
+                          ctypes.c_int, pointer])
+        self.assertIsNone(handle.bsolve_lapack_api.restype)
+        self.assertEqual(handle.bsolve_fg_counters_reset_api.argtypes, [])
+        self.assertIsNone(handle.bsolve_fg_counters_reset_api.restype)
+        self.assertEqual(handle.bsolve_fg_counters_api.argtypes,
+                         [ctypes.POINTER(ctypes.c_ulonglong)])
+        self.assertIsNone(handle.bsolve_fg_counters_api.restype)
+
+    def test_threadpoolctl_controls_and_observes_exact_openmp_runtime(self):
+        calls = []
+
+        class Limits:
+            def __init__(self, *, limits, user_api):
+                calls.append((limits, user_api))
+            def __enter__(self): return self
+            def __exit__(self, *_args): return False
+
+        infos = lambda: [
+            {"user_api": "blas", "internal_api": "openblas",
+             "num_threads": 1, "version": "test",
+             "prefix": "libopenblas", "filepath": "/usr/lib/libopenblas.so"},
+            {"user_api": "openmp", "internal_api": "openmp",
+             "num_threads": 4, "version": "test",
+             "prefix": "libgomp", "filepath": "/usr/lib/libgomp.so.1"},
+        ]
+        with self.runner.openmp_runtime_context(
+                4, strict=True, limits_factory=Limits,
+                info_provider=infos) as observation:
+            self.assertTrue(observation["valid"])
+            self.assertEqual(observation["observed_num_threads"], 4)
+            self.assertEqual(observation["runtime_identity"]["basename"],
+                             "libgomp.so.1")
+        self.assertEqual(calls, [(4, "openmp")])
+
+    def test_openmp_unavailable_ambiguous_or_mismatched_fails_candidate(self):
+        class Limits:
+            def __init__(self, **_kwargs): pass
+            def __enter__(self): return self
+            def __exit__(self, *_args): return False
+
+        fixtures = (
+            [],
+            [{"user_api": "openmp", "num_threads": 4,
+              "filepath": "/usr/lib/libgomp.so.1"},
+             {"user_api": "openmp", "num_threads": 4,
+              "filepath": "/usr/lib/libomp.so"}],
+            [{"user_api": "openmp", "num_threads": 2,
+              "filepath": "/usr/lib/libgomp.so.1"}],
+        )
+        for pools in fixtures:
+            with self.subTest(pools=pools), self.assertRaises(RuntimeError):
+                with self.runner.openmp_runtime_context(
+                        4, strict=True, limits_factory=Limits,
+                        info_provider=lambda pools=pools: pools):
+                    pass
+
+    def test_main_candidate_success_uses_only_injected_tiny_boundaries(self):
+        result = self.result_document()
+        hooks, published, handle = self.main_hooks(result["sections"])
+        with tempfile.TemporaryDirectory() as directory, \
+                mock.patch.object(self.runner.ctypes, "CDLL",
+                                  side_effect=AssertionError("real CDLL reached")), \
+                mock.patch.object(self.runner, "standard_cases",
+                                  side_effect=AssertionError("generator reached")), \
+                contextlib.redirect_stdout(io.StringIO()):
+            code = self.runner.main(self.candidate_argv(directory), hooks=hooks)
+        self.assertEqual(code, 0)
+        self.assertEqual(len(published), 1)
+        self.assertEqual(len(handle.bsolve_router_meta_api.calls), 1)
+
+    def test_main_candidate_rejects_intermediate_failure_and_missing_ratio(self):
+        for damage in ("intermediate", "missing_ratio"):
+            result = self.result_document()
+            row = result["sections"][0]["cases"][0]
+            if damage == "intermediate":
+                row["runs"][4]["numerical_contract"].update(
+                    valid=False, reasons=["status_mismatch"])
+                row["numerical_contract"].update(
+                    valid=False, reasons=["run_failed"])
+            else:
+                row["ratios"] = []
+            hooks, published, _handle = self.main_hooks(result["sections"])
+            with self.subTest(damage=damage), tempfile.TemporaryDirectory() as directory, \
+                    self.assertRaises(RuntimeError), \
+                    contextlib.redirect_stdout(io.StringIO()):
+                self.runner.main(self.candidate_argv(directory), hooks=hooks)
+            self.assertEqual(published, [])
+
+    def test_main_candidate_openmp_mismatch_fails_before_publication(self):
+        result = self.result_document()
+        hooks, published, _handle = self.main_hooks(
+            result["sections"], observed_threads=2)
+        with tempfile.TemporaryDirectory() as directory, \
+                self.assertRaisesRegex(RuntimeError,
+                                       "openmp_requested_observed_mismatch"), \
+                contextlib.redirect_stdout(io.StringIO()):
+            self.runner.main(self.candidate_argv(directory), hooks=hooks)
+        self.assertEqual(published, [])
+
+    def test_main_diagnostic_continues_where_candidate_fails_closed(self):
+        result = self.result_document(); row = result["sections"][0]["cases"][0]
+        row["runs"][4]["numerical_contract"].update(
+            valid=False, reasons=["status_mismatch"])
+        row["numerical_contract"].update(valid=False, reasons=["run_failed"])
+        hooks, published, _handle = self.main_hooks(result["sections"])
+        with tempfile.TemporaryDirectory() as directory, \
+                contextlib.redirect_stdout(io.StringIO()):
+            code = self.runner.main([
+                "--sections", "standard,rank,guard,scaling,structural,lapack",
+                "--out", str(Path(directory) / "diagnostic.json")], hooks=hooks)
+        self.assertEqual(code, 1)
+        self.assertEqual(published, [])
+
     def test_standard_records_raw_input_identity_and_router_berr(self):
         router_out = np.zeros(11); router_out[[0, 2, 3, 4]] = [1, 2, 2, 2]
         router_out[5] = 1e-16; router_out[10] = 2e-16
@@ -796,7 +1308,8 @@ class RunnerIntegrationTests(ContractTestCase):
         with mock.patch.object(self.runner, "standard_cases",
                                return_value=iter((("random64", (self.A, self.b, self.x)),))), \
                 mock.patch.object(self.runner, "med_router", return_value=(
-                    2.0, router_out, [float(i) for i in range(1, 12)])), \
+                    2.0, router_out, [float(i) for i in range(1, 12)],
+                    self.result_case("standard.random64")["runs"])), \
                 mock.patch.object(self.runner, "med_seq", return_value=(
                     4.0, seq_out, [float(i) for i in range(1, 8)])), \
                 contextlib.redirect_stdout(io.StringIO()):
@@ -813,8 +1326,9 @@ class RunnerIntegrationTests(ContractTestCase):
         library = mock.Mock()
         with mock.patch.object(self.runner, "make_integer_rank",
                                return_value=(self.A, self.b, self.x)), \
-                mock.patch.object(self.runner, "med_router", return_value=(
-                    5.0, output, [float(i) for i in range(1, 10)])), \
+                mock.patch.object(self.runner, "med_router", side_effect=lambda *_args, **kwargs: (
+                    5.0, output, [float(i) for i in range(1, 10)],
+                    self.result_case(kwargs["case_id"])["runs"])), \
                 contextlib.redirect_stdout(io.StringIO()):
             section = self.runner.run_guard_timing(library, 4)
         self.assertEqual(len(section["cases"]), 8)
@@ -826,8 +1340,9 @@ class RunnerIntegrationTests(ContractTestCase):
         made = (self.A, self.b, self.x)
         with mock.patch.object(self.runner, "make_grouped", return_value=made), \
                 mock.patch.object(self.runner, "make_random", return_value=made), \
-                mock.patch.object(self.runner, "med_router", return_value=(
-                    2.0, output, [float(i) for i in range(1, 10)])), \
+                mock.patch.object(self.runner, "med_router", side_effect=lambda *_args, **kwargs: (
+                    2.0, output, [float(i) for i in range(1, 10)],
+                    self.result_case(kwargs["case_id"])["runs"])), \
                 contextlib.redirect_stdout(io.StringIO()):
             section = self.runner.run_scaling(mock.Mock())
         self.assertEqual([row["observations"]["omp_threads"]
@@ -839,14 +1354,14 @@ class RunnerIntegrationTests(ContractTestCase):
         router_output = np.zeros(11)
         router_output[[0, 2, 3, 4, 7]] = [1, 2, 2, 2, 1.0]
         lapack_output = np.zeros(7); lapack_output[[0, 1, 5]] = [1, 2, 1e-16]
-        calls = []
-        for _ in range(6):
-            calls.extend(((2.0, router_output, [float(i) for i in range(1, 8)]),
-                          (4.0, lapack_output, [float(i) for i in range(2, 9)])))
         made = (self.A, self.b, self.x)
         with mock.patch.object(self.runner, "make_grouped", return_value=made), \
                 mock.patch.object(self.runner, "make_random", return_value=made), \
-                mock.patch.object(self.runner, "end2end_ms", side_effect=calls), \
+                mock.patch.object(self.runner, "med_router", side_effect=lambda *_args, **kwargs: (
+                    2.0, router_output, [float(i) for i in range(1, 8)],
+                    self.result_case(kwargs["case_id"])["runs"])), \
+                mock.patch.object(self.runner, "end2end_seconds", return_value=(
+                    4.0, lapack_output, [float(i) for i in range(2, 9)])), \
                 contextlib.redirect_stdout(io.StringIO()):
             section = self.runner.run_lapack_context(mock.Mock(), 4)
         self.assertEqual(len(section["cases"]), 6)
@@ -857,11 +1372,17 @@ class RunnerIntegrationTests(ContractTestCase):
                              [7, 7])
 
     def test_rank_transition_unavailable_residual_is_null_and_runs_identified(self):
-        output = np.zeros(11); output[[0, 2, 3, 4, 7]] = [4, 255, 255, 256, 1.0]
+        output = np.zeros(11); output[[0, 2, 3, 4, 7]] = [5, 255, 255, 256, 1.0]
         output[5] = math.nan
         with mock.patch.object(self.runner, "make_rank_transition",
                                return_value=(self.A, self.b, self.x)), \
-                mock.patch.object(self.runner, "router", return_value=output), \
+                mock.patch.object(self.runner, "router", return_value=(
+                    output, {"observed_num_threads": 4,
+                             "runtime_identity": {
+                                 "runtime_id": "libgomp.so.1|openmp|fixture",
+                                 "basename": "libgomp.so.1",
+                                 "user_api": "openmp", "internal_api": "openmp",
+                                 "version": "fixture"}})), \
                 contextlib.redirect_stdout(io.StringIO()):
             section = self.runner.run_rank_transition(mock.Mock(), 4)
         for row in section["cases"]:
@@ -874,15 +1395,22 @@ class RunnerIntegrationTests(ContractTestCase):
     def test_structural_records_actual_adjusted_seed(self):
         output = np.zeros(11); output[[0, 2, 3, 4, 7]] = [1, 2, 2, 2, 1.0]
         seen = []
-        def fake_router(_library, _A, _b, _x, seed, omp):
-            seen.append(seed); return output
+        def fake_router(_library, _A, _b, _x, seed, omp, **_kwargs):
+            seen.append(seed); return output, {
+                "observed_num_threads": omp,
+                "runtime_identity": {
+                    "runtime_id": "libgomp.so.1|openmp|fixture",
+                    "basename": "libgomp.so.1", "user_api": "openmp",
+                    "internal_api": "openmp", "version": "fixture"}}
         with mock.patch.object(self.runner, "structural_cases", return_value=[
                 ("full_n32_x4", self.A, self.b, self.x, "unique", 2)]), \
                 mock.patch.object(self.runner, "router", side_effect=fake_router), \
                 contextlib.redirect_stdout(io.StringIO()):
             section = self.runner.run_structural(mock.Mock(), 4)
         runs = section["cases"][0]["runs"]
-        self.assertEqual([run["seed"] for run in runs], [31001, 31002, 31003])
+        self.assertEqual([run["routing_seed"] for run in runs],
+                         [31001, 31002, 31003])
+        self.assertTrue(all(run["generator_seed"] == 20036 for run in runs))
         self.assertTrue(all(run["case_id"] == "structural.full_n32_x4"
                             for run in runs))
 

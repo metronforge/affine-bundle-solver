@@ -10,12 +10,15 @@ make any manuscript claim current.
 Result schema version 2 uses protocol ID
 `affine-bundle-numerical-suite-v2`. The canonical protocol signature is:
 
-`ef22e2101de6a5b29a5e8319fcf04faf5af6ac6ca36f8430650070c6fa1ca7d8`
+`31e84400f2bb347bf3e076a8179b9a361c8e5cb7377eec0da7824e7e63a5ab04`
 
-The signature covers the ordered sections, ordered case IDs, generators,
-dimensions, input and routing seeds, expected outcomes, timing sources,
-warmups, repetitions, OpenMP candidate setting, and the 1/2/4 scaling
-schedule. The section order is:
+The earlier signature
+`ef22e2101de6a5b29a5e8319fcf04faf5af6ac6ca36f8430650070c6fa1ca7d8`
+did not sign a complete execution-evidence shape. The signature changed
+because the protocol now includes complete generator parameters and
+distributions, exact warmup and timed routing-seed sequences, required timed
+run identities, explicit `s` units, requested OpenMP threads, and exact ratio
+identities and directions. The section order is:
 
 1. `standard` -> `standard`
 2. `rank` -> `rank_transition`
@@ -31,12 +34,20 @@ bytes for A, b, and x. The filtered Digits design-matrix fingerprint is
 These checks establish the Python-to-C ABI boundary; they do not establish
 cache efficiency or SIMD behavior inside solver kernels.
 
+Each required timed router invocation records a stable run ID; case ID;
+generator and routing seeds actually used; repetition index; requested and
+observed OpenMP thread counts; OpenMP runtime identity; duration in `s`;
+status, rank interval, residual, BERR, fallback, and solver timer diagnostics;
+and an individual numerical-contract verdict. A case is valid only when every
+required run is present exactly once, in order, and valid. Warmups have signed
+seed sequences but are not mixed into timed aggregates.
+
 Each timed operation records one timing source, exact warmup and repetition
 counts, positive finite raw observations, median, and median absolute
 deviation. Solver-reported timings and Python `perf_counter_ns` timings remain
-separate. Ratios name their numerator, denominator, and direction. Historical
-timing ranges are observations and never decide numerical validity or package
-eligibility.
+separate. Required ratios have signed identities, numerator, denominator, and
+direction and are recomputed from named medians. Historical timing ranges are
+observations and never decide numerical validity or package eligibility.
 
 ## Package and candidate admission
 
@@ -58,8 +69,11 @@ The router is resolved from `ABS_LIB_DIR`. Only the adjacent manifest can
 authorize that exact resolved library, and the verified path is the path
 passed to `CDLL`. Router, sequential, LAPACK, and counter symbols are configured
 on that same handle. The linked BLAS hash must occur in an observed runtime
-BLAS pool, and every runtime BLAS pool must use one thread. OpenMP is allowed
-to follow the suite's intentional 1/2/4 scaling schedule.
+BLAS pool, and every runtime BLAS pool must use one thread. Runtime pools are
+split by `user_api`: BLAS pools remain single-threaded, while `threadpoolctl`
+sets and observes the OpenMP runtime associated with each router call at the
+suite's intentional 1/2/4 schedule. Missing, ambiguous, or mismatched OpenMP
+observation makes candidate execution fail closed.
 
 Candidate mode requires a reference-machine ID, `--omp=4`, and the exact
 ordered six sections. Partial ordered runs remain useful diagnostics but are

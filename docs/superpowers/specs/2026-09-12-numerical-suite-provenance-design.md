@@ -24,7 +24,11 @@ It is numerical-kernel-free and fixture-testable.
 `experiments/rerun_numerical_suite.py` remains the owner of the existing
 generators and solver calls. It delegates contract mechanics to the new module,
 records stable case/run identities and raw observations, checks the ABI layout
-before each C call, and exits nonzero for numerical-contract failures.
+before each C call, and exits nonzero for numerical-contract failures. Every
+timed router call retains its actual generator/routing seeds, requested and
+observed OpenMP setting and runtime, duration in seconds, diagnostics, and
+individual numerical verdict; a later successful repetition cannot hide an
+earlier failure.
 
 Candidate execution produces schema-v2 result and metadata documents, validates
 both before publication, atomically replaces them, and writes relative-name
@@ -33,6 +37,15 @@ source state, `--omp=4`, single-threaded BLAS pools whose runtime hashes include
 the linked BLAS hash, complete machine/software/build identities, and valid
 numerical contracts. Partial developer runs remain diagnostic and cannot emit a
 candidate checksum.
+
+The 82-case protocol is independently frozen in a literal test fixture. Its
+signature is
+`31e84400f2bb347bf3e076a8179b9a361c8e5cb7377eec0da7824e7e63a5ab04`.
+It replaces
+`ef22e2101de6a5b29a5e8319fcf04faf5af6ac6ca36f8430650070c6fa1ca7d8`
+because generator parameters/distributions, warmup and timed routing seeds,
+required run identities, `s` units, requested OpenMP threads, and required
+ratio identities/directions are now part of the signed protocol document.
 
 `tests/check_paper_claims.py --audit-numerical-suite ROOT` reports package
 integrity, provenance, protocol eligibility, numerical validity, supported
@@ -65,6 +78,12 @@ CDLL/build/runtime inputs and never load the solver. Validators collect stable
 machine-readable reasons for schema, hash, protocol, provenance, timing, input,
 diagnostic, and numerical failures. Timing-range misses remain observations and
 do not affect numerical or evidence eligibility.
+
+OpenMP control is runtime-neutral: `threadpoolctl` limits `user_api=openmp`
+inside each router-call context and observes that same context. Candidate mode
+requires exactly one identified OpenMP runtime and exact requested/observed
+thread equality. BLAS and OpenMP pools are partitioned by `user_api`, so a
+four-thread OpenMP pool is never mistaken for a four-thread BLAS pool.
 
 Publication serializes with `allow_nan=False`, validates before any final
 replacement, uses temporary files in the destination directory, and replaces

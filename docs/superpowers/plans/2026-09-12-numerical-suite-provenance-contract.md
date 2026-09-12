@@ -79,7 +79,7 @@ Expected: assertion failures identifying absent contract behavior, with no synta
 
 - [ ] **Step 1: Implement immutable protocol identity**
 
-Encode all 82 ordered cases with literal generators, dimensions, input/routing seeds, numerical expectations, timing sources, warmups, repetitions, and scaling schedule. Compute the signature from stable strict canonical JSON.
+Encode all 82 ordered cases with literal generators and complete parameters/distributions, dimensions, input/routing seeds, numerical expectations, timing sources, warmups, repetitions, exact run/ratio identities, and scaling schedule. Compute the signature from stable strict canonical JSON and compare it with an independent literal test fixture.
 
 - [ ] **Step 2: Implement strict input and timing records**
 
@@ -111,11 +111,11 @@ Run `python3 tests/test_numerical_suite_contract.py`. Expected: pure contract te
 
 - [ ] **Step 1: Make loading exact and lazy**
 
-Set BLAS controls before NumPy/SciPy imports, resolve through the contract module, and defer libgomp loading so fixture imports load no solver-related shared object.
+Set BLAS controls before NumPy/SciPy imports, resolve through the contract module, and control the router's observed OpenMP runtime through `threadpoolctl` without hard-coding or loading `libgomp` separately.
 
 - [ ] **Step 2: Add ABI checks and evidence records without changing generators**
 
-Call `ensure_abi_arrays` immediately before every router, sequential, and LAPACK API call. Replace discarded raw arrays with timing records; store stable case/run IDs, actual adjusted structural seeds, input hashes, full diagnostics, `router_berr`, and `null` when transition residuals are unavailable.
+Call `ensure_abi_arrays` immediately before every router, sequential, and LAPACK API call. Replace discarded raw arrays with timing records; store every timed router invocation with stable case/run IDs, actual generator/routing seeds, repetition and requested/observed OpenMP identity, seconds, full diagnostics and per-run verdicts; retain input hashes, `router_berr`, and `null` when transition residuals are unavailable.
 
 - [ ] **Step 3: Add numerical contracts and recomputable summaries**
 

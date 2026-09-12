@@ -4,7 +4,7 @@ os.environ.setdefault('OPENBLAS_NUM_THREADS','1')
 os.environ.setdefault('MKL_NUM_THREADS','1')
 os.environ.setdefault('OMP_NUM_THREADS','4')
 os.environ.setdefault('VECLIB_MAXIMUM_THREADS','1')
-import argparse, ctypes, importlib.metadata, json, math, platform, subprocess, sys, time
+import argparse, contextlib, ctypes, importlib.metadata, json, math, platform, subprocess, sys, time
 from datetime import datetime, timezone
 from pathlib import Path
 import numpy as np
@@ -17,8 +17,13 @@ if str(ROOT) not in sys.path:
 from experiments import numerical_suite_contract as contract
 
 DP=ctypes.POINTER(ctypes.c_double)
-STATUS={1:'unique',2:'infinite',3:'inconsistent',4:'undecidable'}
-CLS={1:'unique',2:'infinite',3:'inconsistent',4:'fail',5:'undecidable'}
+STATUS_CODES={1:'unique',2:'infinite',3:'inconsistent',4:'fail',5:'undecidable'}
+
+def decode_status(value):
+    code=int(value)
+    if code not in STATUS_CODES:
+        raise ValueError(f'unknown router status {code}')
+    return STATUS_CODES[code]
 
 def ptr(a): return a.ctypes.data_as(DP)
 
@@ -27,44 +32,89 @@ def load(source_state,lib_dir=None,cdll=ctypes.CDLL):
         root=ROOT,lib_dir=lib_dir or os.environ.get('ABS_LIB_DIR',ROOT),
         source_state=source_state,cdll=cdll)
 
-LIBGOMP=None
-LIBGOMP_CHECKED=False
+@contextlib.contextmanager
+def openmp_runtime_context(requested, *, strict,
+                           limits_factory=threadpool_limits,
+                           info_provider=threadpool_info):
+    requested=int(requested)
+    with limits_factory(limits=requested,user_api='openmp'):
+        pools=contract.partition_threadpools(
+            info_provider(),hash_libraries=False)['openmp_pools']
+        reasons=[]
+        if not pools:
+            reasons.append('openmp_runtime_unavailable')
+        elif len(pools)!=1:
+            reasons.append('openmp_runtime_ambiguous')
+        pool=pools[0] if len(pools)==1 else None
+        observed=pool.get('num_threads') if pool else None
+        if pool is not None and observed!=requested:
+            reasons.append('openmp_requested_observed_mismatch')
+        identity=None
+        if pool is not None:
+            identity={name:pool.get(name) for name in (
+                'runtime_id','basename','user_api','internal_api','version')}
+            if not all(isinstance(identity.get(name),str) and identity[name]
+                       for name in ('runtime_id','basename','user_api',
+                                    'internal_api')):
+                reasons.append('openmp_runtime_identity_incomplete')
+        observation={'valid':not reasons,'reasons':reasons,
+          'requested_num_threads':requested,'observed_num_threads':observed,
+          'runtime_identity':identity}
+        if strict and reasons:
+            raise RuntimeError(','.join(reasons))
+        yield observation
 
-def _openmp_handle():
-    global LIBGOMP,LIBGOMP_CHECKED
-    if not LIBGOMP_CHECKED:
-        LIBGOMP_CHECKED=True
-        try:
-            LIBGOMP=ctypes.CDLL('libgomp.so.1')
-            LIBGOMP.omp_set_num_threads.argtypes=[ctypes.c_int]
-        except OSError:
-            LIBGOMP=None
-    return LIBGOMP
-
-def omp_threads(k):
-    handle=_openmp_handle()
-    if handle is not None: handle.omp_set_num_threads(int(k))
-
-def router(L,A,b,x,seed=777,omp=4):
+def router(L,A,b,x,seed=777,omp=4,*,candidate=False,
+           runtime_context=openmp_runtime_context):
     contract.ensure_abi_arrays(A,b,x)
-    omp_threads(omp)
-    out=np.zeros(11,np.float64)
-    L.bsolve_router_meta_api(ptr(A),ptr(b),ptr(x),A.shape[0],A.shape[1],1,2,2,int(seed),0,ptr(out))
-    return out
+    with runtime_context(omp,strict=candidate) as observation:
+        out=np.zeros(11,np.float64)
+        L.bsolve_router_meta_api(ptr(A),ptr(b),ptr(x),A.shape[0],A.shape[1],
+                                 1,2,2,int(seed),0,ptr(out))
+    decode_status(out[0])
+    return out,observation
 
 def seq(L,A,b,x):
     contract.ensure_abi_arrays(A,b,x)
-    omp_threads(1)
     out=np.zeros(7,np.float64)
     L.bsolve_seq_api(ptr(A),ptr(b),ptr(x),A.shape[0],A.shape[1],ptr(out))
     return out
 
-def med_router(L,A,b,x,omp=4,warm=4,reps=11,seed=777):
-    for q in range(warm): router(L,A,b,x,seed+q,omp)
-    vals=[]; last=None
-    for q in range(reps):
-        last=router(L,A,b,x,seed+100+q,omp); vals.append(float(last[7]))
-    return float(np.median(vals)),last,vals
+def med_router(L,A,b,x,*,case_id,generator_seed,omp=4,warm=4,reps=11,
+               warmup_seeds=(),source='solver-reported',candidate=False,
+               runtime_context=openmp_runtime_context):
+    spec=contract.CANONICAL_CASES_BY_ID[case_id]
+    run_contract=spec['run_contract']
+    warmup_seeds=list(warmup_seeds)
+    if warmup_seeds!=run_contract['warmup_routing_seeds'] or \
+            len(warmup_seeds)!=warm or reps!=len(run_contract['routing_seeds']):
+        raise ValueError(f'configured run shape differs from protocol: {case_id}')
+    for routing_seed in warmup_seeds:
+        router(L,A,b,x,routing_seed,omp,candidate=candidate,
+               runtime_context=runtime_context)
+    values=[];last=None;runs=[]
+    for repetition_index,routing_seed in enumerate(run_contract['routing_seeds']):
+        started=time.perf_counter_ns()
+        last,observation=router(
+            L,A,b,x,routing_seed,omp,candidate=candidate,
+            runtime_context=runtime_context)
+        wall_seconds=(time.perf_counter_ns()-started)*1e-9
+        duration=float(last[7]) if source=='solver-reported' else wall_seconds
+        diagnostics=_diagnostics(last)
+        numerical=_numerical(case_id,diagnostics['status'],diagnostics['rank'],
+                             diagnostics['rank_lo'],diagnostics['rank_hi'])
+        values.append(duration)
+        runs.append({
+          'run_id':run_contract['run_id_format'].format(
+              case_id=case_id,repetition_index=repetition_index),
+          'case_id':case_id,'generator_seed':int(generator_seed),
+          'routing_seed':int(routing_seed),'repetition_index':repetition_index,
+          'requested_omp_threads':int(omp),
+          'observed_omp_threads':observation['observed_num_threads'],
+          'openmp_runtime_identity':observation['runtime_identity'],
+          'duration':{'value':duration,'unit':'s'},
+          'diagnostics':diagnostics,'numerical_contract':numerical})
+    return float(np.median(values)),last,values,runs
 
 def med_seq(L,A,b,x,warm=2,reps=7):
     for _ in range(warm): seq(L,A,b,x)
@@ -130,7 +180,7 @@ def _input(case_id,A,b,x,seed):
     return contract.describe_input(A,b,x,generator=spec['generator'],seed=seed)
 
 def _diagnostics(o):
-    return {'status':STATUS.get(int(o[0]),str(int(o[0]))),'rank':int(o[2]),
+    return {'status':decode_status(o[0]),'rank':int(o[2]),
             'rank_lo':int(o[3]),'rank_hi':int(o[4]),
             'router_relres':None if not np.isfinite(o[5]) else float(o[5]),
             'router_berr':None if not np.isfinite(o[10]) else float(o[10]),
@@ -143,7 +193,7 @@ def _numerical(case_id,status,rank,lo=None,hi=None):
     reasons=[]
     if status!=spec['expected_status']:
         reasons.append('status_mismatch')
-    if status!='inconsistent' and int(rank)!=spec['expected_rank']:
+    if int(rank)!=spec['expected_rank']:
         reasons.append('rank_mismatch')
     if spec['section']=='rank':
         expected['rank_interval']=[spec['expected_rank_lo'],spec['expected_rank_hi']]
@@ -152,6 +202,25 @@ def _numerical(case_id,status,rank,lo=None,hi=None):
             reasons.append('rank_interval_mismatch')
     return {'expected':expected,'actual':actual,'valid':not reasons,'reasons':reasons}
 
+def _ratio(case_id,numerator,denominator):
+    required=contract.CANONICAL_CASES_BY_ID[case_id]['required_ratios']
+    if len(required)!=1:
+        raise ValueError(f'case does not define exactly one ratio: {case_id}')
+    return {**required[0],'value':float(numerator)/float(denominator)}
+
+def _aggregate_runs(case_id,runs):
+    spec=contract.CANONICAL_CASES_BY_ID[case_id]
+    failures=[run['run_id'] for run in runs
+              if not run['numerical_contract']['valid']]
+    diagnostics={**runs[-1]['diagnostics']} if runs else {}
+    numerical=_numerical(case_id,diagnostics.get('status','missing'),
+                         diagnostics.get('rank',-1),
+                         diagnostics.get('rank_lo'),diagnostics.get('rank_hi'))
+    if failures:
+        numerical['valid']=False
+        numerical['reasons'].extend(f'run_failed:{run_id}' for run_id in failures)
+    return diagnostics,numerical
+
 def _section(section_id,cases,summary=None):
     output=dict(contract.CANONICAL_SECTIONS)[section_id]
     details={'case_count':len(cases)}
@@ -159,30 +228,29 @@ def _section(section_id,cases,summary=None):
     return {'section_id':section_id,'output_name':output,
             'cases':cases,'summary':details}
 
-def run_standard(L,omp):
+def run_standard(L,omp,*,candidate=False):
     rows=[]
     for name,(A,b,x) in standard_cases():
         case_id=f'standard.{name}'
-        tr,ro,traw=med_router(L,A,b,x,omp=omp)
+        generator_seed=contract.CANONICAL_CASES_BY_ID[case_id]['input_seeds'][0]
+        tr,ro,traw,runs=med_router(
+            L,A,b,x,case_id=case_id,generator_seed=generator_seed,omp=omp,
+            warm=4,reps=11,warmup_seeds=range(777,781),candidate=candidate)
         ts,so,sraw=med_seq(L,A,b,x)
-        diag=_diagnostics(ro)
+        diag,numerical=_aggregate_runs(case_id,runs)
         diag['sequential_reference']={
-            'status':CLS.get(int(so[0]),str(int(so[0]))),
+            'status':decode_status(so[0]),
             'rank':int(so[1]),'relres':None if not np.isfinite(so[5]) else float(so[5]),
             'solver_seconds':float(so[4])}
-        rr={'case_id':case_id,'inputs':[_input(case_id,A,b,x,
-              contract.CANONICAL_CASES_BY_ID[case_id]['input_seeds'][0])],
+        rr={'case_id':case_id,'inputs':[_input(case_id,A,b,x,generator_seed)],
             'timings':[
               contract.timing_record(operation='router',source='solver-reported',
                 warmups=4,repetitions=11,raw=traw),
               contract.timing_record(operation='sequential_reference',
                 source='solver-reported',warmups=2,repetitions=7,raw=sraw)],
-            'ratios':[contract.ratio_record(
-                name='sequential_reference_over_router',
-                numerator_operation='sequential_reference',denominator_operation='router',
-                numerator=ts,denominator=tr)],
+            'ratios':[_ratio(case_id,ts,tr)],'runs':runs,
             'diagnostics':diag,
-            'numerical_contract':_numerical(case_id,diag['status'],diag['rank']),
+            'numerical_contract':numerical,
             'observations':{'timing_range':'not-evaluated'}}
         rows.append(rr); print('STD',rr,flush=True)
         del A,b,x
@@ -203,29 +271,36 @@ def make_rank_transition(eps,seed,m=512,n=256):
     x=np.ascontiguousarray(x);b=np.ascontiguousarray(A@x)
     return A,b,x
 
-def run_rank_transition(L,omp):
+def run_rank_transition(L,omp,*,candidate=False):
     levels=[1e-8,3e-9,1e-9,3e-10,3e-11,1e-12]
     out=[]
     for e in levels:
         case_id=f'rank.eps_{format(e,".0e")}'
         states={};ranks={};residuals=[]; intervals=[];inputs=[];runs=[];raw=[]
-        for seed in range(20):
-            input_seed=7000+seed;routing_seed=8000+seed
+        spec=contract.CANONICAL_CASES_BY_ID[case_id]
+        run_contract=spec['run_contract']
+        for repetition_index,(input_seed,routing_seed) in enumerate(zip(
+                run_contract['generator_seeds'],run_contract['routing_seeds'])):
             A,b,x=make_rank_transition(e,input_seed)
             inputs.append(_input(case_id,A,b,x,input_seed))
-            o=router(L,A,b,x,seed=routing_seed,omp=omp)
-            key=STATUS.get(int(o[0]),str(int(o[0]))); states[key]=states.get(key,0)+1
+            o,observation=router(L,A,b,x,seed=routing_seed,omp=omp,
+                                 candidate=candidate)
+            diag=_diagnostics(o);key=diag['status'];states[key]=states.get(key,0)+1
             ranks[int(o[2])]=ranks.get(int(o[2]),0)+1
             rr=None if not np.isfinite(o[5]) else float(o[5])
             if rr is not None: residuals.append(rr)
             intervals.append([int(o[3]),int(o[4])]);raw.append(float(o[7]))
-            runs.append({'case_id':case_id,'run_id':f'{case_id}.seed_{routing_seed}',
-                         'input_seed':input_seed,'routing_seed':routing_seed,
-                         'status':key,'rank':int(o[2]),'rank_lo':int(o[3]),
-                         'rank_hi':int(o[4]),'router_relres':rr,
-                         'router_berr':None if not np.isfinite(o[10]) else float(o[10]),
-                         'solver_seconds':float(o[7])})
-        spec=contract.CANONICAL_CASES_BY_ID[case_id]
+            run_numerical=_numerical(case_id,key,int(o[2]),int(o[3]),int(o[4]))
+            runs.append({'case_id':case_id,
+              'run_id':run_contract['run_id_format'].format(
+                  case_id=case_id,repetition_index=repetition_index),
+              'generator_seed':input_seed,'routing_seed':routing_seed,
+              'repetition_index':repetition_index,
+              'requested_omp_threads':omp,
+              'observed_omp_threads':observation['observed_num_threads'],
+              'openmp_runtime_identity':observation['runtime_identity'],
+              'duration':{'value':float(o[7]),'unit':'s'},
+              'diagnostics':diag,'numerical_contract':run_numerical})
         unanimous=(states=={spec['expected_status']:20} and
                    ranks=={spec['expected_rank']:20} and
                    all(pair==[spec['expected_rank_lo'],spec['expected_rank_hi']]
@@ -236,6 +311,11 @@ def run_rank_transition(L,omp):
         numerical=_numerical(case_id,status,rank,lo,hi)
         if not unanimous and not numerical['reasons']:
             numerical['reasons'].append('run_outcome_mismatch');numerical['valid']=False
+        failed=[run['run_id'] for run in runs
+                if not run['numerical_contract']['valid']]
+        if failed:
+            numerical['valid']=False
+            numerical['reasons'].extend(f'run_failed:{run_id}' for run_id in failed)
         row={'case_id':case_id,'inputs':inputs,
              'timings':[contract.timing_record(operation='router',
                source='solver-reported',warmups=0,repetitions=20,raw=raw)],
@@ -250,27 +330,29 @@ def run_rank_transition(L,omp):
         out.append(row); print('RANKTRANS',row,flush=True)
     return _section('rank',out)
 
-def run_guard_timing(L,omp):
+def run_guard_timing(L,omp,*,candidate=False):
     cases=[(2000,64,63),(10000,64,63),(50000,64,63),(5000,96,95),(20000,96,95),(10000,64,32),(10000,64,1),(512,192,191)]
     out=[]
     for m,n,r in cases:
         seed=12000+m+n+r;case_id=f'guard.{m}x{n}.r{r}'
         A,b,x=make_integer_rank(m,n,r,seed)
         L.bsolve_fg_counters_reset_api();
-        tr,o,raw=med_router(L,A,b,x,omp=omp,warm=3,reps=9)
+        tr,o,raw,runs=med_router(
+            L,A,b,x,case_id=case_id,generator_seed=seed,omp=omp,warm=3,
+            reps=9,warmup_seeds=range(777,780),candidate=candidate)
         ctr=(ctypes.c_ulonglong*3)();L.bsolve_fg_counters_api(ctr)
-        diag=_diagnostics(o);diag.update({'fg_checks':int(ctr[0]),
+        diag,numerical=_aggregate_runs(case_id,runs);diag.update({'fg_checks':int(ctr[0]),
              'fg_escalations':int(ctr[1]),'source_qrcp':int(ctr[2])})
         row={'case_id':case_id,'inputs':[_input(case_id,A,b,x,seed)],
              'timings':[contract.timing_record(operation='router',
                source='solver-reported',warmups=3,repetitions=9,raw=raw)],
-             'ratios':[],'diagnostics':diag,
-             'numerical_contract':_numerical(case_id,diag['status'],diag['rank']),
+             'ratios':[],'runs':runs,'diagnostics':diag,
+             'numerical_contract':numerical,
              'observations':{'timing_range':'not-evaluated'}}
         out.append(row); print('GUARD',row,flush=True)
     return _section('guard',out)
 
-def run_scaling(L):
+def run_scaling(L,*,candidate=False):
     # Use three representative evidence-heavy cases; report router wall time relative to OMP=1.
     cases=[]
     for name,m,n,r,kind in [('grouped64',65536,64,64,'g'),('rankdef64',32768,64,56,'r'),('grouped256',32768,256,256,'g')]:
@@ -281,20 +363,19 @@ def run_scaling(L):
         vals=[]
         for name,A,b,x in cases:
             case_id=f'scaling.omp{t}.{name}'
-            med,o,raw=med_router(L,A,b,x,omp=t,warm=3,reps=9,seed=14000)
+            seed=contract.CANONICAL_CASES_BY_ID[case_id]['input_seeds'][0]
+            med,o,raw,runs=med_router(
+                L,A,b,x,case_id=case_id,generator_seed=seed,omp=t,warm=3,
+                reps=9,warmup_seeds=range(14000,14003),candidate=candidate)
             vals.append(med)
             if t==1: base[name]=med
-            diag=_diagnostics(o)
-            ratio={'name':'one_thread_router_over_router',
-                   'direction':'omp1_router/router','value':base[name]/med,
-                   'numerator_case_id':f'scaling.omp1.{name}',
-                   'denominator_case_id':case_id}
-            seed=contract.CANONICAL_CASES_BY_ID[case_id]['input_seeds'][0]
+            diag,numerical=_aggregate_runs(case_id,runs)
+            ratio=_ratio(case_id,base[name],med)
             row={'case_id':case_id,'inputs':[_input(case_id,A,b,x,seed)],
                  'timings':[contract.timing_record(operation='router',
                     source='solver-reported',warmups=3,repetitions=9,raw=raw)],
-                 'ratios':[ratio],'diagnostics':diag,
-                 'numerical_contract':_numerical(case_id,diag['status'],diag['rank']),
+                 'ratios':[ratio],'runs':runs,'diagnostics':diag,
+                 'numerical_contract':numerical,
                  'observations':{'timing_range':'not-evaluated','omp_threads':t}}
             rows.append(row);print('SCALING',t,row,flush=True)
     speed=[row['ratios'][0]['value'] for row in rows]
@@ -359,30 +440,38 @@ def structural_cases():
     assert len(cases)==44,len(cases)
     return cases
 
-def run_structural(L,omp):
+def run_structural(L,omp,*,candidate=False):
     rows=[];wrong=[];residuals=[];times=[]
     for ci,(name,A,b,x,expect_cls,expect_rank) in enumerate(structural_cases()):
         case_id=f'structural.{name}';spec=contract.CANONICAL_CASES_BY_ID[case_id]
         input_seed=spec['input_seeds'][0];per=[];raw=[]
-        for seed in [31001,31002,31003]:
-            adjusted_seed=seed+ci*17
-            o=router(L,A,b,x,seed=adjusted_seed,omp=omp)
-            got_cls=STATUS.get(int(o[0]),str(int(o[0]))); got_rank=int(o[2]);rr=None if not np.isfinite(o[5]) else float(o[5])
-            ok=(got_cls==expect_cls and (expect_cls=='inconsistent' or got_rank==expect_rank))
+        for repetition_index,adjusted_seed in enumerate(
+                spec['run_contract']['routing_seeds']):
+            o,observation=router(L,A,b,x,seed=adjusted_seed,omp=omp,
+                                 candidate=candidate)
+            diag=_diagnostics(o);got_cls=diag['status'];got_rank=int(o[2]);rr=None if not np.isfinite(o[5]) else float(o[5])
+            ok=(got_cls==expect_cls and got_rank==expect_rank)
             if not ok: wrong.append({'case_id':case_id,'seed':adjusted_seed,
               'expected':[expect_cls,expect_rank],
               'got':[got_cls,got_rank,int(o[3]),int(o[4])]})
             if rr is not None and expect_cls!='inconsistent':residuals.append(rr)
             raw.append(float(o[7]));times.append(float(o[7]))
             per.append({'case_id':case_id,
-              'run_id':f'{case_id}.seed_{adjusted_seed}','seed':adjusted_seed,
-              'status':got_cls,'rank':got_rank,'rank_lo':int(o[3]),
-              'rank_hi':int(o[4]),'router_relres':rr,
-              'router_berr':None if not np.isfinite(o[10]) else float(o[10]),
-              'solver_seconds':float(o[7]),'valid':ok})
-        first=per[0];case_reasons=[]
+              'run_id':spec['run_contract']['run_id_format'].format(
+                  case_id=case_id,repetition_index=repetition_index),
+              'generator_seed':input_seed,'routing_seed':adjusted_seed,
+              'repetition_index':repetition_index,
+              'requested_omp_threads':omp,
+              'observed_omp_threads':observation['observed_num_threads'],
+              'openmp_runtime_identity':observation['runtime_identity'],
+              'duration':{'value':float(o[7]),'unit':'s'},
+              'diagnostics':diag,
+              'numerical_contract':_numerical(
+                  case_id,got_cls,got_rank,int(o[3]),int(o[4]))})
+        first=per[0]['diagnostics'];case_reasons=[]
         for run in per:
-            if not run['valid']: case_reasons.append(f"run_failed:{run['run_id']}")
+            if not run['numerical_contract']['valid']:
+                case_reasons.append(f"run_failed:{run['run_id']}")
         numerical={'expected':{'status':expect_cls,'rank':expect_rank},
           'actual':{'status':first['status'],'rank':first['rank']},
           'valid':not case_reasons,'reasons':case_reasons}
@@ -392,10 +481,10 @@ def run_structural(L,omp):
           'ratios':[],'runs':per,
           'diagnostics':{'status':first['status'],'rank':first['rank'],
             'rank_lo':first['rank_lo'],'rank_hi':first['rank_hi'],
-            'router_relres':max((z['router_relres'] for z in per
-              if z['router_relres'] is not None),default=None),
-            'router_berr':max((z['router_berr'] for z in per
-              if z['router_berr'] is not None),default=None)},
+            'router_relres':max((z['diagnostics']['router_relres'] for z in per
+              if z['diagnostics']['router_relres'] is not None),default=None),
+            'router_berr':max((z['diagnostics']['router_berr'] for z in per
+              if z['diagnostics']['router_berr'] is not None),default=None)},
           'numerical_contract':numerical,
           'observations':{'timing_range':'not-evaluated'}}
         rows.append(row)
@@ -411,16 +500,16 @@ def run_structural(L,omp):
 
 def lapack_gelsy(L,A,b,x):
     contract.ensure_abi_arrays(A,b,x)
-    omp_threads(1);out=np.zeros(7,np.float64);L.bsolve_lapack_api(ptr(A),ptr(b),ptr(x),A.shape[0],A.shape[1],ptr(out));return out
+    out=np.zeros(7,np.float64);L.bsolve_lapack_api(ptr(A),ptr(b),ptr(x),A.shape[0],A.shape[1],ptr(out));return out
 
-def end2end_ms(fn,warm=2,reps=7):
+def end2end_seconds(fn,warm=2,reps=7):
     for _ in range(warm):fn()
     t=[];last=None
     for _ in range(reps):
-        q=time.perf_counter_ns();last=fn();t.append((time.perf_counter_ns()-q)*1e-6)
+        q=time.perf_counter_ns();last=fn();t.append((time.perf_counter_ns()-q)*1e-9)
     return float(np.median(t)),last,t
 
-def run_lapack_context(L,omp):
+def run_lapack_context(L,omp,*,candidate=False):
     rows=[]
     # A representative subset spanning full rank, deficient rank, redundancy, and size.
     specs=[
@@ -433,22 +522,23 @@ def run_lapack_context(L,omp):
     ]
     for name,maker in specs:
         case_id=f'lapack.{name}';A,b,x=maker()
-        rt,ro,rraw=end2end_ms(lambda:router(L,A,b,x,seed=47001,omp=omp),2,7)
-        lt,lo,lraw=end2end_ms(lambda:lapack_gelsy(L,A,b,x),2,7)
-        diag=_diagnostics(ro);diag['dgelsy']={
-          'status':CLS.get(int(lo[0]),str(int(lo[0]))),'rank':int(lo[1]),
-          'relres':None if not np.isfinite(lo[5]) else float(lo[5])}
         seed=contract.CANONICAL_CASES_BY_ID[case_id]['input_seeds'][0]
+        rt,ro,rraw,runs=med_router(
+            L,A,b,x,case_id=case_id,generator_seed=seed,omp=omp,warm=2,
+            reps=7,warmup_seeds=[47001]*2,source='perf_counter_ns',
+            candidate=candidate)
+        lt,lo,lraw=end2end_seconds(lambda:lapack_gelsy(L,A,b,x),2,7)
+        diag,numerical=_aggregate_runs(case_id,runs);diag['dgelsy']={
+          'status':decode_status(lo[0]),'rank':int(lo[1]),
+          'relres':None if not np.isfinite(lo[5]) else float(lo[5])}
         row={'case_id':case_id,'inputs':[_input(case_id,A,b,x,seed)],
           'timings':[
             contract.timing_record(operation='router',source='perf_counter_ns',
-              warmups=2,repetitions=7,raw=rraw,unit='milliseconds'),
+              warmups=2,repetitions=7,raw=rraw,unit='s'),
             contract.timing_record(operation='dgelsy',source='perf_counter_ns',
-              warmups=2,repetitions=7,raw=lraw,unit='milliseconds')],
-          'ratios':[contract.ratio_record(name='dgelsy_over_router',
-            numerator_operation='dgelsy',denominator_operation='router',
-            numerator=lt,denominator=rt)],'diagnostics':diag,
-          'numerical_contract':_numerical(case_id,diag['status'],diag['rank']),
+              warmups=2,repetitions=7,raw=lraw,unit='s')],
+          'ratios':[_ratio(case_id,lt,rt)],'runs':runs,'diagnostics':diag,
+          'numerical_contract':numerical,
           'observations':{'timing_range':'not-evaluated'}}
         rows.append(row);print('LAPACK',row,flush=True);del A,b,x
     ratios=[row['ratios'][0]['value'] for row in rows]
@@ -495,11 +585,11 @@ def software_info():
     return {'python':platform.python_version(),**versions}
 
 def runtime_info(build_evidence):
-    pools=contract.sanitize_threadpools(threadpool_info())
+    pools=contract.partition_threadpools(threadpool_info())
     return {'loaded_router':{
               'basename':contract.ROUTER_BASENAME,
               'sha256':build_evidence['router_sha256']},
-            'blas_pools':pools,
+            **pools,
             'thread_controls':{name:os.environ.get(name) for name in (
               'OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS',
               'VECLIB_MAXIMUM_THREADS')},
@@ -609,30 +699,45 @@ def _reverify(build_evidence,after):
     repeated['manifest_path']=build_evidence['manifest_path']
     return repeated
 
-def main(argv=None):
-    args=parse_cli(argv);before=source_state();started=_utc_now();clock=time.monotonic()
+def main(argv=None,*,hooks=None):
+    hooks={} if hooks is None else dict(hooks)
+    source_state_fn=hooks.get('source_state',source_state)
+    load_fn=hooks.get('load',load)
+    runtime_info_fn=hooks.get('runtime_info',runtime_info)
+    reverify_fn=hooks.get('reverify',_reverify)
+    metadata_fn=hooks.get('metadata',_metadata)
+    publish_fn=hooks.get('publish',contract.publish_package_atomic)
+    atomic_json_fn=hooks.get('atomic_json',_atomic_json)
+    utc_now_fn=hooks.get('utc_now',_utc_now)
+    monotonic_fn=hooks.get('monotonic',time.monotonic)
+    blas_context=hooks.get(
+        'blas_context',lambda:threadpool_limits(limits=1,user_api='blas'))
+    args=parse_cli(argv);before=source_state_fn();started=utc_now_fn();clock=monotonic_fn()
     if args.candidate and (before['git_dirty'] or len(before['git_sha'])!=40 or
                            len(before['git_tree_sha'])!=40):
         raise RuntimeError('candidate source preflight is not clean and complete')
-    L,build_evidence=load(before)
-    functions={'standard':lambda:run_standard(L,args.omp),
-      'rank':lambda:run_rank_transition(L,args.omp),
-      'guard':lambda:run_guard_timing(L,args.omp),
-      'scaling':lambda:run_scaling(L),
-      'structural':lambda:run_structural(L,args.omp),
-      'lapack':lambda:run_lapack_context(L,args.omp)}
-    with threadpool_limits(limits=1,user_api='blas'):
-        runtime=runtime_info(build_evidence)
-        sections=[functions[name]() for name in args.section_order]
-        runtime=runtime_info(build_evidence)
-    result=result_document(sections);after=source_state()
-    build_evidence=_reverify(build_evidence,after)
-    with threadpool_limits(limits=1,user_api='blas'):
-        runtime=runtime_info(build_evidence)
-    ended=_utc_now()
-    metadata=_metadata(args=args,result=result,before=before,after=after,
+    L,build_evidence=load_fn(before)
+    functions={'standard':lambda:run_standard(L,args.omp,candidate=args.candidate),
+      'rank':lambda:run_rank_transition(L,args.omp,candidate=args.candidate),
+      'guard':lambda:run_guard_timing(L,args.omp,candidate=args.candidate),
+      'scaling':lambda:run_scaling(L,candidate=args.candidate),
+      'structural':lambda:run_structural(L,args.omp,candidate=args.candidate),
+      'lapack':lambda:run_lapack_context(L,args.omp,candidate=args.candidate)}
+    with blas_context():
+        runtime=runtime_info_fn(build_evidence)
+        if 'execute_sections' in hooks:
+            sections=hooks['execute_sections'](L,args)
+        else:
+            sections=[functions[name]() for name in args.section_order]
+        runtime=runtime_info_fn(build_evidence)
+    result=result_document(sections);after=source_state_fn()
+    build_evidence=reverify_fn(build_evidence,after)
+    with blas_context():
+        runtime=runtime_info_fn(build_evidence)
+    ended=utc_now_fn()
+    metadata=metadata_fn(args=args,result=result,before=before,after=after,
       build_evidence=build_evidence,runtime=runtime,started=started,ended=ended,
-      duration=time.monotonic()-clock)
+      duration=monotonic_fn()-clock)
     verdict=contract.evaluate_eligibility(result=result,metadata=metadata,
       candidate=args.candidate,omp=args.omp)
     metadata['evidence_eligibility']=verdict
@@ -641,12 +746,12 @@ def main(argv=None):
           candidate=True,omp=args.omp)
         if not final['eligible']:
             raise RuntimeError('candidate evidence is ineligible: '+','.join(final['reasons']))
-        contract.publish_package_atomic(result=result,metadata=metadata,
+        publish_fn(result=result,metadata=metadata,
           result_path=args.out,metadata_path=args.metadata_out,
           checksum_path=args.checksum_out)
     else:
-        _atomic_json(args.out,result)
-        if args.metadata_out: _atomic_json(args.metadata_out,metadata)
+        atomic_json_fn(args.out,result)
+        if args.metadata_out: atomic_json_fn(args.metadata_out,metadata)
     print('WROTE',args.out)
     return numerical_exit_code(result)
 
