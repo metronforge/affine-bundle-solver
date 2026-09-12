@@ -60,7 +60,7 @@ In finite precision the fast router separates numerical status, epistemic streng
 
 The principal certification result is path independent. Three compact proof-object types target exact uniqueness, exact consistency with nonuniqueness, and exact inconsistency. A separate strict arithmetic checker derives, rather than trusts, an outward upper bound \(\eta_S\) in a common rowwise augmented relative perturbation metric. Acceptance implies the existence of a nearby real system within \(\eta_S\) of the corresponding exact type. The audit API attempts all three types independently of the fast router and therefore returns a router-independent nearby-status profile \(\boldsymbol{\eta}=(\eta_{\rm uniq},\eta_{\rm inf},\eta_{\rm inc})\), with rejected coordinates reported as unavailable. These coordinates are existence upper bounds, not confidence scores: the exact status sets are not topologically separated, and at a compatible rank-deficient source point all three exact status-set distances can vanish simultaneously. The theorem therefore does not require a rounding-error proof for every internal routing branch, while the profile avoids letting that router decide which certified alternatives are visible.
 
-With formation-provenance certification and the strengthened certificate checker, the equivalence-orbit property battery contains 8,335 direct C checks and reports no hard failure. The remaining 154 explicitly labelled affine-translation diagnostics are traced to the declared contradiction-policy scaling and an explicit per-row dyadic threshold. A separate 2,271-check certificate-equivariance battery has zero failure and exercises independent signed dyadic row scalings through $2^{\pm1000}$, compatible and near-compatible tall systems through $2^{\pm500}$, and verifier scales from deep subnormal values through $2^{1020}$. High-precision shadow evaluation found no underestimated constructive inconsistency radius in that battery. A separate immutable laptop experiment supplies machine-scoped comparisons with DGELSY, DGESV, and LSMR. These experiments support practical viability for dense equality classification on the tested platform, not universal superiority over general-purpose numerical linear algebra.
+With formation-provenance certification and the strengthened certificate checker, the equivalence-orbit property battery contains 8,335 property checks exercising the C implementation and reports no hard failure. The remaining 154 explicitly labelled affine-translation diagnostics are traced to the declared contradiction-policy scaling and an explicit per-row dyadic threshold. A separate 2,271-check certificate-equivariance battery has zero failure and exercises independent signed dyadic row scalings through $2^{\pm1000}$, compatible and near-compatible tall systems through $2^{\pm500}$, and verifier scales from deep subnormal values through $2^{1020}$. High-precision shadow evaluation found no underestimated constructive inconsistency radius in that battery. A separate immutable laptop experiment supplies machine-scoped comparisons with DGELSY, DGESV, and LSMR. These experiments support practical viability for dense equality classification on the tested platform, not universal superiority over general-purpose numerical linear algebra.
 \end{abstract}
 
 \section{Introduction}
@@ -761,9 +761,10 @@ therefore contextual observations, not claims of task-equivalent speedup.
 
 The implementation evidence is separate. The public C regression tests call
 the router and certificate APIs directly. The two property batteries exercise
-classification transformations and independently checked certificate objects;
-Python constructs inputs and records the C outputs but does not decide whether
-a C result passes.
+classification transformations and independently checked certificate objects.
+The Python harnesses invoke the C APIs, compare the returned outputs with
+construction-based, metamorphic, and high-precision oracles, and record and
+aggregate the resulting pass/fail outcomes.
 
 \section{Results}\label{sec:results}
 \subsection{Representative classifications}
@@ -813,15 +814,13 @@ milliseconds and ratio means comparator/router.}
 \small
 \begin{tabular}{lrrrr}
 \toprule
-case & router & comparator & comparator & ratio\\
+case & router ms & comparator ms & method & ratio\\
 \midrule
 tall.8000x32 & 0.121 & 1.972 & DGELSY & 16.318\\
 grouped.16384x64 & 1.591 & 20.166 & DGELSY & 12.677\\
 square.512x512 & 3.572 & 3.549 & DGESV & 0.993\\
 wide.128x512 & 6.977 & 2.867 & DGELSY & 0.411\\
 wide-extreme.32x12800 & 18.143 & 21.883 & DGELSY & 1.206\\
-rank-deficient.4000x64 & 0.512 & 3.001 & DGELSY & 5.857\\
-inconsistent.4000x64 & 0.142 & 3.043 & DGELSY & 21.442\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -832,20 +831,21 @@ DGELSY/router ratios are 12.677, 21.763, and 17.182. These are observations,
 not a universal range. The square DGESV/router ratios are 0.983, 0.993, and
 1.083, which is practical parity on this machine. The three moderate or large
 underdetermined DGELSY/router ratios are 0.411, 0.656, and 0.383, so the router
-is slower on those inputs. The more extreme $32\times12800$ input instead has
-ratio 1.206; this current result replaces, rather than confirms, an obsolete
+is slower on those inputs. The more extreme $32\times12800$ input instead has ratio 1.206;
+this current result replaces, rather than confirms, an obsolete
 historical observation in the opposite direction.
 
-For the three grouped inputs compared with LSMR, the LSMR/router ratios are
-0.624, 1.603, and 0.636. Thus LSMR is faster on two recorded inputs and the
+For the three grouped inputs compared with LSMR, the LSMR/router ratios are 0.624, 1.603, and 0.636.
+Thus LSMR is faster on two recorded inputs and the
 router is faster on one. This comparison says nothing about equivalent
 internal work: LSMR returns a compatible-system solution, while the router
 also establishes the classification and rank evidence required by its public
 contract.
 
 \subsection{Certificate and transformation evidence}
-The equivalence-orbit battery contains 8,335 direct C checks with no hard
-failure. It includes row permutation, signed dyadic row scaling, dependent-row
+The equivalence-orbit battery contains 8,335 property checks exercising the C
+implementation with no hard failure. It includes row permutation, signed
+dyadic row scaling, dependent-row
 extension, coordinate transformations, status-profile transformations, and a
 minimal cancellation counterexample. Its 154 recorded diagnostics are
 explicitly classified as representation-sensitive affine translations and
