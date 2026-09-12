@@ -401,8 +401,14 @@ def make_result_row(*, case_id, family, baseline_kind, baseline_name,
 
 def portable_failures(rows):
     """Return correctness/schema failures, deliberately ignoring timings."""
-    return [f"{row['family']}: {row['validation_reason']}" for row in rows
-            if not row.get("numerical_valid", False)]
+    failures = []
+    for row in rows:
+        if not row.get("numerical_valid", False):
+            failures.append(f"{row['family']}: {row['validation_reason']}")
+        for reason in validate_canonical_numerical_semantics(row):
+            if reason not in failures:
+                failures.append(reason)
+    return failures
 
 
 def _valid_git_identity(value):
@@ -423,6 +429,100 @@ def _append_reason(reasons, reason):
 def _is_number(value):
     return isinstance(value, (int, float, np.integer, np.floating)) and \
         not isinstance(value, (bool, np.bool_))
+
+
+def validate_canonical_numerical_semantics(row):
+    """Re-evaluate the case oracle instead of trusting ``numerical_valid``.
+
+    The rules mirror :func:`build_cases`, but use only serialized row fields.
+    Timing observations are intentionally absent: leaving a historical range
+    is evidence about one machine, not a failure of the numerical contract.
+    """
+    case_id = row.get("case_id")
+    expected = CANONICAL_CASES_BY_ID.get(case_id)
+    if expected is None:
+        return []
+
+    m, n, _ = expected
+    status = row.get("status")
+    rank = row.get("rank")
+    rank_lo = row.get("rank_lo")
+    rank_hi = row.get("rank_hi")
+    berr = row.get("berr")
+    reasons = []
+
+    full_unique = (status == "UNIQUE" and rank == n and rank_lo == n and
+                   rank_hi == n)
+    good_quality = (_is_number(berr) and math.isfinite(float(berr)) and
+                    0.0 <= float(berr) <= QUALITY_THRESHOLD)
+    quality_unavailable = (berr is None or
+                           (_is_number(berr) and math.isnan(float(berr))))
+
+    if case_id.startswith(("tall.", "tall_large.",
+                           "grouped_vs_", "square.", "square_large.")):
+        if status != "UNIQUE":
+            reasons.append(f"row_semantic_status_mismatch:{case_id}")
+        if not full_unique:
+            reasons.append(f"row_semantic_rank_mismatch:{case_id}")
+        if not good_quality:
+            reasons.append(f"row_semantic_quality_mismatch:{case_id}")
+    elif case_id.startswith(("wide.", "wide_extreme.", "wide_large.")):
+        if status != "INFINITE":
+            reasons.append(f"row_semantic_status_mismatch:{case_id}")
+        if not (rank == m and rank_lo == m and rank_hi == m):
+            reasons.append(f"row_semantic_rank_mismatch:{case_id}")
+        if not quality_unavailable:
+            reasons.append(f"row_semantic_quality_mismatch:{case_id}")
+    elif case_id == "rank_deficient.4000x64":
+        if status != "INFINITE":
+            reasons.append(f"row_semantic_status_mismatch:{case_id}")
+        if not (rank == 40 and rank_lo == 40 and rank_hi == 64):
+            reasons.append(f"row_semantic_rank_mismatch:{case_id}")
+        if not quality_unavailable:
+            reasons.append(f"row_semantic_quality_mismatch:{case_id}")
+    elif case_id == "rank_deficient_large.6000x2000":
+        if status != "INFINITE":
+            reasons.append(f"row_semantic_status_mismatch:{case_id}")
+        if not (rank == 1500 and rank_lo == 1500 and rank_hi == 2000):
+            reasons.append(f"row_semantic_rank_mismatch:{case_id}")
+        if not quality_unavailable:
+            reasons.append(f"row_semantic_quality_mismatch:{case_id}")
+    elif case_id == "inconsistent.4000x64":
+        if status != "INCONSISTENT":
+            reasons.append(f"row_semantic_status_mismatch:{case_id}")
+        if not (rank == 64 and rank_lo == 64 and rank_hi == 64):
+            reasons.append(f"row_semantic_rank_mismatch:{case_id}")
+        if not quality_unavailable:
+            reasons.append(f"row_semantic_quality_mismatch:{case_id}")
+    elif case_id.startswith("near_transition"):
+        expected_rank = 1999 if "large" in case_id else 11
+        expected_hi = 2000 if "large" in case_id else 12
+        if status != "UNDECIDABLE":
+            reasons.append(f"row_semantic_status_mismatch:{case_id}")
+        if not (rank == expected_rank and rank_lo == expected_rank and
+                rank_hi == expected_hi):
+            reasons.append(f"row_semantic_rank_mismatch:{case_id}")
+        if not quality_unavailable:
+            reasons.append(f"row_semantic_quality_mismatch:{case_id}")
+    elif case_id.startswith(("cond_", "cond_large_")):
+        expected_status = ("UNDECIDABLE" if "1e+14" in case_id
+                           else "UNIQUE")
+        if status != expected_status:
+            reasons.append(f"row_semantic_status_mismatch:{case_id}")
+        if expected_status == "UNIQUE" and status == "UNIQUE":
+            if not full_unique:
+                reasons.append(f"row_semantic_rank_mismatch:{case_id}")
+            if not good_quality:
+                reasons.append(f"row_semantic_quality_mismatch:{case_id}")
+        elif expected_status == "UNDECIDABLE" and status == "UNDECIDABLE" \
+                and not (isinstance(rank_lo, (int, np.integer)) and
+                         isinstance(rank_hi, (int, np.integer)) and
+                         rank == rank_lo and 0 <= rank_lo < rank_hi <= n):
+            reasons.append(f"row_semantic_rank_mismatch:{case_id}")
+        if expected_status == "UNDECIDABLE" and status == "UNDECIDABLE" and \
+                not quality_unavailable:
+            reasons.append(f"row_semantic_quality_mismatch:{case_id}")
+    return reasons
 
 
 def validate_schema_v2_row(row, repeats):
@@ -475,12 +575,15 @@ def validate_schema_v2_row(row, repeats):
             min(row["m"], row["n"]))):
         reasons.append("row_rank_structure_invalid")
     berr = row.get("berr")
-    if not _is_number(berr) or math.isinf(float(berr)) or (
+    if berr is None and row.get("status") != "UNIQUE":
+        pass
+    elif not _is_number(berr) or math.isinf(float(berr)) or (
             math.isnan(float(berr)) and row.get("status") == "UNIQUE") or (
             math.isfinite(float(berr)) and float(berr) < 0):
         reasons.append("row_field_invalid:berr")
     if row.get("numerical_valid") is not True:
         reasons.append("numerical_contract_failed")
+    reasons.extend(validate_canonical_numerical_semantics(row))
 
     valid_timings = {}
     for label in ("router", "baseline"):
