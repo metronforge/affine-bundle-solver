@@ -66,42 +66,29 @@ Two things to be clear about:
 
 ## Where it is fast, and where it is not
 
-Single-threaded BLAS. The baseline is explicit per case: square systems use
-`dgesv`, dense rectangular cases use the selected `dgelsy`/`gelsd` driver,
-and grouped sparse cases also report LSMR. Comparing a square system against
-a least-squares driver measures the cost of column pivoting rather than
-anything about this method.
+The immutable package `results/synthetic-reference.*` contains 29 valid
+row-level records from an Intel Core Ultra 9 185H laptop. OpenMP and BLAS were
+limited to one thread; each case used one warmup and 11 timed repetitions.
+Ratios below are baseline/router, so values above one mean lower router wall
+time on that machine.
 
-| Shape | Measured | Baseline |
+| Cases | Recorded baseline/router ratios | Baseline |
 |---|---|---|
-| Overdetermined `m ≫ n` | **20–80× faster**, reproduced from 8000×32 up to 20000×2000 | `dgelsy` |
-| Square | **parity**, 1.03–1.06× at n = 256…2000 | `dgesv` |
-| Underdetermined `m < n`, moderate aspect | **0.35–0.62×** (slower) | `dgelsy` |
-| Underdetermined, `n/m` in the tens or hundreds | **0.02–0.09×** (far slower) | `dgelsy` |
+| Tall | 16.318, 32.148, 48.120, 32.838, 82.029 | DGELSY |
+| Grouped rows | 12.677, 21.763, 17.182 | DGELSY |
+| Square | 0.983, 0.993, 1.083 | DGESV |
+| Underdetermined | 0.411, 0.656, 0.383 | DGELSY |
+| Extreme 32×12800 | 1.206 | DGELSY |
+| Grouped rows | 0.624, 1.603, 0.636 | LSMR |
 
-Two of these correct earlier figures, in both directions. The square case was
-previously stated as 0.6–0.9× and measures at parity: the method was
-understated there. The extreme underdetermined case was covered by a stated
-0.24–0.43× that was measured at moderate aspect only; at `n/m` of 44 and 420
-the penalty is an order beyond that, and `LPnetlib/lp_fit2d` at 25×10524 runs
-at 0.02×. The checked-in grouped-row CSV used an unconfirmed generator and is
-retained as historical evidence only. The corrected harness separates
-portable numerical validation from timing observations; a designated
-reference-machine run and metadata review are required before changing the
-manuscript numbers.
-
-Every number above comes from a harness in `experiments/`, and the two
-findings documents say what each one does and does not support:
-[`docs/benchmark-findings.md`](docs/benchmark-findings.md) and
-[`docs/suitesparse-findings.md`](docs/suitesparse-findings.md).
-`experiments/synthetic_bench.py` exits nonzero when a portable numerical
-contract fails. Hardware-dependent timing ranges are reported separately and
-require review on the named reference machine.
-
-The speed argument applies to overdetermined equality classification only. On
-square and underdetermined shapes the argument is the classification output
-and rank interval, not wall time. `well1033` from the SuiteSparse collection
-is kept in the test set as a deliberate negative performance control.
+DGELSY computes a general minimum-norm least-squares result and LSMR is an
+iterative solution method; neither comparison establishes equivalent internal
+work. The data show lower router wall time on the five tested tall inputs,
+mixed square behavior, and higher router wall time on the three moderate or
+large underdetermined inputs. They are machine-scoped observations, not
+portable speed guarantees. The earlier `results/synthetic.csv` remains in the
+repository as historical, non-current output and supplies no manuscript
+number.
 
 This is a **dense** solver. Sparse problems need a different implementation.
 
@@ -158,14 +145,14 @@ done
 python3 tests/pbt_equivalence_orbits.py         # 8,335 checks
 python3 tests/pbt_certificate_equivariance.py   # 2,271 checks
 
-# do the paper's numbers still come out of this build?
+# check direct property evidence and the immutable benchmark package
 python3 tests/check_paper_claims.py
+python3 tests/check_paper_claims.py --audit-performance-artifacts . \
+  --require-publication-ready
 ```
 
-`check_paper_claims.py` is the one to run after any change. Ordinary tests
-answer "did anything crash"; this one fails when a number printed in
-`paper.tex` no longer reproduces, even if every test passes. A silently
-changed count invalidates a sentence in the manuscript.
+`check_paper_claims.py` checks the direct property evidence and verifies that
+the retained manuscript performance values agree with the immutable package.
 
 ## Repository layout
 
@@ -200,7 +187,8 @@ Deliberately narrow, and worth reading before citing:
   `#pragma STDC FENV_ACCESS`, so the contract rests on `-frounding-math`.
   Compiler-independent closure would need validated interval arithmetic,
   MPFR-style directed arithmetic, or a formally verified checker.
-- Performance claims are restricted to the tested dense regimes.
+- Performance claims are restricted to the named laptop, software stack,
+  inputs, and single-thread protocol recorded by the immutable package.
 
 ## Status
 

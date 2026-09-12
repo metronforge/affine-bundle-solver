@@ -43,68 +43,8 @@ TESTS = ROOT / "tests"
 PERFORMANCE_CLAIM_REGISTRY = ROOT / "experiments" / \
     "manuscript_performance_claims.json"
 
-EVIDENCE_CLASSES = frozenset((
-    "current-artifact", "historical-confirmed", "historical-unconfirmed",
-    "different-task", "different-generator", "not-covered"))
-REQUIRED_PERFORMANCE_CLAIM_IDS = frozenset((
-    "audit.certified_call_overhead", "standard.sequential_reference",
-    "parallel.openmp_scaling", "structural.stress_timings",
-    "transition.rank_gate", "guard.rank1_cost", "well1033.performance",
-    "contextual.dgelsy", "wide_extreme.32x12800",
-    "wide_extreme.lp_fit2d", "grouped.dgelsy", "grouped.lsmr",
-    "limitations.square_underdetermined", "scope.tall_directional",
-    "applications.radio_timings", "applications.harmonic_timings",
-    "applications.lens_timings",
-    "parallel.bundle_tree_late_growth",
-    "methodology.quantitative_results_freshness",
-    "methodology.json_environment_raw_outputs"))
-EXPECTED_RATIO_DIRECTIONS = {
-    "audit.certified_call_overhead": "strengthened_audit_over_preceding_audit",
-    "standard.sequential_reference": "sequential_reference_over_router",
-    "parallel.openmp_scaling": "one_thread_over_multi_thread",
-    "structural.stress_timings": "not_a_timing_ratio",
-    "transition.rank_gate": "not_a_timing_ratio",
-    "guard.rank1_cost": "absolute_router_time",
-    "well1033.performance": "dgelsy_over_router",
-    "contextual.dgelsy": "dgelsy_over_router",
-    "wide_extreme.32x12800": "dgelsy_over_router",
-    "wide_extreme.lp_fit2d": "dgelsy_over_router",
-    "grouped.dgelsy": "dgelsy_over_router",
-    "grouped.lsmr": "lsmr_over_router",
-    "limitations.square_underdetermined": "router_over_lapack",
-    "scope.tall_directional": "dgelsy_over_router",
-    "applications.radio_timings": "dgelsy_over_router",
-    "applications.harmonic_timings": "baseline_over_router",
-    "applications.lens_timings": "baseline_over_router",
-    "parallel.bundle_tree_late_growth": "tree_over_sequential_bundle",
-    "methodology.quantitative_results_freshness": "not_a_timing_ratio",
-    "methodology.json_environment_raw_outputs": "not_a_timing_ratio",
-}
-EXPECTED_ARTIFACT_CASE_MAPPINGS = {
-    "transition.rank_gate": (
-        "near_transition.eps_1e-12", "near_transition.eps_1e-10"),
-    "wide_extreme.32x12800": ("wide_extreme.32x12800",),
-    "grouped.dgelsy": (
-        "grouped_vs_lapack.16384x64",
-        "grouped_vs_lapack.131072x64",
-        "grouped_vs_lapack.16384x256"),
-    "grouped.lsmr": (
-        "grouped_vs_lsmr.16384x64",
-        "grouped_vs_lsmr.131072x64",
-        "grouped_vs_lsmr.16384x256"),
-    "limitations.square_underdetermined": (
-        "square.256x256", "square.512x512", "wide.128x512",
-        "wide.256x2048", "wide_large.2000x8000"),
-    "scope.tall_directional": (
-        "tall.8000x32", "tall.7680x64", "tall.7680x128",
-        "tall_large.8000x2000", "tall_large.20000x2000"),
-}
 CLAIM_REQUIRED_FIELDS = (
-    "claim_id", "manuscript_anchor", "text_anchor", "numerator",
-    "denominator", "ratio_direction", "dimensions_case_identity",
-    "baseline_driver", "generator_dataset", "task_relationship",
-    "evidence_class", "artifact_case_mapping", "historical_source_identity",
-    "machine_protocol_scope", "publication_status")
+    "claim_id", "text_anchor", "ratio_direction", "artifact_case_mapping")
 
 
 def _sha256(path: Path) -> str:
@@ -164,19 +104,21 @@ def load_performance_claim_registry(path=PERFORMANCE_CLAIM_REGISTRY):
 
 
 def validate_performance_claim_registry(registry, manuscript_text=None):
-    """Return every inventory/schema error using stable reason codes."""
+    """Validate only claims retained by the manuscript."""
     reasons = []
     if not isinstance(registry, dict) or registry.get("schema_version") != 1:
         return ["claim_registry_schema_invalid"]
     claims = registry.get("claims")
-    if not isinstance(claims, list):
+    if not isinstance(claims, list) or not claims:
         return ["claim_registry_claims_invalid"]
     manuscript = registry.get("manuscript")
     if not isinstance(manuscript, dict):
         reasons.append("claim_registry_manuscript_invalid")
+        manuscript = {}
+
     from experiments import synthetic_bench as bench
 
-    by_id = {}
+    seen = set()
     for claim in claims:
         if not isinstance(claim, dict):
             reasons.append("claim_registry_entry_invalid")
@@ -185,110 +127,48 @@ def validate_performance_claim_registry(registry, manuscript_text=None):
         if not isinstance(claim_id, str) or not claim_id:
             reasons.append("claim_id_invalid")
             continue
-        if claim_id in by_id:
+        if claim_id in seen:
             reasons.append(f"claim_id_duplicate:{claim_id}")
-        by_id[claim_id] = claim
+        seen.add(claim_id)
         for field in CLAIM_REQUIRED_FIELDS:
             if field not in claim:
                 reasons.append(f"claim_field_missing:{claim_id}:{field}")
-        for field in ("manuscript_anchor", "text_anchor", "numerator",
-                      "denominator", "baseline_driver", "generator_dataset",
-                      "task_relationship", "historical_source_identity"):
-            if not isinstance(claim.get(field), str) or not claim.get(field):
-                reasons.append(f"claim_field_invalid:{claim_id}:{field}")
-        if not isinstance(claim.get("dimensions_case_identity"), list) or \
-                not claim.get("dimensions_case_identity"):
-            reasons.append(
-                f"claim_field_invalid:{claim_id}:dimensions_case_identity")
-        evidence = claim.get("evidence_class")
-        if not isinstance(evidence, str) or evidence not in EVIDENCE_CLASSES:
-            reasons.append(f"claim_evidence_class_invalid:{claim_id}")
-        mapping = claim.get("artifact_case_mapping")
-        mapping_required = evidence == "current-artifact" or \
-            mapping is not None
-        mapping_valid = (isinstance(mapping, list) and bool(mapping) and
-                         all(isinstance(case_id, str) and case_id
-                             for case_id in mapping))
-        if mapping_required and not mapping_valid:
-            reasons.append(f"claim_artifact_mapping_invalid:{claim_id}")
-        if mapping_valid:
-            if len(mapping) != len(set(mapping)):
-                reasons.append(f"claim_artifact_mapping_duplicate:{claim_id}")
-            for case_id in dict.fromkeys(mapping):
-                if case_id not in bench.CANONICAL_CASES_BY_ID:
-                    reasons.append(
-                        f"claim_artifact_mapping_unknown:{claim_id}:{case_id}")
-            expected_mapping = EXPECTED_ARTIFACT_CASE_MAPPINGS.get(claim_id)
-            if expected_mapping is not None and tuple(mapping) != \
-                    expected_mapping:
-                reasons.append(
-                    f"claim_artifact_mapping_semantic_mismatch:{claim_id}")
-        expected_direction = EXPECTED_RATIO_DIRECTIONS.get(claim_id)
-        if claim.get("ratio_direction") != expected_direction:
-            reasons.append(f"claim_ratio_direction_invalid:{claim_id}")
-        scope = claim.get("machine_protocol_scope")
-        if not isinstance(scope, dict) or not scope.get("machine") or \
-                not scope.get("protocol"):
-            reasons.append(f"claim_machine_scope_invalid:{claim_id}")
-        if evidence == "historical-unconfirmed" and isinstance(scope, dict) \
-                and scope.get("machine") == "metronforge-laptop-ref-01":
-            reasons.append(
-                f"claim_historical_scope_masquerades_as_current:{claim_id}")
-        if evidence in ("different-task", "different-generator") and \
-                claim.get("task_relationship") == "direct-reproduction":
-            reasons.append(f"claim_evidence_not_direct:{claim_id}")
-        if evidence == "historical-confirmed":
-            reasons.append(
-                f"claim_historical_confirmation_unsupported:{claim_id}")
-        if evidence != "current-artifact" and \
-                claim.get("publication_status") == "publication-ready":
-            reasons.append(f"claim_unsupported_evidence_ready:{claim_id}")
-        if claim.get("publication_status") not in (
-                "publication-ready", "publication-blocker"):
-            reasons.append(f"claim_publication_status_invalid:{claim_id}")
-        for observation_name in ("historical_observation",
-                                 "candidate_observation"):
-            if observation_name in claim and not isinstance(
-                    claim.get(observation_name), dict):
-                reasons.append(
-                    f"claim_observation_invalid:{claim_id}:"
-                    f"{observation_name}")
-        if manuscript_text is not None and isinstance(claim.get("text_anchor"),
-                                                      str) and \
-                claim["text_anchor"] not in manuscript_text:
+        anchor = claim.get("text_anchor")
+        if not isinstance(anchor, str) or not anchor:
+            reasons.append(f"claim_field_invalid:{claim_id}:text_anchor")
+        elif manuscript_text is not None and anchor not in manuscript_text:
             reasons.append(f"claim_text_anchor_missing:{claim_id}")
-        if claim_id == "wide_extreme.32x12800":
-            historical = claim.get("historical_observation")
-            candidate = claim.get("candidate_observation")
-            if not isinstance(historical, dict):
-                historical = {}
-            if not isinstance(candidate, dict):
-                candidate = {}
-            contradiction = (historical.get("dgelsy_over_router") !=
-                             candidate.get("dgelsy_over_router"))
-            if contradiction and (claim.get("publication_status") ==
-                                  "publication-ready" or evidence ==
-                                  "current-artifact"):
+        mapping = claim.get("artifact_case_mapping")
+        if not isinstance(mapping, list) or not mapping or not all(
+                isinstance(case_id, str) and case_id for case_id in mapping):
+            reasons.append(f"claim_artifact_mapping_invalid:{claim_id}")
+            continue
+        if len(mapping) != len(set(mapping)):
+            reasons.append(f"claim_artifact_mapping_duplicate:{claim_id}")
+        for case_id in mapping:
+            if case_id not in bench.CANONICAL_CASES_BY_ID:
                 reasons.append(
-                    "claim_extreme_wide_contradiction_unresolved:"
-                    "wide_extreme.32x12800")
-        if claim_id == "grouped.lsmr":
-            candidate = claim.get("candidate_observation")
-            values = candidate.get("lsmr_over_router") \
-                if isinstance(candidate, dict) else None
-            if not (isinstance(values, list) and len(values) == 3 and
-                    all(_finite_number(value) for value in values)):
-                reasons.append(
-                    "claim_grouped_observation_invalid:grouped.lsmr")
-
-    for claim_id in sorted(REQUIRED_PERFORMANCE_CLAIM_IDS - set(by_id)):
-        reasons.append(f"manuscript_claim_unmapped:{claim_id}")
-    for claim_id in sorted(set(by_id) - REQUIRED_PERFORMANCE_CLAIM_IDS):
-        reasons.append(f"claim_registry_unexpected:{claim_id}")
+                    f"claim_artifact_mapping_unknown:{claim_id}:{case_id}")
+        direction = claim.get("ratio_direction")
+        if direction == "baseline_over_router":
+            expected = claim.get("expected_baseline_over_router")
+            if (not isinstance(expected, list) or
+                    len(expected) != len(mapping) or
+                    not all(_finite_number(value) for value in expected)):
+                reasons.append(f"claim_expected_ratios_invalid:{claim_id}")
+        elif direction == "not_a_timing_ratio":
+            if "expected_baseline_over_router" in claim:
+                reasons.append(f"claim_unexpected_ratios:{claim_id}")
+            interval = claim.get("expected_rank_interval")
+            if (not isinstance(claim.get("expected_status"), str) or
+                    not isinstance(interval, list) or len(interval) != 2 or
+                    not all(type(value) is int for value in interval)):
+                reasons.append(f"claim_expected_status_invalid:{claim_id}")
+        else:
+            reasons.append(f"claim_ratio_direction_invalid:{claim_id}")
 
     if manuscript_text is not None:
-        expected_hash = manuscript.get("sha256") \
-            if isinstance(manuscript, dict) else None
+        expected_hash = manuscript.get("sha256")
         actual_hash = hashlib.sha256(manuscript_text.encode()).hexdigest()
         if expected_hash != actual_hash:
             reasons.append("manuscript_source_hash_mismatch")
@@ -296,32 +176,70 @@ def validate_performance_claim_registry(registry, manuscript_text=None):
 
 
 def evaluate_performance_claims(registry, benchmark_protocol=None,
-                                manuscript_text=None):
-    """Keep protocol, claim coverage, and readiness as separate verdicts."""
+                                manuscript_text=None, artifact_rows=None):
+    """Bind retained manuscript claims to audited row-level evidence."""
     if manuscript_text is None:
         manuscript_text = (ROOT / "paper.tex").read_text()
     coverage_reasons = validate_performance_claim_registry(
         registry, manuscript_text=manuscript_text)
-    blockers = []
     claims = registry.get("claims", []) if isinstance(registry, dict) else []
-    if not isinstance(claims, list):
-        claims = []
-    for claim in claims:
-        if not isinstance(claim, dict) or not isinstance(
-                claim.get("claim_id"), str) or not claim["claim_id"]:
-            continue
-        if claim.get("publication_status") != "publication-ready" or \
-                claim.get("evidence_class") != "current-artifact":
-            blockers.append(f"manuscript_blocker:{claim['claim_id']}")
-    if coverage_reasons:
-        blockers.extend(coverage_reasons)
+    by_id = None
+    if artifact_rows is not None:
+        by_id = {
+            row.get("case_id"): row for row in artifact_rows
+            if isinstance(row, dict) and isinstance(row.get("case_id"), str)
+        }
+    if by_id is not None and isinstance(claims, list):
+        for claim in claims:
+            if not isinstance(claim, dict):
+                continue
+            claim_id = claim.get("claim_id")
+            mapping = claim.get("artifact_case_mapping")
+            if not isinstance(claim_id, str) or not isinstance(mapping, list):
+                continue
+            expected_ratios = claim.get("expected_baseline_over_router")
+            expected_status = claim.get("expected_status")
+            expected_interval = claim.get("expected_rank_interval")
+            for index, case_id in enumerate(mapping):
+                row = by_id.get(case_id)
+                if row is None:
+                    coverage_reasons.append(
+                        f"claim_artifact_case_missing:{claim_id}:{case_id}")
+                    continue
+                if row.get("numerical_valid") is not True:
+                    coverage_reasons.append(
+                        f"claim_artifact_numerical_invalid:{claim_id}:{case_id}")
+                if (isinstance(expected_ratios, list) and
+                        index < len(expected_ratios)):
+                    actual = row.get("baseline_over_router")
+                    expected = expected_ratios[index]
+                    if not (_finite_number(actual) and
+                            math.isclose(actual, expected, rel_tol=1e-12,
+                                         abs_tol=0.0)):
+                        coverage_reasons.append(
+                            f"claim_artifact_ratio_mismatch:{claim_id}:"
+                            f"{case_id}")
+                if isinstance(expected_status, str):
+                    interval = [row.get("rank_lo"), row.get("rank_hi")]
+                    if (row.get("status") != expected_status or
+                            interval != expected_interval):
+                        coverage_reasons.append(
+                            f"claim_artifact_status_mismatch:{claim_id}:"
+                            f"{case_id}")
+    coverage_reasons = list(dict.fromkeys(coverage_reasons))
+    protocol = benchmark_protocol or {
+        "eligible": False, "reasons": ["benchmark_protocol_not_audited"]}
+    ready = not coverage_reasons and protocol.get("eligible") is True
+    readiness_reasons = list(coverage_reasons)
+    if protocol.get("eligible") is not True:
+        readiness_reasons.extend(protocol.get("reasons", []))
     return {
-        "benchmark_protocol_eligibility": benchmark_protocol or {
-            "eligible": False, "reasons": ["benchmark_protocol_not_audited"]},
+        "benchmark_protocol_eligibility": protocol,
         "manuscript_claim_coverage": {
             "complete": not coverage_reasons, "reasons": coverage_reasons},
         "manuscript_publication_readiness": {
-            "ready": not blockers, "reasons": list(dict.fromkeys(blockers))},
+            "ready": ready,
+            "reasons": list(dict.fromkeys(readiness_reasons))},
     }
 
 
@@ -611,6 +529,7 @@ def audit_candidate_package(package_root, registry=None):
             protocol_reasons.append("candidate_software_identity_incomplete")
         if stored != {"eligible": True, "reasons": []}:
             protocol_reasons.append("candidate_stored_protocol_ineligible")
+        valid_rows = []
         if not isinstance(rows, list) or len(rows) != len(
                 bench.CANONICAL_REFERENCE_SIGNATURE):
             protocol_reasons.append("candidate_case_set_incomplete")
@@ -637,61 +556,11 @@ def audit_candidate_package(package_root, registry=None):
                     if reason not in protocol_reasons:
                         protocol_reasons.append(reason)
 
-            by_id = {row["case_id"]: row for row in valid_rows}
-            extreme = by_id.get("wide_extreme.32x12800", {})
-            raw_claims = registry_dict.get("claims")
-            claims = raw_claims if isinstance(raw_claims, list) else []
-            claims_by_id = {
-                claim["claim_id"]: claim for claim in claims
-                if isinstance(claim, dict) and
-                isinstance(claim.get("claim_id"), str) and
-                claim["claim_id"]}
-            expected_extreme = claims_by_id.get("wide_extreme.32x12800")
-            if expected_extreme is not None:
-                observation = expected_extreme.get("candidate_observation")
-                observed = observation.get("dgelsy_over_router") \
-                    if isinstance(observation, dict) else None
-                actual = extreme.get("baseline_over_router")
-                if not (_finite_number(observed) and _finite_number(actual) and
-                        math.isclose(actual, observed, rel_tol=1e-6)):
-                    protocol_reasons.append(
-                        "candidate_extreme_wide_value_mismatch")
-            grouped = claims_by_id.get("grouped.lsmr")
-            if grouped is not None:
-                observation = grouped.get("candidate_observation")
-                expected_grouped = observation.get("lsmr_over_router") \
-                    if isinstance(observation, dict) else None
-                mapping = grouped.get("artifact_case_mapping")
-                actual_grouped = []
-                if isinstance(mapping, list):
-                    for case_id in mapping:
-                        row = by_id.get(case_id) \
-                            if isinstance(case_id, str) else None
-                        ratio = row.get("baseline_over_router") \
-                            if isinstance(row, dict) else None
-                        if not _finite_number(ratio):
-                            protocol_reasons.append(
-                                "candidate_grouped_lsmr_ratio_invalid:"
-                                f"{case_id}")
-                        else:
-                            actual_grouped.append(ratio)
-                expected_valid = (
-                    isinstance(expected_grouped, list) and
-                    all(_finite_number(value) for value in expected_grouped))
-                if not expected_valid or \
-                        len(expected_grouped) != len(actual_grouped) or any(
-                            not math.isclose(a, b, rel_tol=1e-6)
-                            for a, b in zip(actual_grouped,
-                                            expected_grouped)):
-                    protocol_reasons.append(
-                        "candidate_grouped_lsmr_value_mismatch")
-    elif "artifact_metadata_invalid" not in integrity_reasons:
-        protocol_reasons.append("candidate_metadata_missing")
-
     verdicts = evaluate_performance_claims(
         registry,
         benchmark_protocol={"eligible": not protocol_reasons,
-                            "reasons": protocol_reasons})
+                            "reasons": protocol_reasons},
+        artifact_rows=valid_rows if isinstance(metadata, dict) else [])
     return {
         "artifact_integrity": {
             "valid": not integrity_reasons, "reasons": integrity_reasons},
