@@ -121,6 +121,11 @@ def _valid_hex(value, length):
             all(character in "0123456789abcdefABCDEF" for character in value))
 
 
+def _finite_number(value):
+    return (isinstance(value, (int, float)) and not isinstance(value, bool) and
+            math.isfinite(value))
+
+
 def _safe_git_path(value):
     if not isinstance(value, str) or not value or "\\" in value or \
             ":" in value:
@@ -132,31 +137,112 @@ def _safe_git_path(value):
     return str(path)
 
 
-def _git_output(*arguments):
+def _git_output(repo_root, *arguments):
     try:
         completed = subprocess.run(
-            ["git", *arguments], cwd=ROOT, stdout=subprocess.PIPE,
+            ["git", *arguments], cwd=repo_root, stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL, check=False)
     except OSError:
         return None
     return completed.stdout if completed.returncode == 0 else None
 
 
-def _git_commit_tree(commit):
-    if not _valid_hex(commit, 40) or \
-            _git_output("cat-file", "-e", f"{commit}^{{commit}}") is None:
+def _git_commit_tree(commit, repo_root=ROOT):
+    if not _valid_hex(commit, 40):
         return None
-    output = _git_output("rev-parse", f"{commit}^{{tree}}")
+    object_type = _git_output(repo_root, "cat-file", "-t", commit)
+    if object_type is None or object_type.decode().strip() != "commit":
+        return None
+    output = _git_output(repo_root, "rev-parse", "--verify",
+                         f"{commit}^{{tree}}")
     return output.decode().strip() if output is not None else None
 
 
-def _git_blob(commit, path):
-    if _git_commit_tree(commit) is None or _safe_git_path(path) is None:
+def _git_blob(commit, path, repo_root=ROOT):
+    safe_path = _safe_git_path(path)
+    if _git_commit_tree(commit, repo_root) is None or safe_path is None:
         return None
-    return _git_output("show", f"{commit}:{path}")
+    object_id = _git_output(repo_root, "rev-parse", "--verify",
+                            f"{commit}:{safe_path}")
+    if object_id is None:
+        return None
+    object_id = object_id.decode().strip()
+    if not _valid_hex(object_id, 40):
+        return None
+    object_type = _git_output(repo_root, "cat-file", "-t", object_id)
+    if object_type is None or object_type.decode().strip() != "blob":
+        return None
+    return _git_output(repo_root, "cat-file", "blob", object_id)
 
 
-def _confirmed_provenance_valid(claim):
+def _nonempty_string_list(value):
+    return (isinstance(value, list) and bool(value) and
+            all(isinstance(item, str) and item for item in value))
+
+
+def _build_record_semantics_valid(record, kind, source_sha, source_tree):
+    if not isinstance(record, dict) or \
+            not isinstance(record.get("source"), dict):
+        return False
+    source = record["source"]
+    if (source.get("git_sha"), source.get("git_tree_sha"),
+            source.get("git_dirty")) != (source_sha, source_tree, False):
+        return False
+    if kind == "build-manifest":
+        script = record.get("build_script")
+        compiler = record.get("compiler")
+        router = record.get("router")
+        openblas = record.get("openblas")
+        library = router.get("library") if isinstance(router, dict) else None
+        return (
+            type(record.get("schema_version")) is int and
+            record["schema_version"] == 1 and
+            isinstance(record.get("built_at_utc"), str) and
+            bool(record["built_at_utc"]) and
+            isinstance(script, dict) and
+            _safe_git_path(script.get("path")) is not None and
+            _valid_hex(script.get("sha256"), 64) and
+            isinstance(compiler, dict) and
+            _nonempty_string_list(compiler.get("command_argv")) and
+            isinstance(compiler.get("identity"), str) and
+            bool(compiler["identity"]) and
+            isinstance(router, dict) and
+            _nonempty_string_list(router.get("compile_argv")) and
+            _nonempty_string_list(router.get("link_argv")) and
+            isinstance(router.get("arch_flags"), str) and
+            isinstance(library, dict) and
+            isinstance(library.get("basename"), str) and
+            bool(library["basename"]) and
+            _valid_hex(library.get("sha256"), 64) and
+            isinstance(openblas, dict) and
+            isinstance(openblas.get("basename"), str) and
+            bool(openblas["basename"]) and
+            _valid_hex(openblas.get("sha256"), 64))
+    if kind == "run-record":
+        benchmark = record.get("benchmark")
+        command = record.get("command")
+        command_argv = record.get("command_argv")
+        build = record.get("build_provenance")
+        results = record.get("results")
+        return (
+            type(record.get("schema_version")) is int and
+            record["schema_version"] > 0 and
+            isinstance(command, str) and bool(command) and
+            _nonempty_string_list(command_argv) and
+            isinstance(benchmark, dict) and
+            isinstance(benchmark.get("driver"), str) and
+            bool(benchmark["driver"]) and
+            isinstance(benchmark.get("seed"), int) and
+            isinstance(benchmark.get("repeats"), int) and
+            benchmark["repeats"] > 0 and
+            isinstance(build, dict) and build.get("verified") is True and
+            isinstance(results, list) and bool(results))
+    return False
+
+
+def _confirmed_provenance_valid(claim, repo_root=ROOT):
+    if not isinstance(claim, dict):
+        return False
     provenance = claim.get("historical_provenance")
     if not isinstance(provenance, dict):
         return False
@@ -166,30 +252,31 @@ def _confirmed_provenance_valid(claim):
     artifact_path = _safe_git_path(provenance.get("artifact_path"))
     build_sha = provenance.get("build_record_git_sha")
     build_path = _safe_git_path(provenance.get("build_record_path"))
-    if _git_commit_tree(source_sha) != source_tree:
+    if not _valid_hex(source_sha, 40) or not _valid_hex(source_tree, 40):
+        return False
+    actual_source_tree = _git_commit_tree(source_sha, repo_root)
+    if actual_source_tree is None or actual_source_tree != source_tree:
         return False
     try:
-        artifact_blob = _git_blob(artifact_sha, artifact_path)
-        build_blob = _git_blob(build_sha, build_path)
+        artifact_blob = _git_blob(artifact_sha, artifact_path, repo_root)
+        build_blob = _git_blob(build_sha, build_path, repo_root)
         build_record = json.loads(build_blob) if build_blob is not None \
             else None
     except (TypeError, UnicodeDecodeError, json.JSONDecodeError):
         return False
     return (
         artifact_blob is not None and build_blob is not None and
-        isinstance(build_record, dict) and
-        isinstance(build_record.get("source"), dict) and
-        (build_record["source"].get("git_sha"),
-         build_record["source"].get("git_tree_sha"),
-         build_record["source"].get("git_dirty")) ==
-        (source_sha, source_tree, False) and
-        provenance.get("build_record_kind") in
-        ("build-manifest", "run-record") and
+        _build_record_semantics_valid(
+            build_record, provenance.get("build_record_kind"), source_sha,
+            source_tree) and
         _valid_hex(provenance.get("artifact_sha256"), 64) and
         hashlib.sha256(artifact_blob).hexdigest() ==
         provenance["artifact_sha256"] and
         _valid_hex(provenance.get("build_record_sha256"), 64) and
         hashlib.sha256(build_blob).hexdigest() ==
+        provenance["build_record_sha256"] and
+        _valid_hex(provenance.get("build_identity_sha256"), 64) and
+        provenance["build_identity_sha256"] ==
         provenance["build_record_sha256"])
 
 
@@ -198,7 +285,8 @@ def load_performance_claim_registry(path=PERFORMANCE_CLAIM_REGISTRY):
     return json.loads(Path(path).read_text())
 
 
-def validate_performance_claim_registry(registry, manuscript_text=None):
+def validate_performance_claim_registry(registry, manuscript_text=None,
+                                        repo_root=ROOT):
     """Return every inventory/schema error using stable reason codes."""
     reasons = []
     if not isinstance(registry, dict) or registry.get("schema_version") != 1:
@@ -206,6 +294,9 @@ def validate_performance_claim_registry(registry, manuscript_text=None):
     claims = registry.get("claims")
     if not isinstance(claims, list):
         return ["claim_registry_claims_invalid"]
+    manuscript = registry.get("manuscript")
+    if not isinstance(manuscript, dict):
+        reasons.append("claim_registry_manuscript_invalid")
     from experiments import synthetic_bench as bench
 
     by_id = {}
@@ -270,7 +361,7 @@ def validate_performance_claim_registry(registry, manuscript_text=None):
                 claim.get("task_relationship") == "direct-reproduction":
             reasons.append(f"claim_evidence_not_direct:{claim_id}")
         confirmed_provenance_valid = evidence != "historical-confirmed" or \
-            _confirmed_provenance_valid(claim)
+            _confirmed_provenance_valid(claim, repo_root=repo_root)
         if not confirmed_provenance_valid:
             reasons.append(f"claim_confirmed_provenance_invalid:{claim_id}")
         if (evidence not in DIRECT_EVIDENCE_CLASSES or
@@ -280,22 +371,40 @@ def validate_performance_claim_registry(registry, manuscript_text=None):
         if claim.get("publication_status") not in (
                 "publication-ready", "publication-blocker"):
             reasons.append(f"claim_publication_status_invalid:{claim_id}")
+        for observation_name in ("historical_observation",
+                                 "candidate_observation"):
+            if observation_name in claim and not isinstance(
+                    claim.get(observation_name), dict):
+                reasons.append(
+                    f"claim_observation_invalid:{claim_id}:"
+                    f"{observation_name}")
         if manuscript_text is not None and isinstance(claim.get("text_anchor"),
                                                       str) and \
                 claim["text_anchor"] not in manuscript_text:
             reasons.append(f"claim_text_anchor_missing:{claim_id}")
         if claim_id == "wide_extreme.32x12800":
-            historical = claim.get("historical_observation") or {}
-            candidate = claim.get("candidate_observation") or {}
-            contradiction = (
-                historical.get("dgelsy_over_router") !=
-                candidate.get("dgelsy_over_router"))
+            historical = claim.get("historical_observation")
+            candidate = claim.get("candidate_observation")
+            if not isinstance(historical, dict):
+                historical = {}
+            if not isinstance(candidate, dict):
+                candidate = {}
+            contradiction = (historical.get("dgelsy_over_router") !=
+                             candidate.get("dgelsy_over_router"))
             if contradiction and (claim.get("publication_status") ==
                                   "publication-ready" or evidence in
                                   DIRECT_EVIDENCE_CLASSES):
                 reasons.append(
                     "claim_extreme_wide_contradiction_unresolved:"
                     "wide_extreme.32x12800")
+        if claim_id == "grouped.lsmr":
+            candidate = claim.get("candidate_observation")
+            values = candidate.get("lsmr_over_router") \
+                if isinstance(candidate, dict) else None
+            if not (isinstance(values, list) and len(values) == 3 and
+                    all(_finite_number(value) for value in values)):
+                reasons.append(
+                    "claim_grouped_observation_invalid:grouped.lsmr")
 
     for claim_id in sorted(REQUIRED_PERFORMANCE_CLAIM_IDS - set(by_id)):
         reasons.append(f"manuscript_claim_unmapped:{claim_id}")
@@ -303,7 +412,8 @@ def validate_performance_claim_registry(registry, manuscript_text=None):
         reasons.append(f"claim_registry_unexpected:{claim_id}")
 
     if manuscript_text is not None:
-        expected_hash = (registry.get("manuscript") or {}).get("sha256")
+        expected_hash = manuscript.get("sha256") \
+            if isinstance(manuscript, dict) else None
         actual_hash = hashlib.sha256(manuscript_text.encode()).hexdigest()
         if expected_hash != actual_hash:
             reasons.append("manuscript_source_hash_mismatch")
@@ -311,12 +421,12 @@ def validate_performance_claim_registry(registry, manuscript_text=None):
 
 
 def evaluate_performance_claims(registry, benchmark_protocol=None,
-                                manuscript_text=None):
+                                manuscript_text=None, repo_root=ROOT):
     """Keep protocol, claim coverage, and readiness as separate verdicts."""
     if manuscript_text is None:
         manuscript_text = (ROOT / "paper.tex").read_text()
     coverage_reasons = validate_performance_claim_registry(
-        registry, manuscript_text=manuscript_text)
+        registry, manuscript_text=manuscript_text, repo_root=repo_root)
     blockers = []
     claims = registry.get("claims", []) if isinstance(registry, dict) else []
     if not isinstance(claims, list):
@@ -639,32 +749,50 @@ def audit_candidate_package(package_root, registry=None):
 
             by_id = {row["case_id"]: row for row in valid_rows}
             extreme = by_id.get("wide_extreme.32x12800", {})
-            claims_by_id = {claim.get("claim_id"): claim
-                            for claim in registry_dict.get("claims", [])
-                            if isinstance(claim, dict)}
+            raw_claims = registry_dict.get("claims")
+            claims = raw_claims if isinstance(raw_claims, list) else []
+            claims_by_id = {
+                claim["claim_id"]: claim for claim in claims
+                if isinstance(claim, dict) and
+                isinstance(claim.get("claim_id"), str) and
+                claim["claim_id"]}
             expected_extreme = claims_by_id.get("wide_extreme.32x12800")
             if expected_extreme is not None:
-                observed = (expected_extreme.get("candidate_observation") or {}) \
-                    .get("dgelsy_over_router")
+                observation = expected_extreme.get("candidate_observation")
+                observed = observation.get("dgelsy_over_router") \
+                    if isinstance(observation, dict) else None
                 actual = extreme.get("baseline_over_router")
-                if not (isinstance(observed, (int, float)) and
-                        isinstance(actual, (int, float)) and
+                if not (_finite_number(observed) and _finite_number(actual) and
                         math.isclose(actual, observed, rel_tol=1e-6)):
                     protocol_reasons.append(
                         "candidate_extreme_wide_value_mismatch")
             grouped = claims_by_id.get("grouped.lsmr")
             if grouped is not None:
-                expected_grouped = (grouped.get("candidate_observation") or {}) \
-                    .get("lsmr_over_router", [])
+                observation = grouped.get("candidate_observation")
+                expected_grouped = observation.get("lsmr_over_router") \
+                    if isinstance(observation, dict) else None
                 mapping = grouped.get("artifact_case_mapping")
-                actual_grouped = ([by_id[case_id]["baseline_over_router"]
-                                   for case_id in mapping
-                                   if isinstance(case_id, str) and
-                                   case_id in by_id]
-                                  if isinstance(mapping, list) else [])
-                if len(expected_grouped) != len(actual_grouped) or any(
-                        not math.isclose(a, b, rel_tol=1e-6)
-                        for a, b in zip(actual_grouped, expected_grouped)):
+                actual_grouped = []
+                if isinstance(mapping, list):
+                    for case_id in mapping:
+                        row = by_id.get(case_id) \
+                            if isinstance(case_id, str) else None
+                        ratio = row.get("baseline_over_router") \
+                            if isinstance(row, dict) else None
+                        if not _finite_number(ratio):
+                            protocol_reasons.append(
+                                "candidate_grouped_lsmr_ratio_invalid:"
+                                f"{case_id}")
+                        else:
+                            actual_grouped.append(ratio)
+                expected_valid = (
+                    isinstance(expected_grouped, list) and
+                    all(_finite_number(value) for value in expected_grouped))
+                if not expected_valid or \
+                        len(expected_grouped) != len(actual_grouped) or any(
+                            not math.isclose(a, b, rel_tol=1e-6)
+                            for a, b in zip(actual_grouped,
+                                            expected_grouped)):
                     protocol_reasons.append(
                         "candidate_grouped_lsmr_value_mismatch")
     elif "artifact_metadata_invalid" not in integrity_reasons:
