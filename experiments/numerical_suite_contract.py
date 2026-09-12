@@ -494,6 +494,76 @@ def _finite_number(value: Any) -> bool:
             and math.isfinite(value))
 
 
+def is_exact_integer(value: Any, *, minimum: int | None = None,
+                     maximum: int | None = None) -> bool:
+    if type(value) is not int:
+        return False
+    return ((minimum is None or value >= minimum) and
+            (maximum is None or value <= maximum))
+
+
+def _nullable_version_valid(identity: Mapping[str, Any]) -> bool:
+    if "version" not in identity:
+        return False
+    version = identity["version"]
+    return version is None or (type(version) is str and bool(version))
+
+
+def openmp_runtime_identity(*, basename: Any, user_api: Any,
+                            internal_api: Any, version: Any,
+                            library_sha256: Any) -> dict[str, Any]:
+    fields = {
+        "basename": basename, "user_api": user_api,
+        "internal_api": internal_api, "version": version,
+        "library_sha256": library_sha256,
+    }
+    if not all(type(fields[name]) is str and fields[name]
+               for name in ("basename", "user_api", "internal_api")) or \
+            fields["user_api"] != "openmp" or \
+            not _nullable_version_valid(fields) or \
+            not _valid_hex(library_sha256, 64):
+        raise ValueError("openmp_runtime_identity_invalid")
+    canonical = json.dumps(fields, sort_keys=True, separators=(",", ":"),
+                           allow_nan=False).encode("utf-8")
+    return {"runtime_id": hashlib.sha256(canonical).hexdigest(), **fields}
+
+
+def openmp_runtime_identity_valid(identity: Any) -> bool:
+    if not isinstance(identity, dict):
+        return False
+    try:
+        expected = openmp_runtime_identity(
+            basename=identity.get("basename"),
+            user_api=identity.get("user_api"),
+            internal_api=identity.get("internal_api"),
+            version=identity.get("version") if "version" in identity else [],
+            library_sha256=identity.get("library_sha256"))
+    except ValueError:
+        return False
+    return identity.get("runtime_id") == expected["runtime_id"]
+
+
+def router_rank_certainty_valid(*, status: Any, certainty: Any, rank: Any,
+                                rank_lo: Any, rank_hi: Any,
+                                max_rank: Any) -> bool:
+    if not all(is_exact_integer(value, minimum=0)
+               for value in (rank, rank_lo, rank_hi, max_rank)) or \
+            rank > max_rank or rank_lo > max_rank or rank_hi > max_rank:
+        return False
+    if certainty == "deterministic":
+        return status not in ("fail", "undecidable") and \
+            rank_lo == rank == rank_hi
+    if certainty == "randomised":
+        return status not in ("fail", "undecidable") and \
+            rank < max_rank and rank_lo == rank and rank_hi == max_rank
+    if certainty == "none":
+        if status == "fail":
+            return rank_lo == rank == rank_hi
+        if status == "undecidable":
+            return rank_lo <= rank <= rank_hi
+    return False
+
+
 def _append(reasons: list[str], reason: str) -> None:
     if reason not in reasons:
         reasons.append(reason)
@@ -552,9 +622,9 @@ def timing_record(*, operation: str, source: str, warmups: int,
                   repetitions: int, raw: Sequence[float],
                   unit: str = "s") -> dict[str, Any]:
     values = [float(value) for value in raw]
-    if not isinstance(warmups, int) or warmups < 0:
+    if not is_exact_integer(warmups, minimum=0):
         raise ValueError("warmups must be a nonnegative integer")
-    if not isinstance(repetitions, int) or repetitions <= 0 or \
+    if not is_exact_integer(repetitions, minimum=1) or \
             len(values) != repetitions:
         raise ValueError("raw timing count differs from repetitions")
     if any(not math.isfinite(value) or value <= 0.0 for value in values):
@@ -584,7 +654,17 @@ def ratio_record(*, name: str, numerator_operation: str,
 def strict_json_loads(data: str | bytes) -> Any:
     def reject_constant(value: str) -> None:
         raise ValueError(f"forbidden JSON constant {value}")
-    return json.loads(data, parse_constant=reject_constant)
+
+    def reject_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError("duplicate_json_key")
+            result[key] = value
+        return result
+
+    return json.loads(data, parse_constant=reject_constant,
+                      object_pairs_hook=reject_duplicate_keys)
 
 
 def _input_reasons(record: Any, spec: Mapping[str, Any],
@@ -594,9 +674,12 @@ def _input_reasons(record: Any, spec: Mapping[str, Any],
         return [f"result_input_invalid:{case_id}"]
     if record.get("generator") != spec["generator"]:
         _append(reasons, f"result_input_generator_mismatch:{case_id}")
-    if record.get("seed") not in spec["input_seeds"]:
+    if not is_exact_integer(record.get("seed")) or \
+            record.get("seed") not in spec["input_seeds"]:
         _append(reasons, f"result_input_seed_mismatch:{case_id}")
-    if record.get("m") != spec["m"] or record.get("n") != spec["n"]:
+    if not is_exact_integer(record.get("m"), minimum=1) or \
+            not is_exact_integer(record.get("n"), minimum=1) or \
+            record.get("m") != spec["m"] or record.get("n") != spec["n"]:
         _append(reasons, f"result_input_shape_mismatch:{case_id}")
     if record.get("dtype") != "float64":
         _append(reasons, f"result_input_dtype_invalid:{case_id}")
@@ -605,7 +688,10 @@ def _input_reasons(record: Any, spec: Mapping[str, Any],
     if record.get("layout") != "row-major" or \
             record.get("c_contiguous") is not True:
         _append(reasons, f"result_input_layout_invalid:{case_id}")
-    if record.get("strides") != [spec["n"] * 8, 8]:
+    strides = record.get("strides")
+    if not isinstance(strides, list) or not all(
+            is_exact_integer(value, minimum=1) for value in strides) or \
+            strides != [spec["n"] * 8, 8]:
         _append(reasons, f"result_input_strides_invalid:{case_id}")
     hashes = record.get("sha256") if isinstance(record.get("sha256"), dict) else {}
     for name in ("A", "b", "x"):
@@ -633,9 +719,11 @@ def _timing_reasons(record: Any, expected: Mapping[str, Any],
     if record.get("measurement_envelope") != expected[
             "measurement_envelope"]:
         _append(reasons, f"result_timing_envelope_mismatch:{prefix}")
-    if record.get("warmups") != expected["warmups"]:
+    if not is_exact_integer(record.get("warmups"), minimum=0) or \
+            record.get("warmups") != expected["warmups"]:
         _append(reasons, f"result_timing_warmups_mismatch:{prefix}")
-    if record.get("repetitions") != expected["repetitions"]:
+    if not is_exact_integer(record.get("repetitions"), minimum=1) or \
+            record.get("repetitions") != expected["repetitions"]:
         _append(reasons, f"result_timing_repetitions_mismatch:{prefix}")
     raw = record.get("raw")
     if not isinstance(raw, list) or len(raw) != expected["repetitions"] or \
@@ -682,13 +770,16 @@ def _router_diagnostics_reasons(diagnostics: Any, spec: Mapping[str, Any],
     hi = diagnostics.get("rank_hi")
     invalid = (
         status not in _STATUS_NUMBERS or
+        not is_exact_integer(diagnostics.get("status_code"), minimum=1) or
         diagnostics.get("status_code") != _STATUS_NUMBERS.get(status) or
+        not is_exact_integer(diagnostics.get("raw_class"), minimum=1) or
         diagnostics.get("raw_class") != _STATUS_NUMBERS.get(status) or
         certainty not in _CERTAINTY_NUMBERS or
+        not is_exact_integer(diagnostics.get("certainty_code"), minimum=1) or
         diagnostics.get("certainty_code") != _CERTAINTY_NUMBERS.get(certainty) or
-        not all(isinstance(value, int) and not isinstance(value, bool) and
-                value >= 0 for value in (rank, lo, hi)) or
-        not lo <= rank <= hi or
+        not router_rank_certainty_valid(
+            status=status, certainty=certainty, rank=rank,
+            rank_lo=lo, rank_hi=hi, max_rank=min(spec["m"], spec["n"])) or
         not isinstance(diagnostics.get("fallback"), bool) or
         not _finite_number(diagnostics.get("solver_seconds")) or
         diagnostics.get("solver_seconds") <= 0 or
@@ -735,8 +826,9 @@ def _comparator_diagnostics_reasons(diagnostics: Any,
     rank = diagnostics.get("rank")
     invalid = (
         status not in _STATUS_NUMBERS or
+        not is_exact_integer(diagnostics.get("status_code"), minimum=1) or
         diagnostics.get("status_code") != _STATUS_NUMBERS.get(status) or
-        not isinstance(rank, int) or isinstance(rank, bool) or rank < 0 or
+        not is_exact_integer(rank, minimum=0) or
         not isinstance(diagnostics.get("fallback"), bool) or
         not isinstance(diagnostics.get("accepted_random"), bool) or
         not _finite_number(diagnostics.get("solver_seconds")) or
@@ -749,10 +841,7 @@ def _comparator_diagnostics_reasons(diagnostics: Any,
             diagnostics.get("relx") is not None
     else:
         invalid = invalid or diagnostics.get("relres") is None
-        if status == "inconsistent":
-            invalid = invalid or diagnostics.get("relx") is not None
-        else:
-            invalid = invalid or diagnostics.get("relx") is None
+        invalid = invalid or diagnostics.get("relx") is None
     if invalid or status != expected["expected_status"] or \
             rank != expected["expected_rank"]:
         return [reason]
@@ -760,7 +849,8 @@ def _comparator_diagnostics_reasons(diagnostics: Any,
 
 
 def _comparator_run_reasons(run: Any, expected: Mapping[str, Any],
-                            index: int, case_id: str) -> list[str]:
+                            index: int, case_id: str, *,
+                            timing_source: str) -> list[str]:
     operation = expected["operation"]
     prefix = f"{case_id}:{operation}"
     if not isinstance(run, dict):
@@ -770,6 +860,7 @@ def _comparator_run_reasons(run: Any, expected: Mapping[str, Any],
         case_id=case_id, repetition_index=index)
     if run.get("run_id") != expected_id or run.get("case_id") != case_id or \
             run.get("operation") != operation or \
+            not is_exact_integer(run.get("repetition_index"), minimum=0) or \
             run.get("repetition_index") != expected["repetition_indices"][index]:
         _append(reasons, f"result_comparator_run_order_mismatch:{prefix}")
     duration = run.get("duration")
@@ -781,10 +872,14 @@ def _comparator_run_reasons(run: Any, expected: Mapping[str, Any],
     for item in _comparator_diagnostics_reasons(
             run.get("diagnostics"), expected, prefix):
         _append(reasons, item)
+    diagnostics = run.get("diagnostics")
+    if timing_source == "solver-reported" and isinstance(duration, dict) and \
+            isinstance(diagnostics, dict) and \
+            duration.get("value") != diagnostics.get("solver_seconds"):
+        _append(reasons, f"result_comparator_solver_duration_mismatch:{prefix}")
     numerical = run.get("numerical_contract")
     expected_outcome = {"status": expected["expected_status"],
                         "rank": expected["expected_rank"]}
-    diagnostics = run.get("diagnostics")
     actual = ({"status": diagnostics.get("status"),
                "rank": diagnostics.get("rank")}
               if isinstance(diagnostics, dict) else None)
@@ -807,23 +902,24 @@ def _run_reasons(run: Any, spec: Mapping[str, Any], index: int,
         case_id=case_id, repetition_index=index)
     if run.get("run_id") != expected_id or run.get("case_id") != case_id:
         _append(reasons, f"result_run_order_mismatch:{case_id}")
-    if run.get("generator_seed") != run_contract["generator_seeds"][index]:
+    if not is_exact_integer(run.get("generator_seed")) or \
+            run.get("generator_seed") != run_contract["generator_seeds"][index]:
         _append(reasons, f"result_run_generator_seed_mismatch:{case_id}")
-    if run.get("routing_seed") != run_contract["routing_seeds"][index]:
+    if not is_exact_integer(run.get("routing_seed")) or \
+            run.get("routing_seed") != run_contract["routing_seeds"][index]:
         _append(reasons, f"result_run_routing_seed_mismatch:{case_id}")
-    if run.get("repetition_index") != run_contract["repetition_indices"][index]:
+    if not is_exact_integer(run.get("repetition_index"), minimum=0) or \
+            run.get("repetition_index") != run_contract["repetition_indices"][index]:
         _append(reasons, f"result_run_repetition_index_mismatch:{case_id}")
     requested = run_contract["requested_omp_threads"][index]
-    if run.get("requested_omp_threads") != requested:
+    if not is_exact_integer(run.get("requested_omp_threads"), minimum=1) or \
+            run.get("requested_omp_threads") != requested:
         _append(reasons, f"result_run_requested_openmp_mismatch:{case_id}")
     observed = run.get("observed_omp_threads")
-    if observed != requested:
+    if not is_exact_integer(observed, minimum=1) or observed != requested:
         _append(reasons, f"result_run_observed_openmp_mismatch:{case_id}")
     identity = run.get("openmp_runtime_identity")
-    if not isinstance(identity, dict) or \
-            identity.get("user_api") != "openmp" or not all(
-                isinstance(identity.get(field), str) and identity.get(field)
-                for field in ("runtime_id", "basename", "internal_api")):
+    if not openmp_runtime_identity_valid(identity):
         _append(reasons, f"result_run_openmp_identity_invalid:{case_id}")
     duration = run.get("duration")
     if not isinstance(duration, dict):
@@ -837,6 +933,12 @@ def _run_reasons(run: Any, spec: Mapping[str, Any], index: int,
     diagnostics = run.get("diagnostics")
     for item in _router_diagnostics_reasons(diagnostics, spec, case_id):
         _append(reasons, item)
+    router_source = next((timing["source"] for timing in spec["timings"]
+                          if timing["operation"] == "router"), None)
+    if router_source == "solver-reported" and isinstance(duration, dict) and \
+            isinstance(diagnostics, dict) and \
+            duration.get("value") != diagnostics.get("solver_seconds"):
+        _append(reasons, f"result_run_solver_duration_mismatch:{case_id}")
     numerical = run.get("numerical_contract")
     if not isinstance(numerical, dict) or numerical.get("valid") is not True \
             or numerical.get("reasons") != []:
@@ -868,7 +970,8 @@ def validate_result_document(document: Any, *,
     reasons: list[str] = []
     if not isinstance(document, dict):
         return ["result_document_invalid"]
-    if document.get("schema_version") != RESULT_SCHEMA_VERSION:
+    if not is_exact_integer(document.get("schema_version")) or \
+            document.get("schema_version") != RESULT_SCHEMA_VERSION:
         _append(reasons, "result_schema_version_invalid")
     if document.get("protocol_id") != PROTOCOL_ID:
         _append(reasons, "result_protocol_id_invalid")
@@ -924,7 +1027,9 @@ def validate_result_document(document: Any, *,
         if tuple(ids) != CANONICAL_CASE_IDS[section_id]:
             _append(reasons, f"result_case_order_mismatch:{section_id}")
         summary = section.get("summary")
-        if not isinstance(summary, dict) or summary.get("case_count") != len(cases):
+        if not isinstance(summary, dict) or not is_exact_integer(
+                summary.get("case_count"), minimum=0) or \
+                summary.get("case_count") != len(cases):
             _append(reasons, f"result_summary_case_count_mismatch:{section_id}")
         summary_contract = SECTION_SUMMARY_CONTRACTS[section_id]
         if not isinstance(summary, dict) or set(summary) != set(
@@ -1068,8 +1173,12 @@ def validate_result_document(document: Any, *,
                             f"result_comparator_run_identity_duplicate:{prefix}")
                     comparator_invalid = True
                 for index, run in enumerate(operation_runs):
+                    timing_source = next(
+                        (timing["source"] for timing in spec["timings"]
+                         if timing["operation"] == operation), "")
                     run_reasons = _comparator_run_reasons(
-                        run, comparator, index, case_id)
+                        run, comparator, index, case_id,
+                        timing_source=timing_source)
                     if run_reasons:
                         comparator_invalid = True
                     for item in run_reasons:
@@ -1105,6 +1214,7 @@ def validate_result_document(document: Any, *,
             expected = numerical.get("expected") if isinstance(numerical, dict) else None
             if not isinstance(expected, dict) or \
                     expected.get("status") != spec["expected_status"] or \
+                    not is_exact_integer(expected.get("rank"), minimum=0) or \
                     expected.get("rank") != spec["expected_rank"]:
                 _append(reasons, f"result_numerical_expected_mismatch:{case_id}")
             if section_id == "rank" and isinstance(expected, dict) and \
@@ -1114,6 +1224,7 @@ def validate_result_document(document: Any, *,
             actual = numerical.get("actual") if isinstance(numerical, dict) else None
             if not isinstance(actual, dict) or \
                     actual.get("status") != spec["expected_status"] or \
+                    not is_exact_integer(actual.get("rank"), minimum=0) or \
                     actual.get("rank") != spec["expected_rank"]:
                 _append(reasons, f"result_numerical_outcome_mismatch:{case_id}")
             if section_id == "rank" and isinstance(actual, dict) and \
@@ -1132,7 +1243,7 @@ def validate_result_document(document: Any, *,
                 lo = diagnostics.get("rank_lo")
                 hi = diagnostics.get("rank_hi")
                 if not isinstance(diagnostics.get("status"), str) or not all(
-                        isinstance(value, int) and not isinstance(value, bool)
+                        is_exact_integer(value, minimum=0)
                         for value in (rank, lo, hi)):
                     _append(reasons, f"result_diagnostics_fields_invalid:{case_id}")
                 elif not lo <= rank <= hi:
@@ -1191,6 +1302,12 @@ def validate_result_document(document: Any, *,
                     numerical.get("valid") is not True or numerical.get("reasons"):
                 _append(reasons, f"result_case_run_aggregate_mismatch:{case_id}")
         if section_id == "structural" and isinstance(summary, dict):
+            for field in ("routing_seeds_per_instance", "check_count",
+                          "hard_failure_count",
+                          "reported_hard_failure_count"):
+                if not is_exact_integer(summary.get(field), minimum=0):
+                    _append(reasons,
+                            f"result_summary_integer_invalid:{section_id}:{field}")
             if summary.get("hard_failure_count") != hard_failures or \
                     summary.get("reported_hard_failure_count") != hard_failures:
                 _append(reasons, "result_structural_hard_failure_count_mismatch")
@@ -1229,7 +1346,8 @@ def validate_result_document(document: Any, *,
                        if section_ratios else None)
             median = statistics.median(section_ratios) \
                 if section_ratios else None
-            if summary.get("ratio_count") != count or geomean is None or \
+            if not is_exact_integer(summary.get("ratio_count"), minimum=0) or \
+                    summary.get("ratio_count") != count or geomean is None or \
                     not _finite_number(summary.get("ratio_geomean")) or \
                     not math.isclose(float(summary["ratio_geomean"]), geomean,
                                      rel_tol=1e-12, abs_tol=0) or \
@@ -1263,7 +1381,11 @@ def validate_result_document(document: Any, *,
     }
     expected_counts = (CANONICAL_EVIDENCE_COUNTS if require_complete
                        else actual_counts)
-    if document.get("evidence_counts") != expected_counts or \
+    evidence_counts = document.get("evidence_counts")
+    if not isinstance(evidence_counts, dict) or any(
+            not is_exact_integer(evidence_counts.get(name), minimum=0)
+            for name in expected_counts) or \
+            evidence_counts != expected_counts or \
             actual_counts != expected_counts:
         _append(reasons, "result_evidence_counts_mismatch")
     top = document.get("numerical_contract")
@@ -1326,7 +1448,8 @@ def validate_metadata_document(document: Any, *,
     if not isinstance(document, dict):
         return ["metadata_document_invalid"]
     reasons: list[str] = []
-    if document.get("schema_version") != METADATA_SCHEMA_VERSION:
+    if not is_exact_integer(document.get("schema_version")) or \
+            document.get("schema_version") != METADATA_SCHEMA_VERSION:
         _append(reasons, "metadata_schema_version_invalid")
     if document.get("scope") != "reference-machine-numerical-evidence":
         _append(reasons, "metadata_scope_invalid")
@@ -1341,7 +1464,8 @@ def validate_metadata_document(document: Any, *,
             _append(reasons, "result_hash_mismatch")
     elif not _valid_hex(result.get("sha256"), 64):
         _append(reasons, "result_hash_invalid")
-    if result.get("schema_version") != RESULT_SCHEMA_VERSION:
+    if not is_exact_integer(result.get("schema_version")) or \
+            result.get("schema_version") != RESULT_SCHEMA_VERSION:
         _append(reasons, "metadata_result_schema_mismatch")
     if result.get("protocol_id") != PROTOCOL_ID:
         _append(reasons, "metadata_protocol_id_mismatch")
@@ -1379,6 +1503,8 @@ def validate_metadata_document(document: Any, *,
                 run.get("duration_seconds")) or run.get("duration_seconds", -1) < 0:
         _append(reasons, "run_timing_identity_incomplete")
     build = document.get("build") if isinstance(document.get("build"), dict) else {}
+    if not is_exact_integer(build.get("manifest_schema_version"), minimum=1):
+        _append(reasons, "build_manifest_schema_invalid")
     if not _valid_hex(build.get("manifest_sha256"), 64):
         _append(reasons, "build_manifest_hash_invalid")
     if not build.get("built_at_utc"):
@@ -1425,7 +1551,8 @@ def validate_metadata_document(document: Any, *,
     for pool in pools:
         if not isinstance(pool, dict) or not pool.get("basename") or \
                 pool.get("user_api") != "blas" or \
-                not _valid_hex(pool.get("sha256"), 64):
+                not _valid_hex(pool.get("sha256"), 64) or \
+                not is_exact_integer(pool.get("num_threads"), minimum=1):
             _append(reasons, "runtime_blas_pool_identity_incomplete"); continue
         runtime_hashes.add(pool["sha256"])
         if pool.get("num_threads") != 1:
@@ -1439,20 +1566,16 @@ def validate_metadata_document(document: Any, *,
         _append(reasons, "runtime_openmp_pool_missing")
     else:
         for pool in openmp_pools:
-            if not isinstance(pool, dict) or pool.get("user_api") != "openmp" or \
-                    not all(isinstance(pool.get(field), str) and pool.get(field)
-                            for field in ("runtime_id", "basename",
-                                          "internal_api")) or \
-                    not isinstance(pool.get("num_threads"), int):
+            if not openmp_runtime_identity_valid(pool) or \
+                    not is_exact_integer(pool.get("num_threads"), minimum=1):
                 _append(reasons, "runtime_openmp_pool_identity_incomplete")
     selected_openmp = runtime.get("selected_router_openmp_identity")
     identity_fields = ("runtime_id", "basename", "user_api", "internal_api",
-                       "version")
-    if not isinstance(selected_openmp, dict) or \
-            selected_openmp.get("user_api") != "openmp" or not all(
-                isinstance(selected_openmp.get(field), str) and
-                selected_openmp.get(field) for field in identity_fields):
+                       "version", "library_sha256")
+    if not isinstance(selected_openmp, dict):
         _append(reasons, "runtime_router_openmp_identity_missing")
+    elif not openmp_runtime_identity_valid(selected_openmp):
+        _append(reasons, "runtime_router_openmp_identity_invalid")
     elif isinstance(openmp_pools, list):
         matches = [pool for pool in openmp_pools if isinstance(pool, dict) and
                    all(pool.get(field) == selected_openmp.get(field)
@@ -1467,13 +1590,18 @@ def validate_metadata_document(document: Any, *,
                  "VECLIB_MAXIMUM_THREADS"):
         if controls.get(name) != "1":
             _append(reasons, f"thread_control_not_one:{name}")
-    if runtime.get("openmp_schedule") != [1, 2, 4]:
+    schedule = runtime.get("openmp_schedule")
+    if not isinstance(schedule, list) or not all(
+            is_exact_integer(value, minimum=1) for value in schedule) or \
+            schedule != [1, 2, 4]:
         _append(reasons, "openmp_schedule_mismatch")
     machine = document.get("machine") if isinstance(document.get("machine"), dict) else {}
-    for name in ("cpu_model", "physical_cores", "logical_cores", "ram_bytes",
-                 "os", "kernel"):
-        if machine.get(name) in (None, "", 0):
+    for name in ("cpu_model", "os", "kernel"):
+        if type(machine.get(name)) is not str or not machine.get(name):
             _append(reasons, f"machine_identity_missing:{name}")
+    for name in ("physical_cores", "logical_cores", "ram_bytes"):
+        if not is_exact_integer(machine.get(name), minimum=1):
+            _append(reasons, f"machine_identity_invalid:{name}")
     software = document.get("software") if isinstance(document.get("software"), dict) else {}
     for name in ("python", "numpy", "scipy", "scikit-learn", "threadpoolctl",
                  "mpmath", "joblib", "cloudpickle", "narwhals"):
@@ -1560,7 +1688,8 @@ def verify_build_manifest(*, router_path: os.PathLike[str] | str,
     except (OSError, UnicodeError, json.JSONDecodeError, ValueError):
         _append(reasons, "build_manifest_invalid_json"); return result
     result["manifest"] = manifest
-    if not isinstance(manifest, dict) or manifest.get("schema_version") != 1:
+    if not isinstance(manifest, dict) or not is_exact_integer(
+            manifest.get("schema_version")) or manifest.get("schema_version") != 1:
         _append(reasons, "build_manifest_schema_invalid"); return result
     if not manifest.get("built_at_utc"):
         _append(reasons, "build_timestamp_missing")
@@ -1699,8 +1828,12 @@ def audit_package(root: os.PathLike[str] | str) -> dict[str, Any]:
             legacy = strict_json_loads(legacy_path.read_bytes())
             for reason in validate_result_document(legacy):
                 _append(integrity, reason)
-        except (OSError, UnicodeError, json.JSONDecodeError, ValueError):
+        except (OSError, UnicodeError, json.JSONDecodeError):
             _append(integrity, "legacy_result_json_invalid")
+        except ValueError as exc:
+            _append(integrity, "legacy_result_json_duplicate_key"
+                    if str(exc) == "duplicate_json_key" else
+                    "legacy_result_json_invalid")
         _append(integrity, "legacy_result_provenance_missing")
     result_bytes = metadata_bytes = None
     result_document = metadata_document = None
@@ -1708,14 +1841,22 @@ def audit_package(root: os.PathLike[str] | str) -> dict[str, Any]:
         try:
             result_bytes = result_path.read_bytes()
             result_document = strict_json_loads(result_bytes)
-        except (OSError, UnicodeError, json.JSONDecodeError, ValueError):
+        except (OSError, UnicodeError, json.JSONDecodeError):
             _append(integrity, "package_result_json_invalid")
+        except ValueError as exc:
+            _append(integrity, "package_result_json_duplicate_key"
+                    if str(exc) == "duplicate_json_key" else
+                    "package_result_json_invalid")
     if metadata_path.is_file():
         try:
             metadata_bytes = metadata_path.read_bytes()
             metadata_document = strict_json_loads(metadata_bytes)
-        except (OSError, UnicodeError, json.JSONDecodeError, ValueError):
+        except (OSError, UnicodeError, json.JSONDecodeError):
             _append(integrity, "package_metadata_json_invalid")
+        except ValueError as exc:
+            _append(integrity, "package_metadata_json_duplicate_key"
+                    if str(exc) == "duplicate_json_key" else
+                    "package_metadata_json_invalid")
     entries = {}
     if checksum_path.is_file():
         try:
@@ -1833,15 +1974,37 @@ def sanitize_threadpools(
                 digest = sha256_file(filepath)
             except OSError:
                 pass
-        runtime_id = "|".join(str(value) for value in (
-            basename, pool.get("internal_api"), pool.get("version")))
-        sanitized.append({
-            "user_api": pool.get("user_api"),
-            "internal_api": pool.get("internal_api"),
-            "num_threads": pool.get("num_threads"),
-            "version": pool.get("version"), "basename": basename,
-            "sha256": digest or pool.get("sha256"),
-            "runtime_id": runtime_id})
+        if pool.get("user_api") == "openmp":
+            library_sha256 = (digest or pool.get("library_sha256") or
+                              pool.get("sha256"))
+            try:
+                identity = openmp_runtime_identity(
+                    basename=basename, user_api=pool.get("user_api"),
+                    internal_api=pool.get("internal_api"),
+                    version=(pool.get("version")
+                             if "version" in pool else []),
+                    library_sha256=library_sha256)
+            except ValueError:
+                identity = {
+                    "runtime_id": pool.get("runtime_id"),
+                    "basename": basename, "user_api": pool.get("user_api"),
+                    "internal_api": pool.get("internal_api"),
+                    "version": (pool.get("version")
+                                if "version" in pool else None),
+                    "library_sha256": library_sha256,
+                }
+            sanitized.append({**identity,
+                              "num_threads": pool.get("num_threads")})
+        else:
+            runtime_id = "|".join(str(value) for value in (
+                basename, pool.get("internal_api"), pool.get("version")))
+            sanitized.append({
+                "user_api": pool.get("user_api"),
+                "internal_api": pool.get("internal_api"),
+                "num_threads": pool.get("num_threads"),
+                "version": pool.get("version"), "basename": basename,
+                "sha256": digest or pool.get("sha256"),
+                "runtime_id": runtime_id})
     return sanitized
 
 

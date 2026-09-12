@@ -12,6 +12,13 @@ Result schema version 2 uses protocol ID
 
 `b9f774b376c525a111139f0a1c786c4262f88903d064a2860e78795bf57ae1f5`
 
+Corrective iteration 3A.2 leaves this signature unchanged. No canonical
+protocol bytes changed: the 82 cases, generators, seeds, schedules, timing
+sources and envelopes, expected outcomes, run/ratio identities, summary
+shapes, and evidence totals are identical. The corrections below make the
+existing runtime evidence and admission rules faithful and fail-closed; they
+do not define a different numerical experiment.
+
 The preceding signature
 `31e84400f2bb347bf3e076a8179b9a361c8e5cb7377eec0da7824e7e63a5ab04`
 did not bind comparator-run evidence, callable-only LAPACK timing envelopes,
@@ -57,13 +64,22 @@ rank interval, fallback, and raw class must be exact finite integers in their
 public domains, and status must equal raw class. FAIL and UNDECIDABLE require
 certainty NONE and documented-NaN unavailable diagnostics; infinity is never
 treated as unavailable. BERR is finite only for deterministic UNIQUE and must
-lie in `[0, 1e-14]`.
+lie in `[0, 1e-14]`. Deterministic decisions have the point interval
+`[rank,rank]`; randomized decisions have `[rank,min(m,n)]`; FAIL has a point
+interval; and an UNDECIDABLE/NONE rank must lie inside its reported interval.
+The sequential-reference API is decoded separately: its producer computes a
+finite reference-error diagnostic even for INCONSISTENT, so that observation
+is preserved without treating it as a solution-accuracy or task-equivalence
+claim.
 
 Each timed operation records one timing source, exact warmup and repetition
 counts, positive finite raw observations, median, and median absolute
 deviation. Solver-reported timings and Python `perf_counter_ns` timings remain
-separate. Required ratios have signed identities, numerator, denominator, and
-direction and are recomputed from named medians. Historical timing ranges are
+separate. Every solver-reported router or sequential-reference run duration
+must equal that invocation's decoded `solver_seconds`; raw arrays are formed
+from those bound values. This rule does not apply to explicitly external
+DGELSY wall-clock timing. Required ratios have signed identities, numerator,
+denominator, and direction and are recomputed from named medians. Historical timing ranges are
 observations and never decide numerical validity or package eligibility.
 Each ratio section has an exact `ratio_name`, count, geomean, and median
 summary; non-ratio sections reject ratio aggregates. The top-level numerical
@@ -77,7 +93,10 @@ A candidate package contains exactly:
 - `numerical-suite-reference.metadata.json`
 - `numerical-suite-reference.sha256`
 
-The result is written as strict stable JSON (`allow_nan=False`). The metadata
+The result is written as strict stable JSON (`allow_nan=False`). Duplicate
+object member names are rejected at every nesting level, as are NaN and
+infinity. Boolean values never satisfy signed integer fields such as codes,
+ranks, dimensions, counts, repetitions, or seeds. The metadata
 binds the result hash to clean, unchanged preflight/postflight source state;
 the exact generator and dependency locks; invocation; run interval; adjacent
 build manifest; compiler command; loaded router; linked and runtime BLAS;
@@ -97,8 +116,14 @@ complete case batch and observed at the suite's intentional 1/2/4 schedule;
 unrelated OpenMP runtimes, including vendored scikit-learn runtimes, remain
 recorded but do not make selection ambiguous. Missing, multiply matched,
 mismatched, or drifting router-runtime evidence makes candidate execution fail
-closed. The selected identity is cross-bound between every result run and the
-metadata sidecar.
+closed. Threadpoolctl's OpenMP `version` key is mandatory but may contain JSON
+null, as it does for real libgomp/libomp records; empty or other non-string
+values are invalid. The exact owner path remains internal. Its actual library
+bytes are SHA-256 hashed, and the persisted runtime ID is canonically derived
+from path-free basename/API/version/hash fields. The selected identity is
+cross-bound between every result run, the selected metadata identity, and
+exactly one sanitized OpenMP pool. Same-named runtimes with different hashes
+remain distinguishable, and no absolute library path is serialized.
 
 For `perf_counter_ns` measurements, runtime discovery, control, observation,
 and restoration are outside the timer. Router and DGELSY measurements both

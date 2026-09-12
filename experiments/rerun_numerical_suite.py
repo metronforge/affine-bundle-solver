@@ -61,7 +61,7 @@ def _decode_positive(value,name):
         raise ValueError(f'{name} must be positive and finite')
     return value
 
-def decode_router_output(out):
+def decode_router_output(out, *, max_rank=None):
     if len(out)!=11:raise ValueError('router output must contain 11 values')
     status_code=_exact_integer(out[0],'router status',allowed=STATUS_CODES)
     certainty_code=_exact_integer(
@@ -76,6 +76,12 @@ def decode_router_output(out):
     if raw_class!=status_code:
         raise ValueError('router status and raw class disagree')
     status=STATUS_CODES[status_code];certainty=CERTAINTY_CODES[certainty_code]
+    if max_rank is None:max_rank=max(rank,rank_hi)
+    max_rank=_exact_integer(max_rank,'router maximum rank',minimum=0)
+    if not contract.router_rank_certainty_valid(
+            status=status,certainty=certainty,rank=rank,
+            rank_lo=rank_lo,rank_hi=rank_hi,max_rank=max_rank):
+        raise ValueError('router certainty and rank interval disagree')
     unavailable=status in ('fail','undecidable')
     if unavailable and certainty!='none':
         raise ValueError('FAIL and UNDECIDABLE require certainty NONE')
@@ -114,7 +120,7 @@ def decode_comparator_output(out):
           out[5],'comparator relative residual',unavailable=unavailable),
       'relx':_decode_optional_nonnegative(
           out[6],'comparator relative reference error',
-          unavailable=status in ('inconsistent','fail','undecidable'))}
+          unavailable=unavailable)}
 
 def ptr(a): return a.ctypes.data_as(DP)
 
@@ -144,16 +150,18 @@ def _runtime_matches(pools,owner):
             isinstance(pool.get('filepath'),str) and
             os.path.realpath(pool['filepath'])==owner]
 
-def _runtime_identity(pool):
-    sanitized=contract.sanitize_threadpools(
-        [pool],hash_libraries=False)[0]
-    return {name:sanitized.get(name) for name in (
-        'runtime_id','basename','user_api','internal_api','version')}
+def _runtime_identity(pool,owner,*,library_hasher=contract.sha256_file):
+    return contract.openmp_runtime_identity(
+        basename=Path(owner).name,user_api=pool.get('user_api'),
+        internal_api=pool.get('internal_api'),
+        version=(pool.get('version') if 'version' in pool else []),
+        library_sha256=library_hasher(owner))
 
 @contextlib.contextmanager
 def openmp_runtime_context(L,requested,*,strict,
                            owner_resolver=resolve_router_openmp_owner,
-                           controller_factory=ThreadpoolController):
+                           controller_factory=ThreadpoolController,
+                           library_hasher=contract.sha256_file):
     requested=_exact_integer(requested,'requested OpenMP threads',minimum=1)
     owner=owner_resolver(L);controller=controller_factory()
     matches=_runtime_matches(controller.info(),owner)
@@ -179,16 +187,17 @@ def openmp_runtime_context(L,requested,*,strict,
         observed_matches=_runtime_matches(selected.info(),owner)
         observed=observed_matches[0].get('num_threads') \
             if len(observed_matches)==1 else None
-        identity=_runtime_identity(observed_matches[0]) \
-            if len(observed_matches)==1 else None
+        try:
+            identity=_runtime_identity(
+                observed_matches[0],owner,library_hasher=library_hasher) \
+                if len(observed_matches)==1 else None
+        except (OSError,ValueError):
+            identity=None
         if len(observed_matches)!=1:
             reasons.append('openmp_router_runtime_pool_missing')
         elif observed!=requested:
             reasons.append('openmp_requested_observed_mismatch')
-        if identity is None or not all(
-                isinstance(identity.get(name),str) and identity[name]
-                for name in ('runtime_id','basename','user_api',
-                             'internal_api','version')):
+        if not contract.openmp_runtime_identity_valid(identity):
             reasons.append('openmp_runtime_identity_incomplete')
         observation={'valid':not reasons,'reasons':reasons,
           'requested_num_threads':requested,'observed_num_threads':observed,
@@ -197,10 +206,15 @@ def openmp_runtime_context(L,requested,*,strict,
         yield observation
         owner_after=owner_resolver(L)
         after_matches=_runtime_matches(controller_factory().info(),owner_after)
-        after_identity=_runtime_identity(after_matches[0]) \
-            if len(after_matches)==1 else None
-        if os.path.realpath(owner_after or '')!=os.path.realpath(owner) or \
-                len(after_matches)!=1 or after_identity!=identity:
+        owner_changed=(os.path.realpath(owner_after or '')!=
+                       os.path.realpath(owner))
+        try:
+            after_identity=_runtime_identity(
+                after_matches[0],owner_after,library_hasher=library_hasher) \
+                if not owner_changed and len(after_matches)==1 else None
+        except (OSError,ValueError):
+            after_identity=None
+        if owner_changed or len(after_matches)!=1 or after_identity!=identity:
             reasons.append('openmp_router_runtime_changed')
         elif after_matches[0].get('num_threads')!=requested:
             reasons.append('openmp_requested_observed_mismatch')
@@ -212,7 +226,7 @@ def router(L,A,b,x,seed=777):
     out=np.zeros(11,np.float64)
     L.bsolve_router_meta_api(ptr(A),ptr(b),ptr(x),A.shape[0],A.shape[1],
                              1,2,2,int(seed),0,ptr(out))
-    return decode_router_output(out)
+    return decode_router_output(out,max_rank=min(A.shape))
 
 def seq(L,A,b,x):
     contract.ensure_abi_arrays(A,b,x)

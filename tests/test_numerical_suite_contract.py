@@ -87,6 +87,16 @@ LITERAL_CASES_BY_ID = {
 }
 LITERAL_PROTOCOL_SIGNATURE = \
     "b9f774b376c525a111139f0a1c786c4262f88903d064a2860e78795bf57ae1f5"
+ROUTER_OPENMP_LIBRARY_SHA256 = "a" * 64
+ROUTER_OPENMP_RUNTIME_ID = \
+    "ddb64756e2ad9bdb0d4d4c3fa8611a1145b7c34cfb39097c0b9a1e6924a584e4"
+UNRELATED_OPENMP_LIBRARY_SHA256 = "b" * 64
+UNRELATED_OPENMP_RUNTIME_ID = \
+    "80c8aebaaec7a7e7279ab2c52a7de88cc086b962b388f33990c8b7b700d8fdeb"
+TEMP_ROUTER_OPENMP_LIBRARY_SHA256 = \
+    "325c36ce6dd5eb3ce6ab1750000b0d77b9d4349b29abd9aadf7e7969325adfc8"
+TEMP_ROUTER_OPENMP_RUNTIME_ID = \
+    "75d3f6973177d20e243fe249cb41431adbf33c5b54b9636a4e0d3a6550439177"
 
 EXACT_BLOCKERS = {
     "manuscript_blocker:audit.certified_call_overhead",
@@ -179,6 +189,28 @@ class ContractTestCase(unittest.TestCase):
             record["sha256"]["A"] = contract.DIGITS_DESIGN_SHA256
         return record
 
+    def openmp_identity(self, *, unrelated=False):
+        return {
+            "runtime_id": (UNRELATED_OPENMP_RUNTIME_ID if unrelated else
+                           ROUTER_OPENMP_RUNTIME_ID),
+            "basename": "libgomp.so.1", "user_api": "openmp",
+            "internal_api": "openmp", "version": None,
+            "library_sha256": (UNRELATED_OPENMP_LIBRARY_SHA256 if unrelated
+                               else ROUTER_OPENMP_LIBRARY_SHA256),
+        }
+
+    def bind_openmp_identity(self, result, metadata, identity=None):
+        identity = copy.deepcopy(identity or self.openmp_identity())
+        for section in result["sections"]:
+            for case in section["cases"]:
+                for run in case["runs"]:
+                    run["openmp_runtime_identity"] = copy.deepcopy(identity)
+        metadata["runtime"]["selected_router_openmp_identity"] = \
+            copy.deepcopy(identity)
+        metadata["runtime"]["openmp_pools"] = [{
+            **copy.deepcopy(identity), "num_threads": 4,
+        }]
+
     def result_case(self, case_id):
         for section in self.result_document()["sections"]:
             for case in section["cases"]:
@@ -200,8 +232,9 @@ class ContractTestCase(unittest.TestCase):
 
     def decoded_router_diagnostics(self, spec, duration):
         status = spec["expected_status"]
-        certainty = "none" if status in ("fail", "undecidable") \
-            else "deterministic"
+        certainty = ("none" if status in ("fail", "undecidable") else
+                     "deterministic" if spec["expected_rank_lo"] ==
+                     spec["expected_rank_hi"] else "randomised")
         return {
             "status": status,
             "status_code": {"unique": 1, "infinite": 2,
@@ -239,8 +272,7 @@ class ContractTestCase(unittest.TestCase):
             "solver_seconds": duration,
             "relres": (None if status in ("fail", "undecidable")
                        else 1e-16),
-            "relx": (None if status in
-                     ("inconsistent", "fail", "undecidable")
+            "relx": (None if status in ("fail", "undecidable")
                      else 1e-16),
         }
 
@@ -281,11 +313,7 @@ class ContractTestCase(unittest.TestCase):
                             run_contract["requested_omp_threads"][index],
                         "observed_omp_threads":
                             run_contract["requested_omp_threads"][index],
-                        "openmp_runtime_identity": {
-                            "runtime_id": "libgomp.so.1|openmp|test",
-                            "basename": "libgomp.so.1", "user_api": "openmp",
-                            "internal_api": "openmp", "version": "test",
-                        },
+                        "openmp_runtime_identity": self.openmp_identity(),
                         "duration": {"value": duration, "unit": "s"},
                         "diagnostics": self.decoded_router_diagnostics(
                             spec, duration),
@@ -468,16 +496,9 @@ class ContractTestCase(unittest.TestCase):
                 "blas_pools": [{"basename": "libblas.so", "sha256": "9" * 64,
                                 "user_api": "blas", "internal_api": "openblas",
                                 "num_threads": 1, "version": "test"}],
-                "openmp_pools": [{"basename": "libgomp.so.1",
-                                  "user_api": "openmp",
-                                  "internal_api": "openmp",
-                                  "num_threads": 4, "version": "test",
-                                  "runtime_id": "libgomp.so.1|openmp|test"}],
-                "selected_router_openmp_identity": {
-                    "basename": "libgomp.so.1", "user_api": "openmp",
-                    "internal_api": "openmp", "version": "test",
-                    "runtime_id": "libgomp.so.1|openmp|test",
-                },
+                "openmp_pools": [{**self.openmp_identity(),
+                                  "num_threads": 4}],
+                "selected_router_openmp_identity": self.openmp_identity(),
                 "thread_controls": {
                     "OMP_NUM_THREADS": "4", "OPENBLAS_NUM_THREADS": "1",
                     "MKL_NUM_THREADS": "1", "VECLIB_MAXIMUM_THREADS": "1",
@@ -672,6 +693,47 @@ class StatusMappingTests(ContractTestCase):
             damaged = valid.copy(); damaged[index] = value
             with self.subTest(index=index), self.assertRaises(ValueError):
                 self.runner.decode_comparator_output(damaged)
+
+    def test_comparator_inconsistent_preserves_finite_reference_error(self):
+        values = np.asarray([3, 63, 0, 0, 0.004, 0.25, 0.75])
+        decoded = self.runner.decode_comparator_output(values)
+        self.assertEqual(decoded["status"], "inconsistent")
+        self.assertEqual(decoded["relres"], 0.25)
+        self.assertEqual(decoded["relx"], 0.75)
+
+    def test_router_certainty_rank_intervals_match_producer(self):
+        valid = (
+            [1, 1, 2, 2, 2, 1e-16, 1e-16, 0.003, 0, 1, 1e-16],
+            [2, 1, 0, 0, 0, 1e-16, 1e-16, 0.003, 0, 2, math.nan],
+            [3, 1, 1, 1, 1, 0.25, math.nan, 0.003, 0, 3, math.nan],
+            [2, 2, 1, 1, 2, 1e-16, 1e-16, 0.003, 0, 2, math.nan],
+            [5, 3, 0, 0, 2, math.nan, math.nan, 0.003, 1, 5, math.nan],
+            [5, 3, 1, 0, 2, math.nan, math.nan, 0.003, 1, 5, math.nan],
+            [4, 3, 0, 0, 0, math.nan, math.nan, 0.003, 1, 4, math.nan],
+        )
+        for values in valid:
+            with self.subTest(status=values[0], certainty=values[1]):
+                try:
+                    decoded = self.runner.decode_router_output(
+                        np.asarray(values, dtype=np.float64), max_rank=2)
+                except TypeError as exc:
+                    self.fail(f"rank-bound decoding unavailable: {exc}")
+                self.assertEqual(decoded["status_code"], values[0])
+        invalid = (
+            [2, 1, 1, 1, 2, 1e-16, 1e-16, 0.003, 0, 2, math.nan],
+            [2, 2, 1, 1, 1, 1e-16, 1e-16, 0.003, 0, 2, math.nan],
+            [4, 3, 0, 0, 1, math.nan, math.nan, 0.003, 1, 4, math.nan],
+        )
+        for values in invalid:
+            with self.subTest(values=values), self.assertRaises(ValueError):
+                self.runner.decode_router_output(
+                    np.asarray(values, dtype=np.float64), max_rank=2)
+
+    def test_router_deterministic_widened_interval_is_rejected(self):
+        widened = np.asarray(
+            [2, 1, 1, 1, 2, 1e-16, 1e-16, 0.003, 0, 2, math.nan])
+        with self.assertRaises(ValueError):
+            self.runner.decode_router_output(widened)
 
     def test_all_protocol_statuses_are_representable(self):
         expected = {case["expected_status"]
@@ -1060,11 +1122,224 @@ class ResultValidationTests(ContractTestCase):
         result["sections"][0]["cases"][0]["observations"]["timing_range"] = "outside-reference-range"
         self.assertEqual(contract.validate_result_document(result), [])
 
+    def test_inconsistent_sequential_reference_keeps_finite_relx(self):
+        result = self.result_document()
+        case = result["sections"][0]["cases"][3]
+        self.assertEqual(case["case_id"], "standard.inconsistent64")
+        for run in case["comparator_runs"]:
+            run["diagnostics"]["relx"] = 0.75
+        case["diagnostics"]["sequential_reference"]["relx"] = 0.75
+        self.assertEqual(contract.validate_result_document(result), [])
+
+    def test_solver_reported_run_duration_is_bound_to_diagnostics(self):
+        for operation in ("router", "sequential_reference"):
+            result = self.result_document()
+            section = result["sections"][0]
+            case = section["cases"][0]
+            runs = (case["runs"] if operation == "router" else
+                    case["comparator_runs"])
+            for run in runs:
+                run["duration"]["value"] *= 10.0
+            timing = next(item for item in case["timings"]
+                          if item["operation"] == operation)
+            timing["raw"] = [run["duration"]["value"] for run in runs]
+            timing["median"] = float(np.median(timing["raw"]))
+            timing["mad"] = float(np.median(
+                np.abs(np.asarray(timing["raw"]) - timing["median"])))
+            medians = {item["operation"]: item["median"]
+                       for item in case["timings"]}
+            case["ratios"][0]["value"] = (
+                medians["sequential_reference"] / medians["router"])
+            ratios = [ratio["value"] for row in section["cases"]
+                      for ratio in row["ratios"]]
+            section["summary"]["ratio_geomean"] = float(
+                np.exp(np.mean(np.log(ratios))))
+            section["summary"]["ratio_median"] = float(np.median(ratios))
+            reason = ("result_run_solver_duration_mismatch:standard.random64"
+                      if operation == "router" else
+                      "result_comparator_solver_duration_mismatch:"
+                      "standard.random64:sequential_reference")
+            with self.subTest(operation=operation):
+                self.assertIn(reason, contract.validate_result_document(result))
+
+    def test_result_openmp_identity_requires_hash_and_canonical_runtime_id(self):
+        result = self.result_document()
+        metadata = self.metadata_document(contract.canonical_json_bytes(result))
+        self.bind_openmp_identity(result, metadata)
+        self.assertEqual(contract.validate_result_document(result), [])
+        for field, value in (("library_sha256", None),
+                             ("library_sha256", "bad"),
+                             ("runtime_id", "not-the-canonical-id")):
+            damaged = copy.deepcopy(result)
+            identity = damaged["sections"][0]["cases"][0]["runs"][0][
+                "openmp_runtime_identity"]
+            if value is None:
+                identity.pop(field)
+            else:
+                identity[field] = value
+            with self.subTest(field=field, value=value):
+                self.assertIn(
+                    "result_run_openmp_identity_invalid:standard.random64",
+                    contract.validate_result_document(damaged))
+        for value in ("missing", "", True, 3, [], {}):
+            damaged = copy.deepcopy(result)
+            identity = damaged["sections"][0]["cases"][0]["runs"][0][
+                "openmp_runtime_identity"]
+            if value == "missing":
+                identity.pop("version")
+            else:
+                identity["version"] = value
+            with self.subTest(version=value):
+                self.assertIn(
+                    "result_run_openmp_identity_invalid:standard.random64",
+                    contract.validate_result_document(damaged))
+
+    def test_artifact_rejects_deterministic_widened_rank_interval(self):
+        result = self.result_document()
+        run = result["sections"][0]["cases"][0]["runs"][0]
+        run["diagnostics"]["rank_hi"] += 1
+        self.assertIn(
+            "result_run_diagnostics_invalid:standard.random64",
+            contract.validate_result_document(result))
+
+    def test_boolean_integer_fields_never_satisfy_result_schema(self):
+        mutations = (
+            (lambda d: d.update(schema_version=True),
+             "result_schema_version_invalid"),
+            (lambda d: d["sections"][0]["cases"][0]["inputs"][0].update(
+                seed=True), "result_input_seed_mismatch:standard.random64"),
+            (lambda d: d["sections"][0]["cases"][0]["inputs"][0].update(
+                m=True), "result_input_shape_mismatch:standard.random64"),
+            (lambda d: d["sections"][0]["cases"][0]["runs"][0][
+                "diagnostics"].update(status_code=True),
+             "result_run_diagnostics_invalid:standard.random64"),
+            (lambda d: d["sections"][0]["cases"][0]["runs"][0][
+                "diagnostics"].update(certainty_code=True),
+             "result_run_diagnostics_invalid:standard.random64"),
+            (lambda d: d["sections"][0]["cases"][0]["runs"][0][
+                "diagnostics"].update(raw_class=True),
+             "result_run_diagnostics_invalid:standard.random64"),
+            (lambda d: d["sections"][0]["cases"][0]["runs"][1].update(
+                repetition_index=True),
+             "result_run_repetition_index_mismatch:standard.random64"),
+            (lambda d: next(s for s in d["sections"]
+                            if s["section_id"] == "rank")["cases"][0][
+                                "timings"][0].update(warmups=False),
+             "result_timing_warmups_mismatch:rank.eps_1e-08:router"),
+            (lambda d: d["sections"][0]["cases"][0]["timings"][0].update(
+                repetitions=True),
+             "result_timing_repetitions_mismatch:standard.random64:router"),
+            (lambda d: d["sections"][0]["summary"].update(case_count=True),
+             "result_summary_case_count_mismatch:standard"),
+            (lambda d: d["evidence_counts"].update(router_runs=True),
+             "result_evidence_counts_mismatch"),
+            (lambda d: next(s for s in d["sections"]
+                            if s["section_id"] == "structural")[
+                                "summary"].update(hard_failure_count=False),
+             "result_summary_integer_invalid:structural:hard_failure_count"),
+        )
+        for mutate, reason in mutations:
+            result = self.result_document(); mutate(result)
+            with self.subTest(reason=reason):
+                self.assertIn(reason, contract.validate_result_document(result))
+
 
 class MetadataValidationTests(ContractTestCase):
     def test_valid_metadata_passes(self):
         self.assertEqual(contract.validate_metadata_document(
             self.metadata_document(), result_bytes=b"{}"), [])
+
+    def test_nullable_openmp_version_is_valid_but_malformed_versions_fail(self):
+        result = self.result_document()
+        result_bytes = contract.canonical_json_bytes(result)
+        metadata = self.metadata_document(result_bytes)
+        self.bind_openmp_identity(result, metadata)
+        self.assertEqual(contract.validate_result_document(result), [])
+        self.assertEqual(contract.validate_metadata_document(
+            metadata, result_bytes=result_bytes), [])
+        for target, reason in (
+                ("selected_router_openmp_identity",
+                 "runtime_router_openmp_identity_invalid"),
+                ("openmp_pools", "runtime_openmp_pool_identity_incomplete")):
+            for value in ("", True, 3, [], {}):
+                damaged = copy.deepcopy(metadata)
+                identity = (damaged["runtime"][target] if target !=
+                            "openmp_pools" else damaged["runtime"][target][0])
+                identity["version"] = value
+                with self.subTest(target=target, value=value):
+                    self.assertIn(reason, contract.validate_metadata_document(
+                        damaged, result_bytes=result_bytes))
+            missing = copy.deepcopy(metadata)
+            identity = (missing["runtime"][target] if target !=
+                        "openmp_pools" else missing["runtime"][target][0])
+            identity.pop("version")
+            with self.subTest(target=target, value="missing"):
+                self.assertIn(reason, contract.validate_metadata_document(
+                    missing, result_bytes=result_bytes))
+
+    def test_openmp_identity_hash_disambiguates_same_named_runtimes(self):
+        result = self.result_document()
+        result_bytes = contract.canonical_json_bytes(result)
+        metadata = self.metadata_document(result_bytes)
+        selected = self.openmp_identity()
+        self.bind_openmp_identity(result, metadata, selected)
+        metadata["runtime"]["openmp_pools"].insert(0, {
+            **self.openmp_identity(unrelated=True), "num_threads": 8,
+        })
+        verdict = contract.evaluate_eligibility(
+            result=result, metadata=metadata, candidate=True, omp=4)
+        self.assertEqual(verdict["reasons"], [])
+        damaged = copy.deepcopy(metadata)
+        damaged["runtime"]["selected_router_openmp_identity"] = \
+            self.openmp_identity(unrelated=True)
+        verdict = contract.evaluate_eligibility(
+            result=result, metadata=damaged, candidate=True, omp=4)
+        self.assertIn("result_metadata_router_openmp_identity_mismatch",
+                      verdict["reasons"])
+
+    def test_openmp_identity_rejects_missing_or_malformed_library_hash(self):
+        result = self.result_document()
+        result_bytes = contract.canonical_json_bytes(result)
+        metadata = self.metadata_document(result_bytes)
+        self.bind_openmp_identity(result, metadata)
+        for target in ("selected", "pool"):
+            for value in (None, "bad"):
+                damaged = copy.deepcopy(metadata)
+                identity = (damaged["runtime"][
+                    "selected_router_openmp_identity"] if target == "selected"
+                    else damaged["runtime"]["openmp_pools"][0])
+                if value is None:
+                    identity.pop("library_sha256")
+                else:
+                    identity["library_sha256"] = value
+                with self.subTest(target=target, value=value):
+                    self.assertIn(
+                        "runtime_router_openmp_identity_invalid" if
+                        target == "selected" else
+                        "runtime_openmp_pool_identity_incomplete",
+                        contract.validate_metadata_document(
+                            damaged, result_bytes=result_bytes))
+
+    def test_boolean_integer_fields_never_satisfy_metadata_schema(self):
+        mutations = (
+            (lambda m: m.update(schema_version=True),
+             "metadata_schema_version_invalid"),
+            (lambda m: m["result"].update(schema_version=True),
+             "metadata_result_schema_mismatch"),
+            (lambda m: m["build"].update(manifest_schema_version=True),
+             "build_manifest_schema_invalid"),
+            (lambda m: m["runtime"]["blas_pools"][0].update(
+                num_threads=True), "runtime_blas_pool_identity_incomplete"),
+            (lambda m: m["runtime"]["openmp_pools"][0].update(
+                num_threads=True), "runtime_openmp_pool_identity_incomplete"),
+            (lambda m: m["machine"].update(physical_cores=True),
+             "machine_identity_invalid:physical_cores"),
+        )
+        for mutate, reason in mutations:
+            metadata = self.metadata_document(); mutate(metadata)
+            with self.subTest(reason=reason):
+                self.assertIn(reason, contract.validate_metadata_document(
+                    metadata, result_bytes=b"{}"))
 
     def test_source_identity_dirty_and_drift_are_rejected(self):
         for path, value, reason in (
@@ -1123,8 +1398,9 @@ class MetadataValidationTests(ContractTestCase):
              "num_threads": 1, "version": "0.3-test",
              "basename": "libopenblas.so", "sha256": "9" * 64},
             {"user_api": "openmp", "internal_api": "openmp",
-             "num_threads": 4, "version": "GOMP-test",
-             "basename": "libgomp.so.1"},
+             "num_threads": 4, "version": None,
+             "basename": "libgomp.so.1",
+             "library_sha256": ROUTER_OPENMP_LIBRARY_SHA256},
         ]
         split = contract.partition_threadpools(pools)
         self.assertEqual([item["basename"] for item in split["blas_pools"]],
@@ -1158,13 +1434,8 @@ class MetadataValidationTests(ContractTestCase):
 
     def test_unrelated_openmp_pool_remains_recorded_without_invalidating_router(self):
         metadata = self.metadata_document()
-        metadata["runtime"]["openmp_pools"].insert(0, {
-            "basename": "libgomp-sklearn-vendored.so",
-            "user_api": "openmp", "internal_api": "openmp",
-            "num_threads": 8, "version": "sklearn-test",
-            "runtime_id":
-                "libgomp-sklearn-vendored.so|openmp|sklearn-test",
-        })
+        metadata["runtime"]["openmp_pools"].insert(
+            0, {**self.openmp_identity(unrelated=True), "num_threads": 8})
         self.assertEqual(contract.validate_metadata_document(
             metadata, result_bytes=b"{}"), [])
 
@@ -1337,6 +1608,40 @@ class PackageTests(ContractTestCase):
             after = {path.name: path.read_bytes() for path in root.iterdir()}
         self.assertEqual(after, before)
 
+    def test_duplicate_json_keys_fail_closed_at_every_nesting_level(self):
+        duplicate_documents = (
+            ("result", b'{"schema_version":2,"schema_version":2}',
+             "package_result_json_duplicate_key"),
+            ("result", b'{"runs":[{"diagnostics":{"rank":1,"rank":1}}]}',
+             "package_result_json_duplicate_key"),
+            ("metadata", b'{"schema_version":2,"schema_version":2}',
+             "package_metadata_json_duplicate_key"),
+            ("metadata", b'{"runtime":{"openmp_pools":[],"openmp_pools":[]}}',
+             "package_metadata_json_duplicate_key"),
+            ("metadata", b'{"build":{"router":{},"router":{}}}',
+             "package_metadata_json_duplicate_key"),
+        )
+        for target, payload, reason in duplicate_documents:
+            with self.subTest(target=target, payload=payload), \
+                    tempfile.TemporaryDirectory() as directory:
+                root = Path(directory); self.write_package(root)
+                result_path = root / contract.RESULT_FILENAME
+                metadata_path = root / contract.METADATA_FILENAME
+                if target == "result":
+                    result_path.write_bytes(payload)
+                else:
+                    metadata_path.write_bytes(payload)
+                result_bytes = result_path.read_bytes()
+                metadata_bytes = metadata_path.read_bytes()
+                (root / contract.CHECKSUM_FILENAME).write_text(
+                    f"{sha_bytes(result_bytes)}  {contract.RESULT_FILENAME}\n"
+                    f"{sha_bytes(metadata_bytes)}  {contract.METADATA_FILENAME}\n")
+                report = contract.audit_package(root)
+            self.assertIn(reason, report["artifact_integrity"]["reasons"])
+        self.assertEqual(contract.strict_json_loads(
+            '{"left":{"rank":1},"right":{"rank":1}}'),
+            {"left": {"rank": 1}, "right": {"rank": 1}})
+
 
 class RegistryAuditAndCiTests(ContractTestCase):
     def claim(self, claim_id):
@@ -1406,11 +1711,7 @@ class RunnerIntegrationTests(ContractTestCase):
             "valid": True, "reasons": [],
             "requested_num_threads": requested,
             "observed_num_threads": requested,
-            "runtime_identity": {
-                "runtime_id": "libgomp.so.1|openmp|fixture",
-                "basename": "libgomp.so.1", "user_api": "openmp",
-                "internal_api": "openmp", "version": "fixture",
-            },
+            "runtime_identity": self.openmp_identity(),
         }
 
     def main_hooks(self, sections, *, observed_threads=4):
@@ -1426,11 +1727,7 @@ class RunnerIntegrationTests(ContractTestCase):
                             ["openmp_requested_observed_mismatch"]),
                 "requested_num_threads": requested,
                 "observed_num_threads": observed_threads,
-                "runtime_identity": {
-                    "runtime_id": "libgomp.so.1|openmp|fixture",
-                    "basename": "libgomp.so.1", "user_api": "openmp",
-                    "internal_api": "openmp", "version": "fixture",
-                },
+                "runtime_identity": self.openmp_identity(),
             }
             if strict and not observation["valid"]:
                 raise RuntimeError("openmp_requested_observed_mismatch")
@@ -1529,11 +1826,7 @@ class RunnerIntegrationTests(ContractTestCase):
                 "valid": True, "reasons": [],
                 "requested_num_threads": requested,
                 "observed_num_threads": requested,
-                "runtime_identity": {
-                    "runtime_id": "router-openmp", "basename": "libgomp.so.1",
-                    "user_api": "openmp", "internal_api": "openmp",
-                    "version": "fixture",
-                },
+                "runtime_identity": self.openmp_identity(),
             }
             events.append("control_torn_down")
 
@@ -1599,6 +1892,29 @@ class RunnerIntegrationTests(ContractTestCase):
         self.assertEqual(last["status"], "unique")
         self.assertEqual(median, 3.01)
 
+    def test_inconsistent_sequential_warmup_accepts_finite_relx(self):
+        class Symbol:
+            def __init__(self):
+                self.calls = 0
+            def __call__(self, *_args):
+                self.calls += 1
+                out = _args[-1]
+                for index, value in enumerate(
+                        [3, 64, 0, 0, 0.003, 0.25, 0.75]):
+                    out[index] = value
+
+        symbol = Symbol()
+        handle = type("Handle", (), {"bsolve_seq_api": symbol})()
+        median, last, raw, runs = self.runner.med_seq(
+            handle, self.A, self.b, self.x,
+            case_id="standard.inconsistent64", warm=2, reps=7)
+        self.assertEqual(symbol.calls, 9)
+        self.assertEqual(median, 0.003)
+        self.assertEqual(last["relx"], 0.75)
+        self.assertEqual([run["diagnostics"]["relx"] for run in runs],
+                         [0.75] * 7)
+        self.assertEqual(raw, [0.003] * 7)
+
     def fake_controller_factory(self, pools, events=None, *, mismatch=False):
         events = [] if events is None else events
 
@@ -1640,7 +1956,7 @@ class RunnerIntegrationTests(ContractTestCase):
     def mixed_runtime_pools(self):
         return [
             {"user_api": "openmp", "internal_api": "openmp",
-             "num_threads": 8, "version": "GOMP sklearn",
+             "num_threads": 8, "version": None,
              "prefix": "libgomp-sklearn",
              "filepath": "/venv/sklearn.libs/libgomp-vendored.so"},
             {"user_api": "blas", "internal_api": "openblas",
@@ -1648,7 +1964,7 @@ class RunnerIntegrationTests(ContractTestCase):
              "prefix": "libopenblas",
              "filepath": "/venv/numpy.libs/libopenblas.so"},
             {"user_api": "openmp", "internal_api": "openmp",
-             "num_threads": 8, "version": "GOMP system",
+             "num_threads": 8, "version": None,
              "prefix": "libgomp",
              "filepath": "/usr/lib/libgomp.so.1"},
         ]
@@ -1659,7 +1975,9 @@ class RunnerIntegrationTests(ContractTestCase):
         with self.runner.openmp_runtime_context(
                 object(), 4, strict=True,
                 owner_resolver=lambda _library: "/usr/lib/libgomp.so.1",
-                controller_factory=controller) as observation:
+                controller_factory=controller,
+                library_hasher=lambda _path: ROUTER_OPENMP_LIBRARY_SHA256) \
+                as observation:
             self.assertTrue(observation["valid"])
             self.assertEqual(observation["observed_num_threads"], 4)
             self.assertEqual(observation["runtime_identity"]["basename"],
@@ -1667,6 +1985,75 @@ class RunnerIntegrationTests(ContractTestCase):
             self.assertEqual(pools[0]["num_threads"], 8)
         self.assertIn(("select", "/usr/lib/libgomp.so.1", 1), events)
         self.assertEqual(pools[0]["num_threads"], 8)
+
+    def test_nullable_openmp_version_is_accepted_by_live_context(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            owner_dir = root / "system"; owner_dir.mkdir()
+            unrelated_dir = root / "sklearn.libs"; unrelated_dir.mkdir()
+            owner = owner_dir / "libgomp.so.1"
+            unrelated = unrelated_dir / "libgomp.so.1"
+            owner.write_bytes(b"router-openmp")
+            unrelated.write_bytes(b"vendored-openmp")
+            pools = [
+                {"user_api": "blas", "internal_api": "openblas",
+                 "num_threads": 1, "version": "0.3-test",
+                 "filepath": str(root / "libopenblas.so")},
+                {"user_api": "openmp", "internal_api": "openmp",
+                 "num_threads": 8, "version": None,
+                 "filepath": str(unrelated)},
+                {"user_api": "openmp", "internal_api": "openmp",
+                 "num_threads": 8, "version": None,
+                 "filepath": str(owner)},
+            ]
+            controller = self.fake_controller_factory(pools)
+            try:
+                with self.runner.openmp_runtime_context(
+                        object(), 4, strict=True,
+                        owner_resolver=lambda _library: str(owner),
+                        controller_factory=controller) as observation:
+                    self.assertTrue(observation["valid"])
+                    identity = observation["runtime_identity"]
+                    self.assertIsNone(identity["version"])
+                    self.assertEqual(identity["library_sha256"],
+                                     TEMP_ROUTER_OPENMP_LIBRARY_SHA256)
+                    self.assertEqual(identity["runtime_id"],
+                                     TEMP_ROUTER_OPENMP_RUNTIME_ID)
+                    self.assertNotIn(str(owner), json.dumps(identity))
+                    self.assertNotIn(str(unrelated), json.dumps(identity))
+            except RuntimeError as exc:
+                self.fail(f"nullable router OpenMP runtime rejected: {exc}")
+
+    def test_same_named_openmp_runtimes_are_disambiguated_by_owner_hash(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            owner_dir = root / "system"; owner_dir.mkdir()
+            unrelated_dir = root / "sklearn.libs"; unrelated_dir.mkdir()
+            owner = owner_dir / "libgomp.so.1"
+            unrelated = unrelated_dir / "libgomp.so.1"
+            owner.write_bytes(b"router-openmp")
+            unrelated.write_bytes(b"vendored-openmp")
+            pools = [
+                {"user_api": "openmp", "internal_api": "openmp",
+                 "num_threads": 8, "version": None,
+                 "filepath": str(unrelated)},
+                {"user_api": "openmp", "internal_api": "openmp",
+                 "num_threads": 8, "version": None,
+                 "filepath": str(owner)},
+            ]
+            controller = self.fake_controller_factory(pools)
+            try:
+                with self.runner.openmp_runtime_context(
+                        object(), 4, strict=True,
+                        owner_resolver=lambda _library: str(owner),
+                        controller_factory=controller) as observation:
+                    identity = observation["runtime_identity"]
+                    self.assertEqual(identity["library_sha256"],
+                                     TEMP_ROUTER_OPENMP_LIBRARY_SHA256)
+                    self.assertNotEqual(identity["library_sha256"],
+                                        sha_file(unrelated))
+            except RuntimeError as exc:
+                self.fail(f"hashed owner selection rejected: {exc}")
 
     def test_router_openmp_symbol_owner_resolution_is_injectable(self):
         callback_type = ctypes.CFUNCTYPE(ctypes.c_int)
@@ -1702,7 +2089,9 @@ class RunnerIntegrationTests(ContractTestCase):
                     RuntimeError, reason):
                 with self.runner.openmp_runtime_context(
                         object(), 4, strict=True, owner_resolver=resolver,
-                        controller_factory=controller):
+                        controller_factory=controller,
+                        library_hasher=lambda _path:
+                            ROUTER_OPENMP_LIBRARY_SHA256):
                     pass
 
     def test_router_openmp_runtime_drift_is_closed(self):
@@ -1715,7 +2104,9 @@ class RunnerIntegrationTests(ContractTestCase):
             with self.runner.openmp_runtime_context(
                     object(), 4, strict=True,
                     owner_resolver=lambda _library: next(owners),
-                    controller_factory=controller):
+                    controller_factory=controller,
+                    library_hasher=lambda _path:
+                        ROUTER_OPENMP_LIBRARY_SHA256):
                 pass
 
     def test_main_candidate_success_uses_only_injected_tiny_boundaries(self):
