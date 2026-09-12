@@ -21,6 +21,7 @@ Usage:
     python3 tests/check_paper_claims.py --audit-performance-artifacts ROOT
     python3 tests/check_paper_claims.py --audit-performance-artifacts ROOT \
         --require-publication-ready
+    python3 tests/check_paper_claims.py --audit-numerical-suite ROOT
 """
 
 from __future__ import annotations
@@ -81,8 +82,6 @@ EXPECTED_RATIO_DIRECTIONS = {
     "methodology.json_environment_raw_outputs": "not_a_timing_ratio",
 }
 EXPECTED_ARTIFACT_CASE_MAPPINGS = {
-    "transition.rank_gate": (
-        "near_transition.eps_1e-12", "near_transition.eps_1e-10"),
     "wide_extreme.32x12800": ("wide_extreme.32x12800",),
     "grouped.dgelsy": (
         "grouped_vs_lapack.16384x64",
@@ -323,6 +322,35 @@ def evaluate_performance_claims(registry, benchmark_protocol=None,
         "manuscript_publication_readiness": {
             "ready": not blockers, "reasons": list(dict.fromkeys(blockers))},
     }
+
+
+def audit_numerical_suite_package(package_root, registry=None):
+    """Audit numerical-suite evidence without invoking numerical code."""
+    from experiments import numerical_suite_contract as numerical
+
+    if registry is None:
+        registry = load_performance_claim_registry()
+    package = numerical.audit_package(package_root)
+    claims = registry.get("claims", []) if isinstance(registry, dict) else []
+    supported = []
+    for claim in claims if isinstance(claims, list) else []:
+        if not isinstance(claim, dict) or \
+                claim.get("evidence_class") != "current-artifact":
+            continue
+        mapping = claim.get("artifact_case_mapping")
+        if isinstance(mapping, list) and mapping and all(
+                case_id in numerical.CANONICAL_CASES_BY_ID for case_id in mapping):
+            supported.append({"claim_id": claim.get("claim_id"),
+                              "case_ids": mapping})
+    claim_report = evaluate_performance_claims(registry)
+    package["supported_claim_mappings"] = {
+        "complete": bool(supported), "supported": supported,
+        "reasons": ([] if supported else
+                    ["no_reviewed_current_numerical_suite_claim_mappings"]),
+    }
+    package["manuscript_publication_readiness"] = \
+        claim_report["manuscript_publication_readiness"]
+    return package
 
 
 def parse_candidate_csv(path):
@@ -796,9 +824,27 @@ def main() -> int:
                     help="validate the explicit performance-claim inventory")
     ap.add_argument("--audit-performance-artifacts", metavar="ROOT",
                     help="read-only audit of the immutable candidate package")
+    ap.add_argument("--audit-numerical-suite", metavar="ROOT",
+                    help="read-only audit of a numerical-suite package")
     ap.add_argument("--require-publication-ready", action="store_true",
                     help="fail when registered manuscript blockers remain")
     args = ap.parse_args()
+
+    if args.audit_numerical_suite:
+        registry = load_performance_claim_registry()
+        report = audit_numerical_suite_package(args.audit_numerical_suite,
+                                               registry)
+        print(json.dumps(report, indent=2, sort_keys=True))
+        ordinary_ok = all((
+            report["artifact_integrity"]["valid"],
+            report["source_build_runtime_provenance"]["valid"],
+            report["protocol_eligibility"]["eligible"],
+            report["numerical_contract_validity"]["valid"],
+        ))
+        if args.require_publication_ready:
+            ordinary_ok = ordinary_ok and \
+                report["manuscript_publication_readiness"]["ready"]
+        return 0 if ordinary_ok else 1
 
     if args.check_performance_inventory or args.audit_performance_artifacts:
         registry = load_performance_claim_registry()

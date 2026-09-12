@@ -1375,12 +1375,16 @@ class ManuscriptClaimCoverageTests(unittest.TestCase):
                 "--check-performance-inventory",
                 "ed240df3cc0bd644996f475a6d0e77d95eb6c568",
                 "67eef1fbda6f7486357cba200f01c9f355ac854a",
+                'git fetch --no-tags --depth=1 origin "$PR34_HEAD"',
                 'git fetch --no-tags --depth=1 origin "$PR34_SOURCE"',
-                "--audit-performance-artifacts /tmp/pr34-candidate",
+                'git diff --exit-code "$PR34_HEAD"',
+                "--audit-performance-artifacts .",
                 "--require-publication-ready",
                 "manuscript_blocker:parallel.bundle_tree_late_growth",
                 "manuscript_blocker:methodology.json_environment_raw_outputs"):
             self.assertIn(required, workflow)
+        self.assertNotIn("pull/34/head", workflow)
+        self.assertNotIn("/tmp/pr34-candidate", workflow)
 
     def test_inventory_cli_runs_without_pythonpath(self):
         environment = os.environ.copy()

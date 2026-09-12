@@ -61,7 +61,9 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
-          cache-dependency-path: requirements-ci.txt
+          cache-dependency-path: |
+            requirements-ci.txt
+            requirements-numerical-suite.txt
 
       - name: Install compiler
         run: |
@@ -147,6 +149,34 @@ jobs:
       - name: Synthetic benchmark contract
         run: python tests/test_synthetic_bench_contract.py
 
+      - name: Numerical suite provenance contract
+        if: matrix.cc == 'gcc' && matrix.arch_label == 'portable'
+        run: |
+          python -m venv /tmp/numerical-suite-contract-venv
+          /tmp/numerical-suite-contract-venv/bin/python -m pip install \
+            --disable-pip-version-check -r requirements-numerical-suite.txt
+          /tmp/numerical-suite-contract-venv/bin/python - <<'PY'
+          import importlib.metadata
+          expected = {
+              line.split('==', 1)[0]: line.split('==', 1)[1]
+              for line in open('requirements-numerical-suite.txt')
+              if line.strip() and not line.startswith('#')
+          }
+          actual = {name: importlib.metadata.version(name) for name in expected}
+          if actual != expected:
+              raise SystemExit(f'dependency mismatch: {actual!r} != {expected!r}')
+          print(actual)
+          PY
+          /tmp/numerical-suite-contract-venv/bin/python \
+            tests/test_numerical_suite_contract.py
+          /tmp/numerical-suite-contract-venv/bin/python \
+            tests/check_paper_claims.py --check-performance-inventory
+          /tmp/numerical-suite-contract-venv/bin/python -m py_compile \
+            experiments/numerical_suite_contract.py \
+            experiments/rerun_numerical_suite.py \
+            tests/check_paper_claims.py \
+            tests/test_numerical_suite_contract.py
+
       - name: Manuscript performance claim coverage
         if: matrix.cc == 'gcc' && matrix.arch_label == 'portable'
         env:
@@ -154,21 +184,18 @@ jobs:
           PR34_SOURCE: 67eef1fbda6f7486357cba200f01c9f355ac854a
         run: |
           python tests/check_paper_claims.py --check-performance-inventory
-          git fetch --no-tags --depth=1 origin pull/34/head
+          git fetch --no-tags --depth=1 origin "$PR34_HEAD"
           test "$(git rev-parse FETCH_HEAD)" = "$PR34_HEAD"
           git fetch --no-tags --depth=1 origin "$PR34_SOURCE"
           test "$(git rev-parse FETCH_HEAD)" = "$PR34_SOURCE"
-          mkdir -p /tmp/pr34-candidate/results
-          for artifact in synthetic-reference.csv \
-                          synthetic-reference.metadata.json \
-                          synthetic-reference.sha256; do
-            git show "$PR34_HEAD:results/$artifact" \
-              > "/tmp/pr34-candidate/results/$artifact"
-          done
+          git diff --exit-code "$PR34_HEAD" -- \
+            results/synthetic-reference.csv \
+            results/synthetic-reference.metadata.json \
+            results/synthetic-reference.sha256
           python tests/check_paper_claims.py \
-            --audit-performance-artifacts /tmp/pr34-candidate
+            --audit-performance-artifacts .
           if python tests/check_paper_claims.py \
-              --audit-performance-artifacts /tmp/pr34-candidate \
+              --audit-performance-artifacts . \
               --require-publication-ready > /tmp/pr34-strict-readiness.json; then
             echo "::error::known manuscript blockers were not detected"
             exit 1
@@ -178,15 +205,30 @@ jobs:
           report = json.load(open('/tmp/pr34-strict-readiness.json'))
           reasons = report['manuscript_publication_readiness']['reasons']
           required = {
+              'manuscript_blocker:audit.certified_call_overhead',
+              'manuscript_blocker:standard.sequential_reference',
+              'manuscript_blocker:parallel.openmp_scaling',
+              'manuscript_blocker:structural.stress_timings',
+              'manuscript_blocker:transition.rank_gate',
+              'manuscript_blocker:guard.rank1_cost',
+              'manuscript_blocker:well1033.performance',
+              'manuscript_blocker:contextual.dgelsy',
               'manuscript_blocker:wide_extreme.32x12800',
+              'manuscript_blocker:wide_extreme.lp_fit2d',
               'manuscript_blocker:grouped.lsmr',
+              'manuscript_blocker:limitations.square_underdetermined',
+              'manuscript_blocker:applications.radio_timings',
+              'manuscript_blocker:applications.harmonic_timings',
+              'manuscript_blocker:applications.lens_timings',
               'manuscript_blocker:parallel.bundle_tree_late_growth',
               'manuscript_blocker:methodology.quantitative_results_freshness',
               'manuscript_blocker:methodology.json_environment_raw_outputs',
           }
-          missing = required - set(reasons)
-          if report['manuscript_publication_readiness']['ready'] or missing:
-              raise SystemExit(f'strict readiness blockers missing: {sorted(missing)}')
+          actual = set(reasons)
+          if report['manuscript_publication_readiness']['ready'] or actual != required:
+              raise SystemExit(
+                  f'strict readiness blockers differ: missing={sorted(required-actual)}, '
+                  f'unexpected={sorted(actual-required)}')
           PY
 
       - name: Synthetic benchmark smoke
