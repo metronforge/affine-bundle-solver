@@ -918,7 +918,14 @@ class PublicationFirstClaimTests(unittest.TestCase):
             "manuscript_claim_unmapped:audit.certified_call_overhead", reasons)
 
     def test_tracked_reference_package_is_manuscript_ready(self):
-        verdicts = paper_claims.audit_candidate_package(ROOT)
+        registry = paper_claims.load_performance_claim_registry()
+        source_tree = registry["candidate_artifact"]["source_tree"]
+        # This unit test is fixture-only and must also pass in a shallow
+        # checkout. The CI artifact-audit step fetches and checks the real
+        # source object separately.
+        with mock.patch.object(paper_claims, "_git_commit_tree",
+                               return_value=source_tree):
+            verdicts = paper_claims.audit_candidate_package(ROOT, registry)
 
         self.assertEqual(verdicts["artifact_integrity"],
                          {"valid": True, "reasons": []})
