@@ -1012,111 +1012,6 @@ class ManuscriptClaimCoverageTests(unittest.TestCase):
         registry["candidate_artifact"]["checksum"]["sha256"] = \
             digest(checksum_path)
 
-    def historical_provenance_fixture(self):
-        source_sha = subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
-        source_tree = subprocess.check_output(
-            ["git", "rev-parse", "HEAD^{tree}"], cwd=ROOT,
-            text=True).strip()
-        build_path = "results/numerical_final_suite.json"
-        build_bytes = subprocess.check_output(
-            ["git", "show", f"{source_sha}:{build_path}"], cwd=ROOT)
-        artifact_path = "paper.tex"
-        return {
-            "artifact_path": artifact_path,
-            "artifact_sha256": digest(ROOT / artifact_path),
-            "source_git_sha": source_sha,
-            "source_git_tree_sha": source_tree,
-            "artifact_git_sha": source_sha,
-            "build_identity_sha256": hashlib.sha256(build_bytes).hexdigest(),
-            "build_record_git_sha": source_sha,
-            "build_record_kind": "run-record",
-            "build_record_path": build_path,
-            "build_record_sha256": hashlib.sha256(build_bytes).hexdigest(),
-        }
-
-    def create_confirmed_provenance_fixture(self, root):
-        """Create real source/artifact/build commits for provenance tests."""
-        repo = Path(root) / "provenance-repo"
-        repo.mkdir()
-
-        def git(*arguments):
-            return subprocess.check_output(
-                ["git", *arguments], cwd=repo, text=True).strip()
-
-        subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
-        subprocess.run(
-            ["git", "config", "user.name", "Contract Test"],
-            cwd=repo, check=True)
-        subprocess.run(
-            ["git", "config", "user.email", "contract@example.invalid"],
-            cwd=repo, check=True)
-        evidence = repo / "evidence"
-        evidence.mkdir()
-        artifact_path = evidence / "artifact.json"
-        artifact_path.write_text('{"measurement": 1}\n')
-        subprocess.run(["git", "add", "evidence/artifact.json"],
-                       cwd=repo, check=True)
-        subprocess.run(["git", "commit", "-q", "-m", "source artifact"],
-                       cwd=repo, check=True)
-        source_sha = git("rev-parse", "HEAD")
-        source_tree = git("rev-parse", "HEAD^{tree}")
-
-        source = {"git_sha": source_sha, "git_tree_sha": source_tree,
-                  "git_dirty": False}
-        manifest = {
-            "schema_version": 1,
-            "built_at_utc": "2026-09-12T00:00:00Z",
-            "source": source,
-            "build_script": {"path": "build.sh", "sha256": "1" * 64},
-            "compiler": {"command_argv": ["gcc"], "identity": "gcc test"},
-            "router": {
-                "compile_argv": ["gcc", "-O3", "-c", "router.c"],
-                "link_argv": ["gcc", "-shared", "router.o"],
-                "arch_flags": "",
-                "library": {"basename": "libaffine_bundle_solver.so",
-                            "sha256": "2" * 64},
-            },
-            "openblas": {"basename": "libopenblas.so",
-                         "resolved_path": None, "sha256": "3" * 64},
-        }
-        manifest_path = repo / "build-manifest.json"
-        manifest_path.write_text(json.dumps(manifest, sort_keys=True) + "\n")
-        incomplete_path = repo / "incomplete-build-record.json"
-        incomplete_path.write_text(json.dumps({"source": source}) + "\n")
-        subprocess.run(
-            ["git", "add", "build-manifest.json",
-             "incomplete-build-record.json"], cwd=repo, check=True)
-        subprocess.run(["git", "commit", "-q", "-m", "build record"],
-                       cwd=repo, check=True)
-        build_sha = git("rev-parse", "HEAD")
-        provenance = {
-            "artifact_path": "evidence/artifact.json",
-            "artifact_sha256": hashlib.sha256(
-                artifact_path.read_bytes()).hexdigest(),
-            "source_git_sha": source_sha,
-            "source_git_tree_sha": source_tree,
-            "artifact_git_sha": source_sha,
-            "build_identity_sha256": hashlib.sha256(
-                manifest_path.read_bytes()).hexdigest(),
-            "build_record_git_sha": build_sha,
-            "build_record_kind": "build-manifest",
-            "build_record_path": "build-manifest.json",
-            "build_record_sha256": hashlib.sha256(
-                manifest_path.read_bytes()).hexdigest(),
-        }
-        return repo, provenance
-
-    def confirmed_claim_registry(self, provenance):
-        registry = self.registry()
-        claim = next(item for item in registry["claims"]
-                     if item["claim_id"] == "grouped.dgelsy")
-        claim.update(evidence_class="historical-confirmed",
-                     publication_status="publication-ready",
-                     historical_provenance=provenance,
-                     historical_source_identity="verified temporary fixture")
-        return registry, claim
-
     def test_unmapped_manuscript_claim_is_fail_closed(self):
         registry = self.registry()
         registry["claims"] = registry["claims"][1:]
@@ -1263,7 +1158,7 @@ class ManuscriptClaimCoverageTests(unittest.TestCase):
         self.assertIn("manuscript_claim_unmapped:wide_extreme.32x12800",
                       verdicts["manuscript_claim_coverage"]["reasons"])
 
-    def test_vague_historical_identity_is_not_confirmed_provenance(self):
+    def test_vague_historical_identity_is_not_publication_evidence(self):
         registry = self.registry()
         claim = registry["claims"][0]
         claim["evidence_class"] = "historical-confirmed"
@@ -1274,7 +1169,8 @@ class ManuscriptClaimCoverageTests(unittest.TestCase):
         reasons = self.validate(registry)
 
         self.assertIn(
-            f"claim_confirmed_provenance_invalid:{claim['claim_id']}", reasons)
+            f"claim_historical_confirmation_unsupported:{claim['claim_id']}",
+            reasons)
         self.assertIn(
             f"claim_unsupported_evidence_ready:{claim['claim_id']}", reasons)
 
@@ -1297,77 +1193,6 @@ class ManuscriptClaimCoverageTests(unittest.TestCase):
         claim_id = "methodology.json_environment_raw_outputs"
 
         self.assertIn(claim_id, paper_claims.REQUIRED_PERFORMANCE_CLAIM_IDS)
-
-    def test_formatted_but_fabricated_git_provenance_is_rejected(self):
-        registry = self.registry()
-        claim = next(item for item in registry["claims"]
-                     if item["claim_id"] == "grouped.dgelsy")
-        claim.update(evidence_class="historical-confirmed",
-                     publication_status="publication-ready")
-        provenance = self.historical_provenance_fixture()
-        provenance.update(source_git_sha="f" * 40,
-                          source_git_tree_sha="e" * 40,
-                          artifact_git_sha="d" * 40,
-                          build_record_git_sha="c" * 40,
-                          build_record_sha256="b" * 64)
-        claim["historical_provenance"] = provenance
-
-        self.assertIn("claim_confirmed_provenance_invalid:grouped.dgelsy",
-                      self.validate(registry))
-
-    def test_nonexistent_source_commit_is_rejected(self):
-        registry = self.registry()
-        claim = next(item for item in registry["claims"]
-                     if item["claim_id"] == "grouped.dgelsy")
-        claim.update(evidence_class="historical-confirmed",
-                     publication_status="publication-ready")
-        provenance = self.historical_provenance_fixture()
-        provenance["source_git_sha"] = "0" * 40
-        claim["historical_provenance"] = provenance
-
-        self.assertIn("claim_confirmed_provenance_invalid:grouped.dgelsy",
-                      self.validate(registry))
-
-    def test_real_commit_with_mismatched_tree_is_rejected(self):
-        registry = self.registry()
-        claim = next(item for item in registry["claims"]
-                     if item["claim_id"] == "grouped.dgelsy")
-        claim.update(evidence_class="historical-confirmed",
-                     publication_status="publication-ready")
-        provenance = self.historical_provenance_fixture()
-        other_tree = subprocess.check_output(
-            ["git", "rev-parse", "HEAD:tests"], cwd=ROOT,
-            text=True).strip()
-        self.assertNotEqual(provenance["source_git_tree_sha"], other_tree)
-        provenance["source_git_tree_sha"] = other_tree
-        claim["historical_provenance"] = provenance
-
-        self.assertIn("claim_confirmed_provenance_invalid:grouped.dgelsy",
-                      self.validate(registry))
-
-    def test_artifact_hash_must_exist_at_recorded_commit_and_path(self):
-        registry = self.registry()
-        claim = next(item for item in registry["claims"]
-                     if item["claim_id"] == "grouped.dgelsy")
-        claim.update(evidence_class="historical-confirmed",
-                     publication_status="publication-ready")
-        provenance = self.historical_provenance_fixture()
-        provenance["artifact_sha256"] = "0" * 64
-        claim["historical_provenance"] = provenance
-
-        self.assertIn("claim_confirmed_provenance_invalid:grouped.dgelsy",
-                      self.validate(registry))
-
-    def test_hash_verified_record_without_source_identity_is_rejected(self):
-        registry = self.registry()
-        claim = next(item for item in registry["claims"]
-                     if item["claim_id"] == "grouped.dgelsy")
-        claim.update(evidence_class="historical-confirmed",
-                     publication_status="publication-ready")
-        claim["historical_provenance"] = self.historical_provenance_fixture()
-
-        self.assertIn("claim_confirmed_provenance_invalid:grouped.dgelsy",
-                      self.validate(registry))
 
     def test_malformed_candidate_rows_return_blockers(self):
         variants = (None, [], "not-a-row")
@@ -1448,9 +1273,6 @@ class ManuscriptClaimCoverageTests(unittest.TestCase):
                              if item["claim_id"] == "grouped.dgelsy")
             confirmed.update(evidence_class="historical-confirmed",
                              publication_status="publication-ready")
-            confirmed["historical_provenance"] = \
-                self.historical_provenance_fixture()
-            confirmed["historical_provenance"]["source_git_sha"] = "0" * 40
 
             try:
                 verdicts = paper_claims.audit_candidate_package(
@@ -1468,7 +1290,7 @@ class ManuscriptClaimCoverageTests(unittest.TestCase):
                           verdicts[
                               "benchmark_protocol_eligibility"]["reasons"])
             self.assertIn(
-                "claim_confirmed_provenance_invalid:grouped.dgelsy",
+                "claim_historical_confirmation_unsupported:grouped.dgelsy",
                 verdicts["manuscript_claim_coverage"]["reasons"])
 
     def test_extreme_wide_contradiction_cannot_be_reclassified_ready(self):
@@ -1492,7 +1314,6 @@ class ManuscriptClaimCoverageTests(unittest.TestCase):
         extreme["ratio_direction"] = "router_over_dgelsy"
         confirmed = registry["claims"][0]
         confirmed["evidence_class"] = "historical-confirmed"
-        confirmed.pop("historical_provenance", None)
 
         reasons = self.validate(registry)
 
@@ -1500,7 +1321,8 @@ class ManuscriptClaimCoverageTests(unittest.TestCase):
                 "claim_artifact_mapping_unknown:grouped.dgelsy:unknown.case",
                 "claim_artifact_mapping_duplicate:grouped.dgelsy",
                 "claim_ratio_direction_invalid:wide_extreme.32x12800",
-                f"claim_confirmed_provenance_invalid:{confirmed['claim_id']}"):
+                "claim_historical_confirmation_unsupported:"
+                f"{confirmed['claim_id']}"):
             self.assertIn(reason, reasons)
 
     def test_csv_and_metadata_rows_must_match_semantically(self):
@@ -1540,6 +1362,8 @@ class ManuscriptClaimCoverageTests(unittest.TestCase):
         for required in (
                 "--check-performance-inventory",
                 "ed240df3cc0bd644996f475a6d0e77d95eb6c568",
+                "67eef1fbda6f7486357cba200f01c9f355ac854a",
+                'git fetch --no-tags --depth=1 origin "$PR34_SOURCE"',
                 "--audit-performance-artifacts /tmp/pr34-candidate",
                 "--require-publication-ready",
                 "manuscript_blocker:parallel.bundle_tree_late_growth",
@@ -1576,161 +1400,6 @@ class ManuscriptClaimCoverageTests(unittest.TestCase):
                       verdicts["manuscript_publication_readiness"]["reasons"])
         self.assertIn("manuscript_blocker:grouped.lsmr",
                       verdicts["manuscript_publication_readiness"]["reasons"])
-
-    def test_null_and_malformed_source_identity_never_confirms_provenance(self):
-        with tempfile.TemporaryDirectory() as directory:
-            repo, provenance = self.create_confirmed_provenance_fixture(
-                directory)
-            original_record = json.loads(
-                (repo / "build-manifest.json").read_text())
-            for index, (source_sha, source_tree) in enumerate((
-                    (None, None), ("not-a-sha", None))):
-                with self.subTest(source_sha=source_sha,
-                                  source_tree=source_tree):
-                    mutated = copy.deepcopy(provenance)
-                    mutated["source_git_sha"] = source_sha
-                    mutated["source_git_tree_sha"] = source_tree
-                    record = copy.deepcopy(original_record)
-                    record["source"] = {
-                        "git_sha": source_sha,
-                        "git_tree_sha": source_tree,
-                        "git_dirty": False,
-                    }
-                    record_path = repo / f"null-source-record-{index}.json"
-                    record_path.write_text(json.dumps(record) + "\n")
-                    subprocess.run(
-                        ["git", "add", record_path.name], cwd=repo,
-                        check=True)
-                    subprocess.run(
-                        ["git", "commit", "-q", "-m",
-                         f"null source record {index}"], cwd=repo, check=True)
-                    record_hash = hashlib.sha256(
-                        record_path.read_bytes()).hexdigest()
-                    mutated["build_record_git_sha"] = subprocess.check_output(
-                        ["git", "rev-parse", "HEAD"], cwd=repo,
-                        text=True).strip()
-                    mutated["build_record_path"] = record_path.name
-                    mutated["build_record_sha256"] = record_hash
-                    mutated["build_identity_sha256"] = record_hash
-                    registry, claim = self.confirmed_claim_registry(mutated)
-                    reasons = paper_claims.validate_performance_claim_registry(
-                        registry, manuscript_text=(ROOT / "paper.tex").read_text(),
-                        repo_root=repo)
-                    self.assertIn(
-                        f"claim_confirmed_provenance_invalid:{claim['claim_id']}",
-                        reasons)
-
-    def test_git_tree_cannot_masquerade_as_artifact_or_build_blob(self):
-        with tempfile.TemporaryDirectory() as directory:
-            repo, provenance = self.create_confirmed_provenance_fixture(
-                directory)
-
-            tree_oid = subprocess.check_output(
-                ["git", "rev-parse",
-                 f"{provenance['source_git_sha']}:evidence"],
-                cwd=repo, text=True).strip()
-            tree_bytes = subprocess.check_output(
-                ["git", "cat-file", "tree", tree_oid], cwd=repo)
-            artifact_tree = copy.deepcopy(provenance)
-            artifact_tree["artifact_path"] = "evidence"
-            artifact_tree["artifact_sha256"] = hashlib.sha256(
-                tree_bytes).hexdigest()
-
-            build_tree = copy.deepcopy(provenance)
-            build_tree["build_record_path"] = "evidence"
-            build_tree["build_record_sha256"] = hashlib.sha256(
-                tree_bytes).hexdigest()
-            build_tree["build_identity_sha256"] = \
-                build_tree["build_record_sha256"]
-
-            artifact_revision = copy.deepcopy(provenance)
-            artifact_revision["artifact_git_sha"] = \
-                provenance["source_git_tree_sha"]
-            build_revision = copy.deepcopy(provenance)
-            build_revision["build_record_git_sha"] = \
-                provenance["source_git_tree_sha"]
-
-            for label, mutated in (("artifact", artifact_tree),
-                                   ("build", build_tree),
-                                   ("artifact-revision", artifact_revision),
-                                   ("build-revision", build_revision)):
-                with self.subTest(label=label):
-                    registry, claim = self.confirmed_claim_registry(mutated)
-                    reasons = paper_claims.validate_performance_claim_registry(
-                        registry, manuscript_text=(ROOT / "paper.tex").read_text(),
-                        repo_root=repo)
-                    self.assertIn(
-                        f"claim_confirmed_provenance_invalid:{claim['claim_id']}",
-                        reasons)
-
-    def test_hash_correct_but_incomplete_build_record_is_rejected(self):
-        with tempfile.TemporaryDirectory() as directory:
-            repo, provenance = self.create_confirmed_provenance_fixture(
-                directory)
-            incomplete = repo / "incomplete-build-record.json"
-            provenance["build_record_path"] = incomplete.name
-            provenance["build_record_sha256"] = hashlib.sha256(
-                incomplete.read_bytes()).hexdigest()
-            provenance["build_identity_sha256"] = \
-                provenance["build_record_sha256"]
-            registry, claim = self.confirmed_claim_registry(provenance)
-
-            reasons = paper_claims.validate_performance_claim_registry(
-                registry, manuscript_text=(ROOT / "paper.tex").read_text(),
-                repo_root=repo)
-
-            self.assertIn(
-                f"claim_confirmed_provenance_invalid:{claim['claim_id']}",
-                reasons)
-
-    def test_real_git_provenance_can_confirm_a_publication_ready_claim(self):
-        with tempfile.TemporaryDirectory() as directory:
-            repo, provenance = self.create_confirmed_provenance_fixture(
-                directory)
-            registry, claim = self.confirmed_claim_registry(provenance)
-
-            reasons = paper_claims.validate_performance_claim_registry(
-                registry, manuscript_text=(ROOT / "paper.tex").read_text(),
-                repo_root=repo)
-            verdicts = paper_claims.evaluate_performance_claims(
-                registry, benchmark_protocol={"eligible": True, "reasons": []},
-                manuscript_text=(ROOT / "paper.tex").read_text(),
-                repo_root=repo)
-
-            self.assertNotIn(
-                f"claim_confirmed_provenance_invalid:{claim['claim_id']}",
-                reasons)
-            self.assertNotIn(
-                f"manuscript_blocker:{claim['claim_id']}",
-                verdicts["manuscript_publication_readiness"]["reasons"])
-
-            mutations = {
-                field: None for field in provenance
-            }
-            mutations.update({
-                "source_git_sha": "0" * 40,
-                "source_git_tree_sha": "0" * 40,
-                "artifact_git_sha": "0" * 40,
-                "artifact_sha256": "0" * 64,
-                "build_record_git_sha": "0" * 40,
-                "build_record_sha256": "0" * 64,
-                "build_identity_sha256": "0" * 64,
-                "build_record_kind": "unknown",
-            })
-            for field, value in mutations.items():
-                with self.subTest(component=field):
-                    mutated = copy.deepcopy(provenance)
-                    mutated[field] = value
-                    mutated_registry, mutated_claim = \
-                        self.confirmed_claim_registry(mutated)
-                    mutated_reasons = \
-                        paper_claims.validate_performance_claim_registry(
-                            mutated_registry,
-                            manuscript_text=(ROOT / "paper.tex").read_text(),
-                            repo_root=repo)
-                    self.assertIn(
-                        "claim_confirmed_provenance_invalid:"
-                        f"{mutated_claim['claim_id']}", mutated_reasons)
 
     def test_malformed_nested_claim_values_return_stable_blockers(self):
         variants = (
@@ -1801,6 +1470,155 @@ class ManuscriptClaimCoverageTests(unittest.TestCase):
                 self.assertIn(
                     f"candidate_grouped_lsmr_ratio_invalid:{case_id}",
                     verdicts["benchmark_protocol_eligibility"]["reasons"])
+
+    def test_historical_confirmation_is_explicitly_unsupported(self):
+        registry = self.registry()
+        claim = next(item for item in registry["claims"]
+                     if item["claim_id"] == "grouped.dgelsy")
+        claim.update(evidence_class="historical-confirmed",
+                     publication_status="publication-ready")
+
+        reasons = self.validate(registry)
+        verdicts = paper_claims.evaluate_performance_claims(
+            registry, benchmark_protocol={"eligible": True, "reasons": []})
+
+        self.assertIn(
+            "claim_historical_confirmation_unsupported:grouped.dgelsy",
+            reasons)
+        self.assertIn("manuscript_blocker:grouped.dgelsy",
+                      verdicts["manuscript_publication_readiness"]["reasons"])
+
+    def test_candidate_source_identity_is_git_verified(self):
+        source_sha = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+        wrong_tree = subprocess.check_output(
+            ["git", "rev-parse", "HEAD:tests"], cwd=ROOT,
+            text=True).strip()
+        variants = (
+            (None, None, "candidate_source_identity_invalid"),
+            ("not-a-sha", "also-not-a-tree",
+             "candidate_source_identity_invalid"),
+            ("0" * 40, "1" * 40, "candidate_source_commit_missing"),
+            (source_sha, wrong_tree,
+             "candidate_source_commit_tree_mismatch"),
+        )
+        for source, tree, expected in variants:
+            with self.subTest(source=source, tree=tree), \
+                    tempfile.TemporaryDirectory() as directory:
+                registry = self.registry()
+                registry["candidate_artifact"]["source_sha"] = source
+                registry["candidate_artifact"]["source_tree"] = tree
+                self.write_candidate_package(directory, registry)
+
+                verdicts = paper_claims.audit_candidate_package(
+                    directory, registry)
+
+                self.assertIn(
+                    expected,
+                    verdicts["benchmark_protocol_eligibility"]["reasons"])
+
+    def test_malformed_evidence_classes_return_blockers_not_exceptions(self):
+        for value in (None, [], {}, True, 7):
+            with self.subTest(value=value):
+                registry = self.registry()
+                claim = registry["claims"][0]
+                claim["evidence_class"] = value
+                try:
+                    reasons = self.validate(registry)
+                    verdicts = paper_claims.evaluate_performance_claims(
+                        registry, benchmark_protocol={"eligible": True,
+                                                      "reasons": []})
+                except Exception as error:
+                    self.fail(f"malformed evidence raised: {error}")
+                self.assertIn(
+                    f"claim_evidence_class_invalid:{claim['claim_id']}",
+                    reasons)
+                self.assertIn(
+                    f"manuscript_blocker:{claim['claim_id']}",
+                    verdicts["manuscript_publication_readiness"]["reasons"])
+
+    def test_control_characters_in_git_paths_are_rejected_without_crash(self):
+        for value in ("results/bad\x00.csv", "results/bad\x01.csv",
+                      "results/bad\x7f.csv"):
+            with self.subTest(path=repr(value)), \
+                    tempfile.TemporaryDirectory() as directory:
+                registry = self.registry()
+                self.write_candidate_package(directory, registry)
+                registry["candidate_artifact"]["csv"]["path"] = value
+                try:
+                    verdicts = paper_claims.audit_candidate_package(
+                        directory, registry)
+                except Exception as error:
+                    self.fail(f"control-character path raised: {error}")
+                self.assertIn(
+                    "artifact_registry_path_invalid:csv",
+                    verdicts["artifact_integrity"]["reasons"])
+
+    def test_blas_hashes_and_thread_counts_are_strictly_typed(self):
+        invalid_hashes = ("", "a" * 63, "g" * 64, ["a" * 64])
+        for value in invalid_hashes:
+            with self.subTest(hash=value), \
+                    tempfile.TemporaryDirectory() as directory:
+                registry = self.registry()
+                metadata = self.write_candidate_package(directory, registry)
+                pool = metadata["linear_algebra"]["threadpools"][0]
+                pool["sha256"] = value
+                metadata["build_provenance"]["manifest"]["openblas"][
+                    "sha256"] = value
+                self.rewrite_candidate_metadata(directory, registry, metadata)
+
+                verdicts = paper_claims.audit_candidate_package(
+                    directory, registry)
+
+                self.assertIn(
+                    "candidate_blas_pool_invalid:0",
+                    verdicts["benchmark_protocol_eligibility"]["reasons"])
+
+        for value in (True, False, 0, -1, "1", 1.0):
+            with self.subTest(num_threads=value), \
+                    tempfile.TemporaryDirectory() as directory:
+                registry = self.registry()
+                metadata = self.write_candidate_package(directory, registry)
+                metadata["linear_algebra"]["threadpools"][0][
+                    "num_threads"] = value
+                self.rewrite_candidate_metadata(directory, registry, metadata)
+
+                verdicts = paper_claims.audit_candidate_package(
+                    directory, registry)
+
+                self.assertIn(
+                    "candidate_blas_pool_invalid:0",
+                    verdicts["benchmark_protocol_eligibility"]["reasons"])
+
+    def test_independent_malformed_faults_are_aggregated(self):
+        with tempfile.TemporaryDirectory() as directory:
+            registry = self.registry()
+            registry["candidate_artifact"]["source_sha"] = None
+            registry["candidate_artifact"]["source_tree"] = None
+            claim = registry["claims"][0]
+            claim["evidence_class"] = []
+            metadata = self.write_candidate_package(directory, registry)
+            metadata["linear_algebra"]["threadpools"][0].update(
+                sha256="bad", num_threads=True)
+            self.rewrite_candidate_metadata(directory, registry, metadata)
+            registry["candidate_artifact"]["csv"]["path"] = "bad\x00.csv"
+
+            try:
+                verdicts = paper_claims.audit_candidate_package(
+                    directory, registry)
+            except Exception as error:
+                self.fail(f"independent malformed faults raised: {error}")
+
+            combined = (
+                verdicts["artifact_integrity"]["reasons"] +
+                verdicts["benchmark_protocol_eligibility"]["reasons"] +
+                verdicts["manuscript_claim_coverage"]["reasons"])
+            for expected in (
+                    "artifact_registry_path_invalid:csv",
+                    "candidate_source_identity_invalid",
+                    "candidate_blas_pool_invalid:0",
+                    f"claim_evidence_class_invalid:{claim['claim_id']}"):
+                self.assertIn(expected, combined)
 
 
 if __name__ == "__main__":

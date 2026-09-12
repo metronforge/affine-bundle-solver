@@ -32,6 +32,7 @@ import json
 import math
 import subprocess
 import sys
+import unicodedata
 from collections import Counter
 from pathlib import Path, PurePosixPath
 
@@ -45,8 +46,6 @@ PERFORMANCE_CLAIM_REGISTRY = ROOT / "experiments" / \
 EVIDENCE_CLASSES = frozenset((
     "current-artifact", "historical-confirmed", "historical-unconfirmed",
     "different-task", "different-generator", "not-covered"))
-DIRECT_EVIDENCE_CLASSES = frozenset((
-    "current-artifact", "historical-confirmed"))
 REQUIRED_PERFORMANCE_CLAIM_IDS = frozenset((
     "audit.certified_call_overhead", "standard.sequential_reference",
     "parallel.openmp_scaling", "structural.stress_timings",
@@ -128,7 +127,8 @@ def _finite_number(value):
 
 def _safe_git_path(value):
     if not isinstance(value, str) or not value or "\\" in value or \
-            ":" in value:
+            ":" in value or any(unicodedata.category(character) == "Cc"
+                                for character in value):
         return None
     path = PurePosixPath(value)
     if path.is_absolute() or any(part in ("", ".", "..")
@@ -142,7 +142,7 @@ def _git_output(repo_root, *arguments):
         completed = subprocess.run(
             ["git", *arguments], cwd=repo_root, stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL, check=False)
-    except OSError:
+    except (OSError, ValueError):
         return None
     return completed.stdout if completed.returncode == 0 else None
 
@@ -158,135 +158,12 @@ def _git_commit_tree(commit, repo_root=ROOT):
     return output.decode().strip() if output is not None else None
 
 
-def _git_blob(commit, path, repo_root=ROOT):
-    safe_path = _safe_git_path(path)
-    if _git_commit_tree(commit, repo_root) is None or safe_path is None:
-        return None
-    object_id = _git_output(repo_root, "rev-parse", "--verify",
-                            f"{commit}:{safe_path}")
-    if object_id is None:
-        return None
-    object_id = object_id.decode().strip()
-    if not _valid_hex(object_id, 40):
-        return None
-    object_type = _git_output(repo_root, "cat-file", "-t", object_id)
-    if object_type is None or object_type.decode().strip() != "blob":
-        return None
-    return _git_output(repo_root, "cat-file", "blob", object_id)
-
-
-def _nonempty_string_list(value):
-    return (isinstance(value, list) and bool(value) and
-            all(isinstance(item, str) and item for item in value))
-
-
-def _build_record_semantics_valid(record, kind, source_sha, source_tree):
-    if not isinstance(record, dict) or \
-            not isinstance(record.get("source"), dict):
-        return False
-    source = record["source"]
-    if (source.get("git_sha"), source.get("git_tree_sha"),
-            source.get("git_dirty")) != (source_sha, source_tree, False):
-        return False
-    if kind == "build-manifest":
-        script = record.get("build_script")
-        compiler = record.get("compiler")
-        router = record.get("router")
-        openblas = record.get("openblas")
-        library = router.get("library") if isinstance(router, dict) else None
-        return (
-            type(record.get("schema_version")) is int and
-            record["schema_version"] == 1 and
-            isinstance(record.get("built_at_utc"), str) and
-            bool(record["built_at_utc"]) and
-            isinstance(script, dict) and
-            _safe_git_path(script.get("path")) is not None and
-            _valid_hex(script.get("sha256"), 64) and
-            isinstance(compiler, dict) and
-            _nonempty_string_list(compiler.get("command_argv")) and
-            isinstance(compiler.get("identity"), str) and
-            bool(compiler["identity"]) and
-            isinstance(router, dict) and
-            _nonempty_string_list(router.get("compile_argv")) and
-            _nonempty_string_list(router.get("link_argv")) and
-            isinstance(router.get("arch_flags"), str) and
-            isinstance(library, dict) and
-            isinstance(library.get("basename"), str) and
-            bool(library["basename"]) and
-            _valid_hex(library.get("sha256"), 64) and
-            isinstance(openblas, dict) and
-            isinstance(openblas.get("basename"), str) and
-            bool(openblas["basename"]) and
-            _valid_hex(openblas.get("sha256"), 64))
-    if kind == "run-record":
-        benchmark = record.get("benchmark")
-        command = record.get("command")
-        command_argv = record.get("command_argv")
-        build = record.get("build_provenance")
-        results = record.get("results")
-        return (
-            type(record.get("schema_version")) is int and
-            record["schema_version"] > 0 and
-            isinstance(command, str) and bool(command) and
-            _nonempty_string_list(command_argv) and
-            isinstance(benchmark, dict) and
-            isinstance(benchmark.get("driver"), str) and
-            bool(benchmark["driver"]) and
-            isinstance(benchmark.get("seed"), int) and
-            isinstance(benchmark.get("repeats"), int) and
-            benchmark["repeats"] > 0 and
-            isinstance(build, dict) and build.get("verified") is True and
-            isinstance(results, list) and bool(results))
-    return False
-
-
-def _confirmed_provenance_valid(claim, repo_root=ROOT):
-    if not isinstance(claim, dict):
-        return False
-    provenance = claim.get("historical_provenance")
-    if not isinstance(provenance, dict):
-        return False
-    source_sha = provenance.get("source_git_sha")
-    source_tree = provenance.get("source_git_tree_sha")
-    artifact_sha = provenance.get("artifact_git_sha")
-    artifact_path = _safe_git_path(provenance.get("artifact_path"))
-    build_sha = provenance.get("build_record_git_sha")
-    build_path = _safe_git_path(provenance.get("build_record_path"))
-    if not _valid_hex(source_sha, 40) or not _valid_hex(source_tree, 40):
-        return False
-    actual_source_tree = _git_commit_tree(source_sha, repo_root)
-    if actual_source_tree is None or actual_source_tree != source_tree:
-        return False
-    try:
-        artifact_blob = _git_blob(artifact_sha, artifact_path, repo_root)
-        build_blob = _git_blob(build_sha, build_path, repo_root)
-        build_record = json.loads(build_blob) if build_blob is not None \
-            else None
-    except (TypeError, UnicodeDecodeError, json.JSONDecodeError):
-        return False
-    return (
-        artifact_blob is not None and build_blob is not None and
-        _build_record_semantics_valid(
-            build_record, provenance.get("build_record_kind"), source_sha,
-            source_tree) and
-        _valid_hex(provenance.get("artifact_sha256"), 64) and
-        hashlib.sha256(artifact_blob).hexdigest() ==
-        provenance["artifact_sha256"] and
-        _valid_hex(provenance.get("build_record_sha256"), 64) and
-        hashlib.sha256(build_blob).hexdigest() ==
-        provenance["build_record_sha256"] and
-        _valid_hex(provenance.get("build_identity_sha256"), 64) and
-        provenance["build_identity_sha256"] ==
-        provenance["build_record_sha256"])
-
-
 def load_performance_claim_registry(path=PERFORMANCE_CLAIM_REGISTRY):
     """Load the bounded explicit registry; callers may safely mutate it."""
     return json.loads(Path(path).read_text())
 
 
-def validate_performance_claim_registry(registry, manuscript_text=None,
-                                        repo_root=ROOT):
+def validate_performance_claim_registry(registry, manuscript_text=None):
     """Return every inventory/schema error using stable reason codes."""
     reasons = []
     if not isinstance(registry, dict) or registry.get("schema_version") != 1:
@@ -324,10 +201,10 @@ def validate_performance_claim_registry(registry, manuscript_text=None,
             reasons.append(
                 f"claim_field_invalid:{claim_id}:dimensions_case_identity")
         evidence = claim.get("evidence_class")
-        if evidence not in EVIDENCE_CLASSES:
+        if not isinstance(evidence, str) or evidence not in EVIDENCE_CLASSES:
             reasons.append(f"claim_evidence_class_invalid:{claim_id}")
         mapping = claim.get("artifact_case_mapping")
-        mapping_required = evidence in DIRECT_EVIDENCE_CLASSES or \
+        mapping_required = evidence == "current-artifact" or \
             mapping is not None
         mapping_valid = (isinstance(mapping, list) and bool(mapping) and
                          all(isinstance(case_id, str) and case_id
@@ -360,12 +237,10 @@ def validate_performance_claim_registry(registry, manuscript_text=None,
         if evidence in ("different-task", "different-generator") and \
                 claim.get("task_relationship") == "direct-reproduction":
             reasons.append(f"claim_evidence_not_direct:{claim_id}")
-        confirmed_provenance_valid = evidence != "historical-confirmed" or \
-            _confirmed_provenance_valid(claim, repo_root=repo_root)
-        if not confirmed_provenance_valid:
-            reasons.append(f"claim_confirmed_provenance_invalid:{claim_id}")
-        if (evidence not in DIRECT_EVIDENCE_CLASSES or
-                not confirmed_provenance_valid) and \
+        if evidence == "historical-confirmed":
+            reasons.append(
+                f"claim_historical_confirmation_unsupported:{claim_id}")
+        if evidence != "current-artifact" and \
                 claim.get("publication_status") == "publication-ready":
             reasons.append(f"claim_unsupported_evidence_ready:{claim_id}")
         if claim.get("publication_status") not in (
@@ -392,8 +267,8 @@ def validate_performance_claim_registry(registry, manuscript_text=None,
             contradiction = (historical.get("dgelsy_over_router") !=
                              candidate.get("dgelsy_over_router"))
             if contradiction and (claim.get("publication_status") ==
-                                  "publication-ready" or evidence in
-                                  DIRECT_EVIDENCE_CLASSES):
+                                  "publication-ready" or evidence ==
+                                  "current-artifact"):
                 reasons.append(
                     "claim_extreme_wide_contradiction_unresolved:"
                     "wide_extreme.32x12800")
@@ -421,21 +296,22 @@ def validate_performance_claim_registry(registry, manuscript_text=None,
 
 
 def evaluate_performance_claims(registry, benchmark_protocol=None,
-                                manuscript_text=None, repo_root=ROOT):
+                                manuscript_text=None):
     """Keep protocol, claim coverage, and readiness as separate verdicts."""
     if manuscript_text is None:
         manuscript_text = (ROOT / "paper.tex").read_text()
     coverage_reasons = validate_performance_claim_registry(
-        registry, manuscript_text=manuscript_text, repo_root=repo_root)
+        registry, manuscript_text=manuscript_text)
     blockers = []
     claims = registry.get("claims", []) if isinstance(registry, dict) else []
     if not isinstance(claims, list):
         claims = []
     for claim in claims:
-        if not isinstance(claim, dict) or not claim.get("claim_id"):
+        if not isinstance(claim, dict) or not isinstance(
+                claim.get("claim_id"), str) or not claim["claim_id"]:
             continue
         if claim.get("publication_status") != "publication-ready" or \
-                claim.get("evidence_class") not in DIRECT_EVIDENCE_CLASSES:
+                claim.get("evidence_class") != "current-artifact":
             blockers.append(f"manuscript_blocker:{claim['claim_id']}")
     if coverage_reasons:
         blockers.extend(coverage_reasons)
@@ -619,6 +495,16 @@ def audit_candidate_package(package_root, registry=None):
             integrity_reasons.append("artifact_checksum_invalid")
 
     protocol_reasons = []
+    source_sha = artifact.get("source_sha")
+    source_tree = artifact.get("source_tree")
+    if not _valid_hex(source_sha, 40) or not _valid_hex(source_tree, 40):
+        protocol_reasons.append("candidate_source_identity_invalid")
+    else:
+        actual_source_tree = _git_commit_tree(source_sha)
+        if actual_source_tree is None:
+            protocol_reasons.append("candidate_source_commit_missing")
+        elif actual_source_tree != source_tree:
+            protocol_reasons.append("candidate_source_commit_tree_mismatch")
     if isinstance(metadata, dict):
         def metadata_dict(name, reason):
             value = metadata.get(name)
@@ -693,21 +579,25 @@ def audit_candidate_package(package_root, registry=None):
                     f"candidate_blas_pool_invalid:{index}")
             elif pool.get("user_api") == "blas":
                 blas_pools.append(pool)
-                if not isinstance(pool.get("sha256"), str) or \
-                        not isinstance(pool.get("num_threads"), int):
+                if not _valid_hex(pool.get("sha256"), 64) or \
+                        type(pool.get("num_threads")) is not int or \
+                        pool["num_threads"] != 1:
                     protocol_reasons.append(
                         f"candidate_blas_pool_invalid:{index}")
         if not blas_pools:
             protocol_reasons.append("candidate_blas_provider_missing")
-        elif any(pool.get("num_threads") != 1 for pool in blas_pools):
+        elif any(type(pool.get("num_threads")) is not int or
+                 pool.get("num_threads") != 1 for pool in blas_pools):
             protocol_reasons.append("candidate_blas_pool_not_single_thread")
         openblas = manifest.get("openblas")
         if not isinstance(openblas, dict):
             openblas = {}
         linked_blas = openblas.get("sha256")
         runtime_blas = {pool.get("sha256") for pool in blas_pools
-                        if isinstance(pool.get("sha256"), str)}
-        if not isinstance(linked_blas, str) or \
+                        if _valid_hex(pool.get("sha256"), 64)}
+        if not _valid_hex(linked_blas, 64):
+            protocol_reasons.append("candidate_linked_blas_hash_invalid")
+        if not _valid_hex(linked_blas, 64) or \
                 linked_blas not in runtime_blas:
             protocol_reasons.append("candidate_runtime_blas_identity_mismatch")
         machine = metadata_dict("machine", "candidate_machine_invalid")
