@@ -10,7 +10,7 @@ type: software
 authors:
   - given-names: Viktor
     family-names: Mikhalkin
-    # orcid: 'https://orcid.org/0000-0000-0000-0000'   # add if you have one
+    orcid: 'https://orcid.org/0009-0000-4954-2300'
 repository-code: 'https://github.com/metronforge/affine-bundle-solver'
 abstract: >-
   A dense solver architecture for real linear equality systems Ax=b that
@@ -33,7 +33,7 @@ keywords:
   - verified numerical linear algebra
 license: Apache-2.0
 version: 0.4.4 # x-release-please-version
-date-released: '2026-09-07'
+date-released: '2026-09-13'
 # Uncomment and fill once the preprint and Zenodo archive exist:
 # identifiers:
 #   - type: doi
