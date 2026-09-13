@@ -197,6 +197,14 @@ deposit. Issues and independent reproduction attempts are welcome — in
 particular, reports of the build failing either probe on a toolchain we have
 not tested.
 
+## Acknowledgments
+
+This project was initiated by a suggestion from
+[Ilya Scheblanov](https://www.linkedin.com/in/ilya-scheblanov-87023727) to
+explore whether AI-assisted research could produce a new method for solving
+general linear systems from first principles. The author is grateful for the
+idea and encouragement that set this work in motion.
+
 ## License
 
 Apache License 2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE).
