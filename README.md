@@ -12,7 +12,7 @@ turn a numerical guess into an exact claim.
 
 [![build-and-test](https://github.com/metronforge/affine-bundle-solver/actions/workflows/ci.yml/badge.svg)](https://github.com/metronforge/affine-bundle-solver/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22753772.svg)](https://doi.org/10.5281/zenodo.22753772)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.22753772-blue.svg)](https://doi.org/10.5281/zenodo.22753772)
 
 ---
 
