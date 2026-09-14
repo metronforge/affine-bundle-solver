@@ -5,7 +5,7 @@ title: >-
   Information-Adaptive Routing
 message: >-
   If you use this software or refer to its results, please cite
-  the preprint below.
+  this archived software release.
 type: software
 authors:
   - given-names: Viktor
@@ -34,11 +34,11 @@ keywords:
 license: Apache-2.0
 version: 0.4.4 # x-release-please-version
 date-released: '2026-09-13'
-# Uncomment and fill once the preprint and Zenodo archive exist:
-# identifiers:
-#   - type: doi
-#     value: 10.5281/zenodo.XXXXXXX
-#     description: Archived source code
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.22753773
+    description: Archived source code for version 0.4.4
+# Uncomment and fill once the preprint exists:
 # preferred-citation:
 #   type: article
 #   title: >-

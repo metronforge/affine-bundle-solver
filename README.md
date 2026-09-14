@@ -12,6 +12,7 @@ turn a numerical guess into an exact claim.
 
 [![build-and-test](https://github.com/metronforge/affine-bundle-solver/actions/workflows/ci.yml/badge.svg)](https://github.com/metronforge/affine-bundle-solver/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22753772.svg)](https://doi.org/10.5281/zenodo.22753772)
 
 ---
 
@@ -192,10 +193,10 @@ Deliberately narrow, and worth reading before citing:
 
 ## Status
 
-Research prototype, pre-publication. The manuscript is under preparation for
-deposit. Issues and independent reproduction attempts are welcome — in
-particular, reports of the build failing either probe on a toolchain we have
-not tested.
+Research prototype. Release `v0.4.4` is archived on Zenodo; the manuscript is
+under preparation for deposit. Issues and independent reproduction attempts
+are welcome — in particular, reports of the build failing either probe on a
+toolchain we have not tested.
 
 ## Acknowledgments
 
@@ -220,4 +221,8 @@ preprint deposit for their terms.
 
 ## Citation
 
-See [CITATION.cff](CITATION.cff).
+For exact reproducibility, cite the archived `v0.4.4` software release using
+[DOI 10.5281/zenodo.22753773](https://doi.org/10.5281/zenodo.22753773). The
+[concept DOI 10.5281/zenodo.22753772](https://doi.org/10.5281/zenodo.22753772)
+resolves to the complete version history. Machine-readable metadata are in
+[CITATION.cff](CITATION.cff).
