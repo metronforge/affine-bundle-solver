@@ -21,6 +21,7 @@
    header nobody compiles against is a header that drifts. */
 #include "affine_bundle/router.h"
 #include "affine_bundle/stream.h"
+#include "router_diag_snapshot.h"
 /* Allocation-failure policy.  On a large dense system an m*n request can
    legitimately fail, so the router must report that rather than dereference
    a null pointer.  Failure is reported as CLS_FAIL, which is deliberately
@@ -237,6 +238,8 @@ static int source_closure_no_growth(BState*s,const double*A,const double*b,int m
 
 
 #define BS_GREY_STORE_MAX 64
+_Static_assert(BS_GREY_STORE_MAX == ABS_ROUTER_SNAPSHOT_GREY_CAP,
+               "router grey store and snapshot capacities must agree");
 static _Thread_local int g_grey_total=0,g_grey_stored=0;
 static _Thread_local int g_grey_rows[BS_GREY_STORE_MAX];
 static void grey_reset(void){g_grey_total=0;g_grey_stored=0;}
@@ -900,7 +903,14 @@ static Result solve_router_raw(const double*A,const double*b,const double*xt,int
     return solve_auto_qr(A,b,xt,m,n,sp,qv,alpha,1,seed,do_full_residual,allow_corefast);
 }
 static Result solve_router(const double*A,const double*b,const double*xt,int m,int n,int sp,int qv,int alpha,uint64_t seed,int do_full_residual){
-    g_source_rank_lo=g_source_rank_hi=-1;g_last_berr=0.0;g_last_berr_valid=0;Result r=solve_router_raw(A,b,xt,m,n,sp,qv,alpha,seed,do_full_residual);
+    g_source_rank_lo=g_source_rank_hi=-1;g_last_berr=0.0;g_last_berr_valid=0;
+#ifdef ABS_TEST_ROUTER_EXECUTIONS
+    extern int abs_test_router_execution_hook(void);
+    if(abs_test_router_execution_hook()){
+        Result fail={0};BS_FAIL_RESULT(fail,now_sec());return fail;
+    }
+#endif
+    Result r=solve_router_raw(A,b,xt,m,n,sp,qv,alpha,seed,do_full_residual);
     if(r.cls==CLS_UNDECIDABLE || (r.cls==CLS_INCONSISTENT && r.fallback)){
         Result t={0};
         int src=try_sampled_source_fullrank(A,b,xt,m,n,2e-10,seed,&t);
@@ -1013,6 +1023,43 @@ void bsolve_fg_counters_reset_api(void){g_fg_checks=0;g_fg_escalations=0;g_sourc
 void bsolve_fg_counters_api(unsigned long long*out){if(!out)return;out[0]=g_fg_checks;out[1]=g_fg_escalations;out[2]=g_source_qrcp_calls;}
 void bsolve_last_core_rank_interval_api(int*out){if(!out)return;out[0]=g_core_rank_lo;out[1]=g_core_rank_hi;}
 int bsolve_last_core_qr_rank_api(void){return g_last_core_qr_rank;}
+
+static void capture_router_diagnostics(ABSRouterSnapshot *snapshot,
+                                       const unsigned long long before[3]){
+    snapshot->grey_distinct_count=g_grey_stored;
+    snapshot->grey_total_events=g_grey_total;
+    for(int i=0;i<g_grey_stored;i++)snapshot->grey_rows[i]=g_grey_rows[i];
+    snapshot->last_orth_eta=g_max_orth_eta;
+    snapshot->core_rank_interval[0]=g_core_rank_lo;
+    snapshot->core_rank_interval[1]=g_core_rank_hi;
+    snapshot->core_qr_rank=g_last_core_qr_rank;
+    snapshot->formation_guard_counters[0]=g_fg_checks-before[0];
+    snapshot->formation_guard_counters[1]=g_fg_escalations-before[1];
+    snapshot->formation_guard_counters[2]=g_source_qrcp_calls-before[2];
+}
+
+void abs_router_snapshot_internal(const double *A,const double *b,const double *xt,
+                                  int m,int n,int sp,int qv,int alpha,
+                                  unsigned long long seed,int full,
+                                  ABSRouterSnapshot *snapshot){
+    unsigned long long before[3]={g_fg_checks,g_fg_escalations,g_source_qrcp_calls};
+    memset(snapshot,0,sizeof(*snapshot));
+    bsolve_router_meta_api(A,b,xt,m,n,sp,qv,alpha,seed,full,snapshot->meta);
+    capture_router_diagnostics(snapshot,before);
+}
+
+#ifdef ABS_TEST_ROUTER_EXECUTIONS
+/* Test-only edge fixture, absent from installed libraries. */
+void abs_test_grey_capacity_fixture(ABSRouterSnapshot *snapshot){
+    const unsigned long long before[3]={g_fg_checks,g_fg_escalations,g_source_qrcp_calls};
+    memset(snapshot,0,sizeof(*snapshot));
+    diag_reset();
+    grey_record(7);
+    grey_record(7);
+    for(int i=0;i<70;i++)grey_record(i);
+    capture_router_diagnostics(snapshot,before);
+}
+#endif
 
 /* ==========================================================================
  * Incremental classification API.  See include/affine_bundle/stream.h.

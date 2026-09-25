@@ -16,11 +16,15 @@
  * limitations under the License.
  */
 #include "affine_bundle/certified_api.h"
+#include "router_diag_snapshot.h"
 #include <math.h>
 #include <float.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+
+_Static_assert(BS_CERTIFIED_DIAG_GREY_CAP == ABS_ROUTER_SNAPSHOT_GREY_CAP,
+               "public and private grey capacities must agree");
 
 /* The fast library is deliberately outside the trusted certificate checker. */
 extern void bsolve_router_meta_api(const double*,const double*,const double*,int,int,int,int,int,
@@ -470,16 +474,17 @@ static void run_inconsistent_profile(const double *A,const double *b,int m,int n
     if(!grc && !vrc && isfinite(eta)){out->eta_inconsistent=eta;out->accepted_status_mask|=4;}
 }
 
-int bsolve_certified_api(const double *A,const double *b,const double *xt,int m,int n,int sp,int qv,int alpha,
-                         unsigned long long seed,int full,BSCertifiedResult *out) {
-    if(!out)return 1;
+static void certified_init(BSCertifiedResult *out) {
     memset(out,0,sizeof(*out));
     out->eta_x=NAN;out->eta_status=INFINITY;
     out->eta_unique=INFINITY;out->eta_infinite=INFINITY;out->eta_inconsistent=INFINITY;
+}
 
-    double meta[11];bsolve_router_meta_api(A,b,xt,m,n,sp,qv,alpha,seed,full,meta);
-    out->fast_status=(int)meta[0];out->fast_certainty=(int)meta[1];out->rank_estimate=(int)meta[2];
-    out->rank_lo=(int)meta[3];out->rank_hi=(int)meta[4];out->eta_x=meta[10];
+static void certified_complete(const double *A,const double *b,int m,int n,
+                               const double meta[ABS_OUT_LEN],BSCertifiedResult *out) {
+    out->fast_status=(int)meta[ABS_OUT_STATUS];out->fast_certainty=(int)meta[ABS_OUT_CERTAINTY];
+    out->rank_estimate=(int)meta[ABS_OUT_RANK];out->rank_lo=(int)meta[ABS_OUT_RANK_LO];
+    out->rank_hi=(int)meta[ABS_OUT_RANK_HI];out->eta_x=meta[ABS_OUT_BERR];
 
     /* The trusted audit semantics do not depend on which type the router chose. */
     run_unique_profile(A,b,m,n,out);
@@ -498,5 +503,43 @@ int bsolve_certified_api(const double *A,const double *b,const double *xt,int m,
         out->generator_code=out->inconsistent_generator_code;out->verifier_code=out->inconsistent_verifier_code;
         if(out->accepted_status_mask&4){out->certified_status=BS_STATUS_INCONSISTENT;out->eta_status=out->eta_inconsistent;}
     }
+}
+
+int bsolve_certified_api(const double *A,const double *b,const double *xt,int m,int n,int sp,int qv,int alpha,
+                         unsigned long long seed,int full,BSCertifiedResult *out) {
+    double meta[ABS_OUT_LEN];
+    if(!out)return 1;
+    certified_init(out);
+    bsolve_router_meta_api(A,b,xt,m,n,sp,qv,alpha,seed,full,meta);
+    certified_complete(A,b,m,n,meta,out);
     return 0;
+}
+
+int bsolve_certified_diag_api(const double *A,const double *b,const double *xt,
+                              int m,int n,int sp,int qv,int alpha,
+                              unsigned long long seed,int full,
+                              BSCombinedCertifiedResult *out) {
+    ABSRouterSnapshot snapshot;
+    BSCertifiedResult *certified;
+    if(!out)return 1;
+    memset(out,0,sizeof(*out));
+    if(m<=0 || n<=0 || sp<=0 || qv<=0 || alpha<=0 || !A || !b ||
+       (size_t)m > SIZE_MAX/(size_t)n ||
+       (size_t)m*(size_t)n > SIZE_MAX/sizeof(double) ||
+       !finite_array(A,(size_t)m*(size_t)n) || !finite_array(b,(size_t)m)) return 1;
+    abs_router_snapshot_internal(A,b,xt,m,n,sp,qv,alpha,seed,full,&snapshot);
+    memcpy(out->router_meta,snapshot.meta,sizeof(out->router_meta));
+    out->grey_distinct_count=snapshot.grey_distinct_count;
+    out->grey_total_events=snapshot.grey_total_events;
+    memcpy(out->grey_rows,snapshot.grey_rows,sizeof(out->grey_rows));
+    out->last_orth_eta=snapshot.last_orth_eta;
+    memcpy(out->core_rank_interval,snapshot.core_rank_interval,sizeof(out->core_rank_interval));
+    out->core_qr_rank=snapshot.core_qr_rank;
+    memcpy(out->formation_guard_counters,snapshot.formation_guard_counters,
+           sizeof(out->formation_guard_counters));
+
+    certified=&out->certified;
+    certified_init(certified);
+    certified_complete(A,b,m,n,snapshot.meta,certified);
+    return certified->fast_status==ABS_STATUS_FAIL ? 2 : 0;
 }
