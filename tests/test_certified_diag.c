@@ -139,6 +139,11 @@ static int invalid_cases(void)
     EXPECT_INVALID("zero n",bsolve_certified_diag_api(A,b,NULL,1,0,1,2,2,0,0,&result));
     EXPECT_INVALID("matrix overflow",bsolve_certified_diag_api(A,b,NULL,INT_MAX,INT_MAX,1,2,2,0,0,&result));
     EXPECT_INVALID("zero sp",bsolve_certified_diag_api(A,b,NULL,1,1,0,2,2,0,0,&result));
+    { const double zeros[3]={0,0,0};
+      /* Formation counts are signed int: three rows times INT_MAX sketches
+         cannot be represented and must be rejected before router execution. */
+      EXPECT_INVALID("sketch count overflow",
+          bsolve_certified_diag_api(zeros,zeros,NULL,3,1,INT_MAX,2,2,0,0,&result)); }
     EXPECT_INVALID("alpha overflow",bsolve_certified_diag_api(A,b,NULL,1,1,1,2,INT_MAX,0,0,&result));
     EXPECT_INVALID("n overflow",bsolve_certified_diag_api(A,b,NULL,1,INT_MAX,1,2,2,0,0,&result));
     { const double nan_A[]={NAN};

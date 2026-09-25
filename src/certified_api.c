@@ -525,6 +525,7 @@ int bsolve_certified_diag_api(const double *A,const double *b,const double *xt,
     if(!out)return 1;
     memset(out,0,sizeof(*out));
     if(m<=0 || n<=0 || sp<=0 || qv<=0 || alpha<=0 || !A || !b ||
+       sp>INT_MAX/m ||
        n>INT_MAX/2 || alpha>INT_MAX/(n+1) ||
        (size_t)m > SIZE_MAX/(size_t)n ||
        (size_t)m*(size_t)n > SIZE_MAX/sizeof(double) ||
