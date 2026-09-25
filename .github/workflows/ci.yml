@@ -320,12 +320,17 @@ jobs:
         run: |
           # This test intentionally forces ENOMEM with RLIMIT_AS. ASan must
           # return NULL instead of aborting on that expected allocation failure.
-          # FakeStack and LeakSanitizer both remain enabled.
+          # CI run 36173162353 showed the test assertions PASS, then LSan
+          # reported only CPython _PyMem_RawMalloc process-exit allocations
+          # (114475 bytes; sanitizer-ctest-stream-storage artifact). Disable
+          # leak checking for this Python host only. The separate native
+          # DGESDD test retains LSan; FakeStack, ASan, and UBSan stay enabled.
           export LD_PRELOAD="$(gcc -print-file-name=libasan.so)"
-          ASAN_OPTIONS="$ASAN_OPTIONS:allocator_may_return_null=1" \
-            ctest --test-dir build-asan --output-on-failure --timeout 90 \
-                  --output-log sanitizer-logs/stream-storage.ctest.log \
-                  -R '^test_stream_storage$'
+          export ASAN_OPTIONS="$ASAN_OPTIONS:allocator_may_return_null=1:detect_leaks=0"
+          printf 'effective ASAN_OPTIONS=%s\n' "$ASAN_OPTIONS" | tee sanitizer-logs/stream-storage-options.txt
+          ctest --test-dir build-asan --output-on-failure --timeout 90 \
+                --output-log sanitizer-logs/stream-storage.ctest.log \
+                -R '^test_stream_storage$'
       - name: Focused native DGESDD with leak checking
         if: matrix.partition == 'dgesdd'
         run: |
