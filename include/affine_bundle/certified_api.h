@@ -18,6 +18,7 @@
 #ifndef CERTIFIED_API_H
 #define CERTIFIED_API_H
 #include "status_certificate.h"
+#include "router.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,6 +62,24 @@ typedef struct {
     int inconsistent_verifier_code;
 } BSCertifiedResult;
 
+#define BS_CERTIFIED_DIAG_GREY_CAP 64
+
+/* One router result plus its same-invocation diagnostics and the independent
+   three-profile certificate audit.  Unused grey_rows entries are zero.
+   formation_guard_counters are per-invocation deltas: checks, escalations,
+   source-QRCP calls.  No global counter reset is required. */
+typedef struct {
+    BSCertifiedResult certified;
+    double router_meta[ABS_OUT_LEN];
+    int grey_distinct_count;
+    int grey_total_events;
+    int grey_rows[BS_CERTIFIED_DIAG_GREY_CAP];
+    double last_orth_eta;
+    int core_rank_interval[2];
+    int core_qr_rank;
+    unsigned long long formation_guard_counters[3];
+} BSCombinedCertifiedResult;
+
 int bs_generate_unique_witness(const double *A, const double *b, int m, int n,
                                BSUniqueWitness *w);
 int bs_generate_infinite_witness(const double *A, const double *b, int m, int n,
@@ -77,6 +96,29 @@ int bsolve_certified_api(const double *A, const double *b, const double *xt,
                          int m, int n, int sp, int qv, int alpha,
                          unsigned long long seed, int full,
                          BSCertifiedResult *out);
+
+/* Executes the router exactly once, snapshots all router fields before the
+   three independent certificate attempts, and returns both results. xt may
+   be NULL; it affects only router_meta[ABS_OUT_RELX]. The per-call snapshot
+   uses the router's existing thread-local diagnostics and introduces no new
+   mutable global state or process-global reset requirement. It does not
+   change the library-wide concurrency contract: callers must still avoid
+   concurrently sharing mutable input/output storage.
+
+   Returns 0 on completion, 1 for invalid arguments, or 2 when the router
+   reports ABS_STATUS_FAIL (for example, a resource failure). On return 1, a
+   non-NULL out is zero-initialized and no router call occurs. On return 2,
+   the router snapshot and attempted certificate profiles remain available.
+   Positive dimensions and non-NULL A/b/out
+   are required; sp, qv, alpha must be positive and their workspace extents
+   representable. Zero dimensions are rejected without invoking the router.
+   A and b must be finite. A
+   router resource failure is reported in router_meta as ABS_STATUS_FAIL;
+   independent certificate attempts retain their existing field semantics. */
+int bsolve_certified_diag_api(const double *A, const double *b, const double *xt,
+                              int m, int n, int sp, int qv, int alpha,
+                              unsigned long long seed, int full,
+                              BSCombinedCertifiedResult *out);
 
 #ifdef __cplusplus
 }

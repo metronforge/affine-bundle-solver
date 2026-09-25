@@ -3,10 +3,17 @@
 # headers are where the config says they are, and the shared objects can find
 # each other at run time.
 cmake_minimum_required(VERSION 3.16)
-project(consumer LANGUAGES C)
+project(consumer LANGUAGES C CXX)
 
 find_package(affine-bundle-solver 0.4.4 REQUIRED) # x-release-please-version
 
 add_executable(consumer main.c)
 target_link_libraries(consumer PRIVATE
   affine-bundle-solver::affine_bundle_solver m)
+
+add_executable(consumer_certified_diag certified_diag.c)
+target_link_libraries(consumer_certified_diag PRIVATE
+  affine-bundle-solver::certified_solver m)
+add_executable(consumer_certified_diag_cpp certified_diag.cpp)
+target_link_libraries(consumer_certified_diag_cpp PRIVATE
+  affine-bundle-solver::certified_solver m)
