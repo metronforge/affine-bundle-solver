@@ -119,3 +119,26 @@ shape. The small timing deltas show no material bounded regression.
 The requested 177-case campaign was **not rerun**. No archive was modified;
 nothing was pushed, merged, or submitted as a pull request. The sole
 limitation is incomplete full-suite sanitizer coverage described above.
+
+## Finalization record
+
+- Branch: `perf/dgesdd-compact-vt-candidate`.
+- Base: `1e32be797d4ff021dacfffdec742851a9985b516` (`origin/main`).
+- Final implementation/test HEAD before this report-finalization commit:
+  `74a46ad12659560d1441476276ed79cf95649f25`.
+- Complete implementation commit list:
+  - `317ab3f test: add compact VT differential controls`
+  - `120c616 perf: use corrected compact DGESDD core state`
+  - `e975812 docs: record DGESDD promotion PDCA`
+  - `a521bd9 docs: fix PDCA report formatting`
+  - `74a46ad test: register compact VT contract control`
+- Final net changed files: `CMakeLists.txt`, this report,
+  `src/blas_symbols.h`, `src/bsolver_core.c`,
+  `tests/test_dgesdd_candidate_semantics.py`, and
+  `tests/test_dgesdd_compact_vt.py`.
+- Final corrected `src/bsolver_core.c` SHA-256:
+  `c02e398fea8408f74e4213ced2576e195490870b62eb5a246f2e00293a53bb5d`.
+- Sanitizer status: focused DGESDD ASan/UBSan **PASS**; full sanitizer suite
+  **INCOMPLETE** due to the recorded ASan FakeStack virtual-memory limit.
+- No N138 diagnostic and no 177-case campaign rerun was performed. Nothing
+  was pushed, merged, or submitted as a pull request.
