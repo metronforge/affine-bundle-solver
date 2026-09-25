@@ -45,6 +45,7 @@
 #define dgemv_  scipy_dgemv_
 #define dgeqp3_ scipy_dgeqp3_
 #define dgeqrf_ scipy_dgeqrf_
+#define dgesdd_ scipy_dgesdd_
 #define dgesvd_ scipy_dgesvd_
 #define dgetrf_ scipy_dgetrf_
 #define dgetrs_ scipy_dgetrs_

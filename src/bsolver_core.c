@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <limits.h>
 #include <string.h>
 #include <math.h>
 #include <float.h>
@@ -33,6 +34,7 @@
 
 extern void dgelsy_(int*,int*,int*,double*,int*,double*,int*,int*,double*,int*,double*,int*,int*);
 extern void dgesvd_(char*,char*,int*,int*,double*,int*,double*,double*,int*,double*,int*,double*,int*,int*);
+extern void dgesdd_(char*,int*,int*,double*,int*,double*,double*,int*,double*,int*,double*,int*,int*,int*);
 
 typedef struct { int n, r, qcap, inconsistent; double *Q; double *x; double *scratch; long double orth_frob2; } BState;
 typedef struct { int cls; int rank; int fallback; int accepted_random; double sec; double relres; double relx; } Result;
@@ -41,6 +43,8 @@ enum { CLS_UNIQUE=1, CLS_INFINITE=2, CLS_INCONSISTENT=3, CLS_FAIL=4, CLS_UNDECID
 enum { BS_INSERT_NOMEM=-2 };
 
 static double now_sec(){ struct timespec ts; clock_gettime(CLOCK_MONOTONIC,&ts); return ts.tv_sec+1e-9*ts.tv_nsec; }
+static int size_mul(size_t a,size_t b,size_t*out){ if(a&&b>SIZE_MAX/a)return 1;*out=a*b;return 0; }
+static void *array_alloc(size_t count,size_t size){ size_t bytes; return size_mul(count,size,&bytes)?NULL:malloc(bytes); }
 static uint64_t sm64(uint64_t x){ x+=0x9e3779b97f4a7c15ULL; x=(x^(x>>30))*0xbf58476d1ce4e5b9ULL; x=(x^(x>>27))*0x94d049bb133111ebULL; return x^(x>>31); }
 static double uhash(uint64_t x){ uint64_t z=sm64(x); return ((z>>11)*(1.0/9007199254740992.0))*2.0-1.0; }
 static double gauss(uint64_t *s){ double u1=(uhash((*s)++)+1)*0.5; double u2=(uhash((*s)++)+1)*0.5; if(u1<1e-15)u1=1e-15; return sqrt(-2*log(u1))*cos(2*M_PI*u2); }
@@ -228,21 +232,38 @@ static Result solve_fast(const double*A,const double*b,const double*xt,int m,int
 
 
 static int core_svd_state(const double*Core,const double*y,int rows,int n,BState*out,double*relr,double ranktol){
-    int M=rows,N=n,LDA=rows,minmn=M<N?M:N,info=0; char ju='S',jv='A';
-    double *Ac=malloc((size_t)M*N*sizeof(double)); for(int j=0;j<N;j++)for(int i=0;i<M;i++)Ac[(size_t)j*M+i]=Core[(size_t)i*N+j];
-    double *sv=malloc(minmn*sizeof(double)), *U=malloc((size_t)M*minmn*sizeof(double)), *VT=malloc((size_t)N*N*sizeof(double)); int LDU=M,LDVT=N; double wq;int lw=-1;
-    dgesvd_(&ju,&jv,&M,&N,Ac,&LDA,sv,U,&LDU,VT,&LDVT,&wq,&lw,&info); lw=(int)wq; double*work=malloc((size_t)lw*sizeof(double));
+    int M=rows,N=n,LDA=rows,minmn=M<N?M:N,info=0; char job='S';
+    size_t ac_count,u_count,vt_count,iwork_count,work_count;
+    if(M<=0||N<=0||size_mul((size_t)M,(size_t)N,&ac_count)||
+       size_mul((size_t)M,(size_t)minmn,&u_count)||
+       size_mul((size_t)minmn,(size_t)N,&vt_count)||
+       size_mul(8u,(size_t)minmn,&iwork_count))return -1;
+    double *Ac=array_alloc(ac_count,sizeof(*Ac));
+    double *sv=array_alloc((size_t)minmn,sizeof(*sv));
+    double *U=array_alloc(u_count,sizeof(*U));
+    double *VT=array_alloc(vt_count,sizeof(*VT));
+    int LDU=M,LDVT=minmn,lw=-1;
+    int *iwork=array_alloc(iwork_count,sizeof(*iwork));
+    double wq;
+    if(!Ac||!sv||!U||!VT||!iwork){free(Ac);free(sv);free(U);free(VT);free(iwork);return -1;}
     for(int j=0;j<N;j++)for(int i=0;i<M;i++)Ac[(size_t)j*M+i]=Core[(size_t)i*N+j];
-    dgesvd_(&ju,&jv,&M,&N,Ac,&LDA,sv,U,&LDU,VT,&LDVT,work,&lw,&info);
-    if(info){free(Ac);free(sv);free(U);free(VT);free(work);return -1;}
+    dgesdd_(&job,&M,&N,Ac,&LDA,sv,U,&LDU,VT,&LDVT,&wq,&lw,iwork,&info);
+    if(info||!finite_bits(wq)||wq<1.0||wq>(double)INT_MAX){free(Ac);free(sv);free(U);free(VT);free(iwork);return -1;}
+    lw=(int)ceil(wq);
+    if(size_mul((size_t)lw,1u,&work_count)){free(Ac);free(sv);free(U);free(VT);free(iwork);return -1;}
+    double *work=array_alloc(work_count,sizeof(*work));
+    if(!work){free(Ac);free(sv);free(U);free(VT);free(iwork);return -1;}
+    for(int j=0;j<N;j++)for(int i=0;i<M;i++)Ac[(size_t)j*M+i]=Core[(size_t)i*N+j];
+    dgesdd_(&job,&M,&N,Ac,&LDA,sv,U,&LDU,VT,&LDVT,work,&lw,iwork,&info);
+    if(info){free(Ac);free(sv);free(U);free(VT);free(work);free(iwork);return -1;}
     int r=0; double thresh=(minmn?sv[0]:0)*ranktol; for(int l=0;l<minmn;l++)if(sv[l]>thresh)r++;
-    if(bs_init(out,n)){free(Ac);free(sv);free(U);free(VT);free(work);return -1;} out->r=r;
-    for(int l=0;l<r;l++){ double*q=out->Q+(size_t)l*n; for(int j=0;j<n;j++)q[j]=VT[l+(size_t)j*N]; }
+    if(bs_init(out,n)){free(Ac);free(sv);free(U);free(VT);free(work);free(iwork);return -1;} out->r=r;
+    for(int l=0;l<r;l++){ double*q=out->Q+(size_t)l*n; for(int j=0;j<n;j++)q[j]=VT[l+(size_t)j*LDVT]; }
     bs_set_backend_orth_bound(out);
     // min-norm x = V Sigma^-1 U^T y
-    for(int l=0;l<r;l++){ double uy=0; for(int i=0;i<M;i++)uy+=U[i+(size_t)l*M]*y[i]; double c=uy/sv[l]; for(int j=0;j<N;j++)out->x[j]+=VT[l+(size_t)j*N]*c; }
+    for(int l=0;l<r;l++){ double uy=0; for(int i=0;i<M;i++)uy+=U[i+(size_t)l*M]*y[i]; double c=uy/sv[l]; for(int j=0;j<N;j++)out->x[j]+=VT[l+(size_t)j*LDVT]*c; }
     double nr=0,ny=0; for(int i=0;i<M;i++){double rr=dot(Core+(size_t)i*N,out->x,N)-y[i];nr+=rr*rr;ny+=y[i]*y[i];} *relr=sqrt(nr)/(sqrt(ny)+1e-300);
-    free(Ac);free(sv);free(U);free(VT);free(work);return 0;
+    free(Ac);free(sv);free(U);free(VT);free(work);free(iwork);return 0;
 }
 
 static Result solve_lapack(const double*A,const double*b,const double*xt,int m,int n){ Result R={0}; int M=m,N=n,NRHS=1,LDA=m,LDB=(m>n?m:n),rank=0,info=0; double *Ac=malloc((size_t)m*n*sizeof(double)); double *B=calloc(LDB,sizeof(double)); int*jpvt=calloc(n,sizeof(int));

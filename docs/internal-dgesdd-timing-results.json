@@ -1,0 +1,414 @@
+{
+  "method": "direct core_svd_state, same harness/compiler flags; strict build guard object",
+  "threads": {
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "BLIS_NUM_THREADS": "1"
+  },
+  "warmups": 1,
+  "repetitions": 5,
+  "order": "AB, BA, AB, BA, AB",
+  "baseline_symbol": "dgesvd_",
+  "candidate_symbol": "dgesdd_",
+  "compile_commands": [
+    [
+      "cc",
+      "-O3",
+      "-fopenmp",
+      "-ffast-math",
+      "-I/tmp/abs-dgesdd-baseline/src",
+      "-I/tmp/abs-dgesdd-baseline/include",
+      "-c",
+      "/tmp/abs-dgesdd-compact-vt-candidate/tests/test_dgesdd_core_state.c",
+      "-o",
+      "/tmp/dgesdd-core-ab-8pjsocfe/baseline.o"
+    ],
+    [
+      "cc",
+      "-O3",
+      "-fopenmp",
+      "-ffast-math",
+      "-I/tmp/abs-dgesdd-compact-vt-candidate/src",
+      "-I/tmp/abs-dgesdd-compact-vt-candidate/include",
+      "-c",
+      "/tmp/abs-dgesdd-compact-vt-candidate/tests/test_dgesdd_core_state.c",
+      "-o",
+      "/tmp/dgesdd-core-ab-8pjsocfe/candidate.o"
+    ]
+  ],
+  "link_commands": [
+    [
+      "cc",
+      "-fopenmp",
+      "/tmp/dgesdd-core-ab-8pjsocfe/baseline.o",
+      "/tmp/abs-dgesdd-baseline-build/CMakeFiles/abs_formation_guard_obj.dir/src/formation_guard.c.o",
+      "-lopenblas",
+      "-latomic",
+      "-lm",
+      "-o",
+      "/tmp/dgesdd-core-ab-8pjsocfe/baseline"
+    ],
+    [
+      "cc",
+      "-fopenmp",
+      "/tmp/dgesdd-core-ab-8pjsocfe/candidate.o",
+      "/tmp/abs-dgesdd-fix-build/CMakeFiles/abs_formation_guard_obj.dir/src/formation_guard.c.o",
+      "-lopenblas",
+      "-latomic",
+      "-lm",
+      "-o",
+      "/tmp/dgesdd-core-ab-8pjsocfe/candidate"
+    ]
+  ],
+  "cases": [
+    {
+      "rows": 64,
+      "n": 128,
+      "raw": {
+        "baseline": [
+          {
+            "rows": 64,
+            "n": 128,
+            "rank": 64,
+            "seconds": 0.003872336,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 64,
+            "n": 128,
+            "rank": 64,
+            "seconds": 0.008208699,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 64,
+            "n": 128,
+            "rank": 64,
+            "seconds": 0.003380692,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 64,
+            "n": 128,
+            "rank": 64,
+            "seconds": 0.00370007,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 64,
+            "n": 128,
+            "rank": 64,
+            "seconds": 0.003329272,
+            "peak_rss_kib": 13612
+          }
+        ],
+        "candidate": [
+          {
+            "rows": 64,
+            "n": 128,
+            "rank": 64,
+            "seconds": 0.00179395,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 64,
+            "n": 128,
+            "rank": 64,
+            "seconds": 0.002504945,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 64,
+            "n": 128,
+            "rank": 64,
+            "seconds": 0.001792364,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 64,
+            "n": 128,
+            "rank": 64,
+            "seconds": 0.002475021,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 64,
+            "n": 128,
+            "rank": 64,
+            "seconds": 0.001787614,
+            "peak_rss_kib": 13612
+          }
+        ]
+      },
+      "baseline_median_s": 0.00370007,
+      "baseline_mad_s": 0.00031937800000000037,
+      "candidate_median_s": 0.00179395,
+      "candidate_mad_s": 6.336000000000015e-06,
+      "ratio": 0.48484217866148477,
+      "vt_baseline_bytes": 131072,
+      "vt_candidate_bytes": 65536
+    },
+    {
+      "rows": 128,
+      "n": 128,
+      "raw": {
+        "baseline": [
+          {
+            "rows": 128,
+            "n": 128,
+            "rank": 128,
+            "seconds": 0.014902852,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 128,
+            "rank": 128,
+            "seconds": 0.014943119,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 128,
+            "rank": 128,
+            "seconds": 0.014852227,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 128,
+            "rank": 128,
+            "seconds": 0.0187903,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 128,
+            "rank": 128,
+            "seconds": 0.017625407,
+            "peak_rss_kib": 13612
+          }
+        ],
+        "candidate": [
+          {
+            "rows": 128,
+            "n": 128,
+            "rank": 128,
+            "seconds": 0.004420887,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 128,
+            "rank": 128,
+            "seconds": 0.0067433,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 128,
+            "rank": 128,
+            "seconds": 0.007268667,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 128,
+            "rank": 128,
+            "seconds": 0.005827485,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 128,
+            "rank": 128,
+            "seconds": 0.006823085,
+            "peak_rss_kib": 13612
+          }
+        ]
+      },
+      "baseline_median_s": 0.014943119,
+      "baseline_mad_s": 9.089199999999867e-05,
+      "candidate_median_s": 0.0067433,
+      "candidate_mad_s": 0.0005253670000000005,
+      "ratio": 0.4512645586239392,
+      "vt_baseline_bytes": 131072,
+      "vt_candidate_bytes": 131072
+    },
+    {
+      "rows": 128,
+      "n": 64,
+      "raw": {
+        "baseline": [
+          {
+            "rows": 128,
+            "n": 64,
+            "rank": 64,
+            "seconds": 0.006318852,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 64,
+            "rank": 64,
+            "seconds": 0.002257197,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 64,
+            "rank": 64,
+            "seconds": 0.002312391,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 64,
+            "rank": 64,
+            "seconds": 0.002759552,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 64,
+            "rank": 64,
+            "seconds": 0.002256554,
+            "peak_rss_kib": 13612
+          }
+        ],
+        "candidate": [
+          {
+            "rows": 128,
+            "n": 64,
+            "rank": 64,
+            "seconds": 0.002163695,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 64,
+            "rank": 64,
+            "seconds": 0.002135306,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 64,
+            "rank": 64,
+            "seconds": 0.001649087,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 64,
+            "rank": 64,
+            "seconds": 0.001646158,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 64,
+            "rank": 64,
+            "seconds": 0.001791196,
+            "peak_rss_kib": 13612
+          }
+        ]
+      },
+      "baseline_median_s": 0.002312391,
+      "baseline_mad_s": 5.583699999999999e-05,
+      "candidate_median_s": 0.001791196,
+      "candidate_mad_s": 0.0001450380000000001,
+      "ratio": 0.7746077544844276,
+      "vt_baseline_bytes": 32768,
+      "vt_candidate_bytes": 32768
+    },
+    {
+      "rows": 128,
+      "n": 512,
+      "raw": {
+        "baseline": [
+          {
+            "rows": 128,
+            "n": 512,
+            "rank": 128,
+            "seconds": 0.042257717,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 512,
+            "rank": 128,
+            "seconds": 0.038204253,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 512,
+            "rank": 128,
+            "seconds": 0.04401955,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 512,
+            "rank": 128,
+            "seconds": 0.0442927,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 512,
+            "rank": 128,
+            "seconds": 0.043239075,
+            "peak_rss_kib": 13612
+          }
+        ],
+        "candidate": [
+          {
+            "rows": 128,
+            "n": 512,
+            "rank": 128,
+            "seconds": 0.01277911,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 512,
+            "rank": 128,
+            "seconds": 0.013097697,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 512,
+            "rank": 128,
+            "seconds": 0.012843839,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 512,
+            "rank": 128,
+            "seconds": 0.010212009,
+            "peak_rss_kib": 13612
+          },
+          {
+            "rows": 128,
+            "n": 512,
+            "rank": 128,
+            "seconds": 0.013742083,
+            "peak_rss_kib": 13612
+          }
+        ]
+      },
+      "baseline_median_s": 0.043239075,
+      "baseline_mad_s": 0.0009813580000000016,
+      "candidate_median_s": 0.012843839,
+      "candidate_mad_s": 0.0002538580000000009,
+      "ratio": 0.2970424089784529,
+      "vt_baseline_bytes": 2097152,
+      "vt_candidate_bytes": 524288
+    }
+  ]
+}
