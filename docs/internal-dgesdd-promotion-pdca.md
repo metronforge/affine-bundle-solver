@@ -46,11 +46,11 @@ All ZIPs passed `unzip -t` and retain their original hashes:
   `3deae34f88def34e783a2bd2401612db2e3f893a8d8b9548694dcad54d7d9bca`
 
 Diagnostic extraction was separate under `/tmp/dgesdd-pdca-diagnostic-20260925`.
-Core source SHA-256 values were clean `51fcae`: 
+Core source SHA-256 values were clean `51fcae`:
 `76533f1a350c6a1d883f05c581762e69899fdc718a46ee8fd5e914955fd9ffdc`,
-recovered dirty DGESDD: 
+recovered dirty DGESDD:
 `764823829e515e4db8e51cefb6eb69db1b6a0ecf4fd5c19d6f502caf3819fa9b`, and
-preserved corrected DGESDD: 
+preserved corrected DGESDD:
 `6c76cef902199c7ee9f7232dfd0329cc1fb09a5a272ea39f92f5c90186376b09`.
 
 The complete dirty-patch classification was: required driver conversion
