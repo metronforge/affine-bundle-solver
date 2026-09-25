@@ -112,7 +112,11 @@ int main(int argc, char **argv) {
 #endif
     }
 
-    if (h2) dlclose(h2);
-    dlclose(h1);
+    /* Keep both DSOs loaded until process exit. This probe checks load-time
+       FP mode, not unload behavior; dlclose can leave the dynamic loader's
+       own TLS bookkeeping unreachable to LSan on hosted CI runners. The
+       native solver lifecycle tests check library allocations separately. */
+    (void)h2;
+    (void)h1;
     return failed;
 }
