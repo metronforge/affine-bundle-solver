@@ -150,7 +150,7 @@ def parent(base, candidate, output):
     if first["mapped_router"] == second["mapped_router"] or first["router_sha256"] == second["router_sha256"]:
         raise RuntimeError("differential did not load distinct router implementations")
     differences = []
-    maxima = {key: 0.0 for key in FLOAT_FIELDS}
+    maxima = {key: 0.0 for key in sorted(FLOAT_FIELDS)}
     for a, b in zip(first["records"], second["records"], strict=True):
         for key in ("case", "shape", "seed", "input_sha256", "return_code", "router_calls_in_worker"):
             if a[key] != b[key]: differences.append((a["case"], a["seed"], key, a[key], b[key]))
@@ -174,7 +174,7 @@ def parent(base, candidate, output):
             "float_tolerance": "abs<=1e-12 or rel<=1e-12; exact integer and sentinel comparison",
             "baseline": first, "candidate": second, "max_abs_delta": maxima,
             "differences": differences}
-    output.write_text(json.dumps(data, indent=2, allow_nan=False) + "\n")
+    output.write_text(json.dumps(data, indent=2, sort_keys=True, allow_nan=False) + "\n")
     print(f"{len(first['records'])} cases compared; {len(differences)} differences; raw: {output}")
     for difference in differences[:20]: print("DIFF", difference)
     return bool(differences)
@@ -182,7 +182,7 @@ def parent(base, candidate, output):
 
 if __name__ == "__main__":
     if len(sys.argv) == 3 and sys.argv[1] == "--worker":
-        print(json.dumps(worker(Path(sys.argv[2])), allow_nan=False))
+        print(json.dumps(worker(Path(sys.argv[2])), sort_keys=True, allow_nan=False))
     elif len(sys.argv) == 4:
         sys.exit(parent(Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3])))
     else:
