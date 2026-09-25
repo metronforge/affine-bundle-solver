@@ -30,6 +30,8 @@ FIELDS = [
 FLOAT_FIELDS = {name for name, kind in FIELDS if kind is ctypes.c_double}
 ROUTER_FIELDS = ("status", "certainty", "rank", "rank_lo", "rank_hi",
                  "relres", "relx", "seconds", "fallback", "raw_class", "backward_error")
+ROUTER_INTEGERS = {"status", "certainty", "rank", "rank_lo", "rank_hi",
+                   "fallback", "raw_class"}
 DP = ctypes.POINTER(ctypes.c_double)
 
 
@@ -159,7 +161,8 @@ def parent(base, candidate, output):
                 maxima[key] = max(maxima[key], abs(x - y))
         for key in a["router_meta"]:
             x, y = a["router_meta"][key], b["router_meta"][key]
-            if not same(x, y): differences.append((a["case"], a["seed"], "router." + key, x, y))
+            if not (x == y if key in ROUTER_INTEGERS else same(x, y)):
+                differences.append((a["case"], a["seed"], "router." + key, x, y))
         for key in a["diagnostics"]:
             x, y = a["diagnostics"][key], b["diagnostics"][key]
             if key == "core_rank_interval":
