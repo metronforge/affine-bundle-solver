@@ -200,74 +200,14 @@ jobs:
           retention-days: 14
           if-no-files-found: error
 
-  sanitizers:
-    name: ASan + UBSan
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
-        with:
-          python-version: '3.12'
-          cache: pip
-          cache-dependency-path: requirements-ci.txt
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --disable-pip-version-check -r requirements-ci.txt
-      - name: Build sanitized libraries
-        run: |
-          chmod +x build_sanitized.sh
-          ./build_sanitized.sh
-      - name: Run the suite under sanitizers
-        env:
-          # LeakSanitizer cannot see through CPython's arena allocator, so its
-          # findings here are the interpreter rather than this code.  ASan's
-          # memory-error checks and UBSan are unaffected and stay on.
-          ASAN_OPTIONS: detect_stack_use_after_return=1:halt_on_error=1:abort_on_error=1:symbolize=1:detect_leaks=0
-          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
-        run: |
-          LIBASAN=$(gcc -print-file-name=libasan.so)
-          fail=0
-          for t in test_certified_api \
-                   test_verifier_adversarial \
-                   test_status_profile_semantics \
-                   test_meta_api_absent_solution_quality \
-                   test_streaming_equivalence \
-                   test_threshold_contract \
-                   pbt_certificate_equivariance \
-                   pbt_equivalence_orbits; do
-            echo "::group::$t"
-            set +e
-            LD_PRELOAD=$LIBASAN python tests/$t.py > "san_$t.log" 2>&1
-            rc=$?
-            set -e
-            n=$(grep -cE "ERROR: AddressSanitizer|runtime error:" "san_$t.log" || true)
-            if [ "$rc" -ne 0 ] || [ "$n" -gt 0 ]; then
-              echo "::error::$t: exit=$rc, sanitizer findings=$n"
-              grep -E "ERROR: AddressSanitizer|runtime error:" "san_$t.log" | sort -u | head -20
-              tail -40 "san_$t.log"
-              fail=1
-            else
-              echo "$t: clean"
-            fi
-            echo "::endgroup::"
-          done
-          exit $fail
-      - name: Upload sanitizer logs
-        if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: sanitizer-logs
-          path: san_*.log
-          retention-days: 14
-
   sanitizer-ctest:
     name: ASan + UBSan / ${{ matrix.partition }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
-        partition: [stream-storage, dgesdd, remaining]
+        partition: [native-leaks, stream-enomem, python-semantics]
     env:
       ASAN_OPTIONS: detect_stack_use_after_return=1:detect_leaks=1:halt_on_error=1:abort_on_error=1:symbolize=1
       UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
@@ -308,50 +248,56 @@ jobs:
       - name: Configure and build instrumented CTest targets
         run: |
           cmake -S . -B build-asan -DABS_SANITIZE=ON -DABS_BLAS=system -DABS_ARCH_FLAGS=''
-          # The CMake post-link MXCSR probe loads an instrumented DSO. Preload
-          # ASan for that probe. Suppress leak checking only in build tools:
-          # preloaded GCC itself reports host allocations under LeakSanitizer.
-          # Test steps below do not inherit this build-only override.
+          # Build-time MXCSR probe loads an instrumented DSO. Its ASan preload
+          # and build-tool-only leak override do not propagate into tests.
           LD_PRELOAD="$(gcc -print-file-name=libasan.so)" \
             ASAN_OPTIONS="$ASAN_OPTIONS:detect_leaks=0" \
             cmake --build build-asan -j2
-      - name: FakeStack stream-storage allocation atomicity
-        if: matrix.partition == 'stream-storage'
+      - name: Native solver lifecycle with LSan
+        if: matrix.partition == 'native-leaks'
         run: |
-          # This test intentionally forces ENOMEM with RLIMIT_AS. ASan must
-          # return NULL instead of aborting on that expected allocation failure.
-          # CI run 36173162353 showed the test assertions PASS, then LSan
-          # reported only CPython _PyMem_RawMalloc process-exit allocations
-          # (114475 bytes; sanitizer-ctest-stream-storage artifact). Retain
-          # that host-process diagnostic without classifying it as a solver leak.
-          # FakeStack, leak detection, ASan, and UBSan remain enabled.
           export LD_PRELOAD="$(gcc -print-file-name=libasan.so)"
+          ctest --test-dir build-asan --output-on-failure --timeout 90 \
+                --output-log sanitizer-logs/native-leaks.ctest.log \
+                -R '^(test_dgesdd_core_state|test_native_solver_lifecycle|rounding_probe|mxcsr_probe|link_contract|example_classify|example_certify|example_streaming)$'
+      - name: Native stream ENOMEM with LSan and FakeStack
+        if: matrix.partition == 'stream-enomem'
+        run: |
+          # RLIMIT_AS deliberately forces solver ENOMEM. Only this process
+          # permits ASan to return NULL; FakeStack and LSan remain enabled.
           export ASAN_OPTIONS=detect_stack_use_after_return=1:detect_leaks=1:allocator_may_return_null=1:halt_on_error=1:abort_on_error=1:symbolize=1
-          printf 'effective ASAN_OPTIONS=%s\n' "$ASAN_OPTIONS" | tee sanitizer-logs/stream-storage-options.txt
+          printf 'effective ASAN_OPTIONS=%s\n' "$ASAN_OPTIONS" | tee sanitizer-logs/stream-enomem-options.txt
           ctest --test-dir build-asan --output-on-failure --timeout 90 \
-                --output-log sanitizer-logs/stream-storage.ctest.log \
-                -R '^test_stream_storage$'
-      - name: Focused native DGESDD with leak checking
-        if: matrix.partition == 'dgesdd'
+                --output-log sanitizer-logs/stream-enomem.ctest.log \
+                -R '^test_stream_storage_native$'
+      - name: Python semantic CTests with ASan, FakeStack and UBSan
+        if: matrix.partition == 'python-semantics'
+        env:
+          # CI 36176732134: CPython/NumPy process-exit allocations, no solver
+          # allocation frame. Native C lifecycle checks own solver leak coverage.
+          ASAN_OPTIONS: detect_stack_use_after_return=1:detect_leaks=0:halt_on_error=1:abort_on_error=1:symbolize=1
         run: |
           export LD_PRELOAD="$(gcc -print-file-name=libasan.so)"
+          printf 'effective ASAN_OPTIONS=%s\n' "$ASAN_OPTIONS" | tee sanitizer-logs/python-options.txt
+          # Native test_stream_storage_native replaces the Python ENOMEM
+          # fixture in sanitizer CI; all other Python CTests still run.
           ctest --test-dir build-asan --output-on-failure --timeout 90 \
-                --output-log sanitizer-logs/dgesdd-native.ctest.log \
-                -R '^test_dgesdd_core_state$'
-      - name: Focused Python DGESDD with leak checking
-        if: matrix.partition == 'dgesdd'
+                --output-log sanitizer-logs/python-semantics.ctest.log \
+                -E '^(test_dgesdd_core_state|test_native_solver_lifecycle|test_stream_storage_native|test_stream_storage|rounding_probe|mxcsr_probe|link_contract|example_classify|example_certify|example_streaming)$'
+      - name: Python property batteries with ASan, FakeStack and UBSan
+        if: matrix.partition == 'python-semantics'
+        env:
+          ASAN_OPTIONS: detect_stack_use_after_return=1:detect_leaks=0:halt_on_error=1:abort_on_error=1:symbolize=1
         run: |
+          set -euo pipefail
+          # These batteries load the repository-root shared objects rather
+          # than the CMake tree; retain their existing sanitized build path.
+          chmod +x build_sanitized.sh
+          ./build_sanitized.sh 2>&1 | tee sanitizer-logs/python-battery-build.log
           export LD_PRELOAD="$(gcc -print-file-name=libasan.so)"
-          ctest --test-dir build-asan --output-on-failure --timeout 90 \
-                --output-log sanitizer-logs/dgesdd-python.ctest.log \
-                -R '^test_dgesdd_(compact_vt|candidate_semantics)$'
-      - name: Remaining sanitizer CTests
-        if: matrix.partition == 'remaining'
-        run: |
-          export LD_PRELOAD="$(gcc -print-file-name=libasan.so)"
-          ctest --test-dir build-asan --output-on-failure --timeout 90 \
-                --output-log sanitizer-logs/remaining.ctest.log \
-                -E '^test_stream_storage$|^test_dgesdd_(core_state|compact_vt|candidate_semantics)$'
+          for battery in pbt_certificate_equivariance pbt_equivalence_orbits; do
+            python "tests/$battery.py" --strict 2>&1 | tee "sanitizer-logs/$battery.log"
+          done
       - name: Upload CTest and sanitizer evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -558,7 +504,6 @@ jobs:
     if: always()
     needs:
       - build-and-test
-      - sanitizers
       - sanitizer-ctest
       - cmake-install
       - blas-independence
@@ -568,7 +513,6 @@ jobs:
       - name: Require every verification job
         env:
           BUILD_AND_TEST: ${{ needs.build-and-test.result }}
-          SANITIZERS: ${{ needs.sanitizers.result }}
           SANITIZER_CTEST: ${{ needs.sanitizer-ctest.result }}
           CMAKE_INSTALL: ${{ needs.cmake-install.result }}
           BLAS_INDEPENDENCE: ${{ needs.blas-independence.result }}
@@ -576,7 +520,7 @@ jobs:
           RELEASE_CANDIDATE: ${{ needs.release-candidate.result }}
         run: |
           failed=0
-          for result in "$BUILD_AND_TEST" "$SANITIZERS" "$SANITIZER_CTEST" "$CMAKE_INSTALL" \
+          for result in "$BUILD_AND_TEST" "$SANITIZER_CTEST" "$CMAKE_INSTALL" \
                         "$BLAS_INDEPENDENCE" "$CROSS_CONFIG" "$RELEASE_CANDIDATE"; do
             if [ "$result" != success ]; then
               failed=1
@@ -586,7 +530,6 @@ jobs:
             echo "::error::one or more required verification jobs did not succeed"
             printf '%s\n' \
               "build-and-test=$BUILD_AND_TEST" \
-              "sanitizers=$SANITIZERS" \
               "sanitizer-ctest=$SANITIZER_CTEST" \
               "cmake-install=$CMAKE_INSTALL" \
               "blas-independence=$BLAS_INDEPENDENCE" \
