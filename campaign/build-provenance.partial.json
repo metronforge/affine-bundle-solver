@@ -1,0 +1,48 @@
+{
+  "status": "BUILD_IDENTITY_BLOCKER",
+  "campaign_id": "task5-v3-canonical-20260925",
+  "schema_version": 3,
+  "recorded_at_utc": "2026-09-25T20:44:15Z",
+  "solver_repository": "https://github.com/metronforge/affine-bundle-solver",
+  "solver_commit": "29a0401d92e4ba7c9197b71be5304d816af87957",
+  "manifest_generator_sha256": "cb61f88228df1c5c5a1a2941aa3cc404f4bb74bc5276d15bcfb1c689ec17afc4",
+  "manifest_sha256": "25d53a99ae185843a4697b15f1c1312cd55daa5c90ad4ad891ffb1f2714a79a8",
+  "execution_ledger_sha256": "ae1685b7a30733e8d5438b14ab3285814948058af0cd1a2fbde6cbab49134e40",
+  "materializer_sha256": "82d48ea6bbeb3d3265326dd9d3bb697765547e4a93d79a2dfd7815a7b945df98",
+  "oracle_module_sha256": "c84f62cc308e60a69173bd1c85b3ba787640dc0807be7cccab5cdee8b6143a08",
+  "runner_sha256": null,
+  "combined_harness_module_sha256": null,
+  "router_library_sha256": "718c89b30049e0297a5e08385ea8d861701d732dd1b8194fa197a413ac60f97b",
+  "certified_api_library_sha256": "4d319d3881cbbf8f1cba5e4a51be6ff60fb364f6095e96d574f31ab61a5aec47",
+  "strict_verifier_library_sha256": "d5981ebc325ec7a17cf0d66cf89017c6c4ebbfeb67576bc428417cfbc5d63b37",
+  "cmake_cache_sha256": "bf08b941fc01a7c3dbe04dd1181d3bba4972a0af8d451149da8d4bb1e4d0dadf",
+  "compiler": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+  "linker": "GNU ld (GNU Binutils for Ubuntu) 2.46",
+  "cmake_version": "4.2.3",
+  "cmake_options": {
+    "ABS_ARCH_FLAGS": "",
+    "ABS_BLAS": "system",
+    "CMAKE_BUILD_TYPE": "Release",
+    "CMAKE_C_COMPILER": "/usr/bin/gcc"
+  },
+  "blas_lapack_provider": "/usr/lib/x86_64-linux-gnu/libopenblas.so",
+  "python_version": "3.13.5",
+  "numpy_version": "2.3.1",
+  "scipy_version": "1.16.1",
+  "numerical_library_threads_for_tests": {
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "BLIS_NUM_THREADS": "1",
+    "ABS_CERT_UNIQUE_THREADS": "1"
+  },
+  "published_thresholds": {
+    "dependence": 1e-13,
+    "growth": 1e-9,
+    "quality": 1e-14
+  },
+  "oracle_policy": "absolute SVD/QR rank cutoff; relative SciPy least-squares cond; gelsd FULL, gelsy QR",
+  "xt_policy": "intended NULL; blocked before a combined call",
+  "timing_schema_version": null,
+  "blocking_symbol": "bsolve_certified_diag_api"
+}
