@@ -315,6 +315,36 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/affine-bundle-solver.pc
 # ---------------------------------------------------------------------------
 
 if(ABS_BUILD_TESTING)
+  add_executable(abs_certified_diag_test tests/test_certified_diag.c)
+  target_compile_options(abs_certified_diag_test PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_options(abs_certified_diag_test PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_libraries(abs_certified_diag_test PRIVATE
+    certified_solver affine_bundle_solver status_verifier m)
+  add_test(NAME test_certified_diag COMMAND abs_certified_diag_test)
+
+  # A separately compiled router makes the one-execution hook observable to
+  # this test without adding a test counter to any installed public library.
+  add_library(abs_router_once_obj OBJECT src/bsolver.c)
+  target_compile_options(abs_router_once_obj PRIVATE
+    -O3 ${ABS_ARCH_FLAG_LIST} -fopenmp -ffast-math ${ABS_INSTRUMENTATION})
+  target_compile_definitions(abs_router_once_obj PRIVATE
+    ${ABS_BLAS_DEFINES} ABS_TEST_ROUTER_EXECUTIONS)
+  target_include_directories(abs_router_once_obj PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src)
+  add_executable(abs_certified_diag_once_test
+    tests/test_certified_diag_once.c src/certified_api.c
+    $<TARGET_OBJECTS:abs_router_once_obj>
+    $<TARGET_OBJECTS:abs_formation_guard_obj>)
+  target_compile_options(abs_certified_diag_once_test PRIVATE
+    -O2 -frounding-math -fno-fast-math ${ABS_INSTRUMENTATION})
+  target_compile_definitions(abs_certified_diag_once_test PRIVATE ${ABS_BLAS_DEFINES})
+  target_include_directories(abs_certified_diag_once_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src)
+  target_link_options(abs_certified_diag_once_test PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_libraries(abs_certified_diag_once_test PRIVATE
+    status_verifier OpenMP::OpenMP_C ${ABS_BLAS_LIBRARIES} ${ABS_ATOMIC_LIBRARY} m)
+  add_test(NAME test_certified_diag_once COMMAND abs_certified_diag_once_test)
+
   # Exercise the actual private SVD state, including both compact-VT readers.
   add_executable(abs_dgesdd_core_state_test
     tests/test_dgesdd_core_state.c
