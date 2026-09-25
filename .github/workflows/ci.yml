@@ -248,14 +248,14 @@ jobs:
       - name: Configure and build instrumented CTest targets
         run: |
           cmake -S . -B build-asan -DABS_SANITIZE=ON -DABS_BLAS=system -DABS_ARCH_FLAGS=''
-          # Build-time MXCSR probe loads an instrumented DSO. Its ASan preload
-          # and build-tool-only leak override do not propagate into tests.
-          LD_PRELOAD="$(gcc -print-file-name=libasan.so)" \
-            ASAN_OPTIONS="$ASAN_OPTIONS:detect_leaks=0" \
-            cmake --build build-asan -j2
+          # The MXCSR probe is instrumented too, so its post-link execution
+          # does not require preloading ASan into the compiler process.
+          cmake --build build-asan -j2
       - name: Native solver lifecycle with LSan
         if: matrix.partition == 'native-leaks'
         run: |
+          # The native example executables load instrumented shared libraries
+          # but are not themselves linked to ASan, so preload its runtime.
           export LD_PRELOAD="$(gcc -print-file-name=libasan.so)"
           ctest --test-dir build-asan --output-on-failure --timeout 90 \
                 --output-log sanitizer-logs/native-leaks.ctest.log \

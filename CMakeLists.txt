@@ -234,7 +234,9 @@ add_custom_command(TARGET abs_rounding_probe POST_BUILD
   COMMENT "Probe: directed rounding is distinguishable")
 
 add_executable(abs_mxcsr_probe src/mxcsr_probe.c)
-target_compile_options(abs_mxcsr_probe PRIVATE -O2 -frounding-math -fno-fast-math)
+target_compile_options(abs_mxcsr_probe PRIVATE
+  -O2 -frounding-math -fno-fast-math ${ABS_INSTRUMENTATION})
+target_link_options(abs_mxcsr_probe PRIVATE ${ABS_INSTRUMENTATION})
 target_link_libraries(abs_mxcsr_probe PRIVATE ${CMAKE_DL_LIBS})
 
 # The strict libraries must not be built before the rounding probe has had a
