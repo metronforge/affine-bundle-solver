@@ -326,6 +326,23 @@ if(ABS_BUILD_TESTING)
   target_link_libraries(abs_dgesdd_core_state_test PRIVATE
     OpenMP::OpenMP_C ${ABS_BLAS_LIBRARIES} ${ABS_ATOMIC_LIBRARY} m)
   add_test(NAME test_dgesdd_core_state COMMAND abs_dgesdd_core_state_test)
+  # Native processes provide solver-owned leak coverage without CPython's
+  # process-exit allocations. The ENOMEM fixture is kept separate so its
+  # intentional ASan return-NULL policy cannot affect other tests.
+  add_executable(abs_native_solver_lifecycle_test tests/test_native_solver_lifecycle.c)
+  target_compile_options(abs_native_solver_lifecycle_test PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_options(abs_native_solver_lifecycle_test PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_libraries(abs_native_solver_lifecycle_test PRIVATE
+    certified_solver affine_bundle_solver status_verifier m)
+  add_test(NAME test_native_solver_lifecycle COMMAND abs_native_solver_lifecycle_test)
+
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    add_executable(abs_stream_storage_native_test tests/test_stream_storage_native.c)
+    target_compile_options(abs_stream_storage_native_test PRIVATE ${ABS_INSTRUMENTATION})
+    target_link_options(abs_stream_storage_native_test PRIVATE ${ABS_INSTRUMENTATION})
+    target_link_libraries(abs_stream_storage_native_test PRIVATE affine_bundle_solver m)
+    add_test(NAME test_stream_storage_native COMMAND abs_stream_storage_native_test)
+  endif()
   add_test(NAME rounding_probe COMMAND abs_rounding_probe)
   add_test(NAME mxcsr_probe COMMAND abs_mxcsr_probe
            $<TARGET_FILE:affine_bundle_solver> $<TARGET_FILE:certified_solver>)
