@@ -336,6 +336,7 @@ if(ABS_BUILD_TESTING)
             test_core_rank_boundary
             test_blockprefix_guard
             test_route_agreement
+            test_dgesdd_compact_vt
             test_dgesdd_candidate_semantics)
       add_test(NAME ${_battery}
                COMMAND ${Python3_EXECUTABLE}

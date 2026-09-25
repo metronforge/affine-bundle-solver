@@ -61,15 +61,17 @@ result JSON, and other dirty-source paths were unrelated and excluded.
 
 ## Checks
 
-- Normal portable system-OpenBLAS build succeeded; complete CTest: **18/18**.
+- Normal portable system-OpenBLAS build succeeded; complete CTest: **19/19**.
   This includes compiler/link contract, directed-rounding, MXCSR, strict
   verifier, router/certificate agreement, and focused controls.
 - `tests/test_dgesdd_compact_vt.py` first failed on clean DGESVD and then
   passed after conversion. `tests/test_dgesdd_candidate_semantics.py` passed
   wide, square, tall, zero-rank, full-rank, rank-deficient, inconsistent,
   decisive and near-threshold spectra, accepted-proof finiteness, and repeated
-  deterministic public results. Rank-deficient reconstruction is generated as
-  `b=A*x`; public residual/status controls verify that identity.
+  deterministic public results. Rank-deficient controls generate compatible
+  `b=A*x`; public API does not expose the private state basis or candidate
+  minimum-norm vector, so their layout/reconstruction path is guarded by the
+  direct compact-VT contract test rather than an unsupported ABI probe.
 - `tests/compare_builds.py` compared unchanged DGESVD and candidate on 15
   cases × 2 seeds: all semantic fields agreed and maximum residual delta was
   `0.000e+00`.
