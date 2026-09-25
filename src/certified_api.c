@@ -124,6 +124,10 @@ static int map_augmented_left_witness(const double *ybar,const long double *dman
 
 static int least_squares_x(const double *A, const double *b, int m, int n,
                            double *x, int *rank_out) {
+#ifdef ABS_TEST_CERTIFIED_LSTSQ
+    extern void abs_test_certified_lstsq_hook(void);
+    abs_test_certified_lstsq_hook();
+#endif
     if (n <= 0 || m < 0 || !x) return 1;
     if (m == 0) { for (int j=0;j<n;++j) x[j]=0.0; if(rank_out)*rank_out=0; return 0; }
     int M=m,N=n,NRHS=1,LDA=m,LDB=(m>n?m:n),rank=0,info=0,lwork=-1;
@@ -243,6 +247,21 @@ int bs_generate_infinite_witness(const double *A,const double *b,int m,int n,BSI
     memset(w,0,sizeof(*w));w->n=n;w->x=(double*)malloc((size_t)n*sizeof(double));w->z=(double*)malloc((size_t)n*sizeof(double));
     if(!w->x||!w->z){bs_infinite_witness_free(w);return 2;}
     int rank=0;if(least_squares_x(A,b,m,n,w->x,&rank)){bs_infinite_witness_free(w);return 3;}
+    if(smallest_right_vector(A,m,n,w->z)){bs_infinite_witness_free(w);return 4;}
+    return 0;
+}
+
+/* The UNIQUE and INFINITE profiles use the same deterministic DGELSY
+   least-squares witness for the same source A,b.  This private constructor
+   copies an already-produced witness, then performs the INFINITE-only SVD.
+   The public standalone generator deliberately retains its original call
+   pattern and error codes. */
+static int infinite_witness_from_x(const double *A,const double *b,int m,int n,
+                                   const double *x,BSInfiniteWitness *w) {
+    if(!A||!b||!x||!w||m<0||n<=0||!finite_array(A,(size_t)m*n)||!finite_array(b,(size_t)m))return 1;
+    memset(w,0,sizeof(*w));w->n=n;w->x=(double*)malloc((size_t)n*sizeof(double));w->z=(double*)malloc((size_t)n*sizeof(double));
+    if(!w->x||!w->z){bs_infinite_witness_free(w);return 2;}
+    memcpy(w->x,x,(size_t)n*sizeof(double));
     if(smallest_right_vector(A,m,n,w->z)){bs_infinite_witness_free(w);return 4;}
     return 0;
 }
@@ -400,22 +419,22 @@ int bs_generate_inconsistent_witness(const double *A,const double *b,int m,int n
     w->pivot_row=best;return 0;
 }
 
-static void run_unique_profile(const double *A,const double *b,int m,int n,BSCertifiedResult *out) {
+static void run_unique_and_infinite_profiles(const double *A,const double *b,int m,int n,BSCertifiedResult *out) {
     BSUniqueWitness w={0}; double eta=INFINITY;
     int grc=bs_generate_unique_witness(A,b,m,n,&w), vrc=0;
     if(!grc) vrc=bs_verify_unique(A,b,m,n,&w,&eta);
-    bs_unique_witness_free(&w);
     out->unique_generator_code=grc; out->unique_verifier_code=vrc;
     if(!grc && !vrc && isfinite(eta)){out->eta_unique=eta;out->accepted_status_mask|=1;}
-}
-
-static void run_infinite_profile(const double *A,const double *b,int m,int n,BSCertifiedResult *out) {
-    BSInfiniteWitness w={0}; double eta=INFINITY;
-    int grc=bs_generate_infinite_witness(A,b,m,n,&w), vrc=0;
-    if(!grc) vrc=bs_verify_infinite(A,b,m,n,&w,&eta);
-    bs_infinite_witness_free(&w);
-    out->infinite_generator_code=grc; out->infinite_verifier_code=vrc;
-    if(!grc && !vrc && isfinite(eta)){out->eta_infinite=eta;out->accepted_status_mask|=2;}
+    {
+        BSInfiniteWitness iw={0}; double ieta=INFINITY;
+        int igrc=(!grc ? infinite_witness_from_x(A,b,m,n,w.x,&iw)
+                       : bs_generate_infinite_witness(A,b,m,n,&iw)), ivrc=0;
+        if(!igrc) ivrc=bs_verify_infinite(A,b,m,n,&iw,&ieta);
+        bs_infinite_witness_free(&iw);
+        out->infinite_generator_code=igrc; out->infinite_verifier_code=ivrc;
+        if(!igrc && !ivrc && isfinite(ieta)){out->eta_infinite=ieta;out->accepted_status_mask|=2;}
+    }
+    bs_unique_witness_free(&w);
 }
 
 static void run_inconsistent_profile(const double *A,const double *b,int m,int n,BSCertifiedResult *out) {
@@ -488,8 +507,7 @@ static void certified_complete(const double *A,const double *b,int m,int n,
     out->rank_hi=(int)meta[ABS_OUT_RANK_HI];out->eta_x=meta[ABS_OUT_BERR];
 
     /* The trusted audit semantics do not depend on which type the router chose. */
-    run_unique_profile(A,b,m,n,out);
-    run_infinite_profile(A,b,m,n,out);
+    run_unique_and_infinite_profiles(A,b,m,n,out);
     run_inconsistent_profile(A,b,m,n,out);
 
     /* Compatibility projection: expose the accepted radius matching fast_status,
