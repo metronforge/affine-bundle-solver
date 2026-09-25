@@ -49,6 +49,10 @@ stream = lib.abs_stream_create(n)
 assert stream, "O(n) stream construction failed"
 
 old_soft, hard = resource.getrlimit(resource.RLIMIT_AS)
+# The process-wide RLIMIT_AS deliberately forces the solver growth allocation
+# to return ENOMEM. Under ASan, run with allocator_may_return_null=1 so its
+# runtime does not abort on this intentional limit before the solver can
+# report ENOMEM and the identical row can be retried.
 limited = virtual_bytes() + 1024 * 1024
 if hard != resource.RLIM_INFINITY:
     assert limited < hard, "not enough RLIMIT_AS headroom for the test"
