@@ -269,7 +269,7 @@ jobs:
       matrix:
         partition: [stream-storage, dgesdd, remaining]
     env:
-      ASAN_OPTIONS: detect_stack_use_after_return=1:halt_on_error=1:abort_on_error=1:symbolize=1
+      ASAN_OPTIONS: detect_stack_use_after_return=1:detect_leaks=1:halt_on_error=1:abort_on_error=1:symbolize=1
       UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
       OPENBLAS_NUM_THREADS: '1'
       OMP_NUM_THREADS: '1'
@@ -322,11 +322,11 @@ jobs:
           # return NULL instead of aborting on that expected allocation failure.
           # CI run 36173162353 showed the test assertions PASS, then LSan
           # reported only CPython _PyMem_RawMalloc process-exit allocations
-          # (114475 bytes; sanitizer-ctest-stream-storage artifact). Disable
-          # leak checking for this Python host only. The separate native
-          # DGESDD test retains LSan; FakeStack, ASan, and UBSan stay enabled.
+          # (114475 bytes; sanitizer-ctest-stream-storage artifact). Retain
+          # that host-process diagnostic without classifying it as a solver leak.
+          # FakeStack, leak detection, ASan, and UBSan remain enabled.
           export LD_PRELOAD="$(gcc -print-file-name=libasan.so)"
-          export ASAN_OPTIONS="$ASAN_OPTIONS:allocator_may_return_null=1:detect_leaks=0"
+          export ASAN_OPTIONS=detect_stack_use_after_return=1:detect_leaks=1:allocator_may_return_null=1:halt_on_error=1:abort_on_error=1:symbolize=1
           printf 'effective ASAN_OPTIONS=%s\n' "$ASAN_OPTIONS" | tee sanitizer-logs/stream-storage-options.txt
           ctest --test-dir build-asan --output-on-failure --timeout 90 \
                 --output-log sanitizer-logs/stream-storage.ctest.log \
@@ -338,28 +338,20 @@ jobs:
           ctest --test-dir build-asan --output-on-failure --timeout 90 \
                 --output-log sanitizer-logs/dgesdd-native.ctest.log \
                 -R '^test_dgesdd_core_state$'
-      - name: Focused Python DGESDD without host leak checking
+      - name: Focused Python DGESDD with leak checking
         if: matrix.partition == 'dgesdd'
         run: |
-          # Local LSan traces point to CPython/NumPy process-exit allocations.
-          # Only these Python-hosted tests disable leak checking; FakeStack,
-          # ASan memory checks, and UBSan remain enabled and fail closed.
           export LD_PRELOAD="$(gcc -print-file-name=libasan.so)"
-          ASAN_OPTIONS="$ASAN_OPTIONS:detect_leaks=0" \
-            ctest --test-dir build-asan --output-on-failure --timeout 90 \
-                  --output-log sanitizer-logs/dgesdd-python.ctest.log \
-                  -R '^test_dgesdd_(compact_vt|candidate_semantics)$'
+          ctest --test-dir build-asan --output-on-failure --timeout 90 \
+                --output-log sanitizer-logs/dgesdd-python.ctest.log \
+                -R '^test_dgesdd_(compact_vt|candidate_semantics)$'
       - name: Remaining sanitizer CTests
         if: matrix.partition == 'remaining'
         run: |
-          # Remaining tests include Python hosts with known process-exit
-          # allocations. Leak checking is disabled only here, as in the
-          # pre-existing Python sanitizer job; FakeStack remains enabled.
           export LD_PRELOAD="$(gcc -print-file-name=libasan.so)"
-          ASAN_OPTIONS="$ASAN_OPTIONS:detect_leaks=0" \
-            ctest --test-dir build-asan --output-on-failure --timeout 90 \
-                  --output-log sanitizer-logs/remaining.ctest.log \
-                  -E '^test_stream_storage$|^test_dgesdd_(core_state|compact_vt|candidate_semantics)$'
+          ctest --test-dir build-asan --output-on-failure --timeout 90 \
+                --output-log sanitizer-logs/remaining.ctest.log \
+                -E '^test_stream_storage$|^test_dgesdd_(core_state|compact_vt|candidate_semantics)$'
       - name: Upload CTest and sanitizer evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
