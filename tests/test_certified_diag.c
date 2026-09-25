@@ -124,25 +124,36 @@ static int check_case(const char *name, const double *A, const double *b,
 
 static int invalid_cases(void)
 {
+#define EXPECT_INVALID(label, call) do { int rc_=(call); if(rc_!=1) { \
+    fprintf(stderr,"invalid %s returned %d, expected 1\n",label,rc_); return 0; \
+} } while(0)
     const double A[]={1}, b[]={1};
     BSCombinedCertifiedResult result;
-    if (bsolve_certified_diag_api(A,b,NULL,1,1,1,2,2,0,0,NULL)==0) return 0;
+    EXPECT_INVALID("null out",bsolve_certified_diag_api(A,b,NULL,1,1,1,2,2,0,0,NULL));
     memset(&result,0xA5,sizeof(result));
-    if (bsolve_certified_diag_api(A,b,NULL,0,1,1,2,2,0,0,&result)==0) return 0;
+    EXPECT_INVALID("zero m",bsolve_certified_diag_api(A,b,NULL,0,1,1,2,2,0,0,&result));
     { const unsigned char *bytes=(const unsigned char *)&result;
       for(size_t i=0;i<sizeof(result);i++) if(bytes[i]) return 0; }
-    if (bsolve_certified_diag_api(NULL,b,NULL,1,1,1,2,2,0,0,&result)==0) return 0;
-    if (bsolve_certified_diag_api(A,NULL,NULL,1,1,1,2,2,0,0,&result)==0) return 0;
-    if (bsolve_certified_diag_api(A,b,NULL,1,0,1,2,2,0,0,&result)==0) return 0;
-    if (bsolve_certified_diag_api(A,b,NULL,INT_MAX,INT_MAX,1,2,2,0,0,&result)==0) return 0;
-    if (bsolve_certified_diag_api(A,b,NULL,1,1,0,2,2,0,0,&result)==0) return 0;
+    EXPECT_INVALID("null A",bsolve_certified_diag_api(NULL,b,NULL,1,1,1,2,2,0,0,&result));
+    EXPECT_INVALID("null b",bsolve_certified_diag_api(A,NULL,NULL,1,1,1,2,2,0,0,&result));
+    EXPECT_INVALID("zero n",bsolve_certified_diag_api(A,b,NULL,1,0,1,2,2,0,0,&result));
+    EXPECT_INVALID("matrix overflow",bsolve_certified_diag_api(A,b,NULL,INT_MAX,INT_MAX,1,2,2,0,0,&result));
+    EXPECT_INVALID("zero sp",bsolve_certified_diag_api(A,b,NULL,1,1,0,2,2,0,0,&result));
+    EXPECT_INVALID("alpha overflow",bsolve_certified_diag_api(A,b,NULL,1,1,1,2,INT_MAX,0,0,&result));
+    EXPECT_INVALID("n overflow",bsolve_certified_diag_api(A,b,NULL,1,INT_MAX,1,2,2,0,0,&result));
     { const double nan_A[]={NAN};
-      if (bsolve_certified_diag_api(nan_A,b,NULL,1,1,1,2,2,0,0,&result)==0) return 0; }
+      EXPECT_INVALID("nonfinite A",bsolve_certified_diag_api(nan_A,b,NULL,1,1,1,2,2,0,0,&result)); }
+    { const unsigned char *bytes=(const unsigned char *)&result;
+      for(size_t i=0;i<sizeof(result);i++) if(bytes[i]) return 0; }
     return 1;
+#undef EXPECT_INVALID
 }
 
 int main(void)
 {
+    double thin_48_A[48]={1}, thin_48_x[48]={1};
+    double thin_96_A[96]={1}, thin_96_x[96]={1};
+    const double thin_b[]={1};
     const double unique_A[]={1,0,0,1}, unique_b[]={2,3}, unique_x[]={2,3};
     const double wide_A[]={1,0,0,0,1,0}, wide_b[]={2,3}, wide_x[]={2,3,0};
     const double tall_A[]={1,0,0,1,1,1}, tall_b[]={2,3,5}, tall_x[]={2,3};
@@ -157,5 +168,7 @@ int main(void)
         check_case("inconsistent",dep_A,bad_b,unique_x,3,2,ABS_STATUS_INCONSISTENT) &&
         check_case("near-threshold",near_A,near_b,unique_x,2,2,ABS_STATUS_UNDECIDABLE) &&
         check_case("zero-compatible",zero_A,zero_b,unique_x,2,2,ABS_STATUS_INFINITE) &&
-        check_case("zero-incompatible",zero_A,nonzero_b,unique_x,2,2,ABS_STATUS_INCONSISTENT));
+        check_case("zero-incompatible",zero_A,nonzero_b,unique_x,2,2,ABS_STATUS_INCONSISTENT) &&
+        check_case("thin-wide-48",thin_48_A,thin_b,thin_48_x,1,48,ABS_STATUS_INFINITE) &&
+        check_case("thin-wide-96",thin_96_A,thin_b,thin_96_x,1,96,ABS_STATUS_INFINITE));
 }

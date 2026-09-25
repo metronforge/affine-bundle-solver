@@ -19,6 +19,7 @@
 #include "router_diag_snapshot.h"
 #include <math.h>
 #include <float.h>
+#include <limits.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -524,8 +525,11 @@ int bsolve_certified_diag_api(const double *A,const double *b,const double *xt,
     if(!out)return 1;
     memset(out,0,sizeof(*out));
     if(m<=0 || n<=0 || sp<=0 || qv<=0 || alpha<=0 || !A || !b ||
+       n>INT_MAX/2 || alpha>INT_MAX/(n+1) ||
        (size_t)m > SIZE_MAX/(size_t)n ||
        (size_t)m*(size_t)n > SIZE_MAX/sizeof(double) ||
+       (size_t)n > (SIZE_MAX/sizeof(double))/(size_t)n ||
+       (size_t)qv > (SIZE_MAX/sizeof(double))/(size_t)n ||
        !finite_array(A,(size_t)m*(size_t)n) || !finite_array(b,(size_t)m)) return 1;
     abs_router_snapshot_internal(A,b,xt,m,n,sp,qv,alpha,seed,full,&snapshot);
     memcpy(out->router_meta,snapshot.meta,sizeof(out->router_meta));

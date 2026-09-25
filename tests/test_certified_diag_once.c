@@ -33,7 +33,13 @@ int main(void)
         executions != 3 ||
         combined.router_meta[ABS_OUT_STATUS] != ABS_STATUS_FAIL ||
         combined.certified.fast_status != ABS_STATUS_FAIL ||
-        combined.grey_distinct_count != 0 || combined.grey_total_events != 0) {
+        combined.grey_distinct_count != 0 || combined.grey_total_events != 0 ||
+        combined.core_rank_interval[0] != -1 || combined.core_rank_interval[1] != -1 ||
+        combined.core_qr_rank != -1 ||
+        combined.formation_guard_counters[0] != 0 ||
+        combined.formation_guard_counters[1] != 0 ||
+        combined.formation_guard_counters[2] != 0 ||
+        !(combined.certified.accepted_status_mask & 1)) {
         fputs("router failure did not return initialized diagnostic result\n",stderr);
         return 1;
     }

@@ -110,8 +110,9 @@ int bsolve_certified_api(const double *A, const double *b, const double *xt,
    non-NULL out is zero-initialized and no router call occurs. On return 2,
    the router snapshot and attempted certificate profiles remain available.
    Positive dimensions and non-NULL A/b/out
-   are required; sp, qv, alpha must be positive. Zero dimensions are rejected
-   without invoking the router. A and b must be finite. A
+   are required; sp, qv, alpha must be positive and their workspace extents
+   representable. Zero dimensions are rejected without invoking the router.
+   A and b must be finite. A
    router resource failure is reported in router_meta as ABS_STATUS_FAIL;
    independent certificate attempts retain their existing field semantics. */
 int bsolve_certified_diag_api(const double *A, const double *b, const double *xt,

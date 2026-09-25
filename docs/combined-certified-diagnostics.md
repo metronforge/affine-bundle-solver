@@ -31,7 +31,7 @@ counters to interpret them.
 The call returns `0` after router and profile execution. It returns `1` for
 invalid arguments: `out == NULL`, missing mandatory `A`/`b`, nonpositive
 dimensions or router controls (`sp`, `qv`, `alpha`), nonfinite `A`/`b`, or an
-unrepresentable matrix extent. On such failure, a non-NULL result is zeroed
+unrepresentable matrix/router workspace extent. On such failure, a non-NULL result is zeroed
 and the router is not called. A router resource failure is represented by
 `ABS_STATUS_FAIL` in `router_meta` and return code `2`; the diagnostic
 snapshot and attempted profiles remain available. This does not change the

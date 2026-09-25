@@ -895,7 +895,8 @@ static int try_sampled_source_fullrank(const double*A,const double*b,const doubl
 
 static Result solve_router_raw(const double*A,const double*b,const double*xt,int m,int n,int sp,int qv,int alpha,uint64_t seed,int do_full_residual){
     if(n < 48) return solve_auto_qr(A,b,xt,m,n,sp,qv,alpha,1,seed,do_full_residual,0);
-    BState probe;if(bs_init(&probe,n)){Result R={0};BS_FAIL_RESULT(R,now_sec());return R;}int target=(n<96?2:4);int p0=n<target?n:target;int allgrow=1;for(int i=0;i<p0;i++){int rc=bs_insert_certified(&probe,A+(size_t)i*n,b[i],2e-10); if(rc==2)grey_record(i);if(probe.inconsistent){Result R={0};R.cls=CLS_INCONSISTENT;R.rank=probe.r;R.relres=relres(A,b,probe.x,m,n);R.relx=relxerr(probe.x,xt,n);bs_free(&probe);return R;}if(rc!=1)allgrow=0;}bs_free(&probe);
+    /* A short wide system may have fewer rows than the probe's target. */
+    BState probe;if(bs_init(&probe,n)){Result R={0};BS_FAIL_RESULT(R,now_sec());return R;}int target=(n<96?2:4);int p0=n<target?n:target;if(p0>m)p0=m;int allgrow=1;for(int i=0;i<p0;i++){int rc=bs_insert_certified(&probe,A+(size_t)i*n,b[i],2e-10); if(rc==2)grey_record(i);if(probe.inconsistent){Result R={0};R.cls=CLS_INCONSISTENT;R.rank=probe.r;R.relres=relres(A,b,probe.x,m,n);R.relx=relxerr(probe.x,xt,n);bs_free(&probe);return R;}if(rc!=1)allgrow=0;}bs_free(&probe);
     if(allgrow){Result fast={0};double tfast=now_sec();int frc=try_square_lu_unique(A,b,xt,m,n,2e-10,&fast);
       if(frc<0){Result R={0};BS_FAIL_RESULT(R,tfast);return R;}
       if(frc==1){fast.sec=now_sec()-tfast;return fast;}if(frc==2)return solve_global_qr(A,b,xt,m,n,sp,qv,alpha,seed,do_full_residual); if(n>=192) return solve_blockprefix_qr(A,b,xt,m,n,sp,qv,alpha,seed,do_full_residual); return solve_auto_qr(A,b,xt,m,n,sp,qv,alpha,1,seed,do_full_residual,0);}
