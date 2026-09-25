@@ -1,0 +1,3916 @@
+{
+  "baseline": {
+    "build": "/tmp/abs-dgesdd-baseline-build",
+    "certified_sha256": "f4efedf1d5287f596454443af01b03a96a9997ef06107d630c4f22ff333abe7e",
+    "mapped_router": "/tmp/abs-dgesdd-baseline-build/libaffine_bundle_solver.so",
+    "records": [
+      {
+        "case": "wide",
+        "diagnostics": {
+          "core_qr_rank": 32,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6333672658071846e-15
+        },
+        "fields": {
+          "accepted_status_mask": 6,
+          "certified_status": 2,
+          "eta_inconsistent": 2.586919422205865,
+          "eta_infinite": 5.082489162433725e-15,
+          "eta_status": 5.082489162433725e-15,
+          "eta_unique": "+Inf",
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 1,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "3f35ec4b6fc4a27601b7606c684c8a32756524e92cc2ad6c44ca0f42875c6b07",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 2.0,
+          "relres": 4.6344211027358e-16,
+          "relx": 0.7032128763670815,
+          "status": 2.0
+        },
+        "seed": 7,
+        "shape": [
+          32,
+          64
+        ]
+      },
+      {
+        "case": "wide",
+        "diagnostics": {
+          "core_qr_rank": 32,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6333672658071846e-15
+        },
+        "fields": {
+          "accepted_status_mask": 6,
+          "certified_status": 2,
+          "eta_inconsistent": 2.586919422205865,
+          "eta_infinite": 5.082489162433725e-15,
+          "eta_status": 5.082489162433725e-15,
+          "eta_unique": "+Inf",
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 1,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "3f35ec4b6fc4a27601b7606c684c8a32756524e92cc2ad6c44ca0f42875c6b07",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 2.0,
+          "relres": 4.6344211027358e-16,
+          "relx": 0.7032128763670815,
+          "status": 2.0
+        },
+        "seed": 20260925,
+        "shape": [
+          32,
+          64
+        ]
+      },
+      {
+        "case": "wide",
+        "diagnostics": {
+          "core_qr_rank": 32,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6333672658071846e-15
+        },
+        "fields": {
+          "accepted_status_mask": 6,
+          "certified_status": 2,
+          "eta_inconsistent": 2.586919422205865,
+          "eta_infinite": 5.082489162433725e-15,
+          "eta_status": 5.082489162433725e-15,
+          "eta_unique": "+Inf",
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 1,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "3f35ec4b6fc4a27601b7606c684c8a32756524e92cc2ad6c44ca0f42875c6b07",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 2.0,
+          "relres": 4.6344211027358e-16,
+          "relx": 0.7032128763670815,
+          "status": 2.0
+        },
+        "seed": 777,
+        "shape": [
+          32,
+          64
+        ]
+      },
+      {
+        "case": "square",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 0.0
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 2.230352805951293,
+          "eta_infinite": 0.005041698496953413,
+          "eta_status": 2.884858407650793e-14,
+          "eta_unique": 2.884858407650793e-14,
+          "eta_x": 1.450750705126124e-16,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 48,
+          "rank_hi": 48,
+          "rank_lo": 48,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "0fecd36a4dc69d4e949d5fd1769390cc4952cb985a1413c799c93ce56e44b15f",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 1.450750705126124e-16,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 48.0,
+          "rank_hi": 48.0,
+          "rank_lo": 48.0,
+          "raw_class": 1.0,
+          "relres": 2.6276351543849126e-16,
+          "relx": 7.317413926934822e-15,
+          "status": 1.0
+        },
+        "seed": 7,
+        "shape": [
+          48,
+          48
+        ]
+      },
+      {
+        "case": "square",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 0.0
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 2.230352805951293,
+          "eta_infinite": 0.005041698496953413,
+          "eta_status": 2.884858407650793e-14,
+          "eta_unique": 2.884858407650793e-14,
+          "eta_x": 1.450750705126124e-16,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 48,
+          "rank_hi": 48,
+          "rank_lo": 48,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "0fecd36a4dc69d4e949d5fd1769390cc4952cb985a1413c799c93ce56e44b15f",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 1.450750705126124e-16,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 48.0,
+          "rank_hi": 48.0,
+          "rank_lo": 48.0,
+          "raw_class": 1.0,
+          "relres": 2.6276351543849126e-16,
+          "relx": 7.317413926934822e-15,
+          "status": 1.0
+        },
+        "seed": 20260925,
+        "shape": [
+          48,
+          48
+        ]
+      },
+      {
+        "case": "square",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 0.0
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 2.230352805951293,
+          "eta_infinite": 0.005041698496953413,
+          "eta_status": 2.884858407650793e-14,
+          "eta_unique": 2.884858407650793e-14,
+          "eta_x": 1.450750705126124e-16,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 48,
+          "rank_hi": 48,
+          "rank_lo": 48,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "0fecd36a4dc69d4e949d5fd1769390cc4952cb985a1413c799c93ce56e44b15f",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 1.450750705126124e-16,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 48.0,
+          "rank_hi": 48.0,
+          "rank_lo": 48.0,
+          "raw_class": 1.0,
+          "relres": 2.6276351543849126e-16,
+          "relx": 7.317413926934822e-15,
+          "status": 1.0
+        },
+        "seed": 777,
+        "shape": [
+          48,
+          48
+        ]
+      },
+      {
+        "case": "tall",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6461973251640335e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 1.8267408563841444e-15,
+          "eta_infinite": 1.2102924047429064,
+          "eta_status": 2.1637903415267155e-14,
+          "eta_unique": 2.1637903415267155e-14,
+          "eta_x": 8.409083314809406e-16,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "c57914935cd831488fe601a2fbc74c21f4ea421e5301452ca9a9c2c9b65c8ecf",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 8.409083314809406e-16,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 1.0,
+          "relres": 7.061244121715571e-16,
+          "relx": 7.705469651186711e-16,
+          "status": 1.0
+        },
+        "seed": 7,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "tall",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6461973251640335e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 1.8267408563841444e-15,
+          "eta_infinite": 1.2102924047429064,
+          "eta_status": 2.1637903415267155e-14,
+          "eta_unique": 2.1637903415267155e-14,
+          "eta_x": 8.409083314809406e-16,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "c57914935cd831488fe601a2fbc74c21f4ea421e5301452ca9a9c2c9b65c8ecf",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 8.409083314809406e-16,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 1.0,
+          "relres": 7.061244121715571e-16,
+          "relx": 7.705469651186711e-16,
+          "status": 1.0
+        },
+        "seed": 20260925,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "tall",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6461973251640335e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 1.8267408563841444e-15,
+          "eta_infinite": 1.2102924047429064,
+          "eta_status": 2.1637903415267155e-14,
+          "eta_unique": 2.1637903415267155e-14,
+          "eta_x": 8.409083314809406e-16,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "c57914935cd831488fe601a2fbc74c21f4ea421e5301452ca9a9c2c9b65c8ecf",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 8.409083314809406e-16,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 1.0,
+          "relres": 7.061244121715571e-16,
+          "relx": 7.705469651186711e-16,
+          "status": 1.0
+        },
+        "seed": 777,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "zero",
+        "diagnostics": {
+          "core_qr_rank": 0,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 0.0
+        },
+        "fields": {
+          "accepted_status_mask": 2,
+          "certified_status": 2,
+          "eta_inconsistent": "+Inf",
+          "eta_infinite": 0.0,
+          "eta_status": 0.0,
+          "eta_unique": "+Inf",
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 6,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 0,
+          "rank_hi": 48,
+          "rank_lo": 0,
+          "unique_generator_code": 1,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "4b5a6897fb47d95d94f2eb5481fb1e9844fb0e2ab784c0efed54e76dac8d2a38",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 0.0,
+          "rank_hi": 48.0,
+          "rank_lo": 0.0,
+          "raw_class": 2.0,
+          "relres": 0.0,
+          "relx": 0.0,
+          "status": 2.0
+        },
+        "seed": 7,
+        "shape": [
+          48,
+          64
+        ]
+      },
+      {
+        "case": "zero",
+        "diagnostics": {
+          "core_qr_rank": 0,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 0.0
+        },
+        "fields": {
+          "accepted_status_mask": 2,
+          "certified_status": 2,
+          "eta_inconsistent": "+Inf",
+          "eta_infinite": 0.0,
+          "eta_status": 0.0,
+          "eta_unique": "+Inf",
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 6,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 0,
+          "rank_hi": 48,
+          "rank_lo": 0,
+          "unique_generator_code": 1,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "4b5a6897fb47d95d94f2eb5481fb1e9844fb0e2ab784c0efed54e76dac8d2a38",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 0.0,
+          "rank_hi": 48.0,
+          "rank_lo": 0.0,
+          "raw_class": 2.0,
+          "relres": 0.0,
+          "relx": 0.0,
+          "status": 2.0
+        },
+        "seed": 20260925,
+        "shape": [
+          48,
+          64
+        ]
+      },
+      {
+        "case": "zero",
+        "diagnostics": {
+          "core_qr_rank": 0,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 0.0
+        },
+        "fields": {
+          "accepted_status_mask": 2,
+          "certified_status": 2,
+          "eta_inconsistent": "+Inf",
+          "eta_infinite": 0.0,
+          "eta_status": 0.0,
+          "eta_unique": "+Inf",
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 6,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 0,
+          "rank_hi": 48,
+          "rank_lo": 0,
+          "unique_generator_code": 1,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "4b5a6897fb47d95d94f2eb5481fb1e9844fb0e2ab784c0efed54e76dac8d2a38",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 0.0,
+          "rank_hi": 48.0,
+          "rank_lo": 0.0,
+          "raw_class": 2.0,
+          "relres": 0.0,
+          "relx": 0.0,
+          "status": 2.0
+        },
+        "seed": 777,
+        "shape": [
+          48,
+          64
+        ]
+      },
+      {
+        "case": "rankdef",
+        "diagnostics": {
+          "core_qr_rank": 12,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.7053025658242404e-13
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 2,
+          "eta_inconsistent": 6.747617409613111e-15,
+          "eta_infinite": 3.0293353115786965e-15,
+          "eta_status": 3.0293353115786965e-15,
+          "eta_unique": 8.213310479227207e-15,
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 12,
+          "rank_hi": 32,
+          "rank_lo": 12,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "cb995e096aed6fa10329ffe9aed38b4b2e8627fed2e492292ab69b56ef104896",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 12.0,
+          "rank_hi": 32.0,
+          "rank_lo": 12.0,
+          "raw_class": 2.0,
+          "relres": 3.32230692336349e-16,
+          "relx": 0.8132021993319807,
+          "status": 2.0
+        },
+        "seed": 7,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "rankdef",
+        "diagnostics": {
+          "core_qr_rank": 12,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.7053025658242404e-13
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 2,
+          "eta_inconsistent": 6.747617409613111e-15,
+          "eta_infinite": 3.0293353115786965e-15,
+          "eta_status": 3.0293353115786965e-15,
+          "eta_unique": 8.213310479227207e-15,
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 12,
+          "rank_hi": 32,
+          "rank_lo": 12,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "cb995e096aed6fa10329ffe9aed38b4b2e8627fed2e492292ab69b56ef104896",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 12.0,
+          "rank_hi": 32.0,
+          "rank_lo": 12.0,
+          "raw_class": 2.0,
+          "relres": 4.8306565088873205e-16,
+          "relx": 0.8132021993319807,
+          "status": 2.0
+        },
+        "seed": 20260925,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "rankdef",
+        "diagnostics": {
+          "core_qr_rank": 12,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.7053025658242404e-13
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 2,
+          "eta_inconsistent": 6.747617409613111e-15,
+          "eta_infinite": 3.0293353115786965e-15,
+          "eta_status": 3.0293353115786965e-15,
+          "eta_unique": 8.213310479227207e-15,
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 12,
+          "rank_hi": 32,
+          "rank_lo": 12,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "cb995e096aed6fa10329ffe9aed38b4b2e8627fed2e492292ab69b56ef104896",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 12.0,
+          "rank_hi": 32.0,
+          "rank_lo": 12.0,
+          "raw_class": 2.0,
+          "relres": 5.389545034572573e-16,
+          "relx": 0.8132021993319807,
+          "status": 2.0
+        },
+        "seed": 777,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "inconsistent",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.5149369141953606e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 3,
+          "eta_inconsistent": 3.813874438289793e-15,
+          "eta_infinite": 1.1860535381735409,
+          "eta_status": 3.813874438289793e-15,
+          "eta_unique": 0.1416837231062307,
+          "eta_x": "NaN",
+          "fast_certainty": 1,
+          "fast_status": 3,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "5f0914945be589d2d41048f8165e97ef741ce30cf57b5a71db027835d5d32ea4",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 3.0,
+          "relres": 0.30696260708618045,
+          "relx": "NaN",
+          "status": 3.0
+        },
+        "seed": 7,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "inconsistent",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.5149369141953606e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 3,
+          "eta_inconsistent": 3.813874438289793e-15,
+          "eta_infinite": 1.1860535381735409,
+          "eta_status": 3.813874438289793e-15,
+          "eta_unique": 0.1416837231062307,
+          "eta_x": "NaN",
+          "fast_certainty": 1,
+          "fast_status": 3,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "5f0914945be589d2d41048f8165e97ef741ce30cf57b5a71db027835d5d32ea4",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 3.0,
+          "relres": 0.30696260708618045,
+          "relx": "NaN",
+          "status": 3.0
+        },
+        "seed": 20260925,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "inconsistent",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.5149369141953606e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 3,
+          "eta_inconsistent": 3.813874438289793e-15,
+          "eta_infinite": 1.1860535381735409,
+          "eta_status": 3.813874438289793e-15,
+          "eta_unique": 0.1416837231062307,
+          "eta_x": "NaN",
+          "fast_certainty": 1,
+          "fast_status": 3,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "5f0914945be589d2d41048f8165e97ef741ce30cf57b5a71db027835d5d32ea4",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 3.0,
+          "relres": 0.30696260708618045,
+          "relx": "NaN",
+          "status": 3.0
+        },
+        "seed": 777,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-0",
+        "diagnostics": {
+          "core_qr_rank": 31,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 4.405364961712621e-13
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 2,
+          "eta_inconsistent": 8.012980985072234e-15,
+          "eta_infinite": 4.793344939533959e-15,
+          "eta_status": 4.793344939533959e-15,
+          "eta_unique": 2.480240995428642e-14,
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 31,
+          "rank_hi": 32,
+          "rank_lo": 31,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "496358936a377c5e9b9f4591425d3779282ef69231dd6eb81dca28601f4083c2",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 31.0,
+          "rank_hi": 32.0,
+          "rank_lo": 31.0,
+          "raw_class": 2.0,
+          "relres": 8.69061223431925e-16,
+          "relx": 0.11686323185846391,
+          "status": 2.0
+        },
+        "seed": 7,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-0",
+        "diagnostics": {
+          "core_qr_rank": 31,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 4.405364961712621e-13
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 2,
+          "eta_inconsistent": 8.012980985072234e-15,
+          "eta_infinite": 4.793344939533959e-15,
+          "eta_status": 4.793344939533959e-15,
+          "eta_unique": 2.480240995428642e-14,
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 31,
+          "rank_hi": 32,
+          "rank_lo": 31,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "496358936a377c5e9b9f4591425d3779282ef69231dd6eb81dca28601f4083c2",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 31.0,
+          "rank_hi": 32.0,
+          "rank_lo": 31.0,
+          "raw_class": 2.0,
+          "relres": 9.334560108887874e-16,
+          "relx": 0.11686323185846416,
+          "status": 2.0
+        },
+        "seed": 20260925,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-0",
+        "diagnostics": {
+          "core_qr_rank": 31,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 4.405364961712621e-13
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 2,
+          "eta_inconsistent": 8.012980985072234e-15,
+          "eta_infinite": 4.793344939533959e-15,
+          "eta_status": 4.793344939533959e-15,
+          "eta_unique": 2.480240995428642e-14,
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 31,
+          "rank_hi": 32,
+          "rank_lo": 31,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "496358936a377c5e9b9f4591425d3779282ef69231dd6eb81dca28601f4083c2",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 31.0,
+          "rank_hi": 32.0,
+          "rank_lo": 31.0,
+          "raw_class": 2.0,
+          "relres": 9.047163690202522e-16,
+          "relx": 0.11686323185846414,
+          "status": 2.0
+        },
+        "seed": 777,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-1e-14",
+        "diagnostics": {
+          "core_qr_rank": 31,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 4.405364961712621e-13
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 2,
+          "eta_inconsistent": 1.3104217627570752e-13,
+          "eta_infinite": 4.048295369198191e-14,
+          "eta_status": 4.048295369198191e-14,
+          "eta_unique": 2.155418691096209e-14,
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 31,
+          "rank_hi": 32,
+          "rank_lo": 31,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "69e5b3e94862b2c23009386ff5daae7a1f1503adafb45b5e931469cf4dabe2b4",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 31.0,
+          "rank_hi": 32.0,
+          "rank_lo": 31.0,
+          "raw_class": 2.0,
+          "relres": 3.0662468945676003e-15,
+          "relx": 0.11686323185847378,
+          "status": 2.0
+        },
+        "seed": 7,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-1e-14",
+        "diagnostics": {
+          "core_qr_rank": 31,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 4.405364961712621e-13
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 2,
+          "eta_inconsistent": 1.3104217627570752e-13,
+          "eta_infinite": 4.048295369198191e-14,
+          "eta_status": 4.048295369198191e-14,
+          "eta_unique": 2.155418691096209e-14,
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 31,
+          "rank_hi": 32,
+          "rank_lo": 31,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "69e5b3e94862b2c23009386ff5daae7a1f1503adafb45b5e931469cf4dabe2b4",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 31.0,
+          "rank_hi": 32.0,
+          "rank_lo": 31.0,
+          "raw_class": 2.0,
+          "relres": 2.1572987014853916e-15,
+          "relx": 0.11686323185846031,
+          "status": 2.0
+        },
+        "seed": 20260925,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-1e-14",
+        "diagnostics": {
+          "core_qr_rank": 31,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 4.405364961712621e-13
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 2,
+          "eta_inconsistent": 1.3104217627570752e-13,
+          "eta_infinite": 4.048295369198191e-14,
+          "eta_status": 4.048295369198191e-14,
+          "eta_unique": 2.155418691096209e-14,
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 31,
+          "rank_hi": 32,
+          "rank_lo": 31,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "69e5b3e94862b2c23009386ff5daae7a1f1503adafb45b5e931469cf4dabe2b4",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 31.0,
+          "rank_hi": 32.0,
+          "rank_lo": 31.0,
+          "raw_class": 2.0,
+          "relres": 2.387752894883506e-15,
+          "relx": 0.11686323185845578,
+          "status": 2.0
+        },
+        "seed": 777,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-1e-11",
+        "diagnostics": {
+          "core_qr_rank": 31,
+          "core_rank_interval": [
+            31,
+            32
+          ],
+          "grey_total": 2,
+          "orth_eta": 1.702520403348206e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 0,
+          "eta_inconsistent": 3.679556356164032e-15,
+          "eta_infinite": 3.393128026477719e-11,
+          "eta_status": "+Inf",
+          "eta_unique": 2.238780305978767e-14,
+          "eta_x": "NaN",
+          "fast_certainty": 3,
+          "fast_status": 5,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 31,
+          "rank_hi": 32,
+          "rank_lo": 31,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "20644e466ca1fdb8653fbce00b3d9fef01d85f68323ed189146376af3cb238a6",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 3.0,
+          "fallback": 1.0,
+          "rank": 31.0,
+          "rank_hi": 32.0,
+          "rank_lo": 31.0,
+          "raw_class": 5.0,
+          "relres": "NaN",
+          "relx": "NaN",
+          "status": 5.0
+        },
+        "seed": 7,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-1e-11",
+        "diagnostics": {
+          "core_qr_rank": 32,
+          "core_rank_interval": [
+            31,
+            32
+          ],
+          "grey_total": 2,
+          "orth_eta": 1.702520403348206e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 0,
+          "eta_inconsistent": 3.679556356164032e-15,
+          "eta_infinite": 3.393128026477719e-11,
+          "eta_status": "+Inf",
+          "eta_unique": 2.238780305978767e-14,
+          "eta_x": "NaN",
+          "fast_certainty": 3,
+          "fast_status": 5,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 31,
+          "rank_hi": 32,
+          "rank_lo": 31,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "20644e466ca1fdb8653fbce00b3d9fef01d85f68323ed189146376af3cb238a6",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 3.0,
+          "fallback": 1.0,
+          "rank": 31.0,
+          "rank_hi": 32.0,
+          "rank_lo": 31.0,
+          "raw_class": 5.0,
+          "relres": "NaN",
+          "relx": "NaN",
+          "status": 5.0
+        },
+        "seed": 20260925,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-1e-11",
+        "diagnostics": {
+          "core_qr_rank": 32,
+          "core_rank_interval": [
+            31,
+            32
+          ],
+          "grey_total": 2,
+          "orth_eta": 1.702520403348206e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 0,
+          "eta_inconsistent": 3.679556356164032e-15,
+          "eta_infinite": 3.393128026477719e-11,
+          "eta_status": "+Inf",
+          "eta_unique": 2.238780305978767e-14,
+          "eta_x": "NaN",
+          "fast_certainty": 3,
+          "fast_status": 5,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 31,
+          "rank_hi": 32,
+          "rank_lo": 31,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "20644e466ca1fdb8653fbce00b3d9fef01d85f68323ed189146376af3cb238a6",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 3.0,
+          "fallback": 1.0,
+          "rank": 31.0,
+          "rank_hi": 32.0,
+          "rank_lo": 31.0,
+          "raw_class": 5.0,
+          "relres": "NaN",
+          "relx": "NaN",
+          "status": 5.0
+        },
+        "seed": 777,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-1e-06",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.569713042508332e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 3.710187190292873e-15,
+          "eta_infinite": 3.3928965080636895e-06,
+          "eta_status": 2.043211864230365e-14,
+          "eta_unique": 2.043211864230365e-14,
+          "eta_x": 6.780403327633203e-16,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "487740fc53484ff94101758ffaaa425745c154b83203627f35b9923388ce06e1",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 6.780403327633203e-16,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 1.0,
+          "relres": 5.682482590144794e-16,
+          "relx": 1.1525606790638849e-11,
+          "status": 1.0
+        },
+        "seed": 7,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-1e-06",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.569713042508332e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 3.710187190292873e-15,
+          "eta_infinite": 3.3928965080636895e-06,
+          "eta_status": 2.043211864230365e-14,
+          "eta_unique": 2.043211864230365e-14,
+          "eta_x": 6.780403327633203e-16,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "487740fc53484ff94101758ffaaa425745c154b83203627f35b9923388ce06e1",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 6.780403327633203e-16,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 1.0,
+          "relres": 5.682482590144794e-16,
+          "relx": 1.1525606790638849e-11,
+          "status": 1.0
+        },
+        "seed": 20260925,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-1e-06",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.569713042508332e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 3.710187190292873e-15,
+          "eta_infinite": 3.3928965080636895e-06,
+          "eta_status": 2.043211864230365e-14,
+          "eta_unique": 2.043211864230365e-14,
+          "eta_x": 6.780403327633203e-16,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "487740fc53484ff94101758ffaaa425745c154b83203627f35b9923388ce06e1",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 6.780403327633203e-16,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 1.0,
+          "relres": 5.682482590144794e-16,
+          "relx": 1.1525606790638849e-11,
+          "status": 1.0
+        },
+        "seed": 777,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "scaled-wide",
+        "diagnostics": {
+          "core_qr_rank": 32,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6256376554908503e-15
+        },
+        "fields": {
+          "accepted_status_mask": 6,
+          "certified_status": 2,
+          "eta_inconsistent": 2.616261390173351,
+          "eta_infinite": 5.0270593523627065e-15,
+          "eta_status": 5.0270593523627065e-15,
+          "eta_unique": "+Inf",
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 1,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "88577eccda9e30df36da76b673c23103fc45f11a7aac78af034fae30d76b1c9e",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 2.0,
+          "relres": 5.115390260962233e-16,
+          "relx": 0.7311090191701971,
+          "status": 2.0
+        },
+        "seed": 7,
+        "shape": [
+          32,
+          64
+        ]
+      },
+      {
+        "case": "scaled-wide",
+        "diagnostics": {
+          "core_qr_rank": 32,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6256376554908503e-15
+        },
+        "fields": {
+          "accepted_status_mask": 6,
+          "certified_status": 2,
+          "eta_inconsistent": 2.616261390173351,
+          "eta_infinite": 5.0270593523627065e-15,
+          "eta_status": 5.0270593523627065e-15,
+          "eta_unique": "+Inf",
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 1,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "88577eccda9e30df36da76b673c23103fc45f11a7aac78af034fae30d76b1c9e",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 2.0,
+          "relres": 5.115390260962233e-16,
+          "relx": 0.7311090191701971,
+          "status": 2.0
+        },
+        "seed": 20260925,
+        "shape": [
+          32,
+          64
+        ]
+      },
+      {
+        "case": "scaled-wide",
+        "diagnostics": {
+          "core_qr_rank": 32,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6256376554908503e-15
+        },
+        "fields": {
+          "accepted_status_mask": 6,
+          "certified_status": 2,
+          "eta_inconsistent": 2.616261390173351,
+          "eta_infinite": 5.0270593523627065e-15,
+          "eta_status": 5.0270593523627065e-15,
+          "eta_unique": "+Inf",
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 1,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "88577eccda9e30df36da76b673c23103fc45f11a7aac78af034fae30d76b1c9e",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 2.0,
+          "relres": 5.115390260962233e-16,
+          "relx": 0.7311090191701971,
+          "status": 2.0
+        },
+        "seed": 777,
+        "shape": [
+          32,
+          64
+        ]
+      },
+      {
+        "case": "scaled-tall",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6998415702054789e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 4.74889302279909e-15,
+          "eta_infinite": 0.8036876238944383,
+          "eta_status": 1.497105138021938e-14,
+          "eta_unique": 1.497105138021938e-14,
+          "eta_x": 4.8579408206366716e-15,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "ad5bb4ca8d6d7ab84b4234086cc1ef820a7ecee4c066ae2a4acad473bf71b9e3",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 4.8579408206366716e-15,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 1.0,
+          "relres": 4.357000048652112e-15,
+          "relx": 5.546589680532708e-15,
+          "status": 1.0
+        },
+        "seed": 7,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "scaled-tall",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6998415702054789e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 4.74889302279909e-15,
+          "eta_infinite": 0.8036876238944383,
+          "eta_status": 1.497105138021938e-14,
+          "eta_unique": 1.497105138021938e-14,
+          "eta_x": 4.8579408206366716e-15,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "ad5bb4ca8d6d7ab84b4234086cc1ef820a7ecee4c066ae2a4acad473bf71b9e3",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 4.8579408206366716e-15,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 1.0,
+          "relres": 4.357000048652112e-15,
+          "relx": 5.546589680532708e-15,
+          "status": 1.0
+        },
+        "seed": 20260925,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "scaled-tall",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6998415702054789e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 4.74889302279909e-15,
+          "eta_infinite": 0.8036876238944383,
+          "eta_status": 1.497105138021938e-14,
+          "eta_unique": 1.497105138021938e-14,
+          "eta_x": 4.8579408206366716e-15,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "ad5bb4ca8d6d7ab84b4234086cc1ef820a7ecee4c066ae2a4acad473bf71b9e3",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 4.8579408206366716e-15,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 1.0,
+          "relres": 4.357000048652112e-15,
+          "relx": 5.546589680532708e-15,
+          "status": 1.0
+        },
+        "seed": 777,
+        "shape": [
+          96,
+          32
+        ]
+      }
+    ],
+    "router_sha256": "47bd9471a156d174651af900da15ece8555853dd29e29602fef604678fefe982"
+  },
+  "candidate": {
+    "build": "/tmp/abs-dgesdd-fix-build",
+    "certified_sha256": "3c62e2e2ce9106ec704932e41180a022d1b7523d2eb662da02918c044496e364",
+    "mapped_router": "/tmp/abs-dgesdd-fix-build/libaffine_bundle_solver.so",
+    "records": [
+      {
+        "case": "wide",
+        "diagnostics": {
+          "core_qr_rank": 32,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6333672658071846e-15
+        },
+        "fields": {
+          "accepted_status_mask": 6,
+          "certified_status": 2,
+          "eta_inconsistent": 2.586919422205865,
+          "eta_infinite": 5.082489162433725e-15,
+          "eta_status": 5.082489162433725e-15,
+          "eta_unique": "+Inf",
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 1,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "3f35ec4b6fc4a27601b7606c684c8a32756524e92cc2ad6c44ca0f42875c6b07",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 2.0,
+          "relres": 4.6344211027358e-16,
+          "relx": 0.7032128763670815,
+          "status": 2.0
+        },
+        "seed": 7,
+        "shape": [
+          32,
+          64
+        ]
+      },
+      {
+        "case": "wide",
+        "diagnostics": {
+          "core_qr_rank": 32,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6333672658071846e-15
+        },
+        "fields": {
+          "accepted_status_mask": 6,
+          "certified_status": 2,
+          "eta_inconsistent": 2.586919422205865,
+          "eta_infinite": 5.082489162433725e-15,
+          "eta_status": 5.082489162433725e-15,
+          "eta_unique": "+Inf",
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 1,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "3f35ec4b6fc4a27601b7606c684c8a32756524e92cc2ad6c44ca0f42875c6b07",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 2.0,
+          "relres": 4.6344211027358e-16,
+          "relx": 0.7032128763670815,
+          "status": 2.0
+        },
+        "seed": 20260925,
+        "shape": [
+          32,
+          64
+        ]
+      },
+      {
+        "case": "wide",
+        "diagnostics": {
+          "core_qr_rank": 32,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6333672658071846e-15
+        },
+        "fields": {
+          "accepted_status_mask": 6,
+          "certified_status": 2,
+          "eta_inconsistent": 2.586919422205865,
+          "eta_infinite": 5.082489162433725e-15,
+          "eta_status": 5.082489162433725e-15,
+          "eta_unique": "+Inf",
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 1,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "3f35ec4b6fc4a27601b7606c684c8a32756524e92cc2ad6c44ca0f42875c6b07",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 2.0,
+          "relres": 4.6344211027358e-16,
+          "relx": 0.7032128763670815,
+          "status": 2.0
+        },
+        "seed": 777,
+        "shape": [
+          32,
+          64
+        ]
+      },
+      {
+        "case": "square",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 0.0
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 2.230352805951293,
+          "eta_infinite": 0.005041698496953413,
+          "eta_status": 2.884858407650793e-14,
+          "eta_unique": 2.884858407650793e-14,
+          "eta_x": 1.450750705126124e-16,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 48,
+          "rank_hi": 48,
+          "rank_lo": 48,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "0fecd36a4dc69d4e949d5fd1769390cc4952cb985a1413c799c93ce56e44b15f",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 1.450750705126124e-16,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 48.0,
+          "rank_hi": 48.0,
+          "rank_lo": 48.0,
+          "raw_class": 1.0,
+          "relres": 2.6276351543849126e-16,
+          "relx": 7.317413926934822e-15,
+          "status": 1.0
+        },
+        "seed": 7,
+        "shape": [
+          48,
+          48
+        ]
+      },
+      {
+        "case": "square",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 0.0
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 2.230352805951293,
+          "eta_infinite": 0.005041698496953413,
+          "eta_status": 2.884858407650793e-14,
+          "eta_unique": 2.884858407650793e-14,
+          "eta_x": 1.450750705126124e-16,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 48,
+          "rank_hi": 48,
+          "rank_lo": 48,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "0fecd36a4dc69d4e949d5fd1769390cc4952cb985a1413c799c93ce56e44b15f",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 1.450750705126124e-16,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 48.0,
+          "rank_hi": 48.0,
+          "rank_lo": 48.0,
+          "raw_class": 1.0,
+          "relres": 2.6276351543849126e-16,
+          "relx": 7.317413926934822e-15,
+          "status": 1.0
+        },
+        "seed": 20260925,
+        "shape": [
+          48,
+          48
+        ]
+      },
+      {
+        "case": "square",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 0.0
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 2.230352805951293,
+          "eta_infinite": 0.005041698496953413,
+          "eta_status": 2.884858407650793e-14,
+          "eta_unique": 2.884858407650793e-14,
+          "eta_x": 1.450750705126124e-16,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 48,
+          "rank_hi": 48,
+          "rank_lo": 48,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "0fecd36a4dc69d4e949d5fd1769390cc4952cb985a1413c799c93ce56e44b15f",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 1.450750705126124e-16,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 48.0,
+          "rank_hi": 48.0,
+          "rank_lo": 48.0,
+          "raw_class": 1.0,
+          "relres": 2.6276351543849126e-16,
+          "relx": 7.317413926934822e-15,
+          "status": 1.0
+        },
+        "seed": 777,
+        "shape": [
+          48,
+          48
+        ]
+      },
+      {
+        "case": "tall",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6461973251640335e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 1.8267408563841444e-15,
+          "eta_infinite": 1.2102924047429064,
+          "eta_status": 2.1637903415267155e-14,
+          "eta_unique": 2.1637903415267155e-14,
+          "eta_x": 8.409083314809406e-16,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "c57914935cd831488fe601a2fbc74c21f4ea421e5301452ca9a9c2c9b65c8ecf",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 8.409083314809406e-16,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 1.0,
+          "relres": 7.061244121715571e-16,
+          "relx": 7.705469651186711e-16,
+          "status": 1.0
+        },
+        "seed": 7,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "tall",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6461973251640335e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 1.8267408563841444e-15,
+          "eta_infinite": 1.2102924047429064,
+          "eta_status": 2.1637903415267155e-14,
+          "eta_unique": 2.1637903415267155e-14,
+          "eta_x": 8.409083314809406e-16,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "c57914935cd831488fe601a2fbc74c21f4ea421e5301452ca9a9c2c9b65c8ecf",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 8.409083314809406e-16,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 1.0,
+          "relres": 7.061244121715571e-16,
+          "relx": 7.705469651186711e-16,
+          "status": 1.0
+        },
+        "seed": 20260925,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "tall",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6461973251640335e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 1.8267408563841444e-15,
+          "eta_infinite": 1.2102924047429064,
+          "eta_status": 2.1637903415267155e-14,
+          "eta_unique": 2.1637903415267155e-14,
+          "eta_x": 8.409083314809406e-16,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "c57914935cd831488fe601a2fbc74c21f4ea421e5301452ca9a9c2c9b65c8ecf",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 8.409083314809406e-16,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 1.0,
+          "relres": 7.061244121715571e-16,
+          "relx": 7.705469651186711e-16,
+          "status": 1.0
+        },
+        "seed": 777,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "zero",
+        "diagnostics": {
+          "core_qr_rank": 0,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 0.0
+        },
+        "fields": {
+          "accepted_status_mask": 2,
+          "certified_status": 2,
+          "eta_inconsistent": "+Inf",
+          "eta_infinite": 0.0,
+          "eta_status": 0.0,
+          "eta_unique": "+Inf",
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 6,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 0,
+          "rank_hi": 48,
+          "rank_lo": 0,
+          "unique_generator_code": 1,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "4b5a6897fb47d95d94f2eb5481fb1e9844fb0e2ab784c0efed54e76dac8d2a38",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 0.0,
+          "rank_hi": 48.0,
+          "rank_lo": 0.0,
+          "raw_class": 2.0,
+          "relres": 0.0,
+          "relx": 0.0,
+          "status": 2.0
+        },
+        "seed": 7,
+        "shape": [
+          48,
+          64
+        ]
+      },
+      {
+        "case": "zero",
+        "diagnostics": {
+          "core_qr_rank": 0,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 0.0
+        },
+        "fields": {
+          "accepted_status_mask": 2,
+          "certified_status": 2,
+          "eta_inconsistent": "+Inf",
+          "eta_infinite": 0.0,
+          "eta_status": 0.0,
+          "eta_unique": "+Inf",
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 6,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 0,
+          "rank_hi": 48,
+          "rank_lo": 0,
+          "unique_generator_code": 1,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "4b5a6897fb47d95d94f2eb5481fb1e9844fb0e2ab784c0efed54e76dac8d2a38",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 0.0,
+          "rank_hi": 48.0,
+          "rank_lo": 0.0,
+          "raw_class": 2.0,
+          "relres": 0.0,
+          "relx": 0.0,
+          "status": 2.0
+        },
+        "seed": 20260925,
+        "shape": [
+          48,
+          64
+        ]
+      },
+      {
+        "case": "zero",
+        "diagnostics": {
+          "core_qr_rank": 0,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 0.0
+        },
+        "fields": {
+          "accepted_status_mask": 2,
+          "certified_status": 2,
+          "eta_inconsistent": "+Inf",
+          "eta_infinite": 0.0,
+          "eta_status": 0.0,
+          "eta_unique": "+Inf",
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 6,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 0,
+          "rank_hi": 48,
+          "rank_lo": 0,
+          "unique_generator_code": 1,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "4b5a6897fb47d95d94f2eb5481fb1e9844fb0e2ab784c0efed54e76dac8d2a38",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 0.0,
+          "rank_hi": 48.0,
+          "rank_lo": 0.0,
+          "raw_class": 2.0,
+          "relres": 0.0,
+          "relx": 0.0,
+          "status": 2.0
+        },
+        "seed": 777,
+        "shape": [
+          48,
+          64
+        ]
+      },
+      {
+        "case": "rankdef",
+        "diagnostics": {
+          "core_qr_rank": 12,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.7053025658242404e-13
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 2,
+          "eta_inconsistent": 6.747617409613111e-15,
+          "eta_infinite": 3.0293353115786965e-15,
+          "eta_status": 3.0293353115786965e-15,
+          "eta_unique": 8.213310479227207e-15,
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 12,
+          "rank_hi": 32,
+          "rank_lo": 12,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "cb995e096aed6fa10329ffe9aed38b4b2e8627fed2e492292ab69b56ef104896",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 12.0,
+          "rank_hi": 32.0,
+          "rank_lo": 12.0,
+          "raw_class": 2.0,
+          "relres": 3.32230692336349e-16,
+          "relx": 0.8132021993319807,
+          "status": 2.0
+        },
+        "seed": 7,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "rankdef",
+        "diagnostics": {
+          "core_qr_rank": 12,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.7053025658242404e-13
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 2,
+          "eta_inconsistent": 6.747617409613111e-15,
+          "eta_infinite": 3.0293353115786965e-15,
+          "eta_status": 3.0293353115786965e-15,
+          "eta_unique": 8.213310479227207e-15,
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 12,
+          "rank_hi": 32,
+          "rank_lo": 12,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "cb995e096aed6fa10329ffe9aed38b4b2e8627fed2e492292ab69b56ef104896",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 12.0,
+          "rank_hi": 32.0,
+          "rank_lo": 12.0,
+          "raw_class": 2.0,
+          "relres": 4.8306565088873205e-16,
+          "relx": 0.8132021993319807,
+          "status": 2.0
+        },
+        "seed": 20260925,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "rankdef",
+        "diagnostics": {
+          "core_qr_rank": 12,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.7053025658242404e-13
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 2,
+          "eta_inconsistent": 6.747617409613111e-15,
+          "eta_infinite": 3.0293353115786965e-15,
+          "eta_status": 3.0293353115786965e-15,
+          "eta_unique": 8.213310479227207e-15,
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 12,
+          "rank_hi": 32,
+          "rank_lo": 12,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "cb995e096aed6fa10329ffe9aed38b4b2e8627fed2e492292ab69b56ef104896",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 12.0,
+          "rank_hi": 32.0,
+          "rank_lo": 12.0,
+          "raw_class": 2.0,
+          "relres": 5.389545034572573e-16,
+          "relx": 0.8132021993319807,
+          "status": 2.0
+        },
+        "seed": 777,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "inconsistent",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.5149369141953606e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 3,
+          "eta_inconsistent": 3.813874438289793e-15,
+          "eta_infinite": 1.1860535381735409,
+          "eta_status": 3.813874438289793e-15,
+          "eta_unique": 0.1416837231062307,
+          "eta_x": "NaN",
+          "fast_certainty": 1,
+          "fast_status": 3,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "5f0914945be589d2d41048f8165e97ef741ce30cf57b5a71db027835d5d32ea4",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 3.0,
+          "relres": 0.30696260708618045,
+          "relx": "NaN",
+          "status": 3.0
+        },
+        "seed": 7,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "inconsistent",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.5149369141953606e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 3,
+          "eta_inconsistent": 3.813874438289793e-15,
+          "eta_infinite": 1.1860535381735409,
+          "eta_status": 3.813874438289793e-15,
+          "eta_unique": 0.1416837231062307,
+          "eta_x": "NaN",
+          "fast_certainty": 1,
+          "fast_status": 3,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "5f0914945be589d2d41048f8165e97ef741ce30cf57b5a71db027835d5d32ea4",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 3.0,
+          "relres": 0.30696260708618045,
+          "relx": "NaN",
+          "status": 3.0
+        },
+        "seed": 20260925,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "inconsistent",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.5149369141953606e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 3,
+          "eta_inconsistent": 3.813874438289793e-15,
+          "eta_infinite": 1.1860535381735409,
+          "eta_status": 3.813874438289793e-15,
+          "eta_unique": 0.1416837231062307,
+          "eta_x": "NaN",
+          "fast_certainty": 1,
+          "fast_status": 3,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "5f0914945be589d2d41048f8165e97ef741ce30cf57b5a71db027835d5d32ea4",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 3.0,
+          "relres": 0.30696260708618045,
+          "relx": "NaN",
+          "status": 3.0
+        },
+        "seed": 777,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-0",
+        "diagnostics": {
+          "core_qr_rank": 31,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 4.405364961712621e-13
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 2,
+          "eta_inconsistent": 8.012980985072234e-15,
+          "eta_infinite": 4.793344939533959e-15,
+          "eta_status": 4.793344939533959e-15,
+          "eta_unique": 2.480240995428642e-14,
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 31,
+          "rank_hi": 32,
+          "rank_lo": 31,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "496358936a377c5e9b9f4591425d3779282ef69231dd6eb81dca28601f4083c2",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 31.0,
+          "rank_hi": 32.0,
+          "rank_lo": 31.0,
+          "raw_class": 2.0,
+          "relres": 8.69061223431925e-16,
+          "relx": 0.11686323185846391,
+          "status": 2.0
+        },
+        "seed": 7,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-0",
+        "diagnostics": {
+          "core_qr_rank": 31,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 4.405364961712621e-13
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 2,
+          "eta_inconsistent": 8.012980985072234e-15,
+          "eta_infinite": 4.793344939533959e-15,
+          "eta_status": 4.793344939533959e-15,
+          "eta_unique": 2.480240995428642e-14,
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 31,
+          "rank_hi": 32,
+          "rank_lo": 31,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "496358936a377c5e9b9f4591425d3779282ef69231dd6eb81dca28601f4083c2",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 31.0,
+          "rank_hi": 32.0,
+          "rank_lo": 31.0,
+          "raw_class": 2.0,
+          "relres": 9.334560108887874e-16,
+          "relx": 0.11686323185846416,
+          "status": 2.0
+        },
+        "seed": 20260925,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-0",
+        "diagnostics": {
+          "core_qr_rank": 31,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 4.405364961712621e-13
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 2,
+          "eta_inconsistent": 8.012980985072234e-15,
+          "eta_infinite": 4.793344939533959e-15,
+          "eta_status": 4.793344939533959e-15,
+          "eta_unique": 2.480240995428642e-14,
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 31,
+          "rank_hi": 32,
+          "rank_lo": 31,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "496358936a377c5e9b9f4591425d3779282ef69231dd6eb81dca28601f4083c2",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 31.0,
+          "rank_hi": 32.0,
+          "rank_lo": 31.0,
+          "raw_class": 2.0,
+          "relres": 9.047163690202522e-16,
+          "relx": 0.11686323185846414,
+          "status": 2.0
+        },
+        "seed": 777,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-1e-14",
+        "diagnostics": {
+          "core_qr_rank": 31,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 4.405364961712621e-13
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 2,
+          "eta_inconsistent": 1.3104217627570752e-13,
+          "eta_infinite": 4.048295369198191e-14,
+          "eta_status": 4.048295369198191e-14,
+          "eta_unique": 2.155418691096209e-14,
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 31,
+          "rank_hi": 32,
+          "rank_lo": 31,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "69e5b3e94862b2c23009386ff5daae7a1f1503adafb45b5e931469cf4dabe2b4",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 31.0,
+          "rank_hi": 32.0,
+          "rank_lo": 31.0,
+          "raw_class": 2.0,
+          "relres": 3.0662468945676003e-15,
+          "relx": 0.11686323185847378,
+          "status": 2.0
+        },
+        "seed": 7,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-1e-14",
+        "diagnostics": {
+          "core_qr_rank": 31,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 4.405364961712621e-13
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 2,
+          "eta_inconsistent": 1.3104217627570752e-13,
+          "eta_infinite": 4.048295369198191e-14,
+          "eta_status": 4.048295369198191e-14,
+          "eta_unique": 2.155418691096209e-14,
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 31,
+          "rank_hi": 32,
+          "rank_lo": 31,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "69e5b3e94862b2c23009386ff5daae7a1f1503adafb45b5e931469cf4dabe2b4",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 31.0,
+          "rank_hi": 32.0,
+          "rank_lo": 31.0,
+          "raw_class": 2.0,
+          "relres": 2.1572987014853916e-15,
+          "relx": 0.11686323185846031,
+          "status": 2.0
+        },
+        "seed": 20260925,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-1e-14",
+        "diagnostics": {
+          "core_qr_rank": 31,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 4.405364961712621e-13
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 2,
+          "eta_inconsistent": 1.3104217627570752e-13,
+          "eta_infinite": 4.048295369198191e-14,
+          "eta_status": 4.048295369198191e-14,
+          "eta_unique": 2.155418691096209e-14,
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 31,
+          "rank_hi": 32,
+          "rank_lo": 31,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "69e5b3e94862b2c23009386ff5daae7a1f1503adafb45b5e931469cf4dabe2b4",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 31.0,
+          "rank_hi": 32.0,
+          "rank_lo": 31.0,
+          "raw_class": 2.0,
+          "relres": 2.387752894883506e-15,
+          "relx": 0.11686323185845578,
+          "status": 2.0
+        },
+        "seed": 777,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-1e-11",
+        "diagnostics": {
+          "core_qr_rank": 31,
+          "core_rank_interval": [
+            31,
+            32
+          ],
+          "grey_total": 2,
+          "orth_eta": 1.702520403348206e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 0,
+          "eta_inconsistent": 3.679556356164032e-15,
+          "eta_infinite": 3.393128026477719e-11,
+          "eta_status": "+Inf",
+          "eta_unique": 2.238780305978767e-14,
+          "eta_x": "NaN",
+          "fast_certainty": 3,
+          "fast_status": 5,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 31,
+          "rank_hi": 32,
+          "rank_lo": 31,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "20644e466ca1fdb8653fbce00b3d9fef01d85f68323ed189146376af3cb238a6",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 3.0,
+          "fallback": 1.0,
+          "rank": 31.0,
+          "rank_hi": 32.0,
+          "rank_lo": 31.0,
+          "raw_class": 5.0,
+          "relres": "NaN",
+          "relx": "NaN",
+          "status": 5.0
+        },
+        "seed": 7,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-1e-11",
+        "diagnostics": {
+          "core_qr_rank": 32,
+          "core_rank_interval": [
+            31,
+            32
+          ],
+          "grey_total": 2,
+          "orth_eta": 1.702520403348206e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 0,
+          "eta_inconsistent": 3.679556356164032e-15,
+          "eta_infinite": 3.393128026477719e-11,
+          "eta_status": "+Inf",
+          "eta_unique": 2.238780305978767e-14,
+          "eta_x": "NaN",
+          "fast_certainty": 3,
+          "fast_status": 5,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 31,
+          "rank_hi": 32,
+          "rank_lo": 31,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "20644e466ca1fdb8653fbce00b3d9fef01d85f68323ed189146376af3cb238a6",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 3.0,
+          "fallback": 1.0,
+          "rank": 31.0,
+          "rank_hi": 32.0,
+          "rank_lo": 31.0,
+          "raw_class": 5.0,
+          "relres": "NaN",
+          "relx": "NaN",
+          "status": 5.0
+        },
+        "seed": 20260925,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-1e-11",
+        "diagnostics": {
+          "core_qr_rank": 32,
+          "core_rank_interval": [
+            31,
+            32
+          ],
+          "grey_total": 2,
+          "orth_eta": 1.702520403348206e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 0,
+          "eta_inconsistent": 3.679556356164032e-15,
+          "eta_infinite": 3.393128026477719e-11,
+          "eta_status": "+Inf",
+          "eta_unique": 2.238780305978767e-14,
+          "eta_x": "NaN",
+          "fast_certainty": 3,
+          "fast_status": 5,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 31,
+          "rank_hi": 32,
+          "rank_lo": 31,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "20644e466ca1fdb8653fbce00b3d9fef01d85f68323ed189146376af3cb238a6",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 3.0,
+          "fallback": 1.0,
+          "rank": 31.0,
+          "rank_hi": 32.0,
+          "rank_lo": 31.0,
+          "raw_class": 5.0,
+          "relres": "NaN",
+          "relx": "NaN",
+          "status": 5.0
+        },
+        "seed": 777,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-1e-06",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.569713042508332e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 3.710187190292873e-15,
+          "eta_infinite": 3.3928965080636895e-06,
+          "eta_status": 2.043211864230365e-14,
+          "eta_unique": 2.043211864230365e-14,
+          "eta_x": 6.780403327633203e-16,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "487740fc53484ff94101758ffaaa425745c154b83203627f35b9923388ce06e1",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 6.780403327633203e-16,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 1.0,
+          "relres": 5.682482590144794e-16,
+          "relx": 1.1525606790638849e-11,
+          "status": 1.0
+        },
+        "seed": 7,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-1e-06",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.569713042508332e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 3.710187190292873e-15,
+          "eta_infinite": 3.3928965080636895e-06,
+          "eta_status": 2.043211864230365e-14,
+          "eta_unique": 2.043211864230365e-14,
+          "eta_x": 6.780403327633203e-16,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "487740fc53484ff94101758ffaaa425745c154b83203627f35b9923388ce06e1",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 6.780403327633203e-16,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 1.0,
+          "relres": 5.682482590144794e-16,
+          "relx": 1.1525606790638849e-11,
+          "status": 1.0
+        },
+        "seed": 20260925,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "gap-1e-06",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.569713042508332e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 3.710187190292873e-15,
+          "eta_infinite": 3.3928965080636895e-06,
+          "eta_status": 2.043211864230365e-14,
+          "eta_unique": 2.043211864230365e-14,
+          "eta_x": 6.780403327633203e-16,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "487740fc53484ff94101758ffaaa425745c154b83203627f35b9923388ce06e1",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 6.780403327633203e-16,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 1.0,
+          "relres": 5.682482590144794e-16,
+          "relx": 1.1525606790638849e-11,
+          "status": 1.0
+        },
+        "seed": 777,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "scaled-wide",
+        "diagnostics": {
+          "core_qr_rank": 32,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6256376554908503e-15
+        },
+        "fields": {
+          "accepted_status_mask": 6,
+          "certified_status": 2,
+          "eta_inconsistent": 2.616261390173351,
+          "eta_infinite": 5.0270593523627065e-15,
+          "eta_status": 5.0270593523627065e-15,
+          "eta_unique": "+Inf",
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 1,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "88577eccda9e30df36da76b673c23103fc45f11a7aac78af034fae30d76b1c9e",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 2.0,
+          "relres": 5.115390260962233e-16,
+          "relx": 0.7311090191701971,
+          "status": 2.0
+        },
+        "seed": 7,
+        "shape": [
+          32,
+          64
+        ]
+      },
+      {
+        "case": "scaled-wide",
+        "diagnostics": {
+          "core_qr_rank": 32,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6256376554908503e-15
+        },
+        "fields": {
+          "accepted_status_mask": 6,
+          "certified_status": 2,
+          "eta_inconsistent": 2.616261390173351,
+          "eta_infinite": 5.0270593523627065e-15,
+          "eta_status": 5.0270593523627065e-15,
+          "eta_unique": "+Inf",
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 1,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "88577eccda9e30df36da76b673c23103fc45f11a7aac78af034fae30d76b1c9e",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 2.0,
+          "relres": 5.115390260962233e-16,
+          "relx": 0.7311090191701971,
+          "status": 2.0
+        },
+        "seed": 20260925,
+        "shape": [
+          32,
+          64
+        ]
+      },
+      {
+        "case": "scaled-wide",
+        "diagnostics": {
+          "core_qr_rank": 32,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6256376554908503e-15
+        },
+        "fields": {
+          "accepted_status_mask": 6,
+          "certified_status": 2,
+          "eta_inconsistent": 2.616261390173351,
+          "eta_infinite": 5.0270593523627065e-15,
+          "eta_status": 5.0270593523627065e-15,
+          "eta_unique": "+Inf",
+          "eta_x": "NaN",
+          "fast_certainty": 2,
+          "fast_status": 2,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 1,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "88577eccda9e30df36da76b673c23103fc45f11a7aac78af034fae30d76b1c9e",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": "NaN",
+          "certainty": 2.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 2.0,
+          "relres": 5.115390260962233e-16,
+          "relx": 0.7311090191701971,
+          "status": 2.0
+        },
+        "seed": 777,
+        "shape": [
+          32,
+          64
+        ]
+      },
+      {
+        "case": "scaled-tall",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6998415702054789e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 4.74889302279909e-15,
+          "eta_infinite": 0.8036876238944383,
+          "eta_status": 1.497105138021938e-14,
+          "eta_unique": 1.497105138021938e-14,
+          "eta_x": 4.8579408206366716e-15,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "ad5bb4ca8d6d7ab84b4234086cc1ef820a7ecee4c066ae2a4acad473bf71b9e3",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 4.8579408206366716e-15,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 1.0,
+          "relres": 4.357000048652112e-15,
+          "relx": 5.546589680532708e-15,
+          "status": 1.0
+        },
+        "seed": 7,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "scaled-tall",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6998415702054789e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 4.74889302279909e-15,
+          "eta_infinite": 0.8036876238944383,
+          "eta_status": 1.497105138021938e-14,
+          "eta_unique": 1.497105138021938e-14,
+          "eta_x": 4.8579408206366716e-15,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "ad5bb4ca8d6d7ab84b4234086cc1ef820a7ecee4c066ae2a4acad473bf71b9e3",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 4.8579408206366716e-15,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 1.0,
+          "relres": 4.357000048652112e-15,
+          "relx": 5.546589680532708e-15,
+          "status": 1.0
+        },
+        "seed": 20260925,
+        "shape": [
+          96,
+          32
+        ]
+      },
+      {
+        "case": "scaled-tall",
+        "diagnostics": {
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "grey_total": 0,
+          "orth_eta": 1.6998415702054789e-15
+        },
+        "fields": {
+          "accepted_status_mask": 7,
+          "certified_status": 1,
+          "eta_inconsistent": 4.74889302279909e-15,
+          "eta_infinite": 0.8036876238944383,
+          "eta_status": 1.497105138021938e-14,
+          "eta_unique": 1.497105138021938e-14,
+          "eta_x": 4.8579408206366716e-15,
+          "fast_certainty": 1,
+          "fast_status": 1,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "rank_estimate": 32,
+          "rank_hi": 32,
+          "rank_lo": 32,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "input_sha256": "ad5bb4ca8d6d7ab84b4234086cc1ef820a7ecee4c066ae2a4acad473bf71b9e3",
+        "return_code": 0,
+        "router_calls_in_worker": 2,
+        "router_meta": {
+          "backward_error": 4.8579408206366716e-15,
+          "certainty": 1.0,
+          "fallback": 0.0,
+          "rank": 32.0,
+          "rank_hi": 32.0,
+          "rank_lo": 32.0,
+          "raw_class": 1.0,
+          "relres": 4.357000048652112e-15,
+          "relx": 5.546589680532708e-15,
+          "status": 1.0
+        },
+        "seed": 777,
+        "shape": [
+          96,
+          32
+        ]
+      }
+    ],
+    "router_sha256": "718c89b30049e0297a5e08385ea8d861701d732dd1b8194fa197a413ac60f97b"
+  },
+  "differences": [],
+  "float_tolerance": "abs<=1e-12 or rel<=1e-12; exact integer and sentinel comparison",
+  "max_abs_delta": {
+    "eta_inconsistent": 0.0,
+    "eta_infinite": 0.0,
+    "eta_status": 0.0,
+    "eta_unique": 0.0,
+    "eta_x": 0.0
+  },
+  "method": "separate process per build; one mapped router DSO each"
+}
