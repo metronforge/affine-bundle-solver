@@ -313,6 +313,19 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/affine-bundle-solver.pc
 # ---------------------------------------------------------------------------
 
 if(ABS_BUILD_TESTING)
+  # Exercise the actual private SVD state, including both compact-VT readers.
+  add_executable(abs_dgesdd_core_state_test
+    tests/test_dgesdd_core_state.c
+    $<TARGET_OBJECTS:abs_formation_guard_obj>)
+  target_compile_options(abs_dgesdd_core_state_test PRIVATE
+    -O3 ${ABS_ARCH_FLAG_LIST} -fopenmp -ffast-math ${ABS_INSTRUMENTATION})
+  target_compile_definitions(abs_dgesdd_core_state_test PRIVATE ${ABS_BLAS_DEFINES})
+  target_include_directories(abs_dgesdd_core_state_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src)
+  target_link_options(abs_dgesdd_core_state_test PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_libraries(abs_dgesdd_core_state_test PRIVATE
+    OpenMP::OpenMP_C ${ABS_BLAS_LIBRARIES} ${ABS_ATOMIC_LIBRARY} m)
+  add_test(NAME test_dgesdd_core_state COMMAND abs_dgesdd_core_state_test)
   add_test(NAME rounding_probe COMMAND abs_rounding_probe)
   add_test(NAME mxcsr_probe COMMAND abs_mxcsr_probe
            $<TARGET_FILE:affine_bundle_solver> $<TARGET_FILE:certified_solver>)
