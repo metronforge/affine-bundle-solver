@@ -1,6 +1,6 @@
 # Focused qualification report
 
-Verdict: **FOCUSED_NOT_QUALIFIED**.
+Verdict: **FOCUSED_INCOMPLETE**.
 
 The remotely verified preregistration was commit
 `72bb497fd73536f66543693cac46f36e77041edd`, tree
@@ -65,7 +65,8 @@ or alter—the failed confidence-bound gate.
 
 ## Gate decision
 
-The run failed two registered gates:
+The run contains one invalid scheduled observation and also failed a registered
+performance gate:
 
 1. V31-025 M/A API one-sided 95% upper ratio was **1.03918**, above the
    required `<= 1.03`.
@@ -75,5 +76,7 @@ The run failed two registered gates:
 Every other registered focused gate passed, including the 1.5x geometric-mean
 speedup, no A/M wall regression over 10%, V31-026/V31-027 API improvement,
 meaningful-field equality, router counts, RSS, runtime policy, identity, and
-record integrity. Because the complete focused qualification failed registered
-gates, the canonical campaign, PR, CI wait, and merge were not started.
+record integrity. The task requires `FOCUSED_INCOMPLETE` whenever any scheduled
+process is invalid, so the explicit `INVALID_THROTTLE` record takes precedence
+over the otherwise complete accounting and the failed confidence-bound gate.
+The canonical campaign, PR, CI wait, and merge were not started.
