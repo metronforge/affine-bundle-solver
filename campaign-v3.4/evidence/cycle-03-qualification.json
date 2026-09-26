@@ -1,0 +1,59 @@
+{
+  "campaign_id": "task5-v3.4-shared-overhead-20260926",
+  "solver_head": "5409f2a0ce35e6471b158b92e32eb3af91f68cf6",
+  "solver_tree": "f93452c2c4f4735b57b6643f2640de835a973535",
+  "tests": {
+    "native_system_blas": {"passed": 30, "failed": 0},
+    "portable_system_blas": {"passed": 30, "failed": 0},
+    "scipy_openblas": {"passed": 30, "failed": 0},
+    "harness_exact_libraries": {"passed": 45, "failed": 0, "skipped": 0},
+    "asan_ubsan_native_applicable": {"passed": 13, "failed": 0},
+    "asan_ubsan_python_applicable": {"passed": 12, "failed": 0},
+    "property_differential": {"checks": 10606, "hard_failures": 0, "registered_known_representation": 154},
+    "installed_consumers": {"passed": 3, "failed": 0},
+    "portable_vs_native": {"evaluations": 30, "semantic_mismatches": 0, "max_residual_difference": 6.421e-14},
+    "system_vs_scipy_blas": {"evaluations": 30, "semantic_mismatches": 0, "max_residual_difference": 9.335e-14},
+    "structural_products_n4": {"baseline": 128, "candidate": 60},
+    "targeted_unique_enomem": {"passed": 3, "failed": 0},
+    "reentrant_api": {"threads": 4, "calls": 64, "failures": 0}
+  },
+  "abi": {
+    "public_headers_unchanged": true,
+    "exported_symbols_unchanged": true
+  },
+  "failed_probes": [
+    {
+      "probe": "ASan stream-storage native fixture",
+      "result": "ASan shadow allocation failed under the fixture's intentional RLIMIT_AS",
+      "safe_alternative": "normal native stream-storage passed; changed verifier sanitizer-native tests passed"
+    },
+    {
+      "probe": "ASan unsanitized examples",
+      "result": "ASan runtime did not load first for examples not compiled with sanitizer flags",
+      "safe_alternative": "three clean installed consumers passed; changed verifier native sanitizer targets passed"
+    },
+    {
+      "probe": "ASan Python stream-storage fixture",
+      "result": "ASan fake-stack allocation failed under the fixture's intentional RLIMIT_AS",
+      "safe_alternative": "12 applicable sanitized Python semantic tests passed"
+    },
+    {
+      "probe": "local clang variant",
+      "result": "clang executable unavailable",
+      "safe_alternative": "GCC native and portable plus system and SciPy OpenBLAS variants passed; no PR was authorized for CI"
+    }
+  ],
+  "qualification": {
+    "source": "campaign-v3.4/timings/branch-qualification.json",
+    "warmups_per_path_per_slot": 1,
+    "eligible_trials_per_path_per_slot": 11,
+    "selective_reruns": 0,
+    "branch_api_geometric_mean_speedup": 1.1337269681695945,
+    "branch_end_to_end_geometric_mean_speedup": 1.0720911465318628,
+    "projected_legacy_geometric_mean_speedup": 1.5573814868147318,
+    "failed_gate": "V31-025 median production API regression 8.122188604968695% exceeds 3%",
+    "passed": false
+  },
+  "review_requested": false,
+  "reason_review_not_requested": "branch qualification gate failed before the review gate"
+}

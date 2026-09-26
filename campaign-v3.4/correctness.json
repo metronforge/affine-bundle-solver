@@ -1,0 +1,15 @@
+{
+  "native_system": {"passed": 30, "failed": 0},
+  "native_portable": {"passed": 30, "failed": 0},
+  "native_scipy_blas": {"passed": 30, "failed": 0},
+  "harness": {"passed": 45, "failed": 0},
+  "asan_ubsan_native_applicable": {"passed": 13, "failed": 0},
+  "asan_ubsan_python_applicable": {"passed": 12, "failed": 0},
+  "property_checks": {"executed": 10606, "new_or_hard_failures": 0, "registered_known_representation": 154},
+  "installed_consumers": {"passed": 3, "failed": 0},
+  "public_and_bounded_snapshot_differentials": {"pairs": 15, "mismatches": 0, "nan_infinity_safe": true},
+  "qualification_meaningful_differentials": {"pairs": 33, "mismatches": 0, "nan_infinity_safe": true},
+  "candidate_router_execution_values": [1],
+  "public_headers_unchanged": true,
+  "exported_symbols_unchanged": true
+}

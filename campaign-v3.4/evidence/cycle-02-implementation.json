@@ -3,25 +3,25 @@
   "campaign_id": "task5-v3.4-shared-overhead-20260926",
   "comparisons": [
     {
-      "baseline_combined_ns": 42872982,
+      "baseline_combined_ns": 47197067,
       "baseline_router_executions": 1,
-      "candidate_combined_ns": 61583240,
+      "candidate_combined_ns": 72587115,
       "candidate_router_executions": 1,
       "semantic_equal": true,
       "slot_id": "V31-025"
     },
     {
-      "baseline_combined_ns": 119470939,
+      "baseline_combined_ns": 99472622,
       "baseline_router_executions": 1,
-      "candidate_combined_ns": 76737922,
+      "candidate_combined_ns": 57887460,
       "candidate_router_executions": 1,
       "semantic_equal": true,
       "slot_id": "V31-026"
     },
     {
-      "baseline_combined_ns": 68705194,
+      "baseline_combined_ns": 56805844,
       "baseline_router_executions": 1,
-      "candidate_combined_ns": 48048054,
+      "candidate_combined_ns": 46702451,
       "candidate_router_executions": 1,
       "semantic_equal": true,
       "slot_id": "V31-027"
@@ -131,7 +131,7 @@
             "rowwise_backward_error": 0.0,
             "solver_contract_oracle_status": "INFINITE"
           },
-          "cpu_time_ns": 234623653,
+          "cpu_time_ns": 251501600,
           "legacy_preliminary_lstsq_ns": 0,
           "matrix": {
             "m": 128,
@@ -149,7 +149,7 @@
           },
           "meaningful_control_differential": null,
           "path": "candidate_null_xt",
-          "peak_rss_kb": 89560,
+          "peak_rss_kb": 89056,
           "router_strategy": "clear_full_rank",
           "slot_id": "V31-025",
           "standard_oracle": {
@@ -169,31 +169,31 @@
           "thermal": {
             "eligibility": "ELIGIBLE_NO_THROTTLE_SIGNAL",
             "frequencies_khz": [
-              1999881
+              1999894
             ],
             "temperatures_millic": [
               46000,
-              35050,
-              52000,
-              47050,
+              34050,
+              54000,
+              48050,
               30000,
               46050,
-              35000,
-              42000,
+              34000,
+              38000,
               30000,
               36000,
-              53000,
-              46000,
-              35050,
+              56000,
               47000,
+              34050,
+              48000,
               20000,
-              46050,
+              47050,
               30000,
-              54000,
+              55000,
               0,
-              35000,
+              34000,
               32000,
-              53050
+              56050
             ],
             "thermal_throttling_observed": false
           },
@@ -205,15 +205,15 @@
             "OPENBLAS_NUM_THREADS": "4"
           },
           "timing_ns": {
-            "combined_c_api": 42872982,
-            "contract_oracle": 5008306,
-            "materialization": 982135,
-            "serialization": 561120,
-            "standard_lstsq": 671020,
-            "standard_qr": 818171,
-            "standard_svd": 236,
-            "total_wall": 89526472,
-            "validation": 29121580
+            "combined_c_api": 47197067,
+            "contract_oracle": 4803830,
+            "materialization": 929718,
+            "serialization": 405600,
+            "standard_lstsq": 689613,
+            "standard_qr": 837064,
+            "standard_svd": 199,
+            "total_wall": 92360678,
+            "validation": 28429484
           }
         },
         "stderr": ""
@@ -291,7 +291,7 @@
             "rowwise_backward_error": 0.0,
             "solver_contract_oracle_status": "UNIQUE"
           },
-          "cpu_time_ns": 746527087,
+          "cpu_time_ns": 713264627,
           "legacy_preliminary_lstsq_ns": 0,
           "matrix": {
             "m": 192,
@@ -309,7 +309,7 @@
           },
           "meaningful_control_differential": null,
           "path": "candidate_null_xt",
-          "peak_rss_kb": 87716,
+          "peak_rss_kb": 87096,
           "router_strategy": "clear_full_rank",
           "slot_id": "V31-026",
           "standard_oracle": {
@@ -329,31 +329,31 @@
           "thermal": {
             "eligibility": "ELIGIBLE_NO_THROTTLE_SIGNAL",
             "frequencies_khz": [
-              2442414
+              2500025
             ],
             "temperatures_millic": [
               46000,
-              35050,
-              52000,
-              47050,
+              34050,
+              54000,
+              48050,
               30000,
               46050,
-              35000,
-              39000,
+              34000,
+              38000,
               30000,
               36000,
-              53000,
-              46000,
-              35050,
+              55000,
               47000,
+              34050,
+              48000,
               20000,
-              46050,
+              47050,
               30000,
-              54000,
+              55000,
               0,
-              35000,
+              34000,
               32000,
-              53050
+              55050
             ],
             "thermal_throttling_observed": false
           },
@@ -365,15 +365,15 @@
             "OPENBLAS_NUM_THREADS": "4"
           },
           "timing_ns": {
-            "combined_c_api": 119470939,
-            "contract_oracle": 8989543,
-            "materialization": 985777,
-            "serialization": 396090,
-            "standard_lstsq": 883244,
-            "standard_qr": 2960208,
-            "standard_svd": 224,
-            "total_wall": 179071569,
-            "validation": 26743911
+            "combined_c_api": 99472622,
+            "contract_oracle": 7755924,
+            "materialization": 1232621,
+            "serialization": 407935,
+            "standard_lstsq": 1085748,
+            "standard_qr": 3143426,
+            "standard_svd": 260,
+            "total_wall": 156558202,
+            "validation": 26787601
           }
         },
         "stderr": ""
@@ -451,7 +451,7 @@
             "rowwise_backward_error": 0.0,
             "solver_contract_oracle_status": "UNIQUE"
           },
-          "cpu_time_ns": 302885452,
+          "cpu_time_ns": 290979478,
           "legacy_preliminary_lstsq_ns": 0,
           "matrix": {
             "m": 256,
@@ -469,7 +469,7 @@
           },
           "meaningful_control_differential": null,
           "path": "candidate_null_xt",
-          "peak_rss_kb": 87344,
+          "peak_rss_kb": 87032,
           "router_strategy": "clear_full_rank",
           "slot_id": "V31-027",
           "standard_oracle": {
@@ -489,31 +489,31 @@
           "thermal": {
             "eligibility": "ELIGIBLE_NO_THROTTLE_SIGNAL",
             "frequencies_khz": [
-              2409450
+              2000000
             ],
             "temperatures_millic": [
               46000,
-              35050,
-              52000,
-              47050,
+              34050,
+              54000,
+              48050,
               30000,
               46050,
-              35000,
-              40000,
+              34000,
+              38000,
               30000,
               36000,
-              53000,
-              46000,
-              35050,
+              55000,
               47000,
+              34050,
+              48000,
               20000,
-              46050,
+              47050,
               30000,
-              53000,
+              55000,
               0,
-              35000,
+              34000,
               32000,
-              53050
+              55050
             ],
             "thermal_throttling_observed": false
           },
@@ -525,15 +525,15 @@
             "OPENBLAS_NUM_THREADS": "4"
           },
           "timing_ns": {
-            "combined_c_api": 68705194,
-            "contract_oracle": 5009959,
-            "materialization": 931925,
-            "serialization": 437778,
-            "standard_lstsq": 605085,
-            "standard_qr": 650969,
-            "standard_svd": 162,
-            "total_wall": 109127235,
-            "validation": 23324744
+            "combined_c_api": 56805844,
+            "contract_oracle": 4364092,
+            "materialization": 1016465,
+            "serialization": 454551,
+            "standard_lstsq": 592837,
+            "standard_qr": 658599,
+            "standard_svd": 227,
+            "total_wall": 95766534,
+            "validation": 22508620
           }
         },
         "stderr": ""
@@ -613,7 +613,7 @@
             "rowwise_backward_error": 0.0,
             "solver_contract_oracle_status": "INFINITE"
           },
-          "cpu_time_ns": 306810744,
+          "cpu_time_ns": 353205831,
           "legacy_preliminary_lstsq_ns": 0,
           "matrix": {
             "m": 128,
@@ -631,7 +631,7 @@
           },
           "meaningful_control_differential": null,
           "path": "candidate_null_xt",
-          "peak_rss_kb": 88540,
+          "peak_rss_kb": 88580,
           "router_strategy": "clear_full_rank",
           "slot_id": "V31-025",
           "standard_oracle": {
@@ -651,31 +651,31 @@
           "thermal": {
             "eligibility": "ELIGIBLE_NO_THROTTLE_SIGNAL",
             "frequencies_khz": [
-              2000000
+              1800997
             ],
             "temperatures_millic": [
               46000,
-              35050,
-              52000,
-              47050,
+              34050,
+              54000,
+              48050,
               30000,
               46050,
-              35000,
-              39000,
+              34000,
+              38000,
               30000,
               36000,
-              53000,
-              46000,
-              35050,
+              55000,
               47000,
+              34050,
+              48000,
               20000,
-              46050,
+              47050,
               30000,
-              54000,
+              55000,
               0,
-              35000,
+              34000,
               32000,
-              53050
+              55050
             ],
             "thermal_throttling_observed": false
           },
@@ -687,15 +687,15 @@
             "OPENBLAS_NUM_THREADS": "4"
           },
           "timing_ns": {
-            "combined_c_api": 61583240,
-            "contract_oracle": 5295137,
-            "materialization": 910816,
-            "serialization": 433722,
-            "standard_lstsq": 692270,
-            "standard_qr": 818937,
-            "standard_svd": 220,
-            "total_wall": 107829202,
-            "validation": 28575728
+            "combined_c_api": 72587115,
+            "contract_oracle": 5017464,
+            "materialization": 1052232,
+            "serialization": 450974,
+            "standard_lstsq": 668685,
+            "standard_qr": 809669,
+            "standard_svd": 197,
+            "total_wall": 121442238,
+            "validation": 31004597
           }
         },
         "stderr": ""
@@ -773,7 +773,7 @@
             "rowwise_backward_error": 0.0,
             "solver_contract_oracle_status": "UNIQUE"
           },
-          "cpu_time_ns": 695541780,
+          "cpu_time_ns": 609133317,
           "legacy_preliminary_lstsq_ns": 0,
           "matrix": {
             "m": 192,
@@ -791,7 +791,7 @@
           },
           "meaningful_control_differential": null,
           "path": "candidate_null_xt",
-          "peak_rss_kb": 87908,
+          "peak_rss_kb": 87620,
           "router_strategy": "clear_full_rank",
           "slot_id": "V31-026",
           "standard_oracle": {
@@ -811,31 +811,31 @@
           "thermal": {
             "eligibility": "ELIGIBLE_NO_THROTTLE_SIGNAL",
             "frequencies_khz": [
-              2501080
+              2400000
             ],
             "temperatures_millic": [
               46000,
-              35050,
-              52000,
-              47050,
+              34050,
+              54000,
+              48050,
               30000,
               46050,
-              35000,
-              39000,
+              34000,
+              38000,
               30000,
               36000,
-              54000,
-              46000,
-              35050,
+              55000,
               47000,
+              34050,
+              48000,
               20000,
-              46050,
+              47050,
               30000,
-              54000,
+              55000,
               0,
-              35000,
+              34000,
               32000,
-              53050
+              55050
             ],
             "thermal_throttling_observed": false
           },
@@ -847,15 +847,15 @@
             "OPENBLAS_NUM_THREADS": "4"
           },
           "timing_ns": {
-            "combined_c_api": 76737922,
-            "contract_oracle": 9025906,
-            "materialization": 1002236,
-            "serialization": 600314,
-            "standard_lstsq": 858058,
-            "standard_qr": 2765944,
-            "standard_svd": 193,
-            "total_wall": 139845689,
-            "validation": 32328015
+            "combined_c_api": 57887460,
+            "contract_oracle": 4467990,
+            "materialization": 1262194,
+            "serialization": 590534,
+            "standard_lstsq": 1121572,
+            "standard_qr": 3140253,
+            "standard_svd": 271,
+            "total_wall": 106757281,
+            "validation": 27037857
           }
         },
         "stderr": ""
@@ -933,7 +933,7 @@
             "rowwise_backward_error": 0.0,
             "solver_contract_oracle_status": "UNIQUE"
           },
-          "cpu_time_ns": 271872649,
+          "cpu_time_ns": 272694301,
           "legacy_preliminary_lstsq_ns": 0,
           "matrix": {
             "m": 256,
@@ -951,7 +951,7 @@
           },
           "meaningful_control_differential": null,
           "path": "candidate_null_xt",
-          "peak_rss_kb": 87460,
+          "peak_rss_kb": 87124,
           "router_strategy": "clear_full_rank",
           "slot_id": "V31-027",
           "standard_oracle": {
@@ -971,31 +971,31 @@
           "thermal": {
             "eligibility": "ELIGIBLE_NO_THROTTLE_SIGNAL",
             "frequencies_khz": [
-              1980226
+              2000000
             ],
             "temperatures_millic": [
               46000,
-              35050,
-              52000,
-              47050,
+              34050,
+              54000,
+              48050,
               30000,
               46050,
-              35000,
-              39000,
+              34000,
+              37000,
               30000,
               36000,
-              54000,
-              46000,
-              35050,
+              55000,
               47000,
+              34050,
+              48000,
               20000,
-              46050,
+              47050,
               30000,
-              54000,
+              55000,
               0,
-              35000,
+              34000,
               32000,
-              54050
+              55050
             ],
             "thermal_throttling_observed": false
           },
@@ -1007,15 +1007,15 @@
             "OPENBLAS_NUM_THREADS": "4"
           },
           "timing_ns": {
-            "combined_c_api": 48048054,
-            "contract_oracle": 3604895,
-            "materialization": 918920,
-            "serialization": 612885,
-            "standard_lstsq": 623416,
-            "standard_qr": 656569,
-            "standard_svd": 257,
-            "total_wall": 93852492,
-            "validation": 28415508
+            "combined_c_api": 46702451,
+            "contract_oracle": 5397921,
+            "materialization": 922148,
+            "serialization": 594688,
+            "standard_lstsq": 655597,
+            "standard_qr": 654142,
+            "standard_svd": 203,
+            "total_wall": 92369627,
+            "validation": 28120762
           }
         },
         "stderr": ""

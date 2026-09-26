@@ -5,6 +5,14 @@
   "python": "3.13.5",
   "numpy": "2.3.1",
   "scipy": "1.16.1",
+  "cpu": {
+    "model": "Intel(R) Core(TM) Ultra 9 185H",
+    "online_logical_cpus": 22,
+    "cores_per_socket": 16,
+    "threads_per_core": 2,
+    "max_mhz": 5100.0,
+    "min_mhz": 400.0
+  },
   "blas_lapack": "/usr/lib/x86_64-linux-gnu/libopenblas.so.0",
   "profiler": "LD_PRELOAD CLOCK_MONOTONIC_RAW function interposition; perf 7.0.14 unavailable under perf_event_paranoid=4",
   "thread_configuration": {
