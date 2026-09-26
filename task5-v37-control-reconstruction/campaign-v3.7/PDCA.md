@@ -59,3 +59,25 @@ The rebuilt L library differs bytewise from v3.6 because its RUNPATH identifies 
 ### ACT
 
 Accept Cycle 3 contingent on pushing the immutable manifest/protocol branch. Once pushed, execute exactly the committed qualification once; do not amend its schedule or retry an observation.
+
+## Cycle 4 — One-shot independent qualification
+
+### PLAN
+
+Hypothesis: the unchanged candidate meets every registered correctness, non-regression, stability, and direct three-slot performance gate under validated reconstructed controls. The smallest sufficient experiment is the one committed 288-process schedule, followed by the frozen analysis and an independent fresh-context recalculation. Acceptance requires complete observations, exact identities/schedule, meaningful equality, router/runtime/resource gates, V31-025 upper ratio at most 1.03, and direct L/A geometric mean at least 1.5x. Any missing/invalid observation ends the task without a rerun.
+
+### DO
+
+The sole official v3.7 run executed from sealed preregistration head `dd200678718a3fe48a40d5f89ca4887401dd8958`; the manifest itself was committed and remotely verified at `76ba23e9e5f9a71466c15eec5676d5a8bc3f52de` before candidate timing. All raw records were atomically checkpointed before analysis. The frozen v3.6 analysis implementation ran with 100,000 resamples and seed `2026093799`. A separate audit assessed completeness, schedule order, return codes, router counts, runtime, RSS, thermal state, variance, and order strata. A fresh-context reviewer independently regenerated the schedule and recalculated every comparison.
+
+### CHECK
+
+All 288 scheduled processes completed: nine excluded warmups and 279 eligible observations, with zero failures and no reruns. All meaningful L/A and M/A fields agree. All 96 A processes record one router execution. Direct L/A E2E speedups are 1.251639x, 4.634333x, and 2.017665x; the geometric mean is 2.270414x (95% bootstrap interval 2.142973–2.325095). V31-025 M/A API upper ratio is 1.005952. No A/M E2E median regresses; RSS ratios are <=1.0095; every process has fixed affinity and compliant thread fingerprints; no throttle invalidation occurs.
+
+The independent reviewer exactly reproduced all bootstrap results. It raised one closure-only blocker: the newly generated raw/analysis files were not yet tracked and no v3.7 checksum inventory existed. That condition is resolved by the final evidence commit and verified `SHA256SUMS`; it does not require or permit rerunning performance.
+
+High V31-025 raw CV and bounded order differences are retained as nonblocking caveats. Order strata do not reverse a gate and are unaccompanied by runtime or thermal violations.
+
+### ACT
+
+Accept Cycle 4 after checksum sealing and follow-up inventory verification. Terminal verdict: `QUALIFIED_WITH_RECONSTRUCTED_CONTROLS`. Preserve the analysis worktree, branch, candidate bundle, all historical evidence, and stash state. Push only the analysis/evidence branch; perform no solver PR, merge, or 27-slot campaign.

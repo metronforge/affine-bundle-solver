@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="22"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="49"
+	timestamp="2026-09-26T19:36:47"
+	>
+	<testcase name="test_certified_diag" classname="test_certified_diag" time="0.00921809" status="run">
+		<properties/>
+		<system-out>unique-square: PASS status=1 grey=0/0
+unique-tall: PASS status=1 grey=0/0
+infinite-wide: PASS status=2 grey=0/0
+infinite-tall: PASS status=2 grey=0/0
+inconsistent: PASS status=3 grey=0/0
+near-threshold: PASS status=5 grey=1/2
+zero-compatible: PASS status=2 grey=0/0
+zero-incompatible: PASS status=3 grey=0/0
+thin-wide-48: PASS status=2 grey=0/0
+thin-wide-96: PASS status=2 grey=0/0
+</system-out>
+	</testcase>
+	<testcase name="test_certified_diag_once" classname="test_certified_diag_once" time="0.00701603" status="run">
+		<properties/>
+		<system-out>one router execution and grey capacity: PASS
+</system-out>
+	</testcase>
+	<testcase name="test_certified_reuse" classname="test_certified_reuse" time="0.00696444" status="run">
+		<properties/>
+		<system-out>combined audit least-squares reuse: PASS
+</system-out>
+	</testcase>
+	<testcase name="test_dgesdd_core_state" classname="test_dgesdd_core_state" time="0.00663132" status="run">
+		<properties/>
+		<system-out>PASS wide core=3x5 rank=3
+PASS square core=4x4 rank=4
+PASS tall core=5x3 rank=3
+PASS wide-rank-deficient core=3x5 rank=2
+PASS wide-rank-zero core=3x5 rank=0
+PASS wide-near-threshold core=3x5 rank=2
+</system-out>
+	</testcase>
+	<testcase name="test_native_solver_lifecycle" classname="test_native_solver_lifecycle" time="0.00713581" status="run">
+		<properties/>
+		<system-out>native stream/router/certified/witness lifecycle: PASS
+</system-out>
+	</testcase>
+	<testcase name="test_stream_storage_native" classname="test_stream_storage_native" time="0.0206186" status="run">
+		<properties/>
+		<system-out>native stream: initial rc=-3 (ABS_INSERT_ENOMEM), seen=0, deferred=0, rank=0; identical retry rc=1 (ABS_INSERT_GROW), seen=1, deferred=0, rank=1: PASS
+</system-out>
+	</testcase>
+	<testcase name="rounding_probe" classname="rounding_probe" time="0.00245462" status="run">
+		<properties/>
+		<system-out>directed-rounding probe: PASS
+</system-out>
+	</testcase>
+	<testcase name="mxcsr_probe" classname="mxcsr_probe" time="0.00705757" status="run">
+		<properties/>
+		<system-out>mxcsr probe: PASS (FTZ=0 DAZ=0 unchanged, subnormals preserved)
+</system-out>
+	</testcase>
+	<testcase name="link_contract" classname="link_contract" time="0.0111933" status="run">
+		<properties/>
+		<system-out>-- link contract: no fast-math flag on the router link line
+</system-out>
+	</testcase>
+	<testcase name="test_certified_api" classname="test_certified_api" time="0.247148" status="run">
+		<properties/>
+		<system-out>unique 1.6937415569662819e-15 profile 1.6937415569662819e-15 1.3644038572546293 2.108646639773842e-15
+infinite 1.817851511198081e-15 profile 2.5238298839099317e-15 1.817851511198081e-15 3.582351311204122e-15
+inconsistent 2.206939163970076e-15 profile 0.0008588049968827029 0.0008588049968817033 2.206939163970076e-15
+PASS
+</system-out>
+	</testcase>
+	<testcase name="test_status_profile_semantics" classname="test_status_profile_semantics" time="0.212753" status="run">
+		<properties/>
+		<system-out>degenerate case: ||P_null b0|| = 3.996e-15, 0 of 41 candidates accepted, first interval [-8.153e-17, 1.766e-15]
+controlled case: delta = 1.716e-07, rc=0, interval [4.290e-08, 4.290e-08], eta = 1.861e-15
+eps=1e-12 eta_unique=7.985e-13 eta_inconsistent=2.220e-15
+eps=1e-09 eta_unique=7.985e-10 eta_inconsistent=2.008e-15
+eps=1e-06 eta_unique=7.985e-07 eta_inconsistent=2.135e-15
+eps=1e-03 eta_unique=7.982e-04 eta_inconsistent=1.897e-15
+eps=1e-01 eta_unique=7.628e-02 eta_inconsistent=1.781e-15
+compatible-adversarial eta_inconsistent=not observed (0/41 candidates accepted, ||P_null b0||=4.00e-15); the rounding-level residual did not clear the verifier envelope on this platform
+PRIMARY PASS
+rank-deficient-compatible eta_unique=1.064e-15 eta_infinite=6.292e-16 eta_inconsistent=1.971e-15
+MIRROR PASS
+</system-out>
+	</testcase>
+	<testcase name="test_verifier_adversarial" classname="test_verifier_adversarial" time="0.110058" status="run">
+		<properties/>
+		<system-out>adversarial verifier checks: PASS
+</system-out>
+	</testcase>
+	<testcase name="test_meta_api_absent_solution_quality" classname="test_meta_api_absent_solution_quality" time="0.22495" status="run">
+		<properties/>
+		<system-out>PASS incompatible meta API exports no solution-quality field
+</system-out>
+	</testcase>
+	<testcase name="test_streaming_equivalence" classname="test_streaming_equivalence" time="0.384485" status="run">
+		<properties/>
+		<system-out>  case                            stream        router     interval  deferred
+  ------------------------------------------------------------------------------
+  full_400x12                     UNIQUE        UNIQUE     [12, 12]         0
+  full_800x24                     UNIQUE        UNIQUE     [24, 24]         0
+  full_1500x32                    UNIQUE        UNIQUE     [32, 32]         0
+  rankdef_600x20r12             INFINITE      INFINITE     [12, 12]         0
+  rankdef_1200x32r20            INFINITE      INFINITE     [20, 20]         0
+  inconsistent_500x16       INCONSISTENT  INCONSISTENT     [16, 16]         0
+  inconsistent_900x24       INCONSISTENT  INCONSISTENT     [24, 24]         0
+  under_64x128                  INFINITE      INFINITE     [64, 64]         0
+  under_100x300                 INFINITE      INFINITE   [100, 100]         0
+
+  cost of 1000 inserts, by position in the stream: 9.0 ms, 12.0 ms, 8.6 ms, 9.2 ms
+
+ok: 9 systems, 0 with deferred rows, insert cost flat across the stream
+</system-out>
+	</testcase>
+	<testcase name="test_threshold_contract" classname="test_threshold_contract" time="4.2881" status="run">
+		<properties/>
+		<system-out>  header : dependence 1e-13, growth 1e-09
+  library: dependence 1e-13, growth 1e-09
+
+  Row = in-span row + eps * out-of-span direction
+       eps    verdict   expected
+  ----------------------------------------
+     1e-15     ABSORB   ABSORB
+     1e-14     ABSORB   ABSORB
+     1e-12      DEFER   DEFER
+     1e-11      DEFER   DEFER
+     1e-10      DEFER   DEFER
+     1e-07       GROW   GROW
+     1e-06       GROW   GROW
+
+  Same systems, rescaled.  Scale must not change the verdict.
+       eps      1e-08      1e+00      1e+08
+  --------------------------------------------
+     1e-15     ABSORB     ABSORB     ABSORB
+     1e-14     ABSORB     ABSORB     ABSORB
+     1e-12      DEFER      DEFER      DEFER
+     1e-11      DEFER      DEFER      DEFER
+     1e-10      DEFER      DEFER      DEFER
+     1e-07       GROW       GROW       GROW
+     1e-06       GROW       GROW       GROW
+
+  quality threshold: header 1e-14, library 1e-14
+  48 systems, 48 deterministic UNIQUE with a witness, largest backward error 9.164e-15
+
+ok:...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="test_public_diagnostics" classname="test_public_diagnostics" time="0.247199" status="run">
+		<properties/>
+		<system-out>bsolve_router_api agrees with bsolve_router_meta_api
+  [ok] same class, rank, fallback and randomised flag: overdetermined full rank
+  [ok] same class, rank, fallback and randomised flag: overdetermined rank deficient
+  [ok] same class, rank, fallback and randomised flag: inconsistent
+  [ok] same class, rank, fallback and randomised flag: square
+  [ok] same class, rank, fallback and randomised flag: underdetermined
+  [ok] same class, rank, fallback and randomised flag: near the band
+
+non-finite input is rejected at both boundaries, in the right layout
+  [ok] both entry points return FAIL
+  [ok] meta FAIL fills out[1] and out[9] with valid codes
+  [ok] meta FAIL leaves no elapsed time in a rank field
+  [ok] meta FAIL exports no residual, error or backward error
+
+bsolve_router_diag_api: same classification, plus the grey buffer
+  [ok] diag writes the meta vector unchanged: overdetermined full rank
+  [ok] grey count within the buffer: overdetermined full rank (0)
+  [ok] grey indices are distinct: overdetermined ...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="test_stream_storage" classname="test_stream_storage" time="0.109993" status="run">
+		<properties/>
+		<system-out>rank-adaptive stream storage: PASS
+allocation failure leaves row count and rank unchanged; retry succeeds
+</system-out>
+	</testcase>
+	<testcase name="test_core_rank_boundary" classname="test_core_rank_boundary" time="5.79474" status="run">
+		<properties/>
+		<system-out>a singular value above the window leaves a point rank
+  [ok] 200x16 gap 1e-04: deterministic UNIQUE at rank 16 (got UNIQUE [16,16])
+  [ok] 200x16 gap 1e-06: deterministic UNIQUE at rank 16 (got UNIQUE [16,16])
+  [ok] 200x16 gap 1e-08: deterministic UNIQUE at rank 16 (got UNIQUE [16,16])
+  [ok] 400x32 gap 1e-04: deterministic UNIQUE at rank 32 (got UNIQUE [32,32])
+  [ok] 400x32 gap 1e-06: deterministic UNIQUE at rank 32 (got UNIQUE [32,32])
+  [ok] 400x32 gap 1e-08: deterministic UNIQUE at rank 32 (got UNIQUE [32,32])
+  [ok] 1000x64 gap 1e-04: deterministic UNIQUE at rank 64 (got UNIQUE [64,64])
+  [ok] 1000x64 gap 1e-06: deterministic UNIQUE at rank 64 (got UNIQUE [64,64])
+  [ok] 1000x64 gap 1e-08: deterministic UNIQUE at rank 64 (got UNIQUE [64,64])
+  [ok] 256x256 gap 1e-04: deterministic UNIQUE at rank 256 (got UNIQUE [256,256])
+  [ok] 256x256 gap 1e-06: deterministic UNIQUE at rank 256 (got UNIQUE [256,256])
+  [ok] 256x256 gap 1e-08: deterministic UNIQUE at rank 256 (got UNIQUE [256,256])
+
+a singular value i...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="test_blockprefix_guard" classname="test_blockprefix_guard" time="12.6834" status="run">
+		<properties/>
+		<system-out>above the window the guard certifies the full rank
+  [ok] 800x192 gap 1e-06: deterministic UNIQUE at [192,192] (got UNIQUE c1 [192,192])
+  [ok] 800x192 gap 1e-06 contradictory: deterministic INCONSISTENT (got INCONSISTENT c1)
+  [ok] 800x192 gap 1e-08: deterministic UNIQUE at [192,192] (got UNIQUE c1 [192,192])
+  [ok] 800x192 gap 1e-08 contradictory: deterministic INCONSISTENT (got INCONSISTENT c1)
+  [ok] 2000x256 gap 1e-06: deterministic UNIQUE at [256,256] (got UNIQUE c1 [256,256])
+  [ok] 2000x256 gap 1e-06 contradictory: deterministic INCONSISTENT (got INCONSISTENT c1)
+  [ok] 2000x256 gap 1e-08: deterministic UNIQUE at [256,256] (got UNIQUE c1 [256,256])
+  [ok] 2000x256 gap 1e-08 contradictory: deterministic INCONSISTENT (got INCONSISTENT c1)
+
+inside the window the guard declines and no rank is claimed
+  [ok] 800x192 gap 1e-10: UNDECIDABLE with no certainty (got UNDECIDABLE c3)
+  [ok] 800x192 gap 1e-10: interval [191,192] brackets both candidate ranks and is not a point
+  [ok] 800x192 gap 1e-11: UNDECIDABLE...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="test_route_agreement" classname="test_route_agreement" time="24.4388" status="run">
+		<properties/>
+		<system-out>  [ok] cond 1e+01 300x64 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+01 300x64 d1 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/64  global_qr=UNDECIDABLE/64  block=INCONSISTENT/64  fast=INCONSISTENT/64  auto_qr=INCONSISTENT/64]
+  [ok] cond 1e+03 300x64 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+03 300x64 d1 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/64  global_qr=UNDECIDABLE/64  block=INCONSISTENT/64  fast=INCONSISTENT/64  auto_qr=INCONSISTENT/64]
+  [ok] cond 1e+06 300x64 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+06 300x64 d1 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/64  global_qr=UNDECIDABLE/64  block=UNDECIDABLE/64  fast=INCONSISTENT/64  auto_q...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="test_dgesdd_compact_vt" classname="test_dgesdd_compact_vt" time="0.0317568" status="run">
+		<properties/>
+		<system-out>PASS: compact DGESDD private state contract
+</system-out>
+	</testcase>
+	<testcase name="test_dgesdd_candidate_semantics" classname="test_dgesdd_candidate_semantics" time="0.223891" status="run">
+		<properties/>
+		<system-out>wide status 2 rank 32 mask 6
+square status 1 rank 48 mask 7
+tall status 1 rank 32 mask 7
+zero status 2 rank 0 mask 2
+rank-deficient status 2 rank 12 mask 7
+inconsistent status 3 rank 32 mask 7
+gapped-full status 1 rank 32 mask 7
+near-threshold status 5 rank 31 mask 7
+PASS: compact DGESDD focused public semantics
+</system-out>
+	</testcase>
+</testsuite>
