@@ -1,0 +1,15 @@
+{
+  "campaign_id": "task5-v3.4-shared-overhead-20260926",
+  "solver_base_commit": "1621d104a27eef3b12ec291384cac5f517da79f4",
+  "solver_base_tree": "86dd1f677664160e40de72c0121e72fa5e54a83b",
+  "solver_unmerged_head": "5409f2a0ce35e6471b158b92e32eb3af91f68cf6",
+  "solver_unmerged_tree": "f93452c2c4f4735b57b6643f2640de835a973535",
+  "solver_branch": "perf/task5-v3.4-shared-overhead",
+  "solver_origin_main": "1621d104a27eef3b12ec291384cac5f517da79f4",
+  "solver_pr": null,
+  "solver_merge": null,
+  "harness_baseline": "28d2722750852e0ddbf95a2cc375d89c2b81d5ab",
+  "harness_evidence_source": "44612dc07280d5f5746e5ed140b5f1632e8b9e37",
+  "harness_branch": "perf/task5-v3.4-shared-overhead-validation",
+  "terminal_verdict": "CORRECT_CHANGE_NOT_BENEFICIAL"
+}
