@@ -1,0 +1,20 @@
+Isolation-policy RED:
+
+    assert c1.roles["solver"].gomp_threads == 1
+    AssertionError: assert 4 == 1
+
+C3 fidelity RED:
+
+    assert {policy.system_openblas_threads, policy.scipy_blas_threads,
+            policy.mkl_threads, policy.gomp_threads,
+            policy.iomp_threads} == {4}
+    AssertionError: assert {1, 4} == {4}
+
+Fail-closed analysis RED:
+
+    test_aa_analysis_fails_closed_on_missing_or_failed_observation
+    KeyError: (30, 'M2')
+
+Each was followed by the focused GREEN retained in
+`cycle-02-harness-green.log`. These repairs happened before data collection.
+

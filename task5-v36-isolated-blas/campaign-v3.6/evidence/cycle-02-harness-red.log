@@ -1,0 +1,16 @@
+
+==================================== ERRORS ====================================
+_______________ ERROR collecting tests/test_v36_isolated_blas.py _______________
+ImportError while importing test module '/home/viktor/task5-v36-isolated-blas/tests/test_v36_isolated_blas.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../miniconda3/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_v36_isolated_blas.py:6: in <module>
+    from task5v36.analysis import aa_decision, select_configuration
+E   ModuleNotFoundError: No module named 'task5v36'
+=========================== short test summary info ============================
+ERROR tests/test_v36_isolated_blas.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.26s
