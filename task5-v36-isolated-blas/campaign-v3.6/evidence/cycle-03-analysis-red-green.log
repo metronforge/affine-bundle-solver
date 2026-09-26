@@ -1,0 +1,25 @@
+RED before qualification-analysis implementation:
+
+    ImportError: cannot import name 'qualification_decision' from
+    'task5v36.analysis'
+
+Schedule-balance RED before the three-arm correction:
+
+    assert max(counts) - min(counts) <= 1
+    AssertionError: assert (11 - 9) <= 1
+
+The two-arm generator path was then preserved byte-for-byte and verified
+against every sealed C1/C2 observation, while the new three-arm path uses full
+Latin rotations plus a balanced remainder.
+
+GREEN before candidate timing:
+
+    python3 -m pytest -q tests/test_v36_isolated_blas.py
+    ................                                                         [100%]
+    16 passed in 2.12s
+
+    python3 -m pytest -q
+    69 passed, 4 skipped in 3.47s
+
+    sealed C1/C2 schedules unchanged: PASS
+

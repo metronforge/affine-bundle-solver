@@ -1,0 +1,33 @@
+{
+  "active_compute_threads": 4,
+  "configuration": "C1",
+  "cpu_affinity": [1, 3, 6, 8],
+  "legacy_role": {
+    "active": {"scipy_openblas": 4},
+    "inactive": {
+      "libgomp": 1,
+      "libiomp5": 1,
+      "mkl": 1,
+      "system_openblas": 1
+    },
+    "forbidden": []
+  },
+  "selection_reason": "only eligible configuration",
+  "solver_role": {
+    "active": {"system_openblas": 4},
+    "forbidden": ["scipy_openblas", "libmkl", "libiomp"],
+    "inactive": {"libgomp": 1}
+  },
+  "solver_runtime_fingerprint": {
+    "affinity": [1, 3, 6, 8],
+    "libraries": [
+      "/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0",
+      "/usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.32.so"
+    ],
+    "threadpools": [
+      ["/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0", "openmp", 1],
+      ["/usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.32.so", "openblas", 4]
+    ]
+  }
+}
+

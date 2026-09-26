@@ -26,11 +26,47 @@ All acceptance criteria passed. The differential covered 1,968 calls, 31,160 row
 
 ## Cycle 2 — BLAS/runtime isolation and A/A selection
 
-Pending Cycle 1 acceptance.
+### PLAN
+
+Hypothesis: at least one preregistered role-isolated configuration passes the
+strict 3% M/M non-inferiority gate for API and end-to-end time on all three
+bounded-large slots without competing active runtimes. Falsifiers are any
+upper bound at or above 1.03, order effect, fingerprint mismatch, unequal
+budget, execution failure, incomplete schedule, or thermal invalidation.
+Safety controls are M-only data, immutable seeds/orders/checkpoints, direct
+runtime probes, fixed affinity, one named warmup only, no reruns, and selection
+committed before candidate exposure.
+
+### DO
+
+Implemented and tested role-specific stdlib solver and SciPy legacy workers,
+direct per-library thread limits, full process/runtime telemetry, atomic
+checkpoints, and fixed-seed paired bootstrap analysis. An unsupported Ninja
+prebuild failed before producing a library and was preserved; the generator
+was corrected in a new preregistration commit before data. Built independent
+M1/M2 libraries, froze input bundles, ran all C1/C2 observations and the C3
+diagnostic, and retained every raw record.
+
+### CHECK
+
+C1 passed all gates: 186/186 eligible observations, worst API upper 1.023451,
+worst end-to-end upper 1.023410, exact M1/M2 runtime fingerprints, no order
+effect, and no throttle invalidation. C2's six timing bounds passed, but one
+eligible process incremented package-throttle counters and therefore failed
+the frozen thermal gate without rerun. C3 mapped five four-thread runtime pools
+and showed a 1.210205 worst API upper plus an order effect; it was diagnostic
+and nonselectable.
+
+### ACT
+
+**ACCEPT C1.** It is the only eligible configuration, so the tie-break is not
+reached. Freeze C1, L/M/A identities, the one-shot qualification schedule, and
+analysis before candidate timing. No C2 rerun or configuration change is
+permitted.
 
 ## Cycle 3 — One-shot direct qualification and exact-head review
 
-Pending Cycle 2 acceptance.
+Pending Cycle 2 frozen-evidence commit.
 
 ## Cycle 4 — Complete 27-slot campaign and verified integration
 

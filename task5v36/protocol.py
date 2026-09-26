@@ -9,6 +9,7 @@ import os
 import random
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 from task5v31.campaign import atomic_write, canonical_json
@@ -21,16 +22,33 @@ def balanced_orders(arms, *, repetitions, seed, slot_index):
     if not arms or repetitions < 1:
         raise ValueError("arms and repetitions must be non-empty")
     rng = random.Random(seed + slot_index)
-    block_count = (repetitions + len(arms) - 1) // len(arms)
+    if len(arms) == 2:
+        # Preserve the already-sealed C1/C2 calibration schedule byte-for-byte.
+        block_count = (repetitions + 1) // 2
+        orders = []
+        for _ in range(block_count):
+            base = list(arms)
+            rng.shuffle(base)
+            rows = [tuple(base[offset:] + base[:offset]) for offset in range(2)]
+            rng.shuffle(rows)
+            orders.extend(rows)
+        while len(orders) > repetitions:
+            del orders[rng.randrange(len(orders))]
+        return orders
     orders = []
-    for _ in range(block_count):
+    for _ in range(repetitions // len(arms)):
         base = list(arms)
         rng.shuffle(base)
         rows = [tuple(base[offset:] + base[:offset]) for offset in range(len(base))]
         rng.shuffle(rows)
         orders.extend(rows)
-    while len(orders) > repetitions:
-        del orders[rng.randrange(len(orders))]
+    remainder = repetitions % len(arms)
+    if remainder:
+        base = list(arms)
+        rng.shuffle(base)
+        rows = [tuple(base[offset:] + base[:offset]) for offset in range(len(base))]
+        rng.shuffle(rows)
+        orders.extend(rows[:remainder])
     return orders
 
 
@@ -103,12 +121,15 @@ def worker_runner(*, arms, bundles, configuration, timeout_seconds=30):
                    "task5v36.worker", "--role", role, "--configuration",
                    configuration, "--bundle", str(Path(bundles[item["slot_id"]]).resolve()),
                    "--library", str(Path(spec["library"]).resolve())]
+        worker_started = time.perf_counter_ns()
         completed = subprocess.run(command, check=True, text=True,
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    env=environment, timeout=timeout_seconds)
+        worker_wall_ns = time.perf_counter_ns() - worker_started
         record = json.loads(completed.stdout)
         record["command"] = command
         record["stderr"] = completed.stderr
+        record["worker_process_wall_ns"] = worker_wall_ns
         return record
     return run
 

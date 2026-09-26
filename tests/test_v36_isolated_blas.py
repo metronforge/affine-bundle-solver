@@ -1,11 +1,14 @@
 import json
 import math
+import subprocess
 
 import pytest
 
-from task5v36.analysis import aa_decision, select_configuration
+from task5v36.analysis import (aa_decision, qualification_decision,
+                               select_configuration)
 from task5v36.campaign import CAMPAIGN_ID, generate_v36_manifest
-from task5v36.protocol import balanced_orders, build_schedule, run_dataset
+from task5v36.protocol import (balanced_orders, build_schedule, run_dataset,
+                               worker_runner)
 from task5v36.runtime import CONFIGURATIONS, fingerprint_eligible, validate_telemetry
 
 
@@ -51,6 +54,12 @@ def test_balanced_orders_are_deterministic_and_position_balanced():
     assert len(first) == 31
     assert abs(sum(order[0] == "M1" for order in first) -
                sum(order[0] == "M2" for order in first)) <= 1
+    three = balanced_orders(("L", "M", "A"), repetitions=31,
+                            seed=2026093604, slot_index=0)
+    for arm in ("L", "M", "A"):
+        counts = [sum(order[position] == arm for order in three)
+                  for position in range(3)]
+        assert max(counts) - min(counts) <= 1
 
 
 def test_calibration_schedules_have_one_warmup_and_frozen_trial_counts():
@@ -126,6 +135,16 @@ def test_atomic_checkpoint_resume_never_reruns_completed_observations(tmp_path):
     assert json.loads(checkpoint.read_text())["complete"] is True
 
 
+def test_worker_runner_retains_outer_process_wall_time(monkeypatch, tmp_path):
+    completed = subprocess.CompletedProcess([], 0, stdout="{}", stderr="")
+    monkeypatch.setattr(subprocess, "run", lambda *args, **kwargs: completed)
+    runner = worker_runner(
+        arms={"M": {"role": "solver", "library": tmp_path / "M.so"}},
+        bundles={"V31-025": tmp_path / "V31-025"}, configuration="C1")
+    record = runner({"arm": "M", "slot_id": "V31-025"})
+    assert record["worker_process_wall_ns"] > 0
+
+
 def _aa_rows(ratio, *, order_effect=0.0, bad_fingerprint=False):
     rows = []
     for slot in SLOTS:
@@ -190,3 +209,71 @@ def test_selection_rule_uses_smallest_max_api_upper_then_e2e_tie_break():
     assert select_configuration(decisions)["selected"] == "C2"
     decisions["C2"]["maximum_api_upper"] = 1.026
     assert select_configuration(decisions)["selected"] == "C1"
+
+
+def _qualification_rows(*, candidate_scale=0.8, legacy_scale=1.6,
+                        candidate_router=1):
+    rows = []
+    expected_hashes = {"L": "l" * 64, "M": "m" * 64, "A": "a" * 64}
+    combined = {
+        "api_return": 0, "certified": {"certified_status": 1},
+        "router_meta": {"STATUS": 1.0}, "grey_distinct_count": 0,
+        "grey_total_events": 0, "grey_rows": [],
+        "last_orth_eta": 9.0, "core_rank_interval": [-1, -1],
+        "core_qr_rank": -1, "formation_guard_counters": [0, 0, 0],
+        "router_executions": 1,
+    }
+    legacy_runtime = _telemetry(
+        libraries=["/usr/lib/libopenblas.so", "/env/libscipy_openblas.so"],
+        pools=[{"filepath": "/usr/lib/libopenblas.so",
+                "internal_api": "openblas", "num_threads": 1},
+               {"filepath": "/env/libscipy_openblas.so",
+                "internal_api": "openblas", "num_threads": 4}])
+    for slot in SLOTS:
+        for trial in range(31):
+            order = ["L", "M", "A"] if trial % 2 == 0 else ["A", "M", "L"]
+            for arm in order:
+                scale = legacy_scale if arm == "L" else candidate_scale if arm == "A" else 1.0
+                value = round(1_000_000 * scale)
+                value_combined = json.loads(json.dumps(combined))
+                if arm == "A":
+                    value_combined["router_executions"] = candidate_router
+                rows.append({
+                    "slot_id": slot, "phase": "eligible", "trial": trial,
+                    "arm": arm, "order": order,
+                    "record": {
+                        "timing_ns": {"combined_c_api": value,
+                                      "total_wall": value},
+                        "worker_process_wall_ns": value + 10,
+                        "cpu_time_ns": value, "peak_rss_kb": 100,
+                        "combined": value_combined,
+                        "input": {"matrix_sha256": slot + "-a",
+                                  "rhs_sha256": slot + "-b"},
+                        "library": {"sha256": expected_hashes[arm]},
+                        "runtime": legacy_runtime if arm == "L" else _telemetry(),
+                        "thermal": {"eligibility": "ELIGIBLE"},
+                        "active_compute_budget": 4,
+                    },
+                })
+    return rows, expected_hashes
+
+
+def test_qualification_decision_accepts_direct_two_x_speedup():
+    rows, hashes = _qualification_rows()
+    decision = qualification_decision(rows, expected_libraries=hashes,
+                                      integrity=True, samples=2_000, seed=29,
+                                      configuration="C1")
+    assert decision["aggregate_legacy_candidate"]["point_speedup"] == 2.0
+    assert decision["checks"]["v25_api_noninferior"]
+    assert decision["passed"]
+
+
+def test_qualification_decision_fails_router_and_speedup_gates():
+    rows, hashes = _qualification_rows(candidate_scale=0.8, legacy_scale=1.1,
+                                        candidate_router=2)
+    decision = qualification_decision(rows, expected_libraries=hashes,
+                                      integrity=True, samples=200, seed=31,
+                                      configuration="C1")
+    assert not decision["checks"]["router_once"]
+    assert not decision["checks"]["legacy_candidate_geomean_at_least_1_5"]
+    assert not decision["passed"]

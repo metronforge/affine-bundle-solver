@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import random
@@ -153,6 +154,164 @@ def select_configuration(decisions):
             "eligible": sorted(eligible)}
 
 
+def _arm_pairs(records, reference, candidate, field, slot):
+    eligible = [row for row in records if row.get("phase") == "eligible" and
+                row.get("slot_id") == slot and isinstance(row.get("record"), dict)]
+    by_key = {(row["trial"], row["arm"]): row for row in eligible}
+    trials = sorted({row["trial"] for row in eligible
+                     if (row["trial"], reference) in by_key and
+                        (row["trial"], candidate) in by_key})
+    return [(by_key[trial, reference]["record"]["timing_ns"][field],
+             by_key[trial, candidate]["record"]["timing_ns"][field])
+            for trial in trials]
+
+
+def _paired_comparison(records, reference, candidate, field, slot, *, samples, seed):
+    pairs = _arm_pairs(records, reference, candidate, field, slot)
+    if not pairs:
+        return {"n": 0, "ratio_point": math.inf,
+                "ratio_of_medians": math.inf, "speedup_of_medians": 0.0,
+                "one_sided_95_upper": math.inf,
+                "two_sided_95_ratio_ci": [math.inf, math.inf]}
+    logs = [math.log(right / left) for left, right in pairs]
+    rng = random.Random(seed)
+    draws = [statistics.median(logs[rng.randrange(len(logs))]
+                               for _ in logs) for _ in range(samples)]
+    left = [pair[0] for pair in pairs]
+    right = [pair[1] for pair in pairs]
+    return {
+        "n": len(pairs), "ratio_point": math.exp(statistics.median(logs)),
+        "ratio_of_medians": statistics.median(right) / statistics.median(left),
+        "speedup_of_medians": statistics.median(left) / statistics.median(right),
+        "one_sided_95_upper": math.exp(_quantile(draws, 0.95)),
+        "two_sided_95_ratio_ci": [math.exp(_quantile(draws, 0.025)),
+                                   math.exp(_quantile(draws, 0.975))],
+    }
+
+
+def _meaningful_view(combined):
+    return {key: combined.get(key) for key in (
+        "api_return", "certified", "router_meta", "grey_distinct_count",
+        "grey_total_events", "grey_rows", "core_rank_interval", "core_qr_rank",
+        "formation_guard_counters")}
+
+
+def _aggregate_speedup(records, *, samples, seed):
+    slot_pairs = {slot: _arm_pairs(records, "L", "A", "total_wall", slot)
+                  for slot in SLOTS}
+    if any(not pairs for pairs in slot_pairs.values()):
+        return {"per_slot_speedups": {}, "point_speedup": 0.0,
+                "bootstrap_95_ci": [0.0, 0.0]}
+    per_slot = {
+        slot: statistics.median(left for left, _ in pairs) /
+              statistics.median(right for _, right in pairs)
+        for slot, pairs in slot_pairs.items()
+    }
+    rng = random.Random(seed)
+    draws = []
+    for _ in range(samples):
+        speedups = []
+        for slot in SLOTS:
+            pairs = slot_pairs[slot]
+            sample = [pairs[rng.randrange(len(pairs))] for _ in pairs]
+            speedups.append(statistics.median(left for left, _ in sample) /
+                            statistics.median(right for _, right in sample))
+        draws.append(math.prod(speedups) ** (1 / len(speedups)))
+    return {"per_slot_speedups": per_slot,
+            "point_speedup": math.prod(per_slot.values()) ** (1 / len(per_slot)),
+            "bootstrap_95_ci": [_quantile(draws, 0.025),
+                                 _quantile(draws, 0.975)]}
+
+
+def qualification_decision(records, *, expected_libraries, integrity,
+                           samples=100_000, seed=2026093699,
+                           configuration="C1"):
+    config = CONFIGURATIONS[configuration]
+    eligible = [row for row in records if row.get("phase") == "eligible"]
+    valid = [row for row in eligible if isinstance(row.get("record"), dict)]
+    comparisons = {}
+    for slot_index, slot in enumerate(SLOTS):
+        for pair_index, (reference, candidate) in enumerate((
+                ("L", "A"), ("M", "A"))):
+            for field_index, field in enumerate(FIELDS):
+                key = f"{slot}:{reference}/{candidate}:{field}"
+                comparisons[key] = _paired_comparison(
+                    records, reference, candidate, field, slot,
+                    samples=samples,
+                    seed=seed + 100 * slot_index + 10 * pair_index + field_index)
+    aggregate = _aggregate_speedup(records, samples=samples, seed=seed + 900)
+
+    complete = len(eligible) == len(SLOTS) * 3 * 31 and all(
+        sum(row.get("slot_id") == slot and row.get("arm") == arm
+            for row in eligible) == 31 for slot in SLOTS for arm in ("L", "M", "A"))
+    by_key = {(row["slot_id"], row["trial"], row["arm"]): row["record"]
+              for row in valid}
+    meaningful = complete and all(
+        _meaningful_view(by_key[slot, trial, "L"]["combined"]) ==
+        _meaningful_view(by_key[slot, trial, "A"]["combined"]) and
+        _meaningful_view(by_key[slot, trial, "M"]["combined"]) ==
+        _meaningful_view(by_key[slot, trial, "A"]["combined"])
+        for slot in SLOTS for trial in range(31))
+    input_hashes = complete and all(
+        by_key[slot, trial, "L"]["input"] == by_key[slot, trial, "M"]["input"] ==
+        by_key[slot, trial, "A"]["input"]
+        for slot in SLOTS for trial in range(31))
+    libraries = all(row["record"].get("library", {}).get("sha256") ==
+                    expected_libraries.get(row.get("arm")) for row in valid)
+
+    fingerprints, runtime_ok = {}, True
+    for arm in ("L", "M", "A"):
+        policy = config.roles["legacy" if arm == "L" else "solver"]
+        identities = set()
+        for row in valid:
+            if row.get("arm") != arm:
+                continue
+            verdict = fingerprint_eligible(row["record"]["runtime"], policy)
+            runtime_ok &= verdict["passed"]
+            identities.add(repr(verdict["identity"]))
+        fingerprints[arm] = sorted(identities)
+        runtime_ok &= len(identities) == 1
+    runtime_ok &= fingerprints["M"] == fingerprints["A"]
+
+    rss_ok = True
+    for slot in SLOTS:
+        medians = {arm: statistics.median(
+            row["record"]["peak_rss_kb"] for row in valid
+            if row.get("slot_id") == slot and row.get("arm") == arm)
+            for arm in ("L", "M", "A")}
+        rss_ok &= medians["A"] <= 1.10 * medians["M"]
+        rss_ok &= medians["A"] <= 1.10 * medians["L"]
+
+    checks = {
+        "complete_eligible_set": complete,
+        "no_execution_failures": all("execution_failure" not in row for row in records),
+        "meaningful_fields_agree": meaningful,
+        "router_once": all(row["record"]["combined"].get("router_executions") == 1
+                           for row in valid if row.get("arm") == "A"),
+        "v25_api_noninferior":
+            comparisons["V31-025:M/A:combined_c_api"]["one_sided_95_upper"] < 1.03,
+        "no_e2e_regression_over_10_percent": all(
+            comparisons[f"{slot}:M/A:total_wall"]["ratio_of_medians"] <= 1.10
+            for slot in SLOTS),
+        "legacy_candidate_geomean_at_least_1_5": aggregate["point_speedup"] >= 1.5,
+        "rss_within_10_percent": rss_ok,
+        "thermal_valid": all(str(row["record"]["thermal"]["eligibility"])
+                             .startswith("ELIGIBLE") for row in valid),
+        "runtime_fingerprints_valid": runtime_ok,
+        "production_api_gain": all(
+            comparisons[f"{slot}:M/A:combined_c_api"]["speedup_of_medians"] > 1.0
+            for slot in ("V31-026", "V31-027")),
+        "wall_cpu_and_e2e_present": all(
+            row["record"].get("worker_process_wall_ns", 0) > 0 and
+            row["record"].get("cpu_time_ns", 0) > 0 for row in valid),
+        "identity_and_evidence_integrity": bool(integrity and libraries and input_hashes),
+    }
+    return {"configuration": configuration, "comparisons": comparisons,
+            "aggregate_legacy_candidate": aggregate,
+            "runtime_fingerprints": fingerprints, "checks": checks,
+            "passed": bool(checks) and all(checks.values())}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="operation", required=True)
@@ -166,18 +325,39 @@ def main():
     select.add_argument("--decision", action="append", required=True,
                         help="NAME=analysis.json")
     select.add_argument("--output", required=True)
+    qualification = subparsers.add_parser("qualification")
+    qualification.add_argument("--configuration", choices=("C1", "C2"), required=True)
+    qualification.add_argument("--input", type=argparse.FileType("r"), required=True)
+    qualification.add_argument("--expected-library", action="append", required=True,
+                               help="ARM=sha256")
+    qualification.add_argument("--output", required=True)
+    qualification.add_argument("--samples", type=int, default=100_000)
+    qualification.add_argument("--seed", type=int, default=2026093699)
+    qualification.add_argument("--integrity", action="store_true")
     args = parser.parse_args()
     if args.operation == "aa":
         report = json.load(args.input)
         result = aa_decision(report["records"], samples=args.samples,
                              seed=args.seed, configuration=args.configuration)
-    else:
+    elif args.operation == "select":
         decisions = {}
         for value in args.decision:
             name, path = value.split("=", 1)
             decisions[name] = json.loads(open(path, encoding="utf-8").read())
         result = {"decisions": decisions,
                   "selection": select_configuration(decisions)}
+    else:
+        expected = dict(value.split("=", 1) for value in args.expected_library)
+        report = json.load(args.input)
+        protocol_integrity = (
+            report.get("complete") is True and
+            report.get("protocol_sha256") ==
+            hashlib.sha256(canonical_json(report.get("protocol"))).hexdigest())
+        result = qualification_decision(
+            report["records"], expected_libraries=expected,
+            integrity=args.integrity and protocol_integrity,
+            samples=args.samples, seed=args.seed,
+            configuration=args.configuration)
     atomic_write(args.output, canonical_json(result))
     print(json.dumps(result, sort_keys=True))
 

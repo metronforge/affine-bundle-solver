@@ -1,0 +1,33 @@
+{
+  "A": {
+    "commit": "dd30ef900ff7f48d4fe97e79aae94b7e64c48741",
+    "library": "/home/viktor/task5-v36-row-axpy/build-v36-qualification/libcertified_solver.so",
+    "library_sha256": "e66ae3a97f9adcacc249d83674d7ec62a11d57e2ed2d94ebe67241f4e2dc89b6",
+    "router_sha256": "e8e5db7df0a5ecf324ea92d120e5199b3262cd6e639ca5fbc8774f609c0cf3ef",
+    "status_verifier_sha256": "197059d378051f54fcc18fe3d41d22ceb7c08ea87ba4ed4dcff4684a6f5f194c",
+    "tree": "a89ce2def1fc1b2ef4644cc4d17f13c533b099b7"
+  },
+  "L": {
+    "commit": "f66cd87a7b198497cc53d63b2bb04b85c3e64f53",
+    "library": "/home/viktor/task5-v36-legacy-control/build-v36-qualification/libcertified_solver.so",
+    "library_sha256": "0980f344efa9242077e3eced897cd7a5e56491e12838e1cb1de5636a21f2a67f",
+    "router_sha256": "e8e5db7df0a5ecf324ea92d120e5199b3262cd6e639ca5fbc8774f609c0cf3ef",
+    "status_verifier_sha256": "d5981ebc325ec7a17cf0d66cf89017c6c4ebbfeb67576bc428417cfbc5d63b37",
+    "tree": "4173cef889e0f1ec3ef60bc8aeadad26937a1711"
+  },
+  "M": {
+    "commit": "bb6c30d03191a92695b16d21581bfea6dce9942e",
+    "library": "/home/viktor/task5-v36-main-calibration/build-m1/libcertified_solver.so",
+    "library_sha256": "3dd20bd5c63e42cb1d18c192570eebb99ffa69cc2abf35c1d400689cf8d8f4b6",
+    "router_sha256": "e8e5db7df0a5ecf324ea92d120e5199b3262cd6e639ca5fbc8774f609c0cf3ef",
+    "status_verifier_sha256": "d5981ebc325ec7a17cf0d66cf89017c6c4ebbfeb67576bc428417cfbc5d63b37",
+    "tree": "e621eef836c2e6edd633c03d657cc582e0e04344"
+  },
+  "build": {
+    "ABS_ARCH_FLAGS": "-march=native",
+    "ABS_BLAS": "system",
+    "cmake_generator": "Unix Makefiles",
+    "compiler": "cc (Ubuntu 15.2.0-16ubuntu1) 15.2.0"
+  }
+}
+
