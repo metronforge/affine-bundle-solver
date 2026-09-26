@@ -1,0 +1,10 @@
+{
+  "checks": 8335,
+  "failure_counts_by_severity": {
+    "known-representation": 154
+  },
+  "failure_counts_by_property": {
+    "affine_translation_2^30": 24,
+    "inconsistent_affine_translation_sweep": 130
+  }
+}

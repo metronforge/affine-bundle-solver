@@ -1,0 +1,5 @@
+Linux viktor-ws 7.0.0-34-generic #34-Ubuntu SMP PREEMPT_DYNAMIC Wed Sep  2 14:29:37 UTC 2026 x86_64 GNU/Linux
+gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0
+cmake version 4.2.3
+Python 3.13.5
+## perf/task5-v3.6-row-axpy-verifier

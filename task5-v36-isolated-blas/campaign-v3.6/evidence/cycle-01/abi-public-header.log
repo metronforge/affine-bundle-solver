@@ -1,0 +1,4 @@
+PUBLIC_HEADERS_IDENTICAL
+libaffine_bundle_solver.so EXPORTS_IDENTICAL
+libcertified_solver.so EXPORTS_IDENTICAL
+libstatus_verifier.so EXPORTS_IDENTICAL

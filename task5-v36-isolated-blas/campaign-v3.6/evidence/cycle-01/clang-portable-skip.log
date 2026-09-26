@@ -1,0 +1,1 @@
+SKIP: clang executable unavailable on host; exact-head CI clang/portable remains mandatory.

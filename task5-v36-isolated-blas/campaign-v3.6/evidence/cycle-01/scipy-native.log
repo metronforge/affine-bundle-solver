@@ -1,0 +1,156 @@
+-- The C compiler identification is GNU 15.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Found Python3: /home/viktor/miniconda3/bin/python3 (found version "3.13.5") found components: Interpreter
+-- Found OpenMP_C: -fopenmp (found version "4.5")
+-- Found OpenMP: TRUE (found version "4.5") found components: C
+-- 
+-- affine-bundle-solver 0.4.4
+--   BLAS provider ....... scipy-openblas (/home/viktor/miniconda3/lib/python3.13/site-packages/scipy.libs/libscipy_openblas-68440149.so)
+--   Router arch flags ... -march=native
+--   Strict kernels ...... -O2 -frounding-math -fno-fast-math -ffp-contract=off
+--   build.sh remains the canonical manuscript reproduction path.
+-- 
+-- Configuring done (1.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/viktor/task5-v36-row-axpy/build-v36-scipy-native
+[  2%] Building C object CMakeFiles/abs_formation_guard_obj.dir/src/formation_guard.c.o
+[  4%] Building C object CMakeFiles/abs_router_obj.dir/src/bsolver.c.o
+[  4%] Built target abs_formation_guard_obj
+[  6%] Building C object CMakeFiles/abs_rounding_probe.dir/src/rounding_probe.c.o
+[  9%] Linking C executable abs_rounding_probe
+Probe: directed rounding is distinguishable
+directed-rounding probe: PASS
+[  9%] Built target abs_rounding_probe
+[ 11%] Building C object CMakeFiles/abs_mxcsr_probe.dir/src/mxcsr_probe.c.o
+[ 13%] Linking C executable abs_mxcsr_probe
+[ 13%] Built target abs_mxcsr_probe
+[ 16%] Building C object CMakeFiles/abs_router_once_obj.dir/src/bsolver.c.o
+[ 16%] Built target abs_router_obj
+[ 18%] Building C object CMakeFiles/abs_dgesdd_core_state_test.dir/tests/test_dgesdd_core_state.c.o
+[ 18%] Built target abs_router_once_obj
+[ 20%] Building C object CMakeFiles/abs_unique_verifier_rows_test.dir/tests/test_unique_verifier_rows.c.o
+[ 23%] Building C object CMakeFiles/abs_unique_verifier_rows_test.dir/src/status_certificate.c.o
+[ 25%] Linking C executable abs_unique_verifier_rows_test
+[ 25%] Built target abs_unique_verifier_rows_test
+[ 27%] Linking C shared library libaffine_bundle_solver.so
+Contract: no fast-math flag on the router link line
+-- link contract: no fast-math flag on the router link line
+[ 27%] Built target affine_bundle_solver
+[ 30%] Building C object CMakeFiles/status_verifier.dir/src/status_certificate.c.o
+[ 32%] Linking C shared library libstatus_verifier.so
+[ 32%] Built target status_verifier
+[ 34%] Building C object CMakeFiles/abs_stream_storage_native_test.dir/tests/test_stream_storage_native.c.o
+[ 37%] Linking C executable abs_stream_storage_native_test
+[ 37%] Built target abs_stream_storage_native_test
+[ 39%] Building C object examples/CMakeFiles/example_classify.dir/classify.c.o
+[ 41%] Linking C executable example_classify
+[ 41%] Built target example_classify
+[ 44%] Building C object examples/CMakeFiles/example_streaming.dir/streaming.c.o
+[ 46%] Linking C executable example_streaming
+[ 46%] Built target example_streaming
+[ 48%] Building C object CMakeFiles/certified_solver.dir/src/certified_api.c.o
+[ 51%] Linking C shared library libcertified_solver.so
+Probe: loading the fast library does not change the process FP mode
+mxcsr probe: PASS (FTZ=0 DAZ=0 unchanged, subnormals preserved)
+[ 51%] Built target certified_solver
+[ 53%] Building C object CMakeFiles/abs_certified_diag_once_test.dir/tests/test_certified_diag_once.c.o
+[ 55%] Building C object CMakeFiles/abs_certified_diag_once_test.dir/src/certified_api.c.o
+[ 58%] Linking C executable abs_dgesdd_core_state_test
+[ 58%] Built target abs_dgesdd_core_state_test
+[ 60%] Building C object CMakeFiles/abs_certified_reuse_test.dir/tests/test_certified_reuse.c.o
+[ 62%] Building C object CMakeFiles/abs_certified_reuse_test.dir/src/certified_api.c.o
+[ 65%] Linking C executable abs_certified_diag_once_test
+[ 65%] Built target abs_certified_diag_once_test
+[ 67%] Building C object CMakeFiles/abs_reusable_qrcp_test.dir/tests/test_reusable_qrcp.c.o
+[ 69%] Building C object CMakeFiles/abs_reusable_qrcp_test.dir/src/certified_api.c.o
+[ 72%] Linking C executable abs_certified_reuse_test
+[ 72%] Built target abs_certified_reuse_test
+[ 74%] Building C object CMakeFiles/abs_reusable_qrcp_enomem_test.dir/tests/test_reusable_qrcp_enomem.c.o
+[ 76%] Building C object CMakeFiles/abs_reusable_qrcp_enomem_test.dir/src/certified_api.c.o
+[ 79%] Linking C executable abs_reusable_qrcp_test
+[ 79%] Built target abs_reusable_qrcp_test
+[ 81%] Building C object CMakeFiles/abs_reusable_qrcp_reentrant_test.dir/tests/test_reusable_qrcp_reentrant.c.o
+[ 83%] Linking C executable abs_reusable_qrcp_reentrant_test
+[ 83%] Built target abs_reusable_qrcp_reentrant_test
+[ 86%] Building C object CMakeFiles/abs_native_solver_lifecycle_test.dir/tests/test_native_solver_lifecycle.c.o
+[ 88%] Linking C executable abs_reusable_qrcp_enomem_test
+[ 90%] Linking C executable abs_native_solver_lifecycle_test
+[ 90%] Built target abs_native_solver_lifecycle_test
+[ 90%] Built target abs_reusable_qrcp_enomem_test
+[ 93%] Building C object examples/CMakeFiles/example_certify.dir/certify.c.o
+[ 95%] Building C object CMakeFiles/abs_certified_diag_test.dir/tests/test_certified_diag.c.o
+[ 97%] Linking C executable example_certify
+[100%] Linking C executable abs_certified_diag_test
+[100%] Built target example_certify
+[100%] Built target abs_certified_diag_test
+Test project /home/viktor/task5-v36-row-axpy/build-v36-scipy-native
+      Start  1: test_certified_diag
+ 1/31 Test  #1: test_certified_diag .....................   Passed    0.01 sec
+      Start  2: test_certified_diag_once
+ 2/31 Test  #2: test_certified_diag_once ................   Passed    0.01 sec
+      Start  3: test_certified_reuse
+ 3/31 Test  #3: test_certified_reuse ....................   Passed    0.00 sec
+      Start  4: test_reusable_qrcp
+ 4/31 Test  #4: test_reusable_qrcp ......................   Passed    0.00 sec
+      Start  5: test_reusable_qrcp_enomem
+ 5/31 Test  #5: test_reusable_qrcp_enomem ...............   Passed    0.00 sec
+      Start  6: test_reusable_qrcp_reentrant
+ 6/31 Test  #6: test_reusable_qrcp_reentrant ............   Passed    0.01 sec
+      Start  7: test_dgesdd_core_state
+ 7/31 Test  #7: test_dgesdd_core_state ..................   Passed    0.00 sec
+      Start  8: test_native_solver_lifecycle
+ 8/31 Test  #8: test_native_solver_lifecycle ............   Passed    0.01 sec
+      Start  9: test_stream_storage_native
+ 9/31 Test  #9: test_stream_storage_native ..............   Passed    0.01 sec
+      Start 10: rounding_probe
+10/31 Test #10: rounding_probe ..........................   Passed    0.00 sec
+      Start 11: mxcsr_probe
+11/31 Test #11: mxcsr_probe .............................   Passed    0.01 sec
+      Start 12: link_contract
+12/31 Test #12: link_contract ...........................   Passed    0.01 sec
+      Start 13: test_unique_verifier_rows
+13/31 Test #13: test_unique_verifier_rows ...............   Passed    1.88 sec
+      Start 14: strict_fp_contraction
+14/31 Test #14: strict_fp_contraction ...................   Passed    1.31 sec
+      Start 15: fp_contraction_fail_closed
+15/31 Test #15: fp_contraction_fail_closed ..............   Passed    1.07 sec
+      Start 16: test_certified_api
+16/31 Test #16: test_certified_api ......................   Passed    0.19 sec
+      Start 17: test_status_profile_semantics
+17/31 Test #17: test_status_profile_semantics ...........   Passed    0.20 sec
+      Start 18: test_verifier_adversarial
+18/31 Test #18: test_verifier_adversarial ...............   Passed    0.12 sec
+      Start 19: test_meta_api_absent_solution_quality
+19/31 Test #19: test_meta_api_absent_solution_quality ...   Passed    0.19 sec
+      Start 20: test_streaming_equivalence
+20/31 Test #20: test_streaming_equivalence ..............   Passed    0.22 sec
+      Start 21: test_threshold_contract
+21/31 Test #21: test_threshold_contract .................   Passed    1.15 sec
+      Start 22: test_public_diagnostics
+22/31 Test #22: test_public_diagnostics .................   Passed    0.15 sec
+      Start 23: test_stream_storage
+23/31 Test #23: test_stream_storage .....................   Passed    0.04 sec
+      Start 24: test_core_rank_boundary
+24/31 Test #24: test_core_rank_boundary .................   Passed    0.69 sec
+      Start 25: test_blockprefix_guard
+25/31 Test #25: test_blockprefix_guard ..................   Passed    3.05 sec
+      Start 26: test_route_agreement
+26/31 Test #26: test_route_agreement ....................   Passed    5.04 sec
+      Start 27: test_dgesdd_compact_vt
+27/31 Test #27: test_dgesdd_compact_vt ..................   Passed    0.04 sec
+      Start 28: test_dgesdd_candidate_semantics
+28/31 Test #28: test_dgesdd_candidate_semantics .........   Passed    0.19 sec
+      Start 29: example_classify
+29/31 Test #29: example_classify ........................   Passed    0.01 sec
+      Start 30: example_certify
+30/31 Test #30: example_certify .........................   Passed    0.01 sec
+      Start 31: example_streaming
+31/31 Test #31: example_streaming .......................   Passed    0.08 sec
+
+100% tests passed, 0 tests failed out of 31
+
+Total Test time (real) =  15.71 sec

@@ -14,15 +14,15 @@ Safety controls: exact immutable identities, separate worktrees/branches, no cha
 
 ### DO
 
-In progress.
+Ported the exact reviewed production/test blobs over accepted main, resolving only the two Task-1 workflow regex contexts. Captured the required RED then GREEN differential. Ran three full BLAS/architecture CTest builds, the exact-library harness, sanitizer partitions, failure/reentrancy checks, installed consumers, ABI/header comparison, strict property batteries, all eight claim reproductions, inventory/artifact/publication audits, manuscript build, and whitespace check. Retained and classified two contaminated command environments rather than counting them.
 
 ### CHECK
 
-Pending.
+All acceptance criteria passed. The differential covered 1,968 calls, 31,160 rows, and 1,502,768 entries with exact `evec` equality, 228 separately registered signed-zero-only endpoint changes, and zero failures. System portable/native and SciPy builds each passed 31/31 CTests; exact-library harness passed 57/57; valid sanitizer partitions and both strict PBT batteries passed. Public headers and exports are unchanged. Local Clang is an explicit skip pending exact-head CI. No new unregistered correctness, ABI, sanitizer, or portability failure exists.
 
 ### ACT
 
-Pending.
+**ACCEPT.** Freeze candidate `dd30ef900ff7f48d4fe97e79aae94b7e64c48741` for measurement-protocol work. Do not expose candidate timing until Cycle 2 selects and freezes an eligible M/M environment.
 
 ## Cycle 2 — BLAS/runtime isolation and A/A selection
 
@@ -35,4 +35,3 @@ Pending Cycle 2 acceptance.
 ## Cycle 4 — Complete 27-slot campaign and verified integration
 
 Pending Cycle 3 acceptance.
-

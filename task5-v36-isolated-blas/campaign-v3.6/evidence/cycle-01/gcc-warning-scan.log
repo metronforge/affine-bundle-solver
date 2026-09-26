@@ -1,0 +1,142 @@
+In file included from src/bsolver.c:34:
+src/bsolver_core.c: In function ‘bs_check_row’:
+src/bsolver_core.c:144:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+  144 |     if(gn>tolrank) return 0; if(fabs(rho)>ct){*is_contra=1;return 0;} return 1;
+      |     ^~
+src/bsolver_core.c:144:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  144 |     if(gn>tolrank) return 0; if(fabs(rho)>ct){*is_contra=1;return 0;} return 1;
+      |                              ^~
+src/bsolver_core.c: In function ‘relres’:
+src/bsolver_core.c:148: warning: ignoring ‘#pragma omp parallel’ [-Wunknown-pragmas]
+  148 | #pragma omp parallel for if(((long long)m*n)>=1000000LL && n<384) reduction(+:nr,nb) schedule(static)
+src/bsolver_core.c: In function ‘sketch_remainder’:
+src/bsolver_core.c:171: warning: ignoring ‘#pragma omp parallel’ [-Wunknown-pragmas]
+  171 |         #pragma omp parallel
+src/bsolver_core.c:174: warning: ignoring ‘#pragma omp for’ [-Wunknown-pragmas]
+  174 |           #pragma omp for schedule(static)
+src/bsolver_core.c: In function ‘solve_lapack’:
+src/bsolver_core.c:270:2: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+  270 |  for(int j=0;j<n;j++)for(int i=0;i<m;i++)Ac[(size_t)j*m+i]=A[(size_t)i*n+j];memcpy(B,b,m*sizeof(double));double rcond=1e-10,wq;int lwork=-1;dgelsy_(&M,&N,&NRHS,Ac,&LDA,B,&LDB,jpvt,&rcond,&rank,&wq,&lwork,&info);lwork=(int)wq;double*work=malloc((size_t)lwork*sizeof(double));
+      |  ^~~
+src/bsolver_core.c:270:77: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+  270 |  for(int j=0;j<n;j++)for(int i=0;i<m;i++)Ac[(size_t)j*m+i]=A[(size_t)i*n+j];memcpy(B,b,m*sizeof(double));double rcond=1e-10,wq;int lwork=-1;dgelsy_(&M,&N,&NRHS,Ac,&LDA,B,&LDB,jpvt,&rcond,&rank,&wq,&lwork,&info);lwork=(int)wq;double*work=malloc((size_t)lwork*sizeof(double));
+      |                                                                             ^~~~~~
+src/bsolver_core.c:272:2: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+  272 |  for(int j=0;j<n;j++)for(int i=0;i<m;i++)Ac[(size_t)j*m+i]=A[(size_t)i*n+j];memcpy(B,b,m*sizeof(double));memset(jpvt,0,n*sizeof(int)); double t0=now_sec();dgelsy_(&M,&N,&NRHS,Ac,&LDA,B,&LDB,jpvt,&rcond,&rank,work,&lwork,&info);R.sec=now_sec()-t0;R.rank=rank;R.relres=relres(A,b,B,m,n);R.relx=relxerr(B,xt,n);R.cls=(R.relres>2e-9?CLS_INCONSISTENT:(rank==n?CLS_UNIQUE:CLS_INFINITE));free(Ac);free(B);free(jpvt);free(work);return R; }
+      |  ^~~
+src/bsolver_core.c:272:77: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+  272 |  for(int j=0;j<n;j++)for(int i=0;i<m;i++)Ac[(size_t)j*m+i]=A[(size_t)i*n+j];memcpy(B,b,m*sizeof(double));memset(jpvt,0,n*sizeof(int)); double t0=now_sec();dgelsy_(&M,&N,&NRHS,Ac,&LDA,B,&LDB,jpvt,&rcond,&rank,work,&lwork,&info);R.sec=now_sec()-t0;R.rank=rank;R.relres=relres(A,b,B,m,n);R.relx=relxerr(B,xt,n);R.cls=(R.relres>2e-9?CLS_INCONSISTENT:(rank==n?CLS_UNIQUE:CLS_INFINITE));free(Ac);free(B);free(jpvt);free(work);return R; }
+      |                                                                             ^~~~~~
+src/bsolver_core.c: In function ‘gen_rare’:
+src/bsolver_core.c:293:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+  293 |  if(inconsistent && m>0)b[m-1]+=0.2; free(dir);
+      |  ^~
+src/bsolver_core.c:293:38: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  293 |  if(inconsistent && m>0)b[m-1]+=0.2; free(dir);
+      |                                      ^~~~
+src/bsolver.c: In function ‘compat_scan_fused’:
+src/bsolver.c:260: warning: ignoring ‘#pragma omp parallel’ [-Wunknown-pragmas]
+  260 |       #pragma omp parallel for if(((long long)m*n)>=1000000LL && n<384) reduction(+:nr,nb) reduction(|:bad) reduction(max:berr) schedule(static)
+src/bsolver.c:263: warning: ignoring ‘#pragma omp parallel’ [-Wunknown-pragmas]
+  263 |       #pragma omp parallel for if(((long long)m*n)>=1000000LL && n<384) reduction(+:nr,nb) reduction(|:bad) reduction(max:berr) schedule(static)
+src/bsolver.c: In function ‘core_has_rank_boundary’:
+src/bsolver.c:321:5: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+  321 |     for(int j=0;j<N;j++)for(int i=0;i<M;i++)Ac[i+(size_t)j*M]=Core[(size_t)i*n+j];dgesvd_(&ju,&jv,&M,&N,Ac,&LDA,sv,&du,&ldu,&dv,&ldvt,work,&lw,&info);
+      |     ^~~
+src/bsolver.c:321:83: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+  321 |     for(int j=0;j<N;j++)for(int i=0;i<M;i++)Ac[i+(size_t)j*M]=Core[(size_t)i*n+j];dgesvd_(&ju,&jv,&M,&N,Ac,&LDA,sv,&du,&ldu,&dv,&ldvt,work,&lw,&info);
+      |                                                                                   ^~~~~~~
+src/bsolver.c: In function ‘core_qr_state’:
+src/bsolver.c:337:5: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+  337 |     for(int j=0;j<N;j++)for(int i=0;i<M;i++)AT[i+(size_t)j*M]=Core[(size_t)j*n+i]; memset(jpvt,0,(size_t)N*sizeof(int));
+      |     ^~~
+src/bsolver.c:337:84: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+  337 |     for(int j=0;j<N;j++)for(int i=0;i<M;i++)AT[i+(size_t)j*M]=Core[(size_t)j*n+i]; memset(jpvt,0,(size_t)N*sizeof(int));
+      |                                                                                    ^~~~~~
+src/bsolver.c: In function ‘proof_rows_init’:
+src/bsolver.c:370:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+  370 |     if(cap<1)cap=1;p->n=n;p->used=0;p->cap=cap;
+      |     ^~
+src/bsolver.c:370:20: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  370 |     if(cap<1)cap=1;p->n=n;p->used=0;p->cap=cap;
+      |                    ^
+src/bsolver.c: In function ‘proof_rows_reserve’:
+src/bsolver.c:376:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+  376 |     if(need<=p->cap)return 0;int nc=p->cap;
+      |     ^~
+src/bsolver.c:376:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  376 |     if(need<=p->cap)return 0;int nc=p->cap;
+      |                              ^~~
+src/bsolver.c: In function ‘proof_rows_add_normalized’:
+src/bsolver.c:383:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+  383 |     if(proof_rows_reserve(p,p->used+1))return -1;double mx=0.0,*dst=p->row+(size_t)p->used*n;
+      |     ^~
+src/bsolver.c:383:50: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  383 |     if(proof_rows_reserve(p,p->used+1))return -1;double mx=0.0,*dst=p->row+(size_t)p->used*n;
+      |                                                  ^~~~~~
+src/bsolver.c: In function ‘certified_proof_rank_lo’:
+src/bsolver.c:393:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+  393 |     if(!p||proposal<=0||p->used<=0)return 0;int qdim=p->used<p->n?p->used:p->n;
+      |     ^~
+src/bsolver.c:393:45: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  393 |     if(!p||proposal<=0||p->used<=0)return 0;int qdim=p->used<p->n?p->used:p->n;
+      |                                             ^~~
+src/bsolver.c: In function ‘try_secant_tail’:
+src/bsolver.c:662: warning: ignoring ‘#pragma omp parallel’ [-Wunknown-pragmas]
+  662 |         #pragma omp parallel
+src/bsolver.c:665: warning: ignoring ‘#pragma omp for’ [-Wunknown-pragmas]
+  665 |           #pragma omp for schedule(static)
+src/bsolver.c: In function ‘solve_blockprefix_qr’:
+src/bsolver.c:696:4: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+  696 |    for(int j=0;j<n;j++)Pcore[(size_t)pr*n+j]=row[j]/an;py[pr]=b[i]/an;pr++;
+      |    ^~~
+src/bsolver.c:696:56: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+  696 |    for(int j=0;j<n;j++)Pcore[(size_t)pr*n+j]=row[j]/an;py[pr]=b[i]/an;pr++;
+      |                                                        ^~
+src/bsolver.c:768:2: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+  768 |  if(cand_live)bs_free(&cand);if(fcan_live)bs_free(&fcan);if(pre_live)bs_free(&pre);proof_rows_free(&proof);
+      |  ^~
+src/bsolver.c:768:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  768 |  if(cand_live)bs_free(&cand);if(fcan_live)bs_free(&fcan);if(pre_live)bs_free(&pre);proof_rows_free(&proof);
+      |                              ^~
+src/formation_guard.c:25: warning: ignoring ‘#pragma STDC FENV_ACCESS’ [-Wunknown-pragmas]
+   25 | #pragma STDC FENV_ACCESS ON
+src/formation_guard.c: In function ‘fg_qr_rank_lower_bound’:
+src/formation_guard.c:133:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+  133 |     if(rmax>rows)rmax=rows;if(rmax>n)rmax=n;
+      |     ^~
+src/formation_guard.c:133:28: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  133 |     if(rmax>rows)rmax=rows;if(rmax>n)rmax=n;
+      |                            ^~
+src/formation_guard.c: In function ‘fg_qr_rank_certifies’:
+src/formation_guard.c:209:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+  209 |     if(r<=0)return 1;if(!K||!eps||!piv||!Rrm||!Qcols||rows<=0||n<=0||r>rows||r>n||rs<r)return 0;
+      |     ^~
+src/formation_guard.c:209:22: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  209 |     if(r<=0)return 1;if(!K||!eps||!piv||!Rrm||!Qcols||rows<=0||n<=0||r>rows||r>n||rs<r)return 0;
+      |                      ^~
+src/formation_guard.c:222:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+  222 |     if(!(rho<1.0))goto done;double invb=up(Xf/(1.0-rho));if(!isfinite(invb))goto done;
+      |     ^~
+src/formation_guard.c:222:29: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  222 |     if(!(rho<1.0))goto done;double invb=up(Xf/(1.0-rho));if(!isfinite(invb))goto done;
+      |                             ^~~~~~
+src/rounding_probe.c:18: warning: ignoring ‘#pragma STDC FENV_ACCESS’ [-Wunknown-pragmas]
+   18 | #pragma STDC FENV_ACCESS ON
+src/status_certificate.c:18: warning: ignoring ‘#pragma STDC FENV_ACCESS’ [-Wunknown-pragmas]
+   18 | #pragma STDC FENV_ACCESS ON
+src/status_certificate.c: In function ‘bs_infinite_witness_free’:
+src/status_certificate.c:224:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+  224 |     if (!w) return; free(w->x); free(w->z); memset(w, 0, sizeof(*w));
+      |     ^~
+src/status_certificate.c:224:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  224 |     if (!w) return; free(w->x); free(w->z); memset(w, 0, sizeof(*w));
+      |                     ^~~~
+src/status_certificate.c: In function ‘bs_inconsistent_witness_free’:
+src/status_certificate.c:227:5: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+  227 |     if (!w) return; free(w->y); memset(w, 0, sizeof(*w));
+      |     ^~
+src/status_certificate.c:227:21: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  227 |     if (!w) return; free(w->y); memset(w, 0, sizeof(*w));
+      |                     ^~~~
+GCC warning scan completed; warnings are retained above.

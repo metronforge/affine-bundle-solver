@@ -1,0 +1,18 @@
+{
+  "artifact_integrity": {
+    "reasons": [],
+    "valid": true
+  },
+  "benchmark_protocol_eligibility": {
+    "eligible": true,
+    "reasons": []
+  },
+  "manuscript_claim_coverage": {
+    "complete": true,
+    "reasons": []
+  },
+  "manuscript_publication_readiness": {
+    "ready": true,
+    "reasons": []
+  }
+}

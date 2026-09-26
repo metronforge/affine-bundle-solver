@@ -1,0 +1,16 @@
+running pbt_certificate_equivariance ...
+running pbt_equivalence_orbits ...
+
+==============================================================================
+Manuscript claim reproduction
+==============================================================================
+  [ok ] pbt_equivalence_orbits:checks = 8335  (paper: 8335)
+  [ok ] pbt_equivalence_orbits:failure_counts_by_severity.known-representation = 154  (paper: 154)
+  [ok ] pbt_certificate_equivariance:checks = 2271  (paper: 2271)
+  [ok ] pbt_certificate_equivariance:stats.inconsistent_eta_max = 3.804042e-15  (must be <= 1e-14, 0.98x reference)
+  [ok ] pbt_certificate_equivariance:stats.inconsistent_eta_median = 1.003818e-16  (must be <= 1e-15, 1.07x reference)
+  [ok ] pbt_certificate_equivariance:stats.shadow_ratio_min = 1.000000  (paper: within [1.0, 2.0])
+  [ok ] pbt_certificate_equivariance:stats.shadow_ratio_max = 1.234613  (paper: within [1.0, 2.0])
+  [ok ] pbt_certificate_equivariance:failure_counts is empty  (paper: zero failure)
+
+all 8 manuscript claims reproduced

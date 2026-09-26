@@ -1,0 +1,7 @@
+Test project /home/viktor/task5-v36-row-axpy/build-v36-asan
+    Start 9: test_stream_storage_native
+1/1 Test #9: test_stream_storage_native .......   Passed    0.05 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.06 sec

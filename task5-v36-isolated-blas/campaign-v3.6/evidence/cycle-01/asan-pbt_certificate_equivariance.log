@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/home/viktor/task5-v36-row-axpy/tests/pbt_certificate_equivariance.py", line 19, in <module>
+    import pbt_equivalence_orbits as base
+  File "/home/viktor/task5-v36-row-axpy/tests/pbt_equivalence_orbits.py", line 17, in <module>
+    FAST = ctypes.CDLL(str(ROOT / 'libaffine_bundle_solver.so'))
+  File "/home/viktor/miniconda3/lib/python3.13/ctypes/__init__.py", line 390, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ~~~~~~~^^^^^^^^^^^^^^^^^^
+OSError: /home/viktor/task5-v36-row-axpy/libaffine_bundle_solver.so: cannot open shared object file: No such file or directory

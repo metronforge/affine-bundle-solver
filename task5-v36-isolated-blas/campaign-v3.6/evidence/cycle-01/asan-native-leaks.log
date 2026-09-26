@@ -1,0 +1,27 @@
+Test project /home/viktor/task5-v36-row-axpy/build-v36-asan
+      Start  1: test_certified_diag
+ 1/11 Test  #1: test_certified_diag ..............   Passed    0.05 sec
+      Start  2: test_certified_diag_once
+ 2/11 Test  #2: test_certified_diag_once .........   Passed    0.03 sec
+      Start  7: test_dgesdd_core_state
+ 3/11 Test  #7: test_dgesdd_core_state ...........   Passed    0.03 sec
+      Start  8: test_native_solver_lifecycle
+ 4/11 Test  #8: test_native_solver_lifecycle .....   Passed    0.03 sec
+      Start 10: rounding_probe
+ 5/11 Test #10: rounding_probe ...................   Passed    0.01 sec
+      Start 11: mxcsr_probe
+ 6/11 Test #11: mxcsr_probe ......................   Passed    0.03 sec
+      Start 12: link_contract
+ 7/11 Test #12: link_contract ....................   Passed    0.05 sec
+      Start 13: test_unique_verifier_rows
+ 8/11 Test #13: test_unique_verifier_rows ........   Passed    2.68 sec
+      Start 29: example_classify
+ 9/11 Test #29: example_classify .................   Passed    0.03 sec
+      Start 30: example_certify
+10/11 Test #30: example_certify ..................   Passed    0.04 sec
+      Start 31: example_streaming
+11/11 Test #31: example_streaming ................   Passed    0.55 sec
+
+100% tests passed, 0 tests failed out of 11
+
+Total Test time (real) =   3.54 sec

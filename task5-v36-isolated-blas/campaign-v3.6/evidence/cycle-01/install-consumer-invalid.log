@@ -1,0 +1,42 @@
+-- Install configuration: ""
+-- Installing: /home/viktor/task5-v36-row-axpy/install-v36/lib/libaffine_bundle_solver.so
+-- Set non-toolchain portion of runtime path of "/home/viktor/task5-v36-row-axpy/install-v36/lib/libaffine_bundle_solver.so" to "$ORIGIN"
+-- Installing: /home/viktor/task5-v36-row-axpy/install-v36/lib/libstatus_verifier.so
+-- Set non-toolchain portion of runtime path of "/home/viktor/task5-v36-row-axpy/install-v36/lib/libstatus_verifier.so" to "$ORIGIN"
+-- Installing: /home/viktor/task5-v36-row-axpy/install-v36/lib/libcertified_solver.so
+-- Set non-toolchain portion of runtime path of "/home/viktor/task5-v36-row-axpy/install-v36/lib/libcertified_solver.so" to "$ORIGIN"
+-- Installing: /home/viktor/task5-v36-row-axpy/install-v36/include/affine_bundle
+-- Installing: /home/viktor/task5-v36-row-axpy/install-v36/include/affine_bundle/certified_api.h
+-- Installing: /home/viktor/task5-v36-row-axpy/install-v36/include/affine_bundle/router.h
+-- Installing: /home/viktor/task5-v36-row-axpy/install-v36/include/affine_bundle/status_certificate.h
+-- Installing: /home/viktor/task5-v36-row-axpy/install-v36/include/affine_bundle/stream.h
+-- Installing: /home/viktor/task5-v36-row-axpy/install-v36/lib/cmake/affine-bundle-solver/affine-bundle-solverTargets.cmake
+-- Installing: /home/viktor/task5-v36-row-axpy/install-v36/lib/cmake/affine-bundle-solver/affine-bundle-solverTargets-noconfig.cmake
+-- Installing: /home/viktor/task5-v36-row-axpy/install-v36/lib/cmake/affine-bundle-solver/affine-bundle-solverConfig.cmake
+-- Installing: /home/viktor/task5-v36-row-axpy/install-v36/lib/cmake/affine-bundle-solver/affine-bundle-solverConfigVersion.cmake
+-- Installing: /home/viktor/task5-v36-row-axpy/install-v36/lib/pkgconfig/affine-bundle-solver.pc
+-- The C compiler identification is GNU 15.2.0
+-- The CXX compiler identification is GNU 15.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Configuring done (0.5s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/viktor/task5-v36-row-axpy/build-v36-consumer
+[ 16%] Building C object CMakeFiles/consumer.dir/main.c.o
+[ 33%] Linking C executable consumer
+[ 33%] Built target consumer
+[ 50%] Building C object CMakeFiles/consumer_certified_diag.dir/certified_diag.c.o
+[ 66%] Linking C executable consumer_certified_diag
+[ 66%] Built target consumer_certified_diag
+[ 83%] Building CXX object CMakeFiles/consumer_certified_diag_cpp.dir/certified_diag.cpp.o
+[100%] Linking CXX executable consumer_certified_diag_cpp
+[100%] Built target consumer_certified_diag_cpp
+==557311==ASan runtime does not come first in initial library list; you should either link runtime to your application or manually preload it with LD_PRELOAD.
