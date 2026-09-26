@@ -1,0 +1,9 @@
+{
+  "preregistration_commit": "76ba23e9e5f9a71466c15eec5676d5a8bc3f52de",
+  "preregistration_tree": "49e8a3de9b9dfcc3a972743e33ba3d54950ac410",
+  "remote_branch": "refs/heads/perf/task5-v3.7-control-reconstruction",
+  "remote_branch_at_verification": "76ba23e9e5f9a71466c15eec5676d5a8bc3f52de",
+  "manifest_sha256": "8ac88ec9f414b555e30b0f02df42a2953f3198af32eb11fa8da109fd6ead3b20",
+  "schedule_sha256": "df5a4d2c621d3c397182619afd0011ae13a786d2931f3850aaf8670e541e2f06",
+  "candidate_timing_exposed_before_preregistration": false
+}
