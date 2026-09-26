@@ -1,0 +1,1030 @@
+{
+  "all_meaningful_equal": true,
+  "campaign_id": "task5-v3.4-shared-overhead-20260926",
+  "comparisons": [
+    {
+      "baseline_combined_ns": 42872982,
+      "baseline_router_executions": 1,
+      "candidate_combined_ns": 61583240,
+      "candidate_router_executions": 1,
+      "semantic_equal": true,
+      "slot_id": "V31-025"
+    },
+    {
+      "baseline_combined_ns": 119470939,
+      "baseline_router_executions": 1,
+      "candidate_combined_ns": 76737922,
+      "candidate_router_executions": 1,
+      "semantic_equal": true,
+      "slot_id": "V31-026"
+    },
+    {
+      "baseline_combined_ns": 68705194,
+      "baseline_router_executions": 1,
+      "candidate_combined_ns": 48048054,
+      "candidate_router_executions": 1,
+      "semantic_equal": true,
+      "slot_id": "V31-027"
+    }
+  ],
+  "green": {
+    "baseline_products_n4": 128,
+    "command": "ctest --test-dir build-v34-red -R unique_verifier_structure --output-on-failure",
+    "observed": true,
+    "structural_products_n4": 60
+  },
+  "libraries": {
+    "baseline": {
+      "certified_sha256": "f4a6866e2f9a2d74590476b2a9ca794d7ac5474ea8cd23551a243084abc5a89d",
+      "verifier_sha256": "d5981ebc325ec7a17cf0d66cf89017c6c4ebbfeb67576bc428417cfbc5d63b37"
+    },
+    "candidate": {
+      "certified_sha256": "58099d3e4a558690224728835125dd4f7d19072f8908cda9f7591f882b28c44a",
+      "verifier_sha256": "471887d258edc5c9498b533c2169d24cc4de3b2b5d7a805b491661cce68ae803"
+    }
+  },
+  "one_router_execution": true,
+  "ownership": {
+    "failure_cleanup": "pos and evec freed; caller rounding mode restored",
+    "global_mutable_production_state": false,
+    "removed_allocations": [
+      "lrow[n]",
+      "ucol[n]"
+    ],
+    "retained_allocations": [
+      "pos[m]",
+      "evec[n]"
+    ]
+  },
+  "records": {
+    "baseline": {
+      "V31-025": {
+        "command": [
+          "/home/viktor/miniconda3/bin/python",
+          "-m",
+          "task5v31.runner",
+          "--slot",
+          "V31-025"
+        ],
+        "record": {
+          "campaign_id": "task5-v3.1-performance-20260926",
+          "combined": {
+            "api_return": 0,
+            "certified": {
+              "accepted_status_mask": 6,
+              "certified_status": 2,
+              "eta_inconsistent": 8.000000000000037,
+              "eta_infinite": 0.0,
+              "eta_status": 0.0,
+              "eta_unique": "Infinity",
+              "eta_x": "NaN",
+              "fast_certainty": 2,
+              "fast_status": 2,
+              "generator_code": 0,
+              "inconsistent_generator_code": 0,
+              "inconsistent_verifier_code": 0,
+              "infinite_generator_code": 0,
+              "infinite_verifier_code": 0,
+              "rank_estimate": 128,
+              "rank_hi": 128,
+              "rank_lo": 128,
+              "unique_generator_code": 1,
+              "unique_verifier_code": 0,
+              "verifier_code": 0
+            },
+            "core_qr_rank": 128,
+            "core_rank_interval": [
+              -1,
+              -1
+            ],
+            "formation_guard_counters": [
+              1,
+              0,
+              0
+            ],
+            "grey_distinct_count": 0,
+            "grey_rows": [],
+            "grey_total_events": 0,
+            "last_orth_eta": 0.0,
+            "router_executions": 1,
+            "router_meta": {
+              "BERR": "NaN",
+              "CERTAINTY": 2.0,
+              "CLS": 2.0,
+              "FALLBACK": 0.0,
+              "RANK": 128.0,
+              "RANK_HI": 128.0,
+              "RANK_LO": 128.0,
+              "RELRES": 1.0299930813744967e-16,
+              "STATUS": 2.0
+            }
+          },
+          "contract_oracle": {
+            "bad_compatibility_rows": [],
+            "contract_rank_hi": 128,
+            "contract_rank_lo": 128,
+            "published_dependence_threshold": 1e-13,
+            "published_growth_threshold": 1e-09,
+            "published_quality_threshold": 1e-14,
+            "qrcp_grey_directions": [],
+            "qrcp_near_threshold": [],
+            "rowwise_backward_error": 0.0,
+            "solver_contract_oracle_status": "INFINITE"
+          },
+          "cpu_time_ns": 234623653,
+          "legacy_preliminary_lstsq_ns": 0,
+          "matrix": {
+            "m": 128,
+            "materialization": {
+              "algebraic_rank": 128,
+              "construction": "seeded-sign-diagonal-profile",
+              "matrix_sha256": "ae77d74a9276db7dd008753165491aac6bdca74020eec59f8e7a4085daad46fa",
+              "rhs_sha256": "ac94e8646fb4131e46bc29e55415f71dcd121ff42caed26b1a7ff465236cad31"
+            },
+            "n": 256,
+            "structural_profile": {
+              "algebraic_rank": 128,
+              "profile": "full"
+            }
+          },
+          "meaningful_control_differential": null,
+          "path": "candidate_null_xt",
+          "peak_rss_kb": 89560,
+          "router_strategy": "clear_full_rank",
+          "slot_id": "V31-025",
+          "standard_oracle": {
+            "compatibility_residual": 5.087681048627601e-16,
+            "compatibility_threshold": 4.765063809637546e-13,
+            "least_squares_relative_cutoff": 5.684341886080802e-14,
+            "lstsq_rank": 128,
+            "method": "PIVOTED_QR_STRUCTURAL_PLAN",
+            "numerical_rank_threshold": 5.684341886080802e-14,
+            "oracle_type": "PIVOTED_QR",
+            "rank_qr": 128,
+            "rank_svd": null,
+            "singular_values": null,
+            "standard_numerical_oracle_status": "INFINITE",
+            "svd_qr_rank_agree": null
+          },
+          "thermal": {
+            "eligibility": "ELIGIBLE_NO_THROTTLE_SIGNAL",
+            "frequencies_khz": [
+              1999881
+            ],
+            "temperatures_millic": [
+              46000,
+              35050,
+              52000,
+              47050,
+              30000,
+              46050,
+              35000,
+              42000,
+              30000,
+              36000,
+              53000,
+              46000,
+              35050,
+              47000,
+              20000,
+              46050,
+              30000,
+              54000,
+              0,
+              35000,
+              32000,
+              53050
+            ],
+            "thermal_throttling_observed": false
+          },
+          "thread_configuration": {
+            "BLIS_NUM_THREADS": "4",
+            "MKL_NUM_THREADS": "4",
+            "NUMEXPR_NUM_THREADS": "4",
+            "OMP_NUM_THREADS": "4",
+            "OPENBLAS_NUM_THREADS": "4"
+          },
+          "timing_ns": {
+            "combined_c_api": 42872982,
+            "contract_oracle": 5008306,
+            "materialization": 982135,
+            "serialization": 561120,
+            "standard_lstsq": 671020,
+            "standard_qr": 818171,
+            "standard_svd": 236,
+            "total_wall": 89526472,
+            "validation": 29121580
+          }
+        },
+        "stderr": ""
+      },
+      "V31-026": {
+        "command": [
+          "/home/viktor/miniconda3/bin/python",
+          "-m",
+          "task5v31.runner",
+          "--slot",
+          "V31-026"
+        ],
+        "record": {
+          "campaign_id": "task5-v3.1-performance-20260926",
+          "combined": {
+            "api_return": 0,
+            "certified": {
+              "accepted_status_mask": 7,
+              "certified_status": 1,
+              "eta_inconsistent": 9.79795897113278,
+              "eta_infinite": 9.823441352194257,
+              "eta_status": 0.0,
+              "eta_unique": 0.0,
+              "eta_x": 0.0,
+              "fast_certainty": 1,
+              "fast_status": 1,
+              "generator_code": 0,
+              "inconsistent_generator_code": 0,
+              "inconsistent_verifier_code": 0,
+              "infinite_generator_code": 0,
+              "infinite_verifier_code": 0,
+              "rank_estimate": 192,
+              "rank_hi": 192,
+              "rank_lo": 192,
+              "unique_generator_code": 0,
+              "unique_verifier_code": 0,
+              "verifier_code": 0
+            },
+            "core_qr_rank": -1,
+            "core_rank_interval": [
+              -1,
+              -1
+            ],
+            "formation_guard_counters": [
+              0,
+              0,
+              0
+            ],
+            "grey_distinct_count": 0,
+            "grey_rows": [],
+            "grey_total_events": 0,
+            "last_orth_eta": 0.0,
+            "router_executions": 1,
+            "router_meta": {
+              "BERR": 0.0,
+              "CERTAINTY": 1.0,
+              "CLS": 1.0,
+              "FALLBACK": 0.0,
+              "RANK": 192.0,
+              "RANK_HI": 192.0,
+              "RANK_LO": 192.0,
+              "RELRES": 0.0,
+              "STATUS": 1.0
+            }
+          },
+          "contract_oracle": {
+            "bad_compatibility_rows": [],
+            "contract_rank_hi": 192,
+            "contract_rank_lo": 192,
+            "published_dependence_threshold": 1e-13,
+            "published_growth_threshold": 1e-09,
+            "published_quality_threshold": 1e-14,
+            "qrcp_grey_directions": [],
+            "qrcp_near_threshold": [],
+            "rowwise_backward_error": 0.0,
+            "solver_contract_oracle_status": "UNIQUE"
+          },
+          "cpu_time_ns": 746527087,
+          "legacy_preliminary_lstsq_ns": 0,
+          "matrix": {
+            "m": 192,
+            "materialization": {
+              "algebraic_rank": 192,
+              "construction": "seeded-sign-diagonal-profile",
+              "matrix_sha256": "db495d35a3bcd4d9dfe46dc628ea65742fd887e9034aa1575541bacf8307d8df",
+              "rhs_sha256": "a8d07aef52e57bc1b8519d7466fd47e090185aa7377f9725513e2fd24611fa26"
+            },
+            "n": 192,
+            "structural_profile": {
+              "algebraic_rank": 192,
+              "profile": "full"
+            }
+          },
+          "meaningful_control_differential": null,
+          "path": "candidate_null_xt",
+          "peak_rss_kb": 87716,
+          "router_strategy": "clear_full_rank",
+          "slot_id": "V31-026",
+          "standard_oracle": {
+            "compatibility_residual": 5.978733960281817e-16,
+            "compatibility_threshold": 5.785950186892733e-13,
+            "least_squares_relative_cutoff": 4.263256414560601e-14,
+            "lstsq_rank": 192,
+            "method": "PIVOTED_QR_STRUCTURAL_PLAN",
+            "numerical_rank_threshold": 4.263256414560601e-14,
+            "oracle_type": "PIVOTED_QR",
+            "rank_qr": 192,
+            "rank_svd": null,
+            "singular_values": null,
+            "standard_numerical_oracle_status": "UNIQUE",
+            "svd_qr_rank_agree": null
+          },
+          "thermal": {
+            "eligibility": "ELIGIBLE_NO_THROTTLE_SIGNAL",
+            "frequencies_khz": [
+              2442414
+            ],
+            "temperatures_millic": [
+              46000,
+              35050,
+              52000,
+              47050,
+              30000,
+              46050,
+              35000,
+              39000,
+              30000,
+              36000,
+              53000,
+              46000,
+              35050,
+              47000,
+              20000,
+              46050,
+              30000,
+              54000,
+              0,
+              35000,
+              32000,
+              53050
+            ],
+            "thermal_throttling_observed": false
+          },
+          "thread_configuration": {
+            "BLIS_NUM_THREADS": "4",
+            "MKL_NUM_THREADS": "4",
+            "NUMEXPR_NUM_THREADS": "4",
+            "OMP_NUM_THREADS": "4",
+            "OPENBLAS_NUM_THREADS": "4"
+          },
+          "timing_ns": {
+            "combined_c_api": 119470939,
+            "contract_oracle": 8989543,
+            "materialization": 985777,
+            "serialization": 396090,
+            "standard_lstsq": 883244,
+            "standard_qr": 2960208,
+            "standard_svd": 224,
+            "total_wall": 179071569,
+            "validation": 26743911
+          }
+        },
+        "stderr": ""
+      },
+      "V31-027": {
+        "command": [
+          "/home/viktor/miniconda3/bin/python",
+          "-m",
+          "task5v31.runner",
+          "--slot",
+          "V31-027"
+        ],
+        "record": {
+          "campaign_id": "task5-v3.1-performance-20260926",
+          "combined": {
+            "api_return": 0,
+            "certified": {
+              "accepted_status_mask": 3,
+              "certified_status": 1,
+              "eta_inconsistent": "Infinity",
+              "eta_infinite": 8.03118920210451,
+              "eta_status": 0.0,
+              "eta_unique": 0.0,
+              "eta_x": 0.0,
+              "fast_certainty": 1,
+              "fast_status": 1,
+              "generator_code": 0,
+              "inconsistent_generator_code": 6,
+              "inconsistent_verifier_code": 0,
+              "infinite_generator_code": 0,
+              "infinite_verifier_code": 0,
+              "rank_estimate": 128,
+              "rank_hi": 128,
+              "rank_lo": 128,
+              "unique_generator_code": 0,
+              "unique_verifier_code": 0,
+              "verifier_code": 0
+            },
+            "core_qr_rank": -1,
+            "core_rank_interval": [
+              -1,
+              -1
+            ],
+            "formation_guard_counters": [
+              0,
+              0,
+              0
+            ],
+            "grey_distinct_count": 0,
+            "grey_rows": [],
+            "grey_total_events": 0,
+            "last_orth_eta": 0.0,
+            "router_executions": 1,
+            "router_meta": {
+              "BERR": 0.0,
+              "CERTAINTY": 1.0,
+              "CLS": 1.0,
+              "FALLBACK": 0.0,
+              "RANK": 128.0,
+              "RANK_HI": 128.0,
+              "RANK_LO": 128.0,
+              "RELRES": 0.0,
+              "STATUS": 1.0
+            }
+          },
+          "contract_oracle": {
+            "bad_compatibility_rows": [],
+            "contract_rank_hi": 128,
+            "contract_rank_lo": 128,
+            "published_dependence_threshold": 1e-13,
+            "published_growth_threshold": 1e-09,
+            "published_quality_threshold": 1e-14,
+            "qrcp_grey_directions": [],
+            "qrcp_near_threshold": [],
+            "rowwise_backward_error": 0.0,
+            "solver_contract_oracle_status": "UNIQUE"
+          },
+          "cpu_time_ns": 302885452,
+          "legacy_preliminary_lstsq_ns": 0,
+          "matrix": {
+            "m": 256,
+            "materialization": {
+              "algebraic_rank": 128,
+              "construction": "seeded-sign-diagonal-profile",
+              "matrix_sha256": "72cf90935bc50103db647e01998cfb1bf5d7b6328910919f7a655d2bc16f22f2",
+              "rhs_sha256": "b280b37f2bbda9a0d71ef52f706aaa735ad389129a920dab1e3775e0fb2ae900"
+            },
+            "n": 128,
+            "structural_profile": {
+              "algebraic_rank": 128,
+              "profile": "full"
+            }
+          },
+          "meaningful_control_differential": null,
+          "path": "candidate_null_xt",
+          "peak_rss_kb": 87344,
+          "router_strategy": "clear_full_rank",
+          "slot_id": "V31-027",
+          "standard_oracle": {
+            "compatibility_residual": 5.087681048627601e-16,
+            "compatibility_threshold": 4.765063809637546e-13,
+            "least_squares_relative_cutoff": 5.684341886080802e-14,
+            "lstsq_rank": 128,
+            "method": "PIVOTED_QR_STRUCTURAL_PLAN",
+            "numerical_rank_threshold": 5.684341886080802e-14,
+            "oracle_type": "PIVOTED_QR",
+            "rank_qr": 128,
+            "rank_svd": null,
+            "singular_values": null,
+            "standard_numerical_oracle_status": "UNIQUE",
+            "svd_qr_rank_agree": null
+          },
+          "thermal": {
+            "eligibility": "ELIGIBLE_NO_THROTTLE_SIGNAL",
+            "frequencies_khz": [
+              2409450
+            ],
+            "temperatures_millic": [
+              46000,
+              35050,
+              52000,
+              47050,
+              30000,
+              46050,
+              35000,
+              40000,
+              30000,
+              36000,
+              53000,
+              46000,
+              35050,
+              47000,
+              20000,
+              46050,
+              30000,
+              53000,
+              0,
+              35000,
+              32000,
+              53050
+            ],
+            "thermal_throttling_observed": false
+          },
+          "thread_configuration": {
+            "BLIS_NUM_THREADS": "4",
+            "MKL_NUM_THREADS": "4",
+            "NUMEXPR_NUM_THREADS": "4",
+            "OMP_NUM_THREADS": "4",
+            "OPENBLAS_NUM_THREADS": "4"
+          },
+          "timing_ns": {
+            "combined_c_api": 68705194,
+            "contract_oracle": 5009959,
+            "materialization": 931925,
+            "serialization": 437778,
+            "standard_lstsq": 605085,
+            "standard_qr": 650969,
+            "standard_svd": 162,
+            "total_wall": 109127235,
+            "validation": 23324744
+          }
+        },
+        "stderr": ""
+      }
+    },
+    "candidate": {
+      "V31-025": {
+        "command": [
+          "/home/viktor/miniconda3/bin/python",
+          "-m",
+          "task5v31.runner",
+          "--slot",
+          "V31-025"
+        ],
+        "record": {
+          "campaign_id": "task5-v3.1-performance-20260926",
+          "combined": {
+            "api_return": 0,
+            "certified": {
+              "accepted_status_mask": 6,
+              "certified_status": 2,
+              "eta_inconsistent": 8.000000000000037,
+              "eta_infinite": 0.0,
+              "eta_status": 0.0,
+              "eta_unique": "Infinity",
+              "eta_x": "NaN",
+              "fast_certainty": 2,
+              "fast_status": 2,
+              "generator_code": 0,
+              "inconsistent_generator_code": 0,
+              "inconsistent_verifier_code": 0,
+              "infinite_generator_code": 0,
+              "infinite_verifier_code": 0,
+              "rank_estimate": 128,
+              "rank_hi": 128,
+              "rank_lo": 128,
+              "unique_generator_code": 1,
+              "unique_verifier_code": 0,
+              "verifier_code": 0
+            },
+            "core_qr_rank": 128,
+            "core_rank_interval": [
+              -1,
+              -1
+            ],
+            "formation_guard_counters": [
+              1,
+              0,
+              0
+            ],
+            "grey_distinct_count": 0,
+            "grey_rows": [],
+            "grey_total_events": 0,
+            "last_orth_eta": 0.0,
+            "router_executions": 1,
+            "router_meta": {
+              "BERR": "NaN",
+              "CERTAINTY": 2.0,
+              "CLS": 2.0,
+              "FALLBACK": 0.0,
+              "RANK": 128.0,
+              "RANK_HI": 128.0,
+              "RANK_LO": 128.0,
+              "RELRES": 1.0299930813744967e-16,
+              "STATUS": 2.0
+            }
+          },
+          "contract_oracle": {
+            "bad_compatibility_rows": [],
+            "contract_rank_hi": 128,
+            "contract_rank_lo": 128,
+            "published_dependence_threshold": 1e-13,
+            "published_growth_threshold": 1e-09,
+            "published_quality_threshold": 1e-14,
+            "qrcp_grey_directions": [],
+            "qrcp_near_threshold": [],
+            "rowwise_backward_error": 0.0,
+            "solver_contract_oracle_status": "INFINITE"
+          },
+          "cpu_time_ns": 306810744,
+          "legacy_preliminary_lstsq_ns": 0,
+          "matrix": {
+            "m": 128,
+            "materialization": {
+              "algebraic_rank": 128,
+              "construction": "seeded-sign-diagonal-profile",
+              "matrix_sha256": "ae77d74a9276db7dd008753165491aac6bdca74020eec59f8e7a4085daad46fa",
+              "rhs_sha256": "ac94e8646fb4131e46bc29e55415f71dcd121ff42caed26b1a7ff465236cad31"
+            },
+            "n": 256,
+            "structural_profile": {
+              "algebraic_rank": 128,
+              "profile": "full"
+            }
+          },
+          "meaningful_control_differential": null,
+          "path": "candidate_null_xt",
+          "peak_rss_kb": 88540,
+          "router_strategy": "clear_full_rank",
+          "slot_id": "V31-025",
+          "standard_oracle": {
+            "compatibility_residual": 5.087681048627601e-16,
+            "compatibility_threshold": 4.765063809637546e-13,
+            "least_squares_relative_cutoff": 5.684341886080802e-14,
+            "lstsq_rank": 128,
+            "method": "PIVOTED_QR_STRUCTURAL_PLAN",
+            "numerical_rank_threshold": 5.684341886080802e-14,
+            "oracle_type": "PIVOTED_QR",
+            "rank_qr": 128,
+            "rank_svd": null,
+            "singular_values": null,
+            "standard_numerical_oracle_status": "INFINITE",
+            "svd_qr_rank_agree": null
+          },
+          "thermal": {
+            "eligibility": "ELIGIBLE_NO_THROTTLE_SIGNAL",
+            "frequencies_khz": [
+              2000000
+            ],
+            "temperatures_millic": [
+              46000,
+              35050,
+              52000,
+              47050,
+              30000,
+              46050,
+              35000,
+              39000,
+              30000,
+              36000,
+              53000,
+              46000,
+              35050,
+              47000,
+              20000,
+              46050,
+              30000,
+              54000,
+              0,
+              35000,
+              32000,
+              53050
+            ],
+            "thermal_throttling_observed": false
+          },
+          "thread_configuration": {
+            "BLIS_NUM_THREADS": "4",
+            "MKL_NUM_THREADS": "4",
+            "NUMEXPR_NUM_THREADS": "4",
+            "OMP_NUM_THREADS": "4",
+            "OPENBLAS_NUM_THREADS": "4"
+          },
+          "timing_ns": {
+            "combined_c_api": 61583240,
+            "contract_oracle": 5295137,
+            "materialization": 910816,
+            "serialization": 433722,
+            "standard_lstsq": 692270,
+            "standard_qr": 818937,
+            "standard_svd": 220,
+            "total_wall": 107829202,
+            "validation": 28575728
+          }
+        },
+        "stderr": ""
+      },
+      "V31-026": {
+        "command": [
+          "/home/viktor/miniconda3/bin/python",
+          "-m",
+          "task5v31.runner",
+          "--slot",
+          "V31-026"
+        ],
+        "record": {
+          "campaign_id": "task5-v3.1-performance-20260926",
+          "combined": {
+            "api_return": 0,
+            "certified": {
+              "accepted_status_mask": 7,
+              "certified_status": 1,
+              "eta_inconsistent": 9.79795897113278,
+              "eta_infinite": 9.823441352194257,
+              "eta_status": 0.0,
+              "eta_unique": 0.0,
+              "eta_x": 0.0,
+              "fast_certainty": 1,
+              "fast_status": 1,
+              "generator_code": 0,
+              "inconsistent_generator_code": 0,
+              "inconsistent_verifier_code": 0,
+              "infinite_generator_code": 0,
+              "infinite_verifier_code": 0,
+              "rank_estimate": 192,
+              "rank_hi": 192,
+              "rank_lo": 192,
+              "unique_generator_code": 0,
+              "unique_verifier_code": 0,
+              "verifier_code": 0
+            },
+            "core_qr_rank": -1,
+            "core_rank_interval": [
+              -1,
+              -1
+            ],
+            "formation_guard_counters": [
+              0,
+              0,
+              0
+            ],
+            "grey_distinct_count": 0,
+            "grey_rows": [],
+            "grey_total_events": 0,
+            "last_orth_eta": 0.0,
+            "router_executions": 1,
+            "router_meta": {
+              "BERR": 0.0,
+              "CERTAINTY": 1.0,
+              "CLS": 1.0,
+              "FALLBACK": 0.0,
+              "RANK": 192.0,
+              "RANK_HI": 192.0,
+              "RANK_LO": 192.0,
+              "RELRES": 0.0,
+              "STATUS": 1.0
+            }
+          },
+          "contract_oracle": {
+            "bad_compatibility_rows": [],
+            "contract_rank_hi": 192,
+            "contract_rank_lo": 192,
+            "published_dependence_threshold": 1e-13,
+            "published_growth_threshold": 1e-09,
+            "published_quality_threshold": 1e-14,
+            "qrcp_grey_directions": [],
+            "qrcp_near_threshold": [],
+            "rowwise_backward_error": 0.0,
+            "solver_contract_oracle_status": "UNIQUE"
+          },
+          "cpu_time_ns": 695541780,
+          "legacy_preliminary_lstsq_ns": 0,
+          "matrix": {
+            "m": 192,
+            "materialization": {
+              "algebraic_rank": 192,
+              "construction": "seeded-sign-diagonal-profile",
+              "matrix_sha256": "db495d35a3bcd4d9dfe46dc628ea65742fd887e9034aa1575541bacf8307d8df",
+              "rhs_sha256": "a8d07aef52e57bc1b8519d7466fd47e090185aa7377f9725513e2fd24611fa26"
+            },
+            "n": 192,
+            "structural_profile": {
+              "algebraic_rank": 192,
+              "profile": "full"
+            }
+          },
+          "meaningful_control_differential": null,
+          "path": "candidate_null_xt",
+          "peak_rss_kb": 87908,
+          "router_strategy": "clear_full_rank",
+          "slot_id": "V31-026",
+          "standard_oracle": {
+            "compatibility_residual": 5.978733960281817e-16,
+            "compatibility_threshold": 5.785950186892733e-13,
+            "least_squares_relative_cutoff": 4.263256414560601e-14,
+            "lstsq_rank": 192,
+            "method": "PIVOTED_QR_STRUCTURAL_PLAN",
+            "numerical_rank_threshold": 4.263256414560601e-14,
+            "oracle_type": "PIVOTED_QR",
+            "rank_qr": 192,
+            "rank_svd": null,
+            "singular_values": null,
+            "standard_numerical_oracle_status": "UNIQUE",
+            "svd_qr_rank_agree": null
+          },
+          "thermal": {
+            "eligibility": "ELIGIBLE_NO_THROTTLE_SIGNAL",
+            "frequencies_khz": [
+              2501080
+            ],
+            "temperatures_millic": [
+              46000,
+              35050,
+              52000,
+              47050,
+              30000,
+              46050,
+              35000,
+              39000,
+              30000,
+              36000,
+              54000,
+              46000,
+              35050,
+              47000,
+              20000,
+              46050,
+              30000,
+              54000,
+              0,
+              35000,
+              32000,
+              53050
+            ],
+            "thermal_throttling_observed": false
+          },
+          "thread_configuration": {
+            "BLIS_NUM_THREADS": "4",
+            "MKL_NUM_THREADS": "4",
+            "NUMEXPR_NUM_THREADS": "4",
+            "OMP_NUM_THREADS": "4",
+            "OPENBLAS_NUM_THREADS": "4"
+          },
+          "timing_ns": {
+            "combined_c_api": 76737922,
+            "contract_oracle": 9025906,
+            "materialization": 1002236,
+            "serialization": 600314,
+            "standard_lstsq": 858058,
+            "standard_qr": 2765944,
+            "standard_svd": 193,
+            "total_wall": 139845689,
+            "validation": 32328015
+          }
+        },
+        "stderr": ""
+      },
+      "V31-027": {
+        "command": [
+          "/home/viktor/miniconda3/bin/python",
+          "-m",
+          "task5v31.runner",
+          "--slot",
+          "V31-027"
+        ],
+        "record": {
+          "campaign_id": "task5-v3.1-performance-20260926",
+          "combined": {
+            "api_return": 0,
+            "certified": {
+              "accepted_status_mask": 3,
+              "certified_status": 1,
+              "eta_inconsistent": "Infinity",
+              "eta_infinite": 8.03118920210451,
+              "eta_status": 0.0,
+              "eta_unique": 0.0,
+              "eta_x": 0.0,
+              "fast_certainty": 1,
+              "fast_status": 1,
+              "generator_code": 0,
+              "inconsistent_generator_code": 6,
+              "inconsistent_verifier_code": 0,
+              "infinite_generator_code": 0,
+              "infinite_verifier_code": 0,
+              "rank_estimate": 128,
+              "rank_hi": 128,
+              "rank_lo": 128,
+              "unique_generator_code": 0,
+              "unique_verifier_code": 0,
+              "verifier_code": 0
+            },
+            "core_qr_rank": -1,
+            "core_rank_interval": [
+              -1,
+              -1
+            ],
+            "formation_guard_counters": [
+              0,
+              0,
+              0
+            ],
+            "grey_distinct_count": 0,
+            "grey_rows": [],
+            "grey_total_events": 0,
+            "last_orth_eta": 0.0,
+            "router_executions": 1,
+            "router_meta": {
+              "BERR": 0.0,
+              "CERTAINTY": 1.0,
+              "CLS": 1.0,
+              "FALLBACK": 0.0,
+              "RANK": 128.0,
+              "RANK_HI": 128.0,
+              "RANK_LO": 128.0,
+              "RELRES": 0.0,
+              "STATUS": 1.0
+            }
+          },
+          "contract_oracle": {
+            "bad_compatibility_rows": [],
+            "contract_rank_hi": 128,
+            "contract_rank_lo": 128,
+            "published_dependence_threshold": 1e-13,
+            "published_growth_threshold": 1e-09,
+            "published_quality_threshold": 1e-14,
+            "qrcp_grey_directions": [],
+            "qrcp_near_threshold": [],
+            "rowwise_backward_error": 0.0,
+            "solver_contract_oracle_status": "UNIQUE"
+          },
+          "cpu_time_ns": 271872649,
+          "legacy_preliminary_lstsq_ns": 0,
+          "matrix": {
+            "m": 256,
+            "materialization": {
+              "algebraic_rank": 128,
+              "construction": "seeded-sign-diagonal-profile",
+              "matrix_sha256": "72cf90935bc50103db647e01998cfb1bf5d7b6328910919f7a655d2bc16f22f2",
+              "rhs_sha256": "b280b37f2bbda9a0d71ef52f706aaa735ad389129a920dab1e3775e0fb2ae900"
+            },
+            "n": 128,
+            "structural_profile": {
+              "algebraic_rank": 128,
+              "profile": "full"
+            }
+          },
+          "meaningful_control_differential": null,
+          "path": "candidate_null_xt",
+          "peak_rss_kb": 87460,
+          "router_strategy": "clear_full_rank",
+          "slot_id": "V31-027",
+          "standard_oracle": {
+            "compatibility_residual": 5.087681048627601e-16,
+            "compatibility_threshold": 4.765063809637546e-13,
+            "least_squares_relative_cutoff": 5.684341886080802e-14,
+            "lstsq_rank": 128,
+            "method": "PIVOTED_QR_STRUCTURAL_PLAN",
+            "numerical_rank_threshold": 5.684341886080802e-14,
+            "oracle_type": "PIVOTED_QR",
+            "rank_qr": 128,
+            "rank_svd": null,
+            "singular_values": null,
+            "standard_numerical_oracle_status": "UNIQUE",
+            "svd_qr_rank_agree": null
+          },
+          "thermal": {
+            "eligibility": "ELIGIBLE_NO_THROTTLE_SIGNAL",
+            "frequencies_khz": [
+              1980226
+            ],
+            "temperatures_millic": [
+              46000,
+              35050,
+              52000,
+              47050,
+              30000,
+              46050,
+              35000,
+              39000,
+              30000,
+              36000,
+              54000,
+              46000,
+              35050,
+              47000,
+              20000,
+              46050,
+              30000,
+              54000,
+              0,
+              35000,
+              32000,
+              54050
+            ],
+            "thermal_throttling_observed": false
+          },
+          "thread_configuration": {
+            "BLIS_NUM_THREADS": "4",
+            "MKL_NUM_THREADS": "4",
+            "NUMEXPR_NUM_THREADS": "4",
+            "OMP_NUM_THREADS": "4",
+            "OPENBLAS_NUM_THREADS": "4"
+          },
+          "timing_ns": {
+            "combined_c_api": 48048054,
+            "contract_oracle": 3604895,
+            "materialization": 918920,
+            "serialization": 612885,
+            "standard_lstsq": 623416,
+            "standard_qr": 656569,
+            "standard_svd": 257,
+            "total_wall": 93852492,
+            "validation": 28415508
+          }
+        },
+        "stderr": ""
+      }
+    }
+  },
+  "red": {
+    "command": "cmake --build build-v34-red --target abs_unique_verifier_structure_test -j4",
+    "failure": "undefined test-only product counter symbols",
+    "observed": true
+  }
+}
