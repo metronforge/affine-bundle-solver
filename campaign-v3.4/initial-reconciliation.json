@@ -1,0 +1,44 @@
+{
+  "campaign_id": "task5-v3.4-shared-overhead-20260926",
+  "checked_on": "2026-09-26",
+  "solver": {
+    "baseline_commit": "1621d104a27eef3b12ec291384cac5f517da79f4",
+    "baseline_parent": "f66cd87a7b198497cc53d63b2bb04b85c3e64f53",
+    "baseline_tree": "86dd1f677664160e40de72c0121e72fa5e54a83b",
+    "origin_main": "1621d104a27eef3b12ec291384cac5f517da79f4",
+    "parent_count": 1,
+    "branch": "perf/task5-v3.4-shared-overhead",
+    "worktree": "/projects/research-assistant/task5-solver-v34"
+  },
+  "harness": {
+    "baseline_commit": "28d2722750852e0ddbf95a2cc375d89c2b81d5ab",
+    "baseline_tree": "707699ff411ebe2ed38e7067c553a06d0071b8b4",
+    "evidence_source_commit": "91ba4963380f5592f0856ed640113e6d57110c00",
+    "branch": "perf/task5-v3.4-shared-overhead-validation",
+    "worktree": "/projects/research-assistant/task5-v34-shared-overhead"
+  },
+  "previous_pr": {
+    "number": 46,
+    "url": "https://github.com/metronforge/affine-bundle-solver/pull/46",
+    "state": "MERGED",
+    "reviewed_head": "87b239745f38514286a7a9d29f11b1a59f5b8245",
+    "exact_head_ci_run": 36234297268,
+    "required_checks": 11,
+    "successful_checks": 11
+  },
+  "v34_preexisting_remote_or_local_branch": false,
+  "v34_preexisting_pr": false,
+  "relevant_stash_entries": [],
+  "stash_0_touched": false,
+  "preserved_v3_head": "770fb9c0169ed89f604ae75a919da3b2e3966294",
+  "preserved_v3_clean": true,
+  "unrelated_original_solver_changes_preserved": [
+    "experiments/synthetic_bench.py",
+    "results/pbt_certificate_hardening.json",
+    "results/pbt_equivalence_report.json"
+  ],
+  "baseline_tests": {
+    "native_ctest": {"passed": 28, "failed": 0},
+    "focused_harness": {"passed": 5, "failed": 0}
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "campaign_id": "task5-v3.4-shared-overhead-20260926",
+  "schema_version": 34,
+  "source_manifest": {
+    "path": "campaign-v3.3/manifest.json",
+    "sha256": "d14f3a6daa4bdc16dd9a3d2f458a5a0aa8ce01b3f7d52b8f01785a5dafedaf4e"
+  },
+  "baselines": {
+    "solver_commit": "1621d104a27eef3b12ec291384cac5f517da79f4",
+    "solver_tree": "86dd1f677664160e40de72c0121e72fa5e54a83b",
+    "harness_commit": "28d2722750852e0ddbf95a2cc375d89c2b81d5ab",
+    "harness_evidence_source": "91ba4963380f5592f0856ed640113e6d57110c00"
+  },
+  "bounded_slots": [
+    {"slot_id":"V31-025","m":128,"n":256,"matrix_sha256":"ae77d74a9276db7dd008753165491aac6bdca74020eec59f8e7a4085daad46fa","rhs_sha256":"ac94e8646fb4131e46bc29e55415f71dcd121ff42caed26b1a7ff465236cad31"},
+    {"slot_id":"V31-026","m":192,"n":192,"matrix_sha256":"db495d35a3bcd4d9dfe46dc628ea65742fd887e9034aa1575541bacf8307d8df","rhs_sha256":"a8d07aef52e57bc1b8519d7466fd47e090185aa7377f9725513e2fd24611fa26"},
+    {"slot_id":"V31-027","m":256,"n":128,"matrix_sha256":"72cf90935bc50103db647e01998cfb1bf5d7b6328910919f7a655d2bc16f22f2","rhs_sha256":"b280b37f2bbda9a0d71ef52f706aaa735ad389129a920dab1e3775e0fb2ae900"}
+  ],
+  "thread_configuration": {"OMP_NUM_THREADS":"4","OPENBLAS_NUM_THREADS":"4","MKL_NUM_THREADS":"4","BLIS_NUM_THREADS":"4","NUMEXPR_NUM_THREADS":"4"},
+  "qualification_protocol": {"excluded_warmups_per_path_per_slot":1,"eligible_trials_per_path_per_slot":11,"order":"deterministic alternating by slot and trial","selective_reruns":false,"allowed_exclusion":"exposed thermal throttle or recorded execution failure only"},
+  "measurement_categories": ["production_api","required_caller_preparation","correctness_validation","harness_only"],
+  "maximum_production_optimizations": 1,
+  "hard_geometric_mean_speedup": 1.5
+}

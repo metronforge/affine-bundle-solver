@@ -1,0 +1,21 @@
+{
+  "campaign_id": "task5-v3.4-shared-overhead-20260926",
+  "registered_class": "known-representation",
+  "registered_cases": 154,
+  "source": "results/pbt_full_strict_guard_telemetry.json",
+  "total_checks": 8335,
+  "introduced_by_commit": "48b9fce6742f02c69ef98c31c4d008e0fc6bcaee",
+  "predates_v3_3": true,
+  "v3_3_changed_registration_or_results": false,
+  "comparison_commits": [
+    "f66cd87a7b198497cc53d63b2bb04b85c3e64f53",
+    "1621d104a27eef3b12ec291384cac5f517da79f4"
+  ],
+  "byte_identical_files": [
+    "results/pbt_full_strict_guard_telemetry.json",
+    "results/pbt_equivalence_report.json",
+    "results/pbt_certificate_hardening.json"
+  ],
+  "hard_failures": 0,
+  "policy": "registered representation cases are reported separately; any new unregistered or hard failure blocks qualification"
+}

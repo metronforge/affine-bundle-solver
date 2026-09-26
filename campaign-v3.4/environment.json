@@ -1,0 +1,20 @@
+{
+  "campaign_id": "task5-v3.4-shared-overhead-20260926",
+  "compiler": "cc (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+  "cmake": "4.2.3",
+  "python": "3.13.5",
+  "numpy": "2.3.1",
+  "scipy": "1.16.1",
+  "blas_lapack": "/usr/lib/x86_64-linux-gnu/libopenblas.so.0",
+  "profiler": "LD_PRELOAD CLOCK_MONOTONIC_RAW function interposition; perf 7.0.14 unavailable under perf_event_paranoid=4",
+  "thread_configuration": {
+    "OMP_NUM_THREADS": "4",
+    "OPENBLAS_NUM_THREADS": "4",
+    "MKL_NUM_THREADS": "4",
+    "BLIS_NUM_THREADS": "4",
+    "NUMEXPR_NUM_THREADS": "4"
+  },
+  "thermal_source": "/sys/class/thermal/thermal_zone*/temp and cpu0 scaling_cur_freq",
+  "thermal_throttling_signal_available": false,
+  "timer": "CLOCK_MONOTONIC_RAW in native probes; time.perf_counter_ns in harness"
+}

@@ -1,0 +1,281 @@
+{
+  "campaign_id": "task5-v3.4-shared-overhead-20260926",
+  "decision": {
+    "accepted": true,
+    "geometric_mean": 1.62352086066832,
+    "projected_speedups": [
+      1.191,
+      1.2858762971667632,
+      2.794233321488392
+    ],
+    "reason": "shared-production and Amdahl gates passed",
+    "supported_slots": 2,
+    "target": "unique_verifier_triangular_zero_and_copy_work"
+  },
+  "measurement_note": "instrumented traces and direct probes are excluded from production timing",
+  "phase_separation": [
+    {
+      "correctness_validation_median_ns": 32046446,
+      "harness_only_median_ns": 9963312,
+      "production_api_median_ns": 66133450.0,
+      "required_caller_preparation_median_ns": 952202.0,
+      "slot_id": "V31-025",
+      "total_wall_median_ns": 106517296.0
+    },
+    {
+      "correctness_validation_median_ns": 42723416,
+      "harness_only_median_ns": 15934246,
+      "production_api_median_ns": 100593425.0,
+      "required_caller_preparation_median_ns": 1014096.0,
+      "slot_id": "V31-026",
+      "total_wall_median_ns": 160891674.0
+    },
+    {
+      "correctness_validation_median_ns": 33939806,
+      "harness_only_median_ns": 10309197,
+      "production_api_median_ns": 66732313.0,
+      "required_caller_preparation_median_ns": 913996.0,
+      "slot_id": "V31-027",
+      "total_wall_median_ns": 111893351.0
+    }
+  ],
+  "ranked_native_components": [
+    {
+      "component": "unique_verify",
+      "inclusive_median_ns": 63968732.0,
+      "invocation_count_median": 1.0,
+      "slot_id": "V31-026"
+    },
+    {
+      "component": "dgeqp3",
+      "inclusive_median_ns": 47364494.0,
+      "invocation_count_median": 4.0,
+      "slot_id": "V31-025"
+    },
+    {
+      "component": "router",
+      "inclusive_median_ns": 36582943.0,
+      "invocation_count_median": 1.0,
+      "slot_id": "V31-025"
+    },
+    {
+      "component": "infinite_gen",
+      "inclusive_median_ns": 28619477.0,
+      "invocation_count_median": 1.0,
+      "slot_id": "V31-025"
+    },
+    {
+      "component": "unique_verify",
+      "inclusive_median_ns": 27338149.0,
+      "invocation_count_median": 1.0,
+      "slot_id": "V31-027"
+    },
+    {
+      "component": "unique_gen",
+      "inclusive_median_ns": 25265597.0,
+      "invocation_count_median": 1.0,
+      "slot_id": "V31-026"
+    },
+    {
+      "component": "dgelsy",
+      "inclusive_median_ns": 23471154.0,
+      "invocation_count_median": 4.0,
+      "slot_id": "V31-025"
+    },
+    {
+      "component": "dgeqp3",
+      "inclusive_median_ns": 22435827.0,
+      "invocation_count_median": 4.0,
+      "slot_id": "V31-026"
+    },
+    {
+      "component": "dgeqp3",
+      "inclusive_median_ns": 21698552.0,
+      "invocation_count_median": 6.0,
+      "slot_id": "V31-027"
+    },
+    {
+      "component": "dgesvd",
+      "inclusive_median_ns": 17259145.0,
+      "invocation_count_median": 2.0,
+      "slot_id": "V31-025"
+    },
+    {
+      "component": "dgelsy",
+      "inclusive_median_ns": 16572033.0,
+      "invocation_count_median": 4.0,
+      "slot_id": "V31-027"
+    },
+    {
+      "component": "unique_gen",
+      "inclusive_median_ns": 15850681.0,
+      "invocation_count_median": 1.0,
+      "slot_id": "V31-027"
+    },
+    {
+      "component": "router",
+      "inclusive_median_ns": 14561296.0,
+      "invocation_count_median": 1.0,
+      "slot_id": "V31-026"
+    },
+    {
+      "component": "dgelsy",
+      "inclusive_median_ns": 14119961.0,
+      "invocation_count_median": 4.0,
+      "slot_id": "V31-026"
+    },
+    {
+      "component": "inconsistent_gen",
+      "inclusive_median_ns": 13515857.0,
+      "invocation_count_median": 1.0,
+      "slot_id": "V31-027"
+    },
+    {
+      "component": "router",
+      "inclusive_median_ns": 11780408.0,
+      "invocation_count_median": 1.0,
+      "slot_id": "V31-027"
+    },
+    {
+      "component": "dgesvd",
+      "inclusive_median_ns": 10298621.0,
+      "invocation_count_median": 2.0,
+      "slot_id": "V31-027"
+    },
+    {
+      "component": "dgesvd",
+      "inclusive_median_ns": 8400994.0,
+      "invocation_count_median": 2.0,
+      "slot_id": "V31-026"
+    },
+    {
+      "component": "inconsistent_gen",
+      "inclusive_median_ns": 8177347.0,
+      "invocation_count_median": 1.0,
+      "slot_id": "V31-025"
+    },
+    {
+      "component": "dormqr",
+      "inclusive_median_ns": 3082847.0,
+      "invocation_count_median": 133.0,
+      "slot_id": "V31-027"
+    },
+    {
+      "component": "inconsistent_gen",
+      "inclusive_median_ns": 2494985.0,
+      "invocation_count_median": 1.0,
+      "slot_id": "V31-026"
+    },
+    {
+      "component": "infinite_verify",
+      "inclusive_median_ns": 1669516.0,
+      "invocation_count_median": 1.0,
+      "slot_id": "V31-025"
+    },
+    {
+      "component": "infinite_verify",
+      "inclusive_median_ns": 684932.0,
+      "invocation_count_median": 1.0,
+      "slot_id": "V31-027"
+    },
+    {
+      "component": "infinite_verify",
+      "inclusive_median_ns": 651751.0,
+      "invocation_count_median": 1.0,
+      "slot_id": "V31-026"
+    },
+    {
+      "component": "inconsistent_verify",
+      "inclusive_median_ns": 368926.0,
+      "invocation_count_median": 1.0,
+      "slot_id": "V31-026"
+    },
+    {
+      "component": "inconsistent_verify",
+      "inclusive_median_ns": 360691.0,
+      "invocation_count_median": 1.0,
+      "slot_id": "V31-025"
+    },
+    {
+      "component": "dormqr",
+      "inclusive_median_ns": 268119.0,
+      "invocation_count_median": 2.0,
+      "slot_id": "V31-026"
+    },
+    {
+      "component": "dormqr",
+      "inclusive_median_ns": 192943.0,
+      "invocation_count_median": 2.0,
+      "slot_id": "V31-025"
+    },
+    {
+      "component": "unique_gen",
+      "inclusive_median_ns": 492.0,
+      "invocation_count_median": 1.0,
+      "slot_id": "V31-025"
+    },
+    {
+      "component": "unique_verify",
+      "inclusive_median_ns": 0.0,
+      "invocation_count_median": 0.0,
+      "slot_id": "V31-025"
+    },
+    {
+      "component": "infinite_gen",
+      "inclusive_median_ns": 0.0,
+      "invocation_count_median": 0.0,
+      "slot_id": "V31-026"
+    },
+    {
+      "component": "infinite_gen",
+      "inclusive_median_ns": 0.0,
+      "invocation_count_median": 0.0,
+      "slot_id": "V31-027"
+    },
+    {
+      "component": "inconsistent_verify",
+      "inclusive_median_ns": 0.0,
+      "invocation_count_median": 0.0,
+      "slot_id": "V31-027"
+    }
+  ],
+  "same_mode_fesetround_net_median_ns": 10.405373,
+  "selected_target_evidence": [
+    {
+      "production_fraction": 0.0,
+      "reason": "unique witness not applicable",
+      "slot_id": "V31-025",
+      "supported": false
+    },
+    {
+      "baseline_kernel_median_ns": 48686874.0,
+      "direct_kernel_median_ns": 13816040.0,
+      "frozen_candidate_total_ns": 164322000,
+      "production_fraction": 0.2122103796205012,
+      "slot_id": "V31-026",
+      "structural_counts": {
+        "baseline_dot_terms": 14155776,
+        "baseline_materialization_writes": 7114752,
+        "direct_dot_terms": 4755520,
+        "removed_dot_terms": 9400256
+      },
+      "supported": true,
+      "unique_verifier_median_ns": 50305553.0
+    },
+    {
+      "baseline_kernel_median_ns": 14140673.0,
+      "direct_kernel_median_ns": 3907226.0,
+      "frozen_candidate_total_ns": 112474000,
+      "production_fraction": 0.0909850009780038,
+      "slot_id": "V31-027",
+      "structural_counts": {
+        "baseline_dot_terms": 4194304,
+        "baseline_materialization_writes": 2113536,
+        "direct_dot_terms": 1414528,
+        "removed_dot_terms": 2779776
+      },
+      "supported": true,
+      "unique_verifier_median_ns": 15065048.0
+    }
+  ]
+}
