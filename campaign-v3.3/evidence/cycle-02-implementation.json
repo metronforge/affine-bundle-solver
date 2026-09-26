@@ -1,0 +1,40 @@
+{
+  "campaign_id": "task5-v3.3-reusable-qrcp-20260926",
+  "cycle": 2,
+  "hypothesis": "one owned QRCP state preserves outputs while reducing target factorization to O(1)",
+  "solver_head": "87b239745f38514286a7a9d29f11b1a59f5b8245",
+  "solver_tree": "86dd1f677664160e40de72c0121e72fa5e54a83b",
+  "implementation_commit": "4f3b1abbc76915fdd61bfb224360606f19bdd351",
+  "ownership": {
+    "scope": "stack-owned BSLeftNullQRCP within one inconsistent-witness invocation",
+    "owned": ["column-major factorized matrix", "tau", "jpvt", "DGEQP3 workspace", "DORMQR workspace", "one m-vector scratch"],
+    "cleanup": "single idempotent private destructor on success and every initialization failure",
+    "shared_mutable_state": false,
+    "full_q_materialized": false,
+    "matrix_copies_inside_scan": 0
+  },
+  "after_trace": {
+    "target_domain_dgeqp3_calls": 2,
+    "target_workspace_queries": 1,
+    "target_executions": 1,
+    "all_api_dgeqp3_calls": 6,
+    "all_api_dormqr_calls": 133,
+    "router_executions": 1,
+    "target_input_hash": "ae484947e5ef1103"
+  },
+  "tdd": {
+    "call_count_red": "10 observed versus 2 required",
+    "call_count_green": "2 observed: one query and one execution",
+    "allocation_injection_red": "zero hook calls before QRCP allocator hooks existed",
+    "allocation_injection_green": "all six owned allocation failure points return safely and zero the witness"
+  },
+  "correctness": {
+    "native_ctest": {"passed": 27, "failed": 0},
+    "harness_pytest": {"passed": 31, "failed": 0},
+    "baseline_candidate_snapshot_cases": 12,
+    "snapshots_per_case": 2,
+    "exact_snapshot_agreement": true,
+    "coverage": ["V31-025", "V31-026", "V31-027", "compatible tall full rank", "compatible tall rank deficient", "inconsistent", "pivoted", "near rank boundary", "tiny", "zero compatible", "zero inconsistent", "n=0 compatible and inconsistent"]
+  },
+  "decision": "ACCEPT"
+}

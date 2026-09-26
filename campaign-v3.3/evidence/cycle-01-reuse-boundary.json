@@ -1,0 +1,55 @@
+{
+  "campaign_id": "task5-v3.3-reusable-qrcp-20260926",
+  "cycle": 1,
+  "hypothesis": "the compatible-tall scan repeatedly factors one invariant normalized matrix",
+  "baseline": {
+    "solver_commit": "f66cd87a7b198497cc53d63b2bb04b85c3e64f53",
+    "solver_tree": "4173cef889e0f1ec3ef60bc8aeadad26937a1711",
+    "harness_commit": "4e2a6a0183dac1201e99ca083e6a67c45716c4c2",
+    "solver_ctest": {"passed": 25, "failed": 0},
+    "harness_pytest": {"passed": 26, "skipped": 3, "failed": 0}
+  },
+  "exact_v31_027_trace": {
+    "all_api_dgeqp3_calls": 262,
+    "target_domain": {
+      "m": 256,
+      "n": 128,
+      "lda": 256,
+      "storage": "column-major copy of row-normalized An",
+      "calls": 258,
+      "workspace_queries": 129,
+      "executions": 129,
+      "unique_input_hashes": ["ae484947e5ef1103"],
+      "pivot_seed_zero_for_every_call": true
+    },
+    "router_executions": 1,
+    "raw_trace": "ABS_TRACE api_ns=294830319 api_count=1 router_ns=14087208 router_count=1 unique_gen_ns=32924926 unique_gen_count=1 infinite_gen_ns=0 infinite_gen_count=0 inconsistent_gen_ns=220121001 inconsistent_gen_count=1 verify_ns=22652945 verify_count=2 lapack_ns=241428043 lapack_count=526 router_lapack_ns=0 generator_lapack_ns=236672080 verify_lapack_ns=0 other_lapack_ns=4755963 dgelsy_ns=16130046 dgelsy_count=4 dgeqp3_ns=232050453 dgeqp3_count=262 dgesvd_ns=4755963 dgesvd_count=2 dgesdd_ns=0 dgesdd_count=0 dormqr_ns=3341531 dormqr_count=262"
+  },
+  "native_red_test": {
+    "fixture_shape": [8, 4],
+    "expected_calls": 2,
+    "observed_calls": 10,
+    "observed_queries": 5,
+    "observed_executions": 5,
+    "unique_input_hash": "6dc2a6e1f5b3d28f",
+    "input_invariant": true,
+    "pivot_seed_zero": true,
+    "result": "RED as intended"
+  },
+  "reuse_invariant": {
+    "lifetime": "one bs_generate_inconsistent_witness invocation after normalize_augmented_rows",
+    "matrix": "An is written once by normalization; least_squares_x and QRCP copy it and do not mutate it",
+    "rank_policy": "one DGELSY rank result fixes projection cutoff and scan start",
+    "scan_mutations": "only the Q-application vector, witness mapping scratch, and LAPACK work arrays change",
+    "factor_consumers": {
+      "factorized_matrix_and_tau": "DORMQR Q and Q^T applications",
+      "jpvt": "no post-factorization consumer; retained as owned pivot metadata",
+      "rank": "projection cutoff, first Q completion column, and scan lower bound",
+      "R": "no direct consumer",
+      "qrcp_workspace": "DGEQP3 scratch only",
+      "q_workspace": "DORMQR scratch only"
+    },
+    "tolerance_or_policy_changes_per_iteration": false
+  },
+  "decision": "ACCEPT_PROCEED"
+}

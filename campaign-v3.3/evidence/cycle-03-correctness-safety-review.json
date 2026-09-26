@@ -1,0 +1,38 @@
+{
+  "campaign_id": "task5-v3.3-reusable-qrcp-20260926",
+  "cycle": 3,
+  "solver_base": "f66cd87a7b198497cc53d63b2bb04b85c3e64f53",
+  "reviewed_head": "87b239745f38514286a7a9d29f11b1a59f5b8245",
+  "reviewed_tree": "86dd1f677664160e40de72c0121e72fa5e54a83b",
+  "review": {
+    "fresh_context": true,
+    "critical": 0,
+    "important": 0,
+    "minor": 0,
+    "verdict": "APPROVE"
+  },
+  "tests": {
+    "native_system_blas": {"passed": 28, "failed": 0},
+    "portable_system_blas": {"passed": 28, "failed": 0},
+    "scipy_openblas": {"passed": 28, "failed": 0},
+    "asan_ubsan_native_leak_subset": {"passed": 14, "failed": 0},
+    "stream_enomem_subset": {"passed": 2, "failed": 0},
+    "sanitized_python_snapshots": {"passed": 12, "failed": 0},
+    "harness_pytest": {"passed": 31, "failed": 0},
+    "property_checks": {"checks": 10606, "new_failures": 0, "known_representation_failures": 154},
+    "installed_consumers": {"passed": 3, "failed": 0},
+    "reentrant_calls": {"calls": 64, "threads": 4, "failed": 0}
+  },
+  "differentials": {
+    "portable_vs_native": {"evaluations": 30, "semantic_mismatches": 0, "max_residual_difference": 5.126e-14},
+    "system_vs_scipy_blas": {"evaluations": 30, "semantic_mismatches": 0, "max_residual_difference": 2.598e-14}
+  },
+  "abi": {"public_headers_unchanged": true, "exported_symbols_unchanged": true},
+  "qrcp": {"target_domain_calls": 2, "full_api_calls": 6},
+  "router_executions": 1,
+  "failed_probes": [
+    {"probe": "local clang build", "reason": "clang executable unavailable", "safe_alternative": "exact-head GitHub CI clang/portable"},
+    {"probe": "installed consumer from sanitized build cwd", "reason": "trailing-empty LD_LIBRARY_PATH resolved local sanitizer libraries", "safe_alternative": "3/3 passed from /tmp with LD_LIBRARY_PATH unset"}
+  ],
+  "act": "accept_pending_exact_head_ci_and_verified_squash_merge"
+}
