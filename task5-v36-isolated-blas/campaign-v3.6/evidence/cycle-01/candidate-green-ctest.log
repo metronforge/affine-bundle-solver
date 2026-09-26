@@ -1,0 +1,23 @@
+UpdateCTestConfiguration  from :/home/viktor/task5-v36-row-axpy/build-red/DartConfiguration.tcl
+Test project /home/viktor/task5-v36-row-axpy/build-red
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 13
+    Start 13: test_unique_verifier_rows
+
+13: Test command: /home/viktor/task5-v36-row-axpy/build-red/abs_unique_verifier_rows_test
+13: Working Directory: /home/viktor/task5-v36-row-axpy/build-red
+13: Test timeout computed to be: 10000000
+13: unique verifier rows: 1968 calls, 31160 rows, 1502768 entries compared; 228 signed-zero-only endpoint differences; 0 failures
+1/1 Test #13: test_unique_verifier_rows ........   Passed    1.85 sec
+
+The following tests passed:
+	test_unique_verifier_rows
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   1.85 sec

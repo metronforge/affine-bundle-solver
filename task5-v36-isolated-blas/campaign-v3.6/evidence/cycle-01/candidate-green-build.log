@@ -1,0 +1,3 @@
+[ 33%] Building C object CMakeFiles/abs_unique_verifier_rows_test.dir/src/status_certificate.c.o
+[ 66%] Linking C executable abs_unique_verifier_rows_test
+[100%] Built target abs_unique_verifier_rows_test
