@@ -22,12 +22,12 @@ git -C /home/viktor/affine-bundle-solver worktree add --detach \
   /home/viktor/task5-v36-main-calibration \
   bb6c30d03191a92695b16d21581bfea6dce9942e
 cmake -S /home/viktor/task5-v36-main-calibration \
-  -B /home/viktor/task5-v36-main-calibration/build-m1 -G Ninja \
+  -B /home/viktor/task5-v36-main-calibration/build-m1 -G "Unix Makefiles" \
   -DABS_BLAS=system -DABS_ARCH_FLAGS=-march=native \
   -DABS_BUILD_TESTING=OFF -DABS_BUILD_EXAMPLES=OFF
 cmake --build /home/viktor/task5-v36-main-calibration/build-m1 -j2
 cmake -S /home/viktor/task5-v36-main-calibration \
-  -B /home/viktor/task5-v36-main-calibration/build-m2 -G Ninja \
+  -B /home/viktor/task5-v36-main-calibration/build-m2 -G "Unix Makefiles" \
   -DABS_BLAS=system -DABS_ARCH_FLAGS=-march=native \
   -DABS_BUILD_TESTING=OFF -DABS_BUILD_EXAMPLES=OFF
 cmake --build /home/viktor/task5-v36-main-calibration/build-m2 -j2
@@ -63,4 +63,3 @@ python3 -m task5v36.analysis select \
   --decision C3=task5-v36-isolated-blas/campaign-v3.6/analysis/aa-C3-diagnostic.json \
   --output task5-v36-isolated-blas/campaign-v3.6/analysis/selection.json
 ```
-

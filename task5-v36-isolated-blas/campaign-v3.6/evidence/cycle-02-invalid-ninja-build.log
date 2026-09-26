@@ -1,0 +1,17 @@
+Classification: INVALID PRE-DATA BUILD; no timing library or observation was
+produced.
+
+The initially preregistered Ninja generator built objects, then the accepted
+main's link-contract gate failed closed because Ninja did not create the
+`CMakeFiles/affine_bundle_solver.dir/link.txt` file the gate inspects:
+
+    CMake Error at cmake/check_link_contract.cmake:14 (message):
+      check_link_contract.cmake: no link rule at
+      .../build-m1/CMakeFiles/affine_bundle_solver.dir/link.txt
+    ninja: build stopped: subcommand failed.
+
+The incomplete directory was preserved as `build-m1-invalid-ninja`. Before any
+calibration data, `COMMANDS.md` and `ENVIRONMENT.json` were repaired to use the
+repository-supported Unix Makefiles generator for both independent builds.
+No trial count, seed, affinity, timing boundary, analysis, or gate changed.
+
