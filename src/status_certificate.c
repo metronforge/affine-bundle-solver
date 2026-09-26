@@ -173,6 +173,48 @@ static int valid_perm(const int *p, int n) {
     return 1;
 }
 
+#if defined(__GNUC__) || defined(__clang__)
+#define ABS_NOINLINE __attribute__((noinline))
+#else
+#define ABS_NOINLINE
+#endif
+
+/* One directed-rounding pass of the unique-object row reconstruction.  The
+   caller sets the rounding mode; this function performs no mode change.
+
+   For source row i selected as factor row lr = perm[ks] it forms, for every
+   column j,
+       acc[j] = sum_{k=0}^{min(lr,j)} L[lr,k] * U[k,j]      (L[lr,lr] = 1)
+       e[j]   = scale * acc[j] - a[j]
+   with every product and sum rounded in the caller's mode.  For each j the
+   terms are added in increasing k, starting from 0.0, which is exactly the
+   operation sequence of the former materialized dot product minus its
+   structural zero terms (k > lr or k > j).  Adding an exact zero leaves a
+   nonzero partial sum unchanged in every rounding mode, so the two
+   formulations differ at most in the sign of an exactly-zero interval
+   endpoint, which fabs() removes before any radius is formed.
+
+   The loop is ordered over k and then over j, so each pass streams rows of
+   the packed factor instead of striding down its columns, and the rounding
+   mode is set twice per selected row rather than four times per entry.
+   noinline keeps every floating-point operation of the pass inside a call
+   made after the caller's fesetround, so none can be scheduled across a mode
+   change.  The strict flags forbid contraction (see CMakeLists.txt), which
+   the bit-identity above also requires. */
+ABS_NOINLINE static void unique_row_pass(const double *restrict lu, int n,
+                                         int lr, double scale,
+                                         const double *restrict arow,
+                                         double *restrict acc,
+                                         double *restrict e) {
+    for (int j = 0; j < n; ++j) acc[j] = 0.0;
+    for (int k = 0; k <= lr; ++k) {
+        double lk = (k < lr) ? lu[(size_t)lr*n+k] : 1.0;
+        const double *urow = lu + (size_t)k*n;
+        for (int j = k; j < n; ++j) { double p = lk * urow[j]; acc[j] = acc[j] + p; }
+    }
+    for (int j = 0; j < n; ++j) { double s = scale * acc[j]; e[j] = s - arow[j]; }
+}
+
 void bs_unique_witness_free(BSUniqueWitness *w) {
     if (!w) return;
     free(w->idx); free(w->scale); free(w->perm); free(w->packed_lu); free(w->x);
@@ -208,27 +250,32 @@ int bs_verify_unique(const double *A, const double *b, int m, int n,
 
     int old = fegetround();
     double xn_up = norm_up(w->x, n), best = 0.0;
-    double *ucol = (double *)malloc((size_t)n*sizeof(double));
-    double *lrow = (double *)malloc((size_t)n*sizeof(double));
+    /* ehi and elo hold the upward and downward bounds of scale*(LU)[lr,:]-a_i;
+       evec is the pass accumulator and then the entrywise |error| bound. */
+    double *ehi = (double *)malloc((size_t)n*sizeof(double));
+    double *elo = (double *)malloc((size_t)n*sizeof(double));
     double *evec = (double *)malloc((size_t)n*sizeof(double));
-    if (!ucol || !lrow || !evec) { free(pos); free(ucol); free(lrow); free(evec); fesetround(old); return 6; }
+    if (!ehi || !elo || !evec) { free(pos); free(ehi); free(elo); free(evec); fesetround(old); return 6; }
 
     for (int i = 0; i < m; ++i) {
         double da_up = 0.0;
         int ks = pos[i];
         if (ks >= 0) {
             int lr = w->perm[ks];
-            for (int k = 0; k < n; ++k)
-                lrow[k] = (k < lr ? w->packed_lu[(size_t)lr*n+k] : (k == lr ? 1.0 : 0.0));
-            for (int j = 0; j < n; ++j) {
-                for (int k = 0; k < n; ++k)
-                    ucol[k] = (k <= j ? w->packed_lu[(size_t)k*n+j] : 0.0);
-                double lo, hi; dot_interval(lrow, ucol, n, &lo, &hi);
-                volatile double slo, shi, elo, ehi;
-                fesetround(FE_DOWNWARD); slo = w->scale[ks] * lo; elo = slo - A[(size_t)i*n+j];
-                fesetround(FE_UPWARD);   shi = w->scale[ks] * hi; ehi = shi - A[(size_t)i*n+j];
-                evec[j] = fmax(fabs((double)elo), fabs((double)ehi));
-            }
+            const double *arow = A + (size_t)i*n;
+            fesetround(FE_DOWNWARD);
+            unique_row_pass(w->packed_lu, n, lr, w->scale[ks], arow, evec, elo);
+            fesetround(FE_UPWARD);
+            unique_row_pass(w->packed_lu, n, lr, w->scale[ks], arow, evec, ehi);
+            for (int j = 0; j < n; ++j) evec[j] = fmax(fabs(elo[j]), fabs(ehi[j]));
+#ifdef ABS_TEST_UNIQUE_ROW_HOOK
+            /* Test-only observation point (never compiled into installed
+               libraries): exposes each reconstructed row to the row-level
+               differential in tests/test_unique_verifier_rows.c. */
+            extern void abs_test_unique_row_hook(int row, int n, const double *lo,
+                                                 const double *hi, const double *err);
+            abs_test_unique_row_hook(i, n, elo, ehi, evec);
+#endif
             da_up = norm_up(evec, n);
         }
         double res_up = residual_abs_up(A+(size_t)i*n, b[i], w->x, n);
@@ -241,7 +288,7 @@ int bs_verify_unique(const double *A, const double *b, int m, int n,
         else { fesetround(FE_UPWARD); q = pert/src; }
         if (q > best) best = q;
     }
-    free(pos); free(ucol); free(lrow); free(evec); fesetround(old);
+    free(pos); free(ehi); free(elo); free(evec); fesetround(old);
     *eta_up = best;
     return isfinite(best) ? 0 : 7;
 }
