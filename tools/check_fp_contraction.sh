@@ -53,10 +53,10 @@ machine=${ABS_FP_CHECK_MACHINE:-$(uname -m)}
 case $machine in
   x86_64)
     target=(-march=x86-64-v3)
-    fused='\bvfn?m(add|sub)[0-9]*(p|s)[sd]\b' ;;
+    fused='\bvf(n?m(add|sub)|m(addsub|subadd))[0-9]*(p|s)[sd]\b' ;;
   aarch64|arm64)
     target=()
-    fused='\bfn?m(add|sub)\b' ;;
+    fused='\b(fmadd|fmsub|fnmadd|fnmsub|fmla|fmls|fnmla|fnmls|fmad|fmsb|fnmad|fnmsb|fcmla|fmlal|fmlsl)\b' ;;
   *)
     echo "fp-contraction check: FAILED -- no FMA target known for '$machine'" >&2
     exit 1 ;;
