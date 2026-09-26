@@ -124,8 +124,9 @@ v3.7 adds fresh target, meaningful-field, router, runtime, and resource checks.
 
 The committed schedule contains 288 unique observations: nine retained/excluded
 warmups and 279 eligible processes. All 288 returned zero; no record is missing,
-duplicated, excluded, imported, or selectively rerun. Every arm has exactly 31
-eligible observations per V31-025/026/027 slot. Raw protocol digest
+duplicated, imported, or selectively rerun. No eligible measurement was excluded;
+exactly nine preregistered warmups were excluded. Every arm has exactly 31 eligible
+observations per V31-025/026/027 slot. Raw protocol digest
 `c36b8649b89a755b36aa4839d3cf0d21a34b827c9c9a1b8be494a7a0e44e6d06`
 matches the retained protocol object.
 
