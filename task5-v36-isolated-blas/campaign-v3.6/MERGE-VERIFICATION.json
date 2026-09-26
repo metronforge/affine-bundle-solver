@@ -1,0 +1,10 @@
+{
+  "attempted": false,
+  "candidate_branch_pushed": false,
+  "full_campaign_run": false,
+  "merge_commit": null,
+  "pr_opened": false,
+  "reason": "one-shot qualification incomplete: 31 eligible L/V31-026 SIGSEGV failures",
+  "result": "NOT_AUTHORIZED"
+}
+

@@ -1,0 +1,86 @@
+{
+  "checks": {
+    "candidate_router_once_93_of_93": true,
+    "candidate_runtime_policy_93_of_93": true,
+    "complete_eligible_set": false,
+    "execution_failures_absent": false,
+    "meaningful_M_A_93_of_93": true,
+    "meaningful_L_A_available_62_of_62": true,
+    "no_candidate_thermal_invalidation": true,
+    "v25_M_A_api_upper_below_1_03": true
+  },
+  "failure": {
+    "arm": "L",
+    "eligible_failures": 31,
+    "message": "legacy-control worker died with SIGSEGV",
+    "slot_id": "V31-026",
+    "total_failures_including_warmup": 32
+  },
+  "legacy_candidate_aggregate": {
+    "bootstrap_95_ci": null,
+    "point_speedup": null,
+    "reason": "no successful L observation exists for V31-026"
+  },
+  "partial_comparisons": {
+    "V31-025:L/A:total_wall": {
+      "n": 31,
+      "one_sided_95_upper_ratio": 0.7966056207677826,
+      "ratio_of_medians": 0.7917621577667182,
+      "speedup_of_medians": 1.2630055505818152,
+      "two_sided_95_ratio_ci": [0.7740200305157976, 0.8029568131836688]
+    },
+    "V31-025:M/A:combined_c_api": {
+      "n": 31,
+      "one_sided_95_upper_ratio": 1.016115429440892,
+      "ratio_of_medians": 1.0066382184396938,
+      "speedup_of_medians": 0.9934055569139991,
+      "two_sided_95_ratio_ci": [0.8918575995412662, 1.0166229318981101]
+    },
+    "V31-025:M/A:total_wall": {
+      "n": 31,
+      "one_sided_95_upper_ratio": 1.0162174800719825,
+      "ratio_of_medians": 1.0065872833422544,
+      "speedup_of_medians": 0.9934558249927594,
+      "two_sided_95_ratio_ci": [0.8919039451928711, 1.0166632235428021]
+    },
+    "V31-026:M/A:combined_c_api": {
+      "n": 31,
+      "one_sided_95_upper_ratio": 0.21736643230064984,
+      "ratio_of_medians": 0.20324977771327524,
+      "speedup_of_medians": 4.920054581366881,
+      "two_sided_95_ratio_ci": [0.1998552058873655, 0.21811394790691552]
+    },
+    "V31-026:M/A:total_wall": {
+      "n": 31,
+      "one_sided_95_upper_ratio": 0.21745499888980235,
+      "ratio_of_medians": 0.20334687320657266,
+      "speedup_of_medians": 4.9177053191476245,
+      "two_sided_95_ratio_ci": [0.19995213469217885, 0.21819537945637518]
+    },
+    "V31-027:L/A:total_wall": {
+      "n": 31,
+      "one_sided_95_upper_ratio": 0.4547086892182968,
+      "ratio_of_medians": 0.4449715953587468,
+      "speedup_of_medians": 2.247334460065425,
+      "two_sided_95_ratio_ci": [0.4420360484841799, 0.45556600827408883]
+    },
+    "V31-027:M/A:combined_c_api": {
+      "n": 31,
+      "one_sided_95_upper_ratio": 0.6750479442253455,
+      "ratio_of_medians": 0.6668884560056978,
+      "speedup_of_medians": 1.4995011399499412,
+      "two_sided_95_ratio_ci": [0.6605507566370601, 0.6768901248429816]
+    },
+    "V31-027:M/A:total_wall": {
+      "n": 31,
+      "one_sided_95_upper_ratio": 0.6750990544064751,
+      "ratio_of_medians": 0.6669370474763023,
+      "speedup_of_medians": 1.4993918898103078,
+      "two_sided_95_ratio_ci": [0.6606014179612701, 0.6769668228723692]
+    }
+  },
+  "raw_qualification_sha256": "9d1ca90bc0064eb2c190f86be48146a1520b960d53d654497a1b9b652a0114ba",
+  "terminal_gate": "failed",
+  "verdict": "CANDIDATE_NOT_QUALIFIED"
+}
+

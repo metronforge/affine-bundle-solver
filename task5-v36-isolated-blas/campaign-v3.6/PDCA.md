@@ -66,8 +66,66 @@ permitted.
 
 ## Cycle 3 — One-shot direct qualification and exact-head review
 
-Pending Cycle 2 frozen-evidence commit.
+### PLAN
+
+Hypothesis: under frozen C1, A is non-inferior to M on unaffected V31-025,
+accelerates affected verifier work, and reaches the direct contemporaneous 1.5x
+L/A three-slot target while all correctness, runtime, RSS, thermal, identity,
+and completeness predicates hold. The method and eleven gates are frozen in
+`QUALIFICATION-PROTOCOL.md`. Any failed predicate rejects the candidate with no
+second candidate, configuration, or selective rerun.
+
+### DO
+
+Verified exact L/M/A binary hashes and clean candidate identity, then ran the
+single 288-process schedule once. The atomic checkpoint retained all records.
+No observation was rerun. Read-only failure analysis computed only estimands
+whose complete pairs exist.
+
+### CHECK
+
+The schedule finished with 32 process failures, all L/V31-026: one warmup and
+all 31 eligible workers died with SIGSEGV. M and A completed 93/93 eligible
+records each; their meaningful fields matched, all A router invariants and C1
+fingerprints passed, and candidate thermal checks passed. V31-025 M/A API upper
+was 1.016115 (<1.03); V31-026 and V31-027 M/A API median speedups were 4.9201x
+and 1.4995x. But no eligible L/V31-026 observation exists, so direct L/A
+V31-026 and the mandatory three-slot geometric mean are undefined. The complete
+eligible set, no-execution-failure predicate, and 1.5x gate therefore cannot
+pass.
+
+### ACT
+
+**REJECT.** Do not run dense secondary, request review, push the candidate,
+open a PR, start exact-head CI, or execute the 27-slot campaign. Preserve the
+failed observations and close with `CANDIDATE_NOT_QUALIFIED`.
 
 ## Cycle 4 — Complete 27-slot campaign and verified integration
 
-Pending Cycle 3 acceptance.
+### PLAN
+
+Hypothesis: after Cycle 3 rejection, no downstream campaign or integration
+action is authorized and all protected state can be proven unchanged. Method:
+audit PR/branch/main/worktree/stash state, retain not-run artifacts, checksum
+the evidence, and push only the harness evidence branch. Any accidental PR,
+candidate push, campaign, merge, history rewrite, or protected-state mutation
+falsifies safe closure.
+
+### DO
+
+Recorded the dense, review, PR/CI, full-campaign, and merge stages as not run;
+queried the repository for a v3.6 candidate PR; prepared a complete final
+report and checksum inventory. No campaign or integration mutation was made.
+
+### CHECK
+
+No candidate PR exists, no exact-head candidate CI exists, no full 27-slot
+v3.6 result exists, and no merge was attempted. Candidate head/tree remain
+`dd30ef900ff7f48d4fe97e79aae94b7e64c48741` /
+`a89ce2def1fc1b2ef4644cc4d17f13c533b099b7`; the old Branch A and protected
+workspace/stash were not changed.
+
+### ACT
+
+**CLOSE WITHOUT MERGE.** The terminal verdict is `CANDIDATE_NOT_QUALIFIED`.
+Retain all evidence and publish only the authorized harness evidence branch.

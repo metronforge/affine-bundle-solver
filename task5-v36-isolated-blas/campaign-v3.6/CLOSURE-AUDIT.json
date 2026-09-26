@@ -1,0 +1,18 @@
+{
+  "candidate": {
+    "commit": "dd30ef900ff7f48d4fe97e79aae94b7e64c48741",
+    "pr_count": 0,
+    "remote_branch_exists_before_evidence_push": false,
+    "tree": "a89ce2def1fc1b2ef4644cc4d17f13c533b099b7",
+    "worktree_clean": true
+  },
+  "old_branch_a": "69728e36e1fd2532503c0fdf2735d02c3322ad94",
+  "origin_main": {
+    "commit": "bb6c30d03191a92695b16d21581bfea6dce9942e",
+    "tree": "e621eef836c2e6edd633c03d657cc582e0e04344"
+  },
+  "protected_stash_entries": 0,
+  "qualification_raw_sha256": "9d1ca90bc0064eb2c190f86be48146a1520b960d53d654497a1b9b652a0114ba",
+  "remote_reconciled_after_qualification": true
+}
+
