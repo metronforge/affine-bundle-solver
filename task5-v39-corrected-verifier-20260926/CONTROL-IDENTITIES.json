@@ -1,0 +1,66 @@
+{
+  "campaign_id": "task5-v3.9-corrected-verifier-20260926",
+  "schema_version": 39,
+  "L": {
+    "source_commit": "f66cd87a7b198497cc53d63b2bb04b85c3e64f53",
+    "source_tree": "4173cef889e0f1ec3ef60bc8aeadad26937a1711",
+    "source_parent": "0ace47c78b7ed2e7b067a77254326bd17f2e2623",
+    "router_sha256": "e8e5db7df0a5ecf324ea92d120e5199b3262cd6e639ca5fbc8774f609c0cf3ef",
+    "status_verifier_sha256": "d5981ebc325ec7a17cf0d66cf89017c6c4ebbfeb67576bc428417cfbc5d63b37",
+    "certified_solver_sha256": "303f03ca96d5262503e1c4b7b6bfede33758f30526a7a89566c37b088bba55ae",
+    "runtime_policy": "bootstrap both OpenBLAS DSOs at 4; retain SciPy OpenBLAS at 4; lower inactive system OpenBLAS to 1"
+  },
+  "M": {
+    "source_commit": "bb6c30d03191a92695b16d21581bfea6dce9942e",
+    "source_tree": "e621eef836c2e6edd633c03d657cc582e0e04344",
+    "source_parent": "1621d104a27eef3b12ec291384cac5f517da79f4",
+    "router_sha256": "e8e5db7df0a5ecf324ea92d120e5199b3262cd6e639ca5fbc8774f609c0cf3ef",
+    "status_verifier_sha256": "d5981ebc325ec7a17cf0d66cf89017c6c4ebbfeb67576bc428417cfbc5d63b37",
+    "certified_solver_sha256": "c65f2fccc64b383b316c08a68fc9d566878537412de13e3cff7844da3223824c"
+  },
+  "A": {
+    "source_commit": "40fe4d015d988ce0ea9c6133c8715b424bba51d7",
+    "source_tree": "d6ac56719d87a9200e6cab48f7a2ce8285eb0873",
+    "source_parent": "dd30ef900ff7f48d4fe97e79aae94b7e64c48741",
+    "title": "fix: reject non-finite verifier bounds",
+    "router_sha256": "e8e5db7df0a5ecf324ea92d120e5199b3262cd6e639ca5fbc8774f609c0cf3ef",
+    "status_verifier_sha256": "5ec7e38a1155138be29b07b1195ebe44cab639a39a5250dd3ad343be34a0ddb7",
+    "certified_solver_sha256": "4794da8b7ce6ac626955e77bc45e9e02440f2cc470b3cb222503eb7adf6cd124"
+  },
+  "build": {
+    "compiler": "cc (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+    "linker": "GNU ld 2.46",
+    "cmake": "4.2.3",
+    "generator": "Unix Makefiles",
+    "blas": "system OpenBLAS 0.3.32",
+    "architecture": "x86-64 ELF64 little-endian SYSV; LP64 Fortran integers",
+    "router_flags": "-fPIC -O3 -march=native -fopenmp -ffast-math",
+    "strict_M_A_flags": "-fPIC -O2 -frounding-math -fno-fast-math -ffp-contract=off",
+    "strict_L_flags": "-fPIC -O2 -frounding-math -fno-fast-math",
+    "public_header_content_set_sha256": "c1e5c4bc585e3f3af486bf8ebc73c4f2b32df1ca341423043aae1b37cb6311ce",
+    "public_header_git_tree": "846f0605aa5413010a39ab49b8f6f87d5538099d"
+  },
+  "exported_symbol_sets": {
+    "router": {"count": 34, "sha256": "d0af4932c70278b2e430de5a522e130ef08729da4217037ba7dc32c9e840012e"},
+    "status_verifier": {"count": 6, "sha256": "e0bc3a828173ba1f78a93d7278cb907f88f6ef6be08bdaa71eb6d0b3b84c2f43"},
+    "certified_solver": {"count": 5, "sha256": "0ffd0bc1675e35679b636236b86c5c110d7a2e30b8953752d66ac6e02bcc2cbb"},
+    "note": "Sets are identical across L/M/A."
+  },
+  "loaded_dso_hashes": {
+    "system_openblas": "be2e7d119279836105e0361be92c78dbcd8a6e7357e74339bdbb32a5195ee35e",
+    "scipy_openblas": "3e739a2435af49d2d938749f316aa338c65f41c9ae6615406e7cf83feb662f46",
+    "libgomp": "645478cbe100d1465b9d45f7047bca3965358f4d399937e544f55ac7a924d5a3",
+    "libm": "1c488db6f4fe8cecb72456bc018de000b7a9b539c2994864b0416b5e8371b3d8",
+    "libc": "85e64f97e348786a8fb4d9f3d52fec289e2fb86bba20f0731dfe61990525e0f7",
+    "loader": "bda779ea9e9ad234f60315477d7cfd0bdde861cd8ddd9df8cdaf62f18c4cec14",
+    "libmvec": "2f2e7f4ad88e1b13f2f8345c826b25f85ba61c93527d91e59dd0d2943eac6e80",
+    "libgfortran": "67faab0feef3cc4b20d98daffda4de59f6816ab565b044da096487f4075fccdf",
+    "libgcc_s": "9d339ecb409578d6a5d587e6c537a8f9589b8a13fefba30d167433a4b5758bee"
+  },
+  "runtime": {
+    "affinity": [1, 3, 6, 8],
+    "L_pools": {"scipy_openblas": 4, "system_openblas": 1, "mkl": 1, "libiomp": 1, "libgomp": 1},
+    "M_A_pools": {"system_openblas": 4, "libgomp": 1},
+    "all_runtime_fingerprints_passed": true
+  }
+}
