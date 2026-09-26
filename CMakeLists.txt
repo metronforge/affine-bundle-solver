@@ -401,6 +401,13 @@ if(ABS_BUILD_TESTING)
     status_verifier OpenMP::OpenMP_C ${ABS_BLAS_LIBRARIES} ${ABS_ATOMIC_LIBRARY} m)
   add_test(NAME test_reusable_qrcp_enomem COMMAND abs_reusable_qrcp_enomem_test)
 
+  add_executable(abs_reusable_qrcp_reentrant_test tests/test_reusable_qrcp_reentrant.c)
+  target_compile_options(abs_reusable_qrcp_reentrant_test PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_options(abs_reusable_qrcp_reentrant_test PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_libraries(abs_reusable_qrcp_reentrant_test PRIVATE
+    certified_solver affine_bundle_solver status_verifier OpenMP::OpenMP_C m)
+  add_test(NAME test_reusable_qrcp_reentrant COMMAND abs_reusable_qrcp_reentrant_test)
+
   # Exercise the actual private SVD state, including both compact-VT readers.
   add_executable(abs_dgesdd_core_state_test
     tests/test_dgesdd_core_state.c
