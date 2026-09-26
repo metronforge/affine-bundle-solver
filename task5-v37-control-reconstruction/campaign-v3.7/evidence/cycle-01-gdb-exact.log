@@ -1,0 +1,859 @@
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/usr/lib/x86_64-linux-gnu/libthread_db.so.1".
+[Detaching after vfork from child process 653205]
+
+Thread 3 "python3" received signal SIGSEGV, Segmentation fault.
+[Switching to Thread 0x7fffd6df86c0 (LWP 653211)]
+0x00007fffdb96a164 in dgemm_itcopy_HASWELL () from /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libscipy_openblas-68440149.so
+  Id   Target Id                                    Frame 
+  1    Thread 0x7ffff7e5e780 (LWP 653164) "python3" 0x00007fffdb3c0bc2 in inner_thread () from /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libscipy_openblas-68440149.so
+  2    Thread 0x7fffd75f96c0 (LWP 653210) "python3" 0x00007fffdb3c0bc4 in inner_thread () from /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libscipy_openblas-68440149.so
+* 3    Thread 0x7fffd6df86c0 (LWP 653211) "python3" 0x00007fffdb96a164 in dgemm_itcopy_HASWELL () from /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libscipy_openblas-68440149.so
+  4    Thread 0x7fffd65f76c0 (LWP 653212) "python3" 0x00007fffdb4fa227 in blas_thread_server () from /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libscipy_openblas-68440149.so
+
+Thread 4 (Thread 0x7fffd65f76c0 (LWP 653212) "python3"):
+#0  0x00007fffdb4fa227 in blas_thread_server () from /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libscipy_openblas-68440149.so
+No symbol table info available.
+#1  0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+        ret = <optimized out>
+        pd = <optimized out>
+        out = <optimized out>
+        unwind_buf = {cancel_jmp_buf = {{jmp_buf = {140736789968576, -6525223068584930044, 140736789968576, 140737488339920, 2, 140737488340183, -6525223068557667068, -6525290235824335612}, mask_was_saved = 0}}, priv = {pad = {0x0, 0x0, 0x0, 0x0}, data = {prev = 0x0, cleanup = 0x0, canceltype = 0}}}
+        not_first_call = <optimized out>
+        prevstate = <optimized out>
+#2  0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+No locals.
+
+Thread 3 (Thread 0x7fffd6df86c0 (LWP 653211) "python3"):
+#0  0x00007fffdb96a164 in dgemm_itcopy_HASWELL () from /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libscipy_openblas-68440149.so
+No symbol table info available.
+#1  0x00007fffdb3c0582 in inner_thread () from /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libscipy_openblas-68440149.so
+No symbol table info available.
+#2  0x00007fffdb4fa085 in exec_threads () from /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libscipy_openblas-68440149.so
+No symbol table info available.
+#3  0x00007fffdb4fa2ac in blas_thread_server () from /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libscipy_openblas-68440149.so
+No symbol table info available.
+#4  0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+        ret = <optimized out>
+        pd = <optimized out>
+        out = <optimized out>
+        unwind_buf = {cancel_jmp_buf = {{jmp_buf = {140736798361280, -6525221969610173180, 140736798361280, 140737488339920, 2, 140737488340183, -6525221969582910204, -6525290235824335612}, mask_was_saved = 0}}, priv = {pad = {0x0, 0x0, 0x0, 0x0}, data = {prev = 0x0, cleanup = 0x0, canceltype = 0}}}
+        not_first_call = <optimized out>
+        prevstate = <optimized out>
+#5  0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+No locals.
+
+Thread 2 (Thread 0x7fffd75f96c0 (LWP 653210) "python3"):
+#0  0x00007fffdb3c0bc4 in inner_thread () from /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libscipy_openblas-68440149.so
+No symbol table info available.
+#1  0x00007fffdb4fa085 in exec_threads () from /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libscipy_openblas-68440149.so
+No symbol table info available.
+#2  0x00007fffdb4fa2ac in blas_thread_server () from /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libscipy_openblas-68440149.so
+No symbol table info available.
+#3  0x00007ffff7ca3dfa in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:454
+        ret = <optimized out>
+        pd = <optimized out>
+        out = <optimized out>
+        unwind_buf = {cancel_jmp_buf = {{jmp_buf = {140736806753984, -6525220868487932668, 140736806753984, 140737488339920, 2, 140737488340183, -6525220868460669692, -6525290235824335612}, mask_was_saved = 0}}, priv = {pad = {0x0, 0x0, 0x0, 0x0}, data = {prev = 0x0, cleanup = 0x0, canceltype = 0}}}
+        not_first_call = <optimized out>
+        prevstate = <optimized out>
+#4  0x00007ffff7d375cc in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+No locals.
+
+Thread 1 (Thread 0x7ffff7e5e780 (LWP 653164) "python3"):
+#0  0x00007fffdb3c0bc2 in inner_thread () from /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libscipy_openblas-68440149.so
+No symbol table info available.
+#1  0x00007fffdb4fa8d8 in exec_blas.part () from /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libscipy_openblas-68440149.so
+No symbol table info available.
+#2  0x00007fffdb4fa9a0 in exec_blas () from /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libscipy_openblas-68440149.so
+No symbol table info available.
+#3  0x00007fffdb3c1201 in gemm_driver.isra () from /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libscipy_openblas-68440149.so
+No symbol table info available.
+#4  0x00007fffdb3c13a3 in dgemm_thread_nt () from /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libscipy_openblas-68440149.so
+No symbol table info available.
+#5  0x00007fffdb2c94d8 in scipy_dgemm_ () from /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libscipy_openblas-68440149.so
+No symbol table info available.
+#6  0x00007fffdbd25727 in scipy_dgebrd_ () from /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libscipy_openblas-68440149.so
+No symbol table info available.
+#7  0x00007fffdbd2e247 in scipy_dgelsd_ () from /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libscipy_openblas-68440149.so
+No symbol table info available.
+#8  0x00007fffd84e11d4 in f2py_rout.flapack_dgelsd () from /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so
+No symbol table info available.
+#9  0x000000000055ada4 in _PyObject_MakeTpCall (tstate=0x979bf0 <_PyRuntime+283024>, callable=0x7fffe615d5f0, args=<optimized out>, nargs=<optimized out>, keywords=0x0) at /usr/local/src/conda/python-3.13.5/Objects/call.c:242
+        call = <optimized out>
+        argstuple = 0x7fffd821c160
+        kwdict = 0x0
+        result = 0x0
+#10 0x0000000000572628 in _PyEval_EvalFrameDefault (tstate=tstate@entry=0x979bf0 <_PyRuntime+283024>, frame=0x7ffff7fab4f8, frame@entry=0x7ffff7fab1c0, throwflag=throwflag@entry=0) at /usr/local/src/conda/python-3.13.5/Python/generated_cases.c.h:813
+        total_args = <optimized out>
+        self_or_null = <optimized out>
+        callable = <optimized out>
+        this_instr = 0x1227808
+        args = 0x7ffff7fab648
+        res = <optimized out>
+        opcode = <optimized out>
+        oparg = <optimized out>
+        entry_frame = {f_executable = 0x91e370 <_Py_NoneStruct>, previous = 0x7ffff7fab0d8, f_funcobj = 0x3000000010, f_globals = 0x7fffffffcef0, f_builtins = 0x7ffff7b929d0, f_locals = 0x4d705b3ac0fdafc3, frame_obj = 0x93ed40 <_PyRuntime+41696>, instr_ptr = 0x852fa2 <_Py_INTERPRETER_TRAMPOLINE_INSTRUCTIONS+2>, stacktop = 0, return_offset = 0, owner = 3 '\003', localsplus = {0x4}}
+        next_instr = 0x1227810
+        stack_pointer = <optimized out>
+        exception_unwind = <optimized out>
+        dying = <optimized out>
+        __func__ = "_PyEval_EvalFrameDefault"
+        opcode_targets = {0x43a060 <_PyEval_EvalFrameDefault-1276144>, 0x437c69 <_PyEval_EvalFrameDefault-1285351>, 0x576e58 <_PyEval_EvalFrameDefault+21768>, 0x577414 <_PyEval_EvalFrameDefault+23236>, 0x575488 <_PyEval_EvalFrameDefault+15160>, 0x57433d <_PyEval_EvalFrameDefault+10733>, 0x43b3b2 <_PyEval_EvalFrameDefault-1271198>, 0x57690a <_PyEval_EvalFrameDefault+20410>, 0x579574 <_PyEval_EvalFrameDefault+31780>, 0x5770a5 <_PyEval_EvalFrameDefault+22357>, 0x43c263 <_PyEval_EvalFrameDefault-1267437>, 0x578ea0 <_PyEval_EvalFrameDefault+30032>, 0x578db6 <_PyEval_EvalFrameDefault+29798>, 0x577e64 <_PyEval_EvalFrameDefault+25876>, 0x576f4f <_PyEval_EvalFrameDefault+22015>, 0x577b20 <_PyEval_EvalFrameDefault+25040>, 0x43c8fe <_PyEval_EvalFrameDefault-1265746>, 0x4389af <_PyEval_EvalFrameDefault-1281953>, 0x43c821 <_PyEval_EvalFrameDefault-1265967>, 0x574591 <_PyEval_EvalFrameDefault+11329>, 0x578d58 <_PyEval_EvalFrameDefault+29704>, 0x578310 <_PyEval_EvalFrameDefault+27072>, 0x5722fd <_PyEval_EvalFrameDefault+2477>, 0x43e0c6 <_PyEval_EvalFrameDefault-1259658>, 0x578020 <_PyEval_EvalFrameDefault+26320>, 0x578ab3 <_PyEval_EvalFrameDefault+29027>, 0x5764e7 <_PyEval_EvalFrameDefault+19351>, 0x5789bb <_PyEval_EvalFrameDefault+28779>, 0x578972 <_PyEval_EvalFrameDefault+28706>, 0x578514 <_PyEval_EvalFrameDefault+27588>, 0x57440f <_PyEval_EvalFrameDefault+10943>, 0x576646 <_PyEval_EvalFrameDefault+19702>, 0x572072 <_PyEval_EvalFrameDefault+1826>, 0x5765e9 <_PyEval_EvalFrameDefault+19609>, 0x571d32 <_PyEval_EvalFrameDefault+994>, 0x576b06 <_PyEval_EvalFrameDefault+20918>, 0x5720a8 <_PyEval_EvalFrameDefault+1880>, 0x578c1f <_PyEval_EvalFrameDefault+29391>, 0x577611 <_PyEval_EvalFrameDefault+23745>, 0x575d59 <_PyEval_EvalFrameDefault+17417>, 0x573d91 <_PyEval_EvalFrameDefault+9281>, 0x579360 <_PyEval_EvalFrameDefault+31248>, 0x57698d <_PyEval_EvalFrameDefault+20541>, 0x576d15 <_PyEval_EvalFrameDefault+21445>, 0x5788d0 <_PyEval_EvalFrameDefault+28544>, 0x57294e <_PyEval_EvalFrameDefault+4094>, 0x578560 <_PyEval_EvalFrameDefault+27664>, 0x575540 <_PyEval_EvalFrameDefault+15344>, 0x5750f0 <_PyEval_EvalFrameDefault+14240>, 0x579486 <_PyEval_EvalFrameDefault+31542>, 0x577e9c <_PyEval_EvalFrameDefault+25932>, 0x576d52 <_PyEval_EvalFrameDefault+21506>, 0x574432 <_PyEval_EvalFrameDefault+10978>, 0x572565 <_PyEval_EvalFrameDefault+3093>, 0x576729 <_PyEval_EvalFrameDefault+19929>, 0x579080 <_PyEval_EvalFrameDefault+30512>, 0x578ffb <_PyEval_EvalFrameDefault+30379>, 0x5741d8 <_PyEval_EvalFrameDefault+10376>, 0x5736b9 <_PyEval_EvalFrameDefault+7529>, 0x574838 <_PyEval_EvalFrameDefault+12008>, 0x577c1e <_PyEval_EvalFrameDefault+25294>, 0x5734fb <_PyEval_EvalFrameDefault+7083>, 0x572cd8 <_PyEval_EvalFrameDefault+5000>, 0x5766bf <_PyEval_EvalFrameDefault+19823>, 0x578ed6 <_PyEval_EvalFrameDefault+30086>, 0x578640 <_PyEval_EvalFrameDefault+27888>, 0x43aa81 <_PyEval_EvalFrameDefault-1273551>, 0x57868a <_PyEval_EvalFrameDefault+27962>, 0x576a71 <_PyEval_EvalFrameDefault+20769>, 0x578e19 <_PyEval_EvalFrameDefault+29897>, 0x43d37c <_PyEval_EvalFrameDefault-1263060>, 0x5750cb <_PyEval_EvalFrameDefault+14203>, 0x57277e <_PyEval_EvalFrameDefault+3630>, 0x579402 <_PyEval_EvalFrameDefault+31410>, 0x578812 <_PyEval_EvalFrameDefault+28354>, 0x5786f0 <_PyEval_EvalFrameDefault+28064>, 0x57353a <_PyEval_EvalFrameDefault+7146>, 0x571d61 <_PyEval_EvalFrameDefault+1041>, 0x5751f0 <_PyEval_EvalFrameDefault+14496>, 0x574ad9 <_PyEval_EvalFrameDefault+12681>, 0x573037 <_PyEval_EvalFrameDefault+5863>, 0x577f45 <_PyEval_EvalFrameDefault+26101>, 0x572c05 <_PyEval_EvalFrameDefault+4789>, 0x571aee <_PyEval_EvalFrameDefault+414>, 0x572735 <_PyEval_EvalFrameDefault+3557>, 0x571a32 <_PyEval_EvalFrameDefault+226>, 0x5765ab <_PyEval_EvalFrameDefault+19547>, 0x577c84 <_PyEval_EvalFrameDefault+25396>, 0x571b32 <_PyEval_EvalFrameDefault+482>, 0x578a0c <_PyEval_EvalFrameDefault+28860>, 0x43b09f <_PyEval_EvalFrameDefault-1271985>, 0x577cca <_PyEval_EvalFrameDefault+25466>, 0x577026 <_PyEval_EvalFrameDefault+22230>, 0x57838c <_PyEval_EvalFrameDefault+27196>, 0x576411 <_PyEval_EvalFrameDefault+19137>, 0x577db7 <_PyEval_EvalFrameDefault+25703>, 0x578081 <_PyEval_EvalFrameDefault+26417>, 0x571c8e <_PyEval_EvalFrameDefault+830>, 0x573a16 <_PyEval_EvalFrameDefault+8390>, 0x573654 <_PyEval_EvalFrameDefault+7428>, 0x571ce0 <_PyEval_EvalFrameDefault+912>, 0x578af8 <_PyEval_EvalFrameDefault+29096>, 0x5778af <_PyEval_EvalFrameDefault+24415>, 0x571f4e <_PyEval_EvalFrameDefault+1534>, 0x575783 <_PyEval_EvalFrameDefault+15923>, 0x57571f <_PyEval_EvalFrameDefault+15823>, 0x576e17 <_PyEval_EvalFrameDefault+21703>, 0x577fae <_PyEval_EvalFrameDefault+26206>, 0x5755b0 <_PyEval_EvalFrameDefault+15456>, 0x577112 <_PyEval_EvalFrameDefault+22466>, 0x571a73 <_PyEval_EvalFrameDefault+291>, 0x572f48 <_PyEval_EvalFrameDefault+5624>, 0x573427 <_PyEval_EvalFrameDefault+6871>, 0x57911e <_PyEval_EvalFrameDefault+30670>, 0x5769e7 <_PyEval_EvalFrameDefault+20631>, 0x573cae <_PyEval_EvalFrameDefault+9054>, 0x578cd8 <_PyEval_EvalFrameDefault+29576>, 0x5795f0 <_PyEval_EvalFrameDefault+31904>, 0x573a7b <_PyEval_EvalFrameDefault+8491>, 0x43bc8a <_PyEval_EvalFrameDefault-1268934> <repeats 30 times>, 0x575445 <_PyEval_EvalFrameDefault+15093>, 0x575aee <_PyEval_EvalFrameDefault+16798>, 0x573169 <_PyEval_EvalFrameDefault+6169>, 0x575e3e <_PyEval_EvalFrameDefault+17646>, 0x572b7f <_PyEval_EvalFrameDefault+4655>, 0x5747ab <_PyEval_EvalFrameDefault+11867>, 0x574df5 <_PyEval_EvalFrameDefault+13477>, 0x5737d4 <_PyEval_EvalFrameDefault+7812>, 0x574eac <_PyEval_EvalFrameDefault+13660>, 0x5774d3 <_PyEval_EvalFrameDefault+23427>, 0x57396d <_PyEval_EvalFrameDefault+8221>, 0x5732e3 <_PyEval_EvalFrameDefault+6547>, 0x575b7a <_PyEval_EvalFrameDefault+16938>, 0x577167 <_PyEval_EvalFrameDefault+22551>, 0x573f49 <_PyEval_EvalFrameDefault+9721>, 0x574ca2 <_PyEval_EvalFrameDefault+13138>, 0x573861 <_PyEval_EvalFrameDefault+7953>, 0x572dd6 <_PyEval_EvalFrameDefault+5254>, 0x574f3e <_PyEval_EvalFrameDefault+13806>, 0x57211f <_PyEval_EvalFrameDefault+1999>, 0x5731ed <_PyEval_EvalFrameDefault+6301>, 0x573e2f <_PyEval_EvalFrameDefault+9439>, 0x575a3c <_PyEval_EvalFrameDefault+16620>, 0x57281f <_PyEval_EvalFrameDefault+3791>, 0x57498e <_PyEval_EvalFrameDefault+12350>, 0x574623 <_PyEval_EvalFrameDefault+11475>, 0x57622a <_PyEval_EvalFrameDefault+18650>, 0x572a1b <_PyEval_EvalFrameDefault+4299>, 0x57233a <_PyEval_EvalFrameDefault+2538>, 0x573b00 <_PyEval_EvalFrameDefault+8624>, 0x576034 <_PyEval_EvalFrameDefault+18148>, 0x577b99 <_PyEval_EvalFrameDefault+25161>, 0x57308e <_PyEval_EvalFrameDefault+5950>, 0x575334 <_PyEval_EvalFrameDefault+14820>, 0x571e6d <_PyEval_EvalFrameDefault+1309>, 0x57448d <_PyEval_EvalFrameDefault+11069>, 0x5760ae <_PyEval_EvalFrameDefault+18270>, 0x576366 <_PyEval_EvalFrameDefault+18966>, 0x576150 <_PyEval_EvalFrameDefault+18432>, 0x5733ae <_PyEval_EvalFrameDefault+6750>, 0x5730f4 <_PyEval_EvalFrameDefault+6052>, 0x5752c7 <_PyEval_EvalFrameDefault+14711>, 0x577825 <_PyEval_EvalFrameDefault+24277>, 0x437f8c <_PyEval_EvalFrameDefault-1284548>, 0x571fde <_PyEval_EvalFrameDefault+1678>, 0x574c24 <_PyEval_EvalFrameDefault+13012>, 0x572293 <_PyEval_EvalFrameDefault+2371>, 0x572af2 <_PyEval_EvalFrameDefault+4514>, 0x573ce9 <_PyEval_EvalFrameDefault+9113>, 0x5796d9 <_PyEval_EvalFrameDefault+32137>, 0x575697 <_PyEval_EvalFrameDefault+15687>, 0x575c37 <_PyEval_EvalFrameDefault+17127>, 0x572fb2 <_PyEval_EvalFrameDefault+5730>, 0x575f50 <_PyEval_EvalFrameDefault+17920>, 0x571bd1 <_PyEval_EvalFrameDefault+641>, 0x571d99 <_PyEval_EvalFrameDefault+1097>, 0x578f30 <_PyEval_EvalFrameDefault+30176>, 0x576c1f <_PyEval_EvalFrameDefault+21199>, 0x571b99 <_PyEval_EvalFrameDefault+585>, 0x576f86 <_PyEval_EvalFrameDefault+22070>, 0x573c02 <_PyEval_EvalFrameDefault+8882>, 0x574918 <_PyEval_EvalFrameDefault+12232>, 0x57888d <_PyEval_EvalFrameDefault+28477>, 0x574b5b <_PyEval_EvalFrameDefault+12811>, 0x57521b <_PyEval_EvalFrameDefault+14539>, 0x5758a5 <_PyEval_EvalFrameDefault+16213>, 0x571e35 <_PyEval_EvalFrameDefault+1253>, 0x574afe <_PyEval_EvalFrameDefault+12718>, 0x5768a7 <_PyEval_EvalFrameDefault+20311>, 0x5745ea <_PyEval_EvalFrameDefault+11418>, 0x575eef <_PyEval_EvalFrameDefault+17823>...}
+        word = <optimized out>
+        word = <optimized out>
+#11 0x000000000068bcb8 in _PyEval_EvalFrame (throwflag=0, frame=0x7ffff7fab1c0, tstate=0x979bf0 <_PyRuntime+283024>) at /usr/local/src/conda/python-3.13.5/Include/internal/pycore_ceval.h:119
+No locals.
+#12 _PyEval_Vector (kwnames=0x0, argcount=0, args=0x0, locals=0x7ffff7134300, func=0x7ffff71a7ec0, tstate=0x979bf0 <_PyRuntime+283024>) at /usr/local/src/conda/python-3.13.5/Python/ceval.c:1816
+        frame = 0x7ffff7fab1c0
+        frame = <optimized out>
+        i = <optimized out>
+        kwcount = <optimized out>
+        i = <optimized out>
+#13 PyEval_EvalCode (co=co@entry=0x7ffff7b2e2b0, globals=globals@entry=0x7ffff7134300, locals=<optimized out>, locals@entry=0x7ffff7134300) at /usr/local/src/conda/python-3.13.5/Python/ceval.c:604
+        tstate = 0x979bf0 <_PyRuntime+283024>
+        builtins = <optimized out>
+        desc = <optimized out>
+        func = 0x7ffff71a7ec0
+        res = <optimized out>
+#14 0x000000000069fa3e in builtin_exec_impl (module=<optimized out>, closure=<optimized out>, locals=0x7ffff7134300, globals=0x7ffff7134300, source=0x7ffff7b2e2b0) at /usr/local/src/conda/python-3.13.5/Python/bltinmodule.c:1143
+        num_free = <optimized out>
+        v = <optimized out>
+        r = <optimized out>
+        v = <optimized out>
+        error = <optimized out>
+        r = <optimized out>
+        num_free = <optimized out>
+        closure_is_ok = <optimized out>
+        i = <optimized out>
+        cell = <optimized out>
+        source_copy = <optimized out>
+        str = <optimized out>
+        cf = <optimized out>
+#15 builtin_exec (module=<optimized out>, args=<optimized out>, nargs=<optimized out>, kwnames=<optimized out>) at /usr/local/src/conda/python-3.13.5/Python/clinic/bltinmodule.c.h:556
+        return_value = 0x0
+        argsbuf = {0x692500 <property_descr_get>, 0x692589 <property_descr_get+137>, 0x7ffff7b779c0, 0x2fe6182856687300}
+        noptargs = <optimized out>
+        source = 0x7ffff7b2e2b0
+        globals = <optimized out>
+        locals = <optimized out>
+        closure = <optimized out>
+        skip_optional_pos = <optimized out>
+        _parser = {format = 0x0, keywords = 0x856420 <_keywords.10.lto_priv.5>, fname = 0x7412e5 "exec", custom_msg = 0x0, once = {v = 0 '\000'}, is_kwtuple_owned = 0, pos = 0, min = 0, max = 0, kwtuple = 0x913350 <_kwtuple.9.lto_priv.5+16>, next = 0x0}
+        _kwtuple = {_this_is_not_used = {_gc_next = 0, _gc_prev = 0}, ob_base = {ob_base = {{ob_refcnt = 4294967295, ob_refcnt_split = {4294967295, 0}}, ob_type = 0x91a700 <PyTuple_Type>}, ob_size = 3}, ob_item = {0x942b38 <_PyRuntime+57560>, 0x943b90 <_PyRuntime+61744>, 0x941130 <_PyRuntime+50896>}}
+        _keywords = {0x73d081 "", 0x73a46a "globals", 0x746031 "locals", 0x7451c3 "closure", 0x0}
+#16 0x000000000058daae in cfunction_vectorcall_FASTCALL_KEYWORDS (func=0x7ffff7b45d50, args=0x7ffff7fab180, nargsf=<optimized out>, kwnames=0x0) at /usr/local/src/conda/python-3.13.5/Objects/methodobject.c:441
+        tstate = 0x979bf0 <_PyRuntime+283024>
+        nargs = 2
+        meth = <optimized out>
+        result = <optimized out>
+#17 0x000000000055d471 in _PyObject_VectorcallTstate (kwnames=0x0, nargsf=9223372036854775810, args=0x7ffff7fab180, callable=0x7ffff7b45d50, tstate=0x979bf0 <_PyRuntime+283024>) at /usr/local/src/conda/python-3.13.5/Include/internal/pycore_call.h:168
+        func = <optimized out>
+        res = <optimized out>
+        func = <optimized out>
+        res = <optimized out>
+        nargs = <optimized out>
+#18 PyObject_Vectorcall (callable=0x7ffff7b45d50, args=0x7ffff7fab180, nargsf=9223372036854775810, kwnames=0x0) at /usr/local/src/conda/python-3.13.5/Objects/call.c:327
+        tstate = 0x979bf0 <_PyRuntime+283024>
+#19 0x0000000000572628 in _PyEval_EvalFrameDefault (tstate=<optimized out>, frame=0x7ffff7fab0d8, throwflag=<optimized out>) at /usr/local/src/conda/python-3.13.5/Python/generated_cases.c.h:813
+        total_args = <optimized out>
+        self_or_null = <optimized out>
+        callable = <optimized out>
+        this_instr = 0x7ffff7b55b22
+        args = 0x7ffff7fab180
+        res = <optimized out>
+        opcode = <optimized out>
+        oparg = <optimized out>
+        entry_frame = {f_executable = 0x91e370 <_Py_NoneStruct>, previous = 0x0, f_funcobj = 0x7ffff7fab020, f_globals = 0x7ffff71a7a60, f_builtins = 0x7ffff71b8358, f_locals = 0x0, frame_obj = 0x979bf0 <_PyRuntime+283024>, instr_ptr = 0x852fa2 <_Py_INTERPRETER_TRAMPOLINE_INSTRUCTIONS+2>, stacktop = 0, return_offset = 0, owner = 3 '\003', localsplus = {0x2}}
+        next_instr = 0x7ffff7b55b2a
+        stack_pointer = <optimized out>
+        exception_unwind = <optimized out>
+        dying = <optimized out>
+        __func__ = "_PyEval_EvalFrameDefault"
+        opcode_targets = {0x43a060 <_PyEval_EvalFrameDefault-1276144>, 0x437c69 <_PyEval_EvalFrameDefault-1285351>, 0x576e58 <_PyEval_EvalFrameDefault+21768>, 0x577414 <_PyEval_EvalFrameDefault+23236>, 0x575488 <_PyEval_EvalFrameDefault+15160>, 0x57433d <_PyEval_EvalFrameDefault+10733>, 0x43b3b2 <_PyEval_EvalFrameDefault-1271198>, 0x57690a <_PyEval_EvalFrameDefault+20410>, 0x579574 <_PyEval_EvalFrameDefault+31780>, 0x5770a5 <_PyEval_EvalFrameDefault+22357>, 0x43c263 <_PyEval_EvalFrameDefault-1267437>, 0x578ea0 <_PyEval_EvalFrameDefault+30032>, 0x578db6 <_PyEval_EvalFrameDefault+29798>, 0x577e64 <_PyEval_EvalFrameDefault+25876>, 0x576f4f <_PyEval_EvalFrameDefault+22015>, 0x577b20 <_PyEval_EvalFrameDefault+25040>, 0x43c8fe <_PyEval_EvalFrameDefault-1265746>, 0x4389af <_PyEval_EvalFrameDefault-1281953>, 0x43c821 <_PyEval_EvalFrameDefault-1265967>, 0x574591 <_PyEval_EvalFrameDefault+11329>, 0x578d58 <_PyEval_EvalFrameDefault+29704>, 0x578310 <_PyEval_EvalFrameDefault+27072>, 0x5722fd <_PyEval_EvalFrameDefault+2477>, 0x43e0c6 <_PyEval_EvalFrameDefault-1259658>, 0x578020 <_PyEval_EvalFrameDefault+26320>, 0x578ab3 <_PyEval_EvalFrameDefault+29027>, 0x5764e7 <_PyEval_EvalFrameDefault+19351>, 0x5789bb <_PyEval_EvalFrameDefault+28779>, 0x578972 <_PyEval_EvalFrameDefault+28706>, 0x578514 <_PyEval_EvalFrameDefault+27588>, 0x57440f <_PyEval_EvalFrameDefault+10943>, 0x576646 <_PyEval_EvalFrameDefault+19702>, 0x572072 <_PyEval_EvalFrameDefault+1826>, 0x5765e9 <_PyEval_EvalFrameDefault+19609>, 0x571d32 <_PyEval_EvalFrameDefault+994>, 0x576b06 <_PyEval_EvalFrameDefault+20918>, 0x5720a8 <_PyEval_EvalFrameDefault+1880>, 0x578c1f <_PyEval_EvalFrameDefault+29391>, 0x577611 <_PyEval_EvalFrameDefault+23745>, 0x575d59 <_PyEval_EvalFrameDefault+17417>, 0x573d91 <_PyEval_EvalFrameDefault+9281>, 0x579360 <_PyEval_EvalFrameDefault+31248>, 0x57698d <_PyEval_EvalFrameDefault+20541>, 0x576d15 <_PyEval_EvalFrameDefault+21445>, 0x5788d0 <_PyEval_EvalFrameDefault+28544>, 0x57294e <_PyEval_EvalFrameDefault+4094>, 0x578560 <_PyEval_EvalFrameDefault+27664>, 0x575540 <_PyEval_EvalFrameDefault+15344>, 0x5750f0 <_PyEval_EvalFrameDefault+14240>, 0x579486 <_PyEval_EvalFrameDefault+31542>, 0x577e9c <_PyEval_EvalFrameDefault+25932>, 0x576d52 <_PyEval_EvalFrameDefault+21506>, 0x574432 <_PyEval_EvalFrameDefault+10978>, 0x572565 <_PyEval_EvalFrameDefault+3093>, 0x576729 <_PyEval_EvalFrameDefault+19929>, 0x579080 <_PyEval_EvalFrameDefault+30512>, 0x578ffb <_PyEval_EvalFrameDefault+30379>, 0x5741d8 <_PyEval_EvalFrameDefault+10376>, 0x5736b9 <_PyEval_EvalFrameDefault+7529>, 0x574838 <_PyEval_EvalFrameDefault+12008>, 0x577c1e <_PyEval_EvalFrameDefault+25294>, 0x5734fb <_PyEval_EvalFrameDefault+7083>, 0x572cd8 <_PyEval_EvalFrameDefault+5000>, 0x5766bf <_PyEval_EvalFrameDefault+19823>, 0x578ed6 <_PyEval_EvalFrameDefault+30086>, 0x578640 <_PyEval_EvalFrameDefault+27888>, 0x43aa81 <_PyEval_EvalFrameDefault-1273551>, 0x57868a <_PyEval_EvalFrameDefault+27962>, 0x576a71 <_PyEval_EvalFrameDefault+20769>, 0x578e19 <_PyEval_EvalFrameDefault+29897>, 0x43d37c <_PyEval_EvalFrameDefault-1263060>, 0x5750cb <_PyEval_EvalFrameDefault+14203>, 0x57277e <_PyEval_EvalFrameDefault+3630>, 0x579402 <_PyEval_EvalFrameDefault+31410>, 0x578812 <_PyEval_EvalFrameDefault+28354>, 0x5786f0 <_PyEval_EvalFrameDefault+28064>, 0x57353a <_PyEval_EvalFrameDefault+7146>, 0x571d61 <_PyEval_EvalFrameDefault+1041>, 0x5751f0 <_PyEval_EvalFrameDefault+14496>, 0x574ad9 <_PyEval_EvalFrameDefault+12681>, 0x573037 <_PyEval_EvalFrameDefault+5863>, 0x577f45 <_PyEval_EvalFrameDefault+26101>, 0x572c05 <_PyEval_EvalFrameDefault+4789>, 0x571aee <_PyEval_EvalFrameDefault+414>, 0x572735 <_PyEval_EvalFrameDefault+3557>, 0x571a32 <_PyEval_EvalFrameDefault+226>, 0x5765ab <_PyEval_EvalFrameDefault+19547>, 0x577c84 <_PyEval_EvalFrameDefault+25396>, 0x571b32 <_PyEval_EvalFrameDefault+482>, 0x578a0c <_PyEval_EvalFrameDefault+28860>, 0x43b09f <_PyEval_EvalFrameDefault-1271985>, 0x577cca <_PyEval_EvalFrameDefault+25466>, 0x577026 <_PyEval_EvalFrameDefault+22230>, 0x57838c <_PyEval_EvalFrameDefault+27196>, 0x576411 <_PyEval_EvalFrameDefault+19137>, 0x577db7 <_PyEval_EvalFrameDefault+25703>, 0x578081 <_PyEval_EvalFrameDefault+26417>, 0x571c8e <_PyEval_EvalFrameDefault+830>, 0x573a16 <_PyEval_EvalFrameDefault+8390>, 0x573654 <_PyEval_EvalFrameDefault+7428>, 0x571ce0 <_PyEval_EvalFrameDefault+912>, 0x578af8 <_PyEval_EvalFrameDefault+29096>, 0x5778af <_PyEval_EvalFrameDefault+24415>, 0x571f4e <_PyEval_EvalFrameDefault+1534>, 0x575783 <_PyEval_EvalFrameDefault+15923>, 0x57571f <_PyEval_EvalFrameDefault+15823>, 0x576e17 <_PyEval_EvalFrameDefault+21703>, 0x577fae <_PyEval_EvalFrameDefault+26206>, 0x5755b0 <_PyEval_EvalFrameDefault+15456>, 0x577112 <_PyEval_EvalFrameDefault+22466>, 0x571a73 <_PyEval_EvalFrameDefault+291>, 0x572f48 <_PyEval_EvalFrameDefault+5624>, 0x573427 <_PyEval_EvalFrameDefault+6871>, 0x57911e <_PyEval_EvalFrameDefault+30670>, 0x5769e7 <_PyEval_EvalFrameDefault+20631>, 0x573cae <_PyEval_EvalFrameDefault+9054>, 0x578cd8 <_PyEval_EvalFrameDefault+29576>, 0x5795f0 <_PyEval_EvalFrameDefault+31904>, 0x573a7b <_PyEval_EvalFrameDefault+8491>, 0x43bc8a <_PyEval_EvalFrameDefault-1268934> <repeats 30 times>, 0x575445 <_PyEval_EvalFrameDefault+15093>, 0x575aee <_PyEval_EvalFrameDefault+16798>, 0x573169 <_PyEval_EvalFrameDefault+6169>, 0x575e3e <_PyEval_EvalFrameDefault+17646>, 0x572b7f <_PyEval_EvalFrameDefault+4655>, 0x5747ab <_PyEval_EvalFrameDefault+11867>, 0x574df5 <_PyEval_EvalFrameDefault+13477>, 0x5737d4 <_PyEval_EvalFrameDefault+7812>, 0x574eac <_PyEval_EvalFrameDefault+13660>, 0x5774d3 <_PyEval_EvalFrameDefault+23427>, 0x57396d <_PyEval_EvalFrameDefault+8221>, 0x5732e3 <_PyEval_EvalFrameDefault+6547>, 0x575b7a <_PyEval_EvalFrameDefault+16938>, 0x577167 <_PyEval_EvalFrameDefault+22551>, 0x573f49 <_PyEval_EvalFrameDefault+9721>, 0x574ca2 <_PyEval_EvalFrameDefault+13138>, 0x573861 <_PyEval_EvalFrameDefault+7953>, 0x572dd6 <_PyEval_EvalFrameDefault+5254>, 0x574f3e <_PyEval_EvalFrameDefault+13806>, 0x57211f <_PyEval_EvalFrameDefault+1999>, 0x5731ed <_PyEval_EvalFrameDefault+6301>, 0x573e2f <_PyEval_EvalFrameDefault+9439>, 0x575a3c <_PyEval_EvalFrameDefault+16620>, 0x57281f <_PyEval_EvalFrameDefault+3791>, 0x57498e <_PyEval_EvalFrameDefault+12350>, 0x574623 <_PyEval_EvalFrameDefault+11475>, 0x57622a <_PyEval_EvalFrameDefault+18650>, 0x572a1b <_PyEval_EvalFrameDefault+4299>, 0x57233a <_PyEval_EvalFrameDefault+2538>, 0x573b00 <_PyEval_EvalFrameDefault+8624>, 0x576034 <_PyEval_EvalFrameDefault+18148>, 0x577b99 <_PyEval_EvalFrameDefault+25161>, 0x57308e <_PyEval_EvalFrameDefault+5950>, 0x575334 <_PyEval_EvalFrameDefault+14820>, 0x571e6d <_PyEval_EvalFrameDefault+1309>, 0x57448d <_PyEval_EvalFrameDefault+11069>, 0x5760ae <_PyEval_EvalFrameDefault+18270>, 0x576366 <_PyEval_EvalFrameDefault+18966>, 0x576150 <_PyEval_EvalFrameDefault+18432>, 0x5733ae <_PyEval_EvalFrameDefault+6750>, 0x5730f4 <_PyEval_EvalFrameDefault+6052>, 0x5752c7 <_PyEval_EvalFrameDefault+14711>, 0x577825 <_PyEval_EvalFrameDefault+24277>, 0x437f8c <_PyEval_EvalFrameDefault-1284548>, 0x571fde <_PyEval_EvalFrameDefault+1678>, 0x574c24 <_PyEval_EvalFrameDefault+13012>, 0x572293 <_PyEval_EvalFrameDefault+2371>, 0x572af2 <_PyEval_EvalFrameDefault+4514>, 0x573ce9 <_PyEval_EvalFrameDefault+9113>, 0x5796d9 <_PyEval_EvalFrameDefault+32137>, 0x575697 <_PyEval_EvalFrameDefault+15687>, 0x575c37 <_PyEval_EvalFrameDefault+17127>, 0x572fb2 <_PyEval_EvalFrameDefault+5730>, 0x575f50 <_PyEval_EvalFrameDefault+17920>, 0x571bd1 <_PyEval_EvalFrameDefault+641>, 0x571d99 <_PyEval_EvalFrameDefault+1097>, 0x578f30 <_PyEval_EvalFrameDefault+30176>, 0x576c1f <_PyEval_EvalFrameDefault+21199>, 0x571b99 <_PyEval_EvalFrameDefault+585>, 0x576f86 <_PyEval_EvalFrameDefault+22070>, 0x573c02 <_PyEval_EvalFrameDefault+8882>, 0x574918 <_PyEval_EvalFrameDefault+12232>, 0x57888d <_PyEval_EvalFrameDefault+28477>, 0x574b5b <_PyEval_EvalFrameDefault+12811>, 0x57521b <_PyEval_EvalFrameDefault+14539>, 0x5758a5 <_PyEval_EvalFrameDefault+16213>, 0x571e35 <_PyEval_EvalFrameDefault+1253>, 0x574afe <_PyEval_EvalFrameDefault+12718>, 0x5768a7 <_PyEval_EvalFrameDefault+20311>, 0x5745ea <_PyEval_EvalFrameDefault+11418>, 0x575eef <_PyEval_EvalFrameDefault+17823>...}
+        word = <optimized out>
+        word = <optimized out>
+#20 0x00000000006c0aff in pymain_run_module (modname=<optimized out>, set_argv0=set_argv0@entry=1) at /usr/local/src/conda/python-3.13.5/Modules/main.c:349
+        module = 0x7ffff7134470
+        runpy = 0x7ffff7186390
+        runmodule = 0x7ffff71a7a60
+        runargs = 0x7ffff71b8340
+        result = <optimized out>
+#21 0x00000000006bfdc1 in pymain_run_python (exitcode=0x7fffffffd28c) at /usr/local/src/conda/python-3.13.5/Modules/main.c:690
+        main_importer_path = <optimized out>
+        interp = 0x94a3b0 <_PyRuntime+88400>
+        config = 0x94c2e8 <_PyRuntime+96392>
+        path0 = 0x7ffff7ad5b30
+        main_importer_path = <optimized out>
+        interp = <optimized out>
+        config = <optimized out>
+        error = <optimized out>
+        path0 = <optimized out>
+        done = <optimized out>
+        res = <optimized out>
+        _tmp_op_ptr = <optimized out>
+        _tmp_old_op = <optimized out>
+        wstr = <optimized out>
+        res = <optimized out>
+#22 Py_RunMain () at /usr/local/src/conda/python-3.13.5/Modules/main.c:775
+        exitcode = 0
+#23 0x000000000067fa99 in Py_BytesMain (argc=<optimized out>, argv=<optimized out>) at /usr/local/src/conda/python-3.13.5/Modules/main.c:829
+        args = {argc = 11, use_bytes_argv = 1, bytes_argv = 0x7fffffffd508, wchar_argv = 0x0}
+#24 0x00007ffff7c2a601 in __libc_start_call_main (main=main@entry=0x67f9d0 <main>, argc=argc@entry=11, argv=argv@entry=0x7fffffffd508) at ../sysdeps/nptl/libc_start_call_main.h:59
+        self = <optimized out>
+        result = <optimized out>
+        unwind_buf = {cancel_jmp_buf = {{jmp_buf = {0, -6525272269333228284, 140737488344328, 11, 140737354125312, 0, -6525272269169650428, -6525290300174920444}, mask_was_saved = 0}}, priv = {pad = {0x0, 0x0, 0x7fffffffd508, 0xb}, data = {prev = 0x0, cleanup = 0x0, canceltype = -11000}}}
+        not_first_call = <optimized out>
+#25 0x00007ffff7c2a718 in __libc_start_main_impl (main=0x67f9d0 <main>, argc=11, argv=0x7fffffffd508, init=<optimized out>, fini=<optimized out>, rtld_fini=<optimized out>, stack_end=0x7fffffffd4f8) at ../csu/libc-start.c:360
+No locals.
+#26 0x000000000067ecd2 in _start ()
+No symbol table info available.
+rax            0x0                 0
+rbx            0x3400              13312
+rcx            0x1386ce8           20475112
+rdx            0x13872e8           20476648
+rsi            0x13878e8           20478184
+rdi            0x13866e8           20473576
+rbp            0x400               0x400
+rsp            0x7fffd6df7c48      0x7fffd6df7c48
+r8             0xd                 13
+r9             0x8                 8
+r10            0x1387ec8           20479688
+r11            0x3400              13312
+r12            0x80                128
+r13            0x1386868           20473960
+r14            0x1800              6144
+r15            0x600               1536
+rip            0x7fffdb96a164      0x7fffdb96a164 <dgemm_itcopy_HASWELL+516>
+eflags         0x10206             [ PF IF RF ]
+cs             0x33                51
+ss             0x2b                43
+ds             0x0                 0
+es             0x0                 0
+fs             0x0                 0
+gs             0x0                 0
+pl3_ssp        <unavailable>
+fs_base        0x7fffd6df86c0      140736798361280
+gs_base        0x0                 0
+   0x7fffdb96a14c <dgemm_itcopy_HASWELL+492>:	sti
+   0x7fffdb96a14d <dgemm_itcopy_HASWELL+493>:	adc    %ch,-0x10(%rdx)
+   0x7fffdb96a150 <dgemm_itcopy_HASWELL+496>:	vmovsd -0x8(%rdx),%xmm4
+   0x7fffdb96a155 <dgemm_itcopy_HASWELL+501>:	vmovsd -0x18(%rsi),%xmm2
+   0x7fffdb96a15a <dgemm_itcopy_HASWELL+506>:	vmovsd -0x10(%rsi),%xmm1
+   0x7fffdb96a15f <dgemm_itcopy_HASWELL+511>:	vmovsd -0x8(%rsi),%xmm0
+=> 0x7fffdb96a164 <dgemm_itcopy_HASWELL+516>:	vmovsd %xmm15,(%rax)
+   0x7fffdb96a168 <dgemm_itcopy_HASWELL+520>:	vmovsd %xmm14,0x8(%rax)
+   0x7fffdb96a16d <dgemm_itcopy_HASWELL+525>:	vmovsd %xmm13,0x10(%rax)
+   0x7fffdb96a172 <dgemm_itcopy_HASWELL+530>:	vmovsd %xmm12,0x18(%rax)
+   0x7fffdb96a177 <dgemm_itcopy_HASWELL+535>:	vmovsd %xmm11,0x20(%rax)
+   0x7fffdb96a17c <dgemm_itcopy_HASWELL+540>:	vmovsd %xmm10,0x28(%rax)
+   0x7fffdb96a181 <dgemm_itcopy_HASWELL+545>:	vmovsd %xmm9,0x30(%rax)
+   0x7fffdb96a186 <dgemm_itcopy_HASWELL+550>:	vmovsd %xmm8,0x38(%rax)
+   0x7fffdb96a18b <dgemm_itcopy_HASWELL+555>:	vmovsd %xmm7,0x40(%rax)
+   0x7fffdb96a190 <dgemm_itcopy_HASWELL+560>:	vmovsd %xmm6,0x48(%rax)
+From                To                  Syms Read   Shared Object Library
+0x00007ffff7fc0000  0x00007ffff7fff000  Yes         /lib64/ld-linux-x86-64.so.2
+0x00007ffff7f93000  0x00007ffff7f98000  Yes         /usr/lib/x86_64-linux-gnu/libpthread.so.0
+0x00007ffff7f8e000  0x00007ffff7f93000  Yes         /usr/lib/x86_64-linux-gnu/libdl.so.2
+0x00007ffff7f89000  0x00007ffff7f8e000  Yes         /usr/lib/x86_64-linux-gnu/libutil.so.1
+0x00007ffff7e63000  0x00007ffff7f89000  Yes         /usr/lib/x86_64-linux-gnu/libm.so.6
+0x00007ffff7c00000  0x00007ffff7e21000  Yes         /usr/lib/x86_64-linux-gnu/libc.so.6
+0x00007ffff7f99000  0x00007ffff7fab000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/array.cpython-313-x86_64-linux-gnu.so
+0x00007ffff7e2d000  0x00007ffff7e3d000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/_hashlib.cpython-313-x86_64-linux-gnu.so
+0x00007ffff6a00000  0x00007ffff6e50000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/lib-dynload/../../libcrypto.so.3
+0x00007ffff7a56000  0x00007ffff7a64000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/_blake2.cpython-313-x86_64-linux-gnu.so
+0x00007ffff7a49000  0x00007ffff7a56000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/_json.cpython-313-x86_64-linux-gnu.so
+0x00007ffff7e27000  0x00007ffff7e2d000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/resource.cpython-313-x86_64-linux-gnu.so
+0x00007ffff7e21000  0x00007ffff7e27000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/grp.cpython-313-x86_64-linux-gnu.so
+0x00007ffff6eab000  0x00007ffff6ecd000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/_ctypes.cpython-313-x86_64-linux-gnu.so
+0x00007ffff6e9a000  0x00007ffff6eab000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/lib-dynload/../../libffi.so.8
+0x00007ffff6e8b000  0x00007ffff6e9a000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/_struct.cpython-313-x86_64-linux-gnu.so
+0x00007ffff6e76000  0x00007ffff6e8b000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/math.cpython-313-x86_64-linux-gnu.so
+0x00007ffff7a42000  0x00007ffff7a49000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/_opcode.cpython-313-x86_64-linux-gnu.so
+0x00007ffff6e6a000  0x00007ffff6e76000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/zlib.cpython-313-x86_64-linux-gnu.so
+0x00007ffff68e2000  0x00007ffff6900000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/lib-dynload/../../libz.so.1
+0x00007ffff6e62000  0x00007ffff6e6a000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/_bz2.cpython-313-x86_64-linux-gnu.so
+0x00007ffff68ce000  0x00007ffff68e2000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/../../libbz2.so.1.0
+0x00007ffff6e56000  0x00007ffff6e62000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/_lzma.cpython-313-x86_64-linux-gnu.so
+0x00007ffff689e000  0x00007ffff68ce000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/lib-dynload/../../liblzma.so.5
+0x00007ffff6ff8000  0x00007ffff7000000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/fcntl.cpython-313-x86_64-linux-gnu.so
+0x00007ffff6ff0000  0x00007ffff6ff8000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/_posixsubprocess.cpython-313-x86_64-linux-gnu.so
+0x00007ffff6fe6000  0x00007ffff6ff0000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/select.cpython-313-x86_64-linux-gnu.so
+0x00007ffff6fdf000  0x00007ffff6fe6000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/_bisect.cpython-313-x86_64-linux-gnu.so
+0x00007ffff6fd8000  0x00007ffff6fdf000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/_random.cpython-313-x86_64-linux-gnu.so
+0x00007ffff6fcf000  0x00007ffff6fd8000  Yes (*)     /home/viktor/task5-v36-legacy-control/build-v36-qualification/libcertified_solver.so
+0x00007ffff66ff000  0x00007ffff6738000  Yes (*)     /home/viktor/task5-v36-legacy-control/build-v36-qualification/libaffine_bundle_solver.so
+0x00007ffff66f8000  0x00007ffff66ff000  Yes (*)     /home/viktor/task5-v36-legacy-control/build-v36-qualification/libstatus_verifier.so
+0x00007ffff4200000  0x00007ffff66d8000  Yes (*)     /usr/lib/x86_64-linux-gnu/libopenblas.so.0
+0x00007ffff41a1000  0x00007ffff4200000  Yes (*)     /usr/lib/x86_64-linux-gnu/libgomp.so.1
+0x00007ffff40a6000  0x00007ffff41a1000  Yes         /usr/lib/x86_64-linux-gnu/libmvec.so.1
+0x00007ffff3c00000  0x00007ffff3f80000  Yes (*)     /usr/lib/x86_64-linux-gnu/libgfortran.so.5
+0x00007ffff408c000  0x00007ffff40a6000  Yes         /home/viktor/miniconda3/bin/../lib/libgcc_s.so.1
+0x00007ffff6e51000  0x00007ffff6e56000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/mkl/_mklinit.cpython-313-x86_64-linux-gnu.so
+0x00007fffeae00000  0x00007fffeba3f000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/mkl/../../../libmkl_rt.so.2
+0x00007fffea800000  0x00007fffeae00000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/mkl/../../../libiomp5.so
+0x00007ffff4087000  0x00007ffff408c000  Yes         /usr/lib/x86_64-linux-gnu/librt.so.1
+0x00007ffff405f000  0x00007ffff4087000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/mkl/_py_mkl_service.cpython-313-x86_64-linux-gnu.so
+0x00007fffe6200000  0x00007fffea6d2000  Yes         /home/viktor/miniconda3/lib/python3.13/site-packages/mkl/../../../libmkl_core.so.2
+0x00007fffe2800000  0x00007fffe606f000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/mkl/../../../libmkl_intel_thread.so.2
+0x00007fffe1400000  0x00007fffe26f0000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/mkl/../../../libmkl_intel_lp64.so.2
+0x00007fffde400000  0x00007fffe1352000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/mkl/../../../libmkl_avx2.so.2
+0x00007fffdd400000  0x00007fffde20f000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/mkl/../../../libmkl_vml_avx2.so.2
+0x00007fffdcc00000  0x00007fffdd3d7000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/_core/_multiarray_umath.cpython-313-x86_64-linux-gnu.so
+0x00007fffdc800000  0x00007fffdca14000  Yes         /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/_core/../../../../libstdc++.so.6
+0x00007ffff403c000  0x00007ffff405f000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/_datetime.cpython-313-x86_64-linux-gnu.so
+0x00007ffff66f3000  0x00007ffff66f8000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/_contextvars.cpython-313-x86_64-linux-gnu.so
+0x00007ffff401b000  0x00007ffff403c000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/_pickle.cpython-313-x86_64-linux-gnu.so
+0x00007ffff3ffc000  0x00007ffff401b000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/linalg/_umath_linalg.cpython-313-x86_64-linux-gnu.so
+0x00007ffff66de000  0x00007ffff66f3000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/_lib/_ccallback_c.cpython-313-x86_64-linux-gnu.so
+0x00007fffe2720000  0x00007fffe2800000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_fblas.cpython-313-x86_64-linux-gnu.so
+0x00007fffdb200000  0x00007fffdc67e000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libscipy_openblas-68440149.so
+0x00007fffdac00000  0x00007fffdb200000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libgfortran-040039e1-0352e75f.so.5.0.0
+0x00007fffda800000  0x00007fffdac00000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/../../scipy.libs/libquadmath-96973f99-934c22de.so.0.0.0
+0x00007fffd8400000  0x00007fffd864c000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so
+0x00007ffff3f96000  0x00007ffff3ffc000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_cythonized_array_utils.cpython-313-x86_64-linux-gnu.so
+0x00007fffebad5000  0x00007fffebb00000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/_cyutility.cpython-313-x86_64-linux-gnu.so
+0x00007fffeac53000  0x00007fffead00000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so
+0x00007fffeba62000  0x00007fffebad5000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/fft/_pocketfft_umath.cpython-313-x86_64-linux-gnu.so
+0x00007fffe1354000  0x00007fffe1400000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/unicodedata.cpython-313-x86_64-linux-gnu.so
+0x00007ffff678d000  0x00007ffff679a000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/_multibytecodec.cpython-313-x86_64-linux-gnu.so
+0x00007ffff673b000  0x00007ffff678d000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_bounded_integers.cpython-313-x86_64-linux-gnu.so
+0x00007fffe60cd000  0x00007fffe6100000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/bit_generator.cpython-313-x86_64-linux-gnu.so
+0x00007fffe608e000  0x00007fffe60cd000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_common.cpython-313-x86_64-linux-gnu.so
+0x00007ffff3f8c000  0x00007ffff3f96000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/binascii.cpython-313-x86_64-linux-gnu.so
+0x00007fffdca1c000  0x00007fffdcb00000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_generator.cpython-313-x86_64-linux-gnu.so
+0x00007fffeba44000  0x00007fffeba62000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_pcg64.cpython-313-x86_64-linux-gnu.so
+0x00007fffea6e4000  0x00007fffea700000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_mt19937.cpython-313-x86_64-linux-gnu.so
+0x00007fffe6076000  0x00007fffe608e000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_philox.cpython-313-x86_64-linux-gnu.so
+0x00007fffea6d2000  0x00007fffea6e4000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_sfc64.cpython-313-x86_64-linux-gnu.so
+0x00007fffdb149000  0x00007fffdb200000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/mtrand.cpython-313-x86_64-linux-gnu.so
+0x00007ffff3f83000  0x00007ffff3f8c000  Yes         /home/viktor/miniconda3/lib/python3.13/lib-dynload/_heapq.cpython-313-x86_64-linux-gnu.so
+0x00007fffe26fe000  0x00007fffe2720000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_solve_toeplitz.cpython-313-x86_64-linux-gnu.so
+0x00007fffdd3e4000  0x00007fffdd400000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_decomp_lu_cython.cpython-313-x86_64-linux-gnu.so
+0x00007fffdc6a0000  0x00007fffdc700000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_matfuncs_schur_sqrtm.cpython-313-x86_64-linux-gnu.so
+0x00007fffdb0e5000  0x00007fffdb149000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_matfuncs_expm.cpython-313-x86_64-linux-gnu.so
+0x00007fffdc683000  0x00007fffdc6a0000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_linalg_pythran.cpython-313-x86_64-linux-gnu.so
+0x00007fffdaaaf000  0x00007fffdab00000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_decomp_update.cpython-313-x86_64-linux-gnu.so
+0x00007fffdb0ba000  0x00007fffdb0e5000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so
+0x00007fffd7e00000  0x00007fffd81d3000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/sparse/_sparsetools.cpython-313-x86_64-linux-gnu.so
+0x00007fffd8680000  0x00007fffd8700000  Yes (*)     /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/sparse/_csparsetools.cpython-313-x86_64-linux-gnu.so
+0x00007fffdaa6f000  0x00007fffdaaaf000  Yes         /home/viktor/miniconda3/lib/python3.13/site-packages/mkl/../../../libtbbmalloc.so.2
+(*): Shared library is missing debugging information.
+process 653164
+Mapped address spaces:
+
+Start Addr         End Addr           Size               Offset             Perms File 
+0x0000000000400000 0x0000000000420000 0x20000            0x0                r--p  /home/viktor/miniconda3/bin/python3.13 
+0x0000000000420000 0x0000000000738000 0x318000           0x20000            r-xp  /home/viktor/miniconda3/bin/python3.13 
+0x0000000000738000 0x00000000008f9000 0x1c1000           0x338000           r--p  /home/viktor/miniconda3/bin/python3.13 
+0x00000000008f9000 0x00000000008fa000 0x1000             0x4f9000           r--p  /home/viktor/miniconda3/bin/python3.13 
+0x00000000008fa000 0x000000000097a000 0x80000            0x4fa000           rw-p  /home/viktor/miniconda3/bin/python3.13 
+0x000000000097a000 0x00000000009ed000 0x73000            0x0                rw-p   
+0x00000000009ed000 0x0000000001411000 0xa24000           0x0                rw-p  [heap] 
+0x00007fffd3c00000 0x00007fffd5c00000 0x2000000          0x0                rw-p   
+0x00007fffd5df7000 0x00007fffd75fa000 0x1803000          0x0                rw-p   
+0x00007fffd75fa000 0x00007fffd7c00000 0x606000           0x0                rw-p   
+0x00007fffd7c2e000 0x00007fffd7e00000 0x1d2000           0x0                rw-p   
+0x00007fffd7e00000 0x00007fffd7e03000 0x3000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/sparse/_sparsetools.cpython-313-x86_64-linux-gnu.so 
+0x00007fffd7e03000 0x00007fffd8187000 0x384000           0x3000             r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/sparse/_sparsetools.cpython-313-x86_64-linux-gnu.so 
+0x00007fffd8187000 0x00007fffd81d1000 0x4a000            0x387000           r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/sparse/_sparsetools.cpython-313-x86_64-linux-gnu.so 
+0x00007fffd81d1000 0x00007fffd81d2000 0x1000             0x3d0000           r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/sparse/_sparsetools.cpython-313-x86_64-linux-gnu.so 
+0x00007fffd81d2000 0x00007fffd81d3000 0x1000             0x3d1000           rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/sparse/_sparsetools.cpython-313-x86_64-linux-gnu.so 
+0x00007fffd8200000 0x00007fffd8400000 0x200000           0x0                rw-p   
+0x00007fffd8400000 0x00007fffd843e000 0x3e000            0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so 
+0x00007fffd843e000 0x00007fffd853b000 0xfd000            0x3e000            r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so 
+0x00007fffd853b000 0x00007fffd85a0000 0x65000            0x13b000           r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so 
+0x00007fffd85a0000 0x00007fffd85a1000 0x1000             0x19f000           r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so 
+0x00007fffd85a1000 0x00007fffd8634000 0x93000            0x1a0000           rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so 
+0x00007fffd8634000 0x00007fffd864c000 0x18000            0x260000           rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_flapack.cpython-313-x86_64-linux-gnu.so 
+0x00007fffd8680000 0x00007fffd8686000 0x6000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/sparse/_csparsetools.cpython-313-x86_64-linux-gnu.so 
+0x00007fffd8686000 0x00007fffd86f0000 0x6a000            0x6000             r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/sparse/_csparsetools.cpython-313-x86_64-linux-gnu.so 
+0x00007fffd86f0000 0x00007fffd86fb000 0xb000             0x70000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/sparse/_csparsetools.cpython-313-x86_64-linux-gnu.so 
+0x00007fffd86fb000 0x00007fffd86fd000 0x2000             0x7a000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/sparse/_csparsetools.cpython-313-x86_64-linux-gnu.so 
+0x00007fffd86fd000 0x00007fffd86ff000 0x2000             0x7c000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/sparse/_csparsetools.cpython-313-x86_64-linux-gnu.so 
+0x00007fffd86ff000 0x00007fffd8800000 0x101000           0x0                rw-p   
+0x00007fffd8800000 0x00007fffda800000 0x2000000          0x0                rw-p   
+0x00007fffda800000 0x00007fffda83b000 0x3b000            0x0                r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy.libs/libquadmath-96973f99-934c22de.so.0.0.0 
+0x00007fffda83b000 0x00007fffdaa3a000 0x1ff000           0x3b000            ---p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy.libs/libquadmath-96973f99-934c22de.so.0.0.0 
+0x00007fffdaa3a000 0x00007fffdaa3b000 0x1000             0x3a000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy.libs/libquadmath-96973f99-934c22de.so.0.0.0 
+0x00007fffdaa3b000 0x00007fffdaa3e000 0x3000             0x3b000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy.libs/libquadmath-96973f99-934c22de.so.0.0.0 
+0x00007fffdaa6f000 0x00007fffdaa75000 0x6000             0x0                r--p  /home/viktor/miniconda3/lib/libtbbmalloc.so.2.8 
+0x00007fffdaa75000 0x00007fffdaa86000 0x11000            0x6000             r-xp  /home/viktor/miniconda3/lib/libtbbmalloc.so.2.8 
+0x00007fffdaa86000 0x00007fffdaa8b000 0x5000             0x17000            r--p  /home/viktor/miniconda3/lib/libtbbmalloc.so.2.8 
+0x00007fffdaa8b000 0x00007fffdaa8c000 0x1000             0x1b000            r--p  /home/viktor/miniconda3/lib/libtbbmalloc.so.2.8 
+0x00007fffdaa8c000 0x00007fffdaa8e000 0x2000             0x1c000            rw-p  /home/viktor/miniconda3/lib/libtbbmalloc.so.2.8 
+0x00007fffdaa8e000 0x00007fffdaaaf000 0x21000            0x0                rw-p   
+0x00007fffdaaaf000 0x00007fffdaab4000 0x5000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_decomp_update.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdaab4000 0x00007fffdaaec000 0x38000            0x5000             r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_decomp_update.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdaaec000 0x00007fffdaafc000 0x10000            0x3d000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_decomp_update.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdaafc000 0x00007fffdaafd000 0x1000             0x4d000            ---p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_decomp_update.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdaafd000 0x00007fffdaafe000 0x1000             0x4d000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_decomp_update.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdaafe000 0x00007fffdaaff000 0x1000             0x4e000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_decomp_update.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdaaff000 0x00007fffdac00000 0x101000           0x0                rw-p   
+0x00007fffdac00000 0x00007fffdae76000 0x276000           0x0                r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy.libs/libgfortran-040039e1-0352e75f.so.5.0.0 
+0x00007fffdae76000 0x00007fffdb075000 0x1ff000           0x276000           ---p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy.libs/libgfortran-040039e1-0352e75f.so.5.0.0 
+0x00007fffdb075000 0x00007fffdb076000 0x1000             0x275000           r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy.libs/libgfortran-040039e1-0352e75f.so.5.0.0 
+0x00007fffdb076000 0x00007fffdb078000 0x2000             0x276000           rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy.libs/libgfortran-040039e1-0352e75f.so.5.0.0 
+0x00007fffdb078000 0x00007fffdb0b1000 0x39000            0x27b000           rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy.libs/libgfortran-040039e1-0352e75f.so.5.0.0 
+0x00007fffdb0ba000 0x00007fffdb0c0000 0x6000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdb0c0000 0x00007fffdb0d1000 0x11000            0x6000             r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdb0d1000 0x00007fffdb0dc000 0xb000             0x17000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdb0dc000 0x00007fffdb0dd000 0x1000             0x22000            ---p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdb0dd000 0x00007fffdb0de000 0x1000             0x22000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdb0de000 0x00007fffdb0e0000 0x2000             0x23000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdb0e0000 0x00007fffdb0e5000 0x5000             0x2d000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/cython_blas.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdb0e5000 0x00007fffdb100000 0x1b000            0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_matfuncs_expm.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdb100000 0x00007fffdb120000 0x20000            0x1b000            r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_matfuncs_expm.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdb120000 0x00007fffdb12e000 0xe000             0x3b000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_matfuncs_expm.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdb12e000 0x00007fffdb12f000 0x1000             0x48000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_matfuncs_expm.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdb12f000 0x00007fffdb133000 0x4000             0x49000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_matfuncs_expm.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdb133000 0x00007fffdb149000 0x16000            0x67000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_matfuncs_expm.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdb149000 0x00007fffdb150000 0x7000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/mtrand.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdb150000 0x00007fffdb1a9000 0x59000            0x7000             r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/mtrand.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdb1a9000 0x00007fffdb1fb000 0x52000            0x60000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/mtrand.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdb1fb000 0x00007fffdb1fc000 0x1000             0xb2000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/mtrand.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdb1fc000 0x00007fffdb1fe000 0x2000             0xb3000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/mtrand.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdb1fe000 0x00007fffdb200000 0x2000             0x0                rw-p   
+0x00007fffdb200000 0x00007fffdb2ab000 0xab000            0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy.libs/libscipy_openblas-68440149.so 
+0x00007fffdb2ab000 0x00007fffdc3bc000 0x1111000          0xab000            r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy.libs/libscipy_openblas-68440149.so 
+0x00007fffdc3bc000 0x00007fffdc56b000 0x1af000           0x11bc000          r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy.libs/libscipy_openblas-68440149.so 
+0x00007fffdc56b000 0x00007fffdc571000 0x6000             0x136a000          r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy.libs/libscipy_openblas-68440149.so 
+0x00007fffdc571000 0x00007fffdc57c000 0xb000             0x1370000          rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy.libs/libscipy_openblas-68440149.so 
+0x00007fffdc57c000 0x00007fffdc584000 0x8000             0x0                rw-p   
+0x00007fffdc584000 0x00007fffdc67e000 0xfa000            0x1435000          rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy.libs/libscipy_openblas-68440149.so 
+0x00007fffdc683000 0x00007fffdc686000 0x3000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_linalg_pythran.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdc686000 0x00007fffdc69a000 0x14000            0x3000             r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_linalg_pythran.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdc69a000 0x00007fffdc69e000 0x4000             0x17000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_linalg_pythran.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdc69e000 0x00007fffdc69f000 0x1000             0x1a000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_linalg_pythran.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdc69f000 0x00007fffdc6a0000 0x1000             0x1b000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_linalg_pythran.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdc6a0000 0x00007fffdc6bb000 0x1b000            0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_matfuncs_schur_sqrtm.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdc6bb000 0x00007fffdc6d8000 0x1d000            0x1b000            r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_matfuncs_schur_sqrtm.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdc6d8000 0x00007fffdc6e5000 0xd000             0x38000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_matfuncs_schur_sqrtm.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdc6e5000 0x00007fffdc6e6000 0x1000             0x44000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_matfuncs_schur_sqrtm.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdc6e6000 0x00007fffdc6ea000 0x4000             0x45000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_matfuncs_schur_sqrtm.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdc6ea000 0x00007fffdc700000 0x16000            0x63000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_matfuncs_schur_sqrtm.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdc700000 0x00007fffdc800000 0x100000           0x0                rw-p   
+0x00007fffdc800000 0x00007fffdc8a1000 0xa1000            0x0                r--p  /home/viktor/miniconda3/lib/libstdc++.so.6.0.29 
+0x00007fffdc8a1000 0x00007fffdc996000 0xf5000            0xa1000            r-xp  /home/viktor/miniconda3/lib/libstdc++.so.6.0.29 
+0x00007fffdc996000 0x00007fffdca02000 0x6c000            0x196000           r--p  /home/viktor/miniconda3/lib/libstdc++.so.6.0.29 
+0x00007fffdca02000 0x00007fffdca03000 0x1000             0x202000           ---p  /home/viktor/miniconda3/lib/libstdc++.so.6.0.29 
+0x00007fffdca03000 0x00007fffdca0e000 0xb000             0x202000           r--p  /home/viktor/miniconda3/lib/libstdc++.so.6.0.29 
+0x00007fffdca0e000 0x00007fffdca11000 0x3000             0x20d000           rw-p  /home/viktor/miniconda3/lib/libstdc++.so.6.0.29 
+0x00007fffdca11000 0x00007fffdca14000 0x3000             0x0                rw-p   
+0x00007fffdca1c000 0x00007fffdca25000 0x9000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_generator.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdca25000 0x00007fffdcaa3000 0x7e000            0x9000             r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_generator.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdcaa3000 0x00007fffdcafb000 0x58000            0x87000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_generator.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdcafb000 0x00007fffdcafc000 0x1000             0xde000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_generator.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdcafc000 0x00007fffdcaff000 0x3000             0xdf000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_generator.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdcaff000 0x00007fffdcc00000 0x101000           0x0                rw-p   
+0x00007fffdcc00000 0x00007fffdcc29000 0x29000            0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/_core/_multiarray_umath.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdcc29000 0x00007fffdd222000 0x5f9000           0x29000            r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/_core/_multiarray_umath.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdd222000 0x00007fffdd39a000 0x178000           0x622000           r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/_core/_multiarray_umath.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdd39a000 0x00007fffdd39e000 0x4000             0x799000           r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/_core/_multiarray_umath.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdd39e000 0x00007fffdd3bf000 0x21000            0x79d000           rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/_core/_multiarray_umath.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdd3bf000 0x00007fffdd3d7000 0x18000            0x0                rw-p   
+0x00007fffdd3e4000 0x00007fffdd3e8000 0x4000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_decomp_lu_cython.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdd3e8000 0x00007fffdd3f9000 0x11000            0x4000             r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_decomp_lu_cython.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdd3f9000 0x00007fffdd3fd000 0x4000             0x15000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_decomp_lu_cython.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdd3fd000 0x00007fffdd3fe000 0x1000             0x19000            ---p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_decomp_lu_cython.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdd3fe000 0x00007fffdd3ff000 0x1000             0x19000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_decomp_lu_cython.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdd3ff000 0x00007fffdd400000 0x1000             0x1a000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_decomp_lu_cython.cpython-313-x86_64-linux-gnu.so 
+0x00007fffdd400000 0x00007fffdd45b000 0x5b000            0x0                r--p  /home/viktor/miniconda3/lib/libmkl_vml_avx2.so.2 
+0x00007fffdd45b000 0x00007fffddcc0000 0x865000           0x5b000            r-xp  /home/viktor/miniconda3/lib/libmkl_vml_avx2.so.2 
+0x00007fffddcc0000 0x00007fffde1d2000 0x512000           0x8c0000           r--p  /home/viktor/miniconda3/lib/libmkl_vml_avx2.so.2 
+0x00007fffde1d2000 0x00007fffde1d6000 0x4000             0xdd1000           r--p  /home/viktor/miniconda3/lib/libmkl_vml_avx2.so.2 
+0x00007fffde1d6000 0x00007fffde1ef000 0x19000            0xdd5000           rw-p  /home/viktor/miniconda3/lib/libmkl_vml_avx2.so.2 
+0x00007fffde1ef000 0x00007fffde1f0000 0x1000             0x0                rw-p   
+0x00007fffde1f0000 0x00007fffde20f000 0x1f000            0xe5e000           rw-p  /home/viktor/miniconda3/lib/libmkl_vml_avx2.so.2 
+0x00007fffde215000 0x00007fffde400000 0x1eb000           0x0                rw-p   
+0x00007fffde400000 0x00007fffde4f9000 0xf9000            0x0                r--p  /home/viktor/miniconda3/lib/libmkl_avx2.so.2 
+0x00007fffde4f9000 0x00007fffe1063000 0x2b6a000          0xf9000            r-xp  /home/viktor/miniconda3/lib/libmkl_avx2.so.2 
+0x00007fffe1063000 0x00007fffe12bb000 0x258000           0x2c63000          r--p  /home/viktor/miniconda3/lib/libmkl_avx2.so.2 
+0x00007fffe12bb000 0x00007fffe12c2000 0x7000             0x2eba000          r--p  /home/viktor/miniconda3/lib/libmkl_avx2.so.2 
+0x00007fffe12c2000 0x00007fffe12d0000 0xe000             0x2ec1000          rw-p  /home/viktor/miniconda3/lib/libmkl_avx2.so.2 
+0x00007fffe12d0000 0x00007fffe12d2000 0x2000             0x0                rw-p   
+0x00007fffe12d2000 0x00007fffe1352000 0x80000            0x2fe8000          rw-p  /home/viktor/miniconda3/lib/libmkl_avx2.so.2 
+0x00007fffe1354000 0x00007fffe1357000 0x3000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/unicodedata.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe1357000 0x00007fffe135b000 0x4000             0x3000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/unicodedata.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe135b000 0x00007fffe13fe000 0xa3000            0x7000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/unicodedata.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe13fe000 0x00007fffe13ff000 0x1000             0xaa000            r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/unicodedata.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe13ff000 0x00007fffe1400000 0x1000             0xab000            rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/unicodedata.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe1400000 0x00007fffe1631000 0x231000           0x0                r--p  /home/viktor/miniconda3/lib/libmkl_intel_lp64.so.2 
+0x00007fffe1631000 0x00007fffe2154000 0xb23000           0x231000           r-xp  /home/viktor/miniconda3/lib/libmkl_intel_lp64.so.2 
+0x00007fffe2154000 0x00007fffe2612000 0x4be000           0xd54000           r--p  /home/viktor/miniconda3/lib/libmkl_intel_lp64.so.2 
+0x00007fffe2612000 0x00007fffe2613000 0x1000             0x1212000          ---p  /home/viktor/miniconda3/lib/libmkl_intel_lp64.so.2 
+0x00007fffe2613000 0x00007fffe2615000 0x2000             0x1212000          r--p  /home/viktor/miniconda3/lib/libmkl_intel_lp64.so.2 
+0x00007fffe2615000 0x00007fffe2633000 0x1e000            0x1214000          rw-p  /home/viktor/miniconda3/lib/libmkl_intel_lp64.so.2 
+0x00007fffe2633000 0x00007fffe263a000 0x7000             0x0                rw-p   
+0x00007fffe263a000 0x00007fffe26f0000 0xb6000            0x144c000          rw-p  /home/viktor/miniconda3/lib/libmkl_intel_lp64.so.2 
+0x00007fffe26fe000 0x00007fffe2702000 0x4000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_solve_toeplitz.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe2702000 0x00007fffe2717000 0x15000            0x4000             r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_solve_toeplitz.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe2717000 0x00007fffe271d000 0x6000             0x19000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_solve_toeplitz.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe271d000 0x00007fffe271e000 0x1000             0x1e000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_solve_toeplitz.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe271e000 0x00007fffe271f000 0x1000             0x1f000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_solve_toeplitz.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe271f000 0x00007fffe2720000 0x1000             0x0                rw-p   
+0x00007fffe2720000 0x00007fffe2747000 0x27000            0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_fblas.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe2747000 0x00007fffe2795000 0x4e000            0x27000            r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_fblas.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe2795000 0x00007fffe27be000 0x29000            0x75000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_fblas.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe27be000 0x00007fffe27bf000 0x1000             0x9d000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_fblas.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe27bf000 0x00007fffe27e8000 0x29000            0x9e000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_fblas.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe27e8000 0x00007fffe2800000 0x18000            0xe7000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_fblas.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe2800000 0x00007fffe2bba000 0x3ba000           0x0                r--p  /home/viktor/miniconda3/lib/libmkl_intel_thread.so.2 
+0x00007fffe2bba000 0x00007fffe5376000 0x27bc000          0x3ba000           r-xp  /home/viktor/miniconda3/lib/libmkl_intel_thread.so.2 
+0x00007fffe5376000 0x00007fffe580b000 0x495000           0x2b76000          r--p  /home/viktor/miniconda3/lib/libmkl_intel_thread.so.2 
+0x00007fffe580b000 0x00007fffe580c000 0x1000             0x300b000          ---p  /home/viktor/miniconda3/lib/libmkl_intel_thread.so.2 
+0x00007fffe580c000 0x00007fffe5813000 0x7000             0x300b000          r--p  /home/viktor/miniconda3/lib/libmkl_intel_thread.so.2 
+0x00007fffe5813000 0x00007fffe5f4c000 0x739000           0x3012000          rw-p  /home/viktor/miniconda3/lib/libmkl_intel_thread.so.2 
+0x00007fffe5f4c000 0x00007fffe5f66000 0x1a000            0x0                rw-p   
+0x00007fffe5f66000 0x00007fffe606f000 0x109000           0x3de0000          rw-p  /home/viktor/miniconda3/lib/libmkl_intel_thread.so.2 
+0x00007fffe6076000 0x00007fffe607a000 0x4000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_philox.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe607a000 0x00007fffe6087000 0xd000             0x4000             r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_philox.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe6087000 0x00007fffe608c000 0x5000             0x11000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_philox.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe608c000 0x00007fffe608d000 0x1000             0x15000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_philox.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe608d000 0x00007fffe608e000 0x1000             0x16000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_philox.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe608e000 0x00007fffe6092000 0x4000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_common.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe6092000 0x00007fffe60c7000 0x35000            0x4000             r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_common.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe60c7000 0x00007fffe60cb000 0x4000             0x39000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_common.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe60cb000 0x00007fffe60cc000 0x1000             0x3d000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_common.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe60cc000 0x00007fffe60cd000 0x1000             0x3e000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_common.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe60cd000 0x00007fffe60d2000 0x5000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/bit_generator.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe60d2000 0x00007fffe60f3000 0x21000            0x5000             r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/bit_generator.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe60f3000 0x00007fffe60fd000 0xa000             0x26000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/bit_generator.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe60fd000 0x00007fffe60fe000 0x1000             0x2f000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/bit_generator.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe60fe000 0x00007fffe6100000 0x2000             0x30000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/bit_generator.cpython-313-x86_64-linux-gnu.so 
+0x00007fffe6100000 0x00007fffe6200000 0x100000           0x0                rw-p   
+0x00007fffe6200000 0x00007fffe63f0000 0x1f0000           0x0                r--p  /home/viktor/miniconda3/lib/libmkl_core.so.2 
+0x00007fffe63f0000 0x00007fffe9b14000 0x3724000          0x1f0000           r-xp  /home/viktor/miniconda3/lib/libmkl_core.so.2 
+0x00007fffe9b14000 0x00007fffea581000 0xa6d000           0x3914000          r--p  /home/viktor/miniconda3/lib/libmkl_core.so.2 
+0x00007fffea581000 0x00007fffea588000 0x7000             0x4380000          r--p  /home/viktor/miniconda3/lib/libmkl_core.so.2 
+0x00007fffea588000 0x00007fffea5b8000 0x30000            0x4387000          rw-p  /home/viktor/miniconda3/lib/libmkl_core.so.2 
+0x00007fffea5b8000 0x00007fffea5e1000 0x29000            0x0                rw-p   
+0x00007fffea5e1000 0x00007fffea6d2000 0xf1000            0x46cd000          rw-p  /home/viktor/miniconda3/lib/libmkl_core.so.2 
+0x00007fffea6d2000 0x00007fffea6d6000 0x4000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_sfc64.cpython-313-x86_64-linux-gnu.so 
+0x00007fffea6d6000 0x00007fffea6df000 0x9000             0x4000             r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_sfc64.cpython-313-x86_64-linux-gnu.so 
+0x00007fffea6df000 0x00007fffea6e2000 0x3000             0xd000             r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_sfc64.cpython-313-x86_64-linux-gnu.so 
+0x00007fffea6e2000 0x00007fffea6e3000 0x1000             0x10000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_sfc64.cpython-313-x86_64-linux-gnu.so 
+0x00007fffea6e3000 0x00007fffea6e4000 0x1000             0x11000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_sfc64.cpython-313-x86_64-linux-gnu.so 
+0x00007fffea6e4000 0x00007fffea6e8000 0x4000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_mt19937.cpython-313-x86_64-linux-gnu.so 
+0x00007fffea6e8000 0x00007fffea6f8000 0x10000            0x4000             r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_mt19937.cpython-313-x86_64-linux-gnu.so 
+0x00007fffea6f8000 0x00007fffea6fe000 0x6000             0x14000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_mt19937.cpython-313-x86_64-linux-gnu.so 
+0x00007fffea6fe000 0x00007fffea6ff000 0x1000             0x19000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_mt19937.cpython-313-x86_64-linux-gnu.so 
+0x00007fffea6ff000 0x00007fffea700000 0x1000             0x1a000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_mt19937.cpython-313-x86_64-linux-gnu.so 
+0x00007fffea700000 0x00007fffea800000 0x100000           0x0                rw-p   
+0x00007fffea800000 0x00007fffeaa0d000 0x20d000           0x0                r-xp  /home/viktor/miniconda3/lib/libiomp5.so 
+0x00007fffeaa0d000 0x00007fffeac0d000 0x200000           0x20d000           ---p  /home/viktor/miniconda3/lib/libiomp5.so 
+0x00007fffeac0d000 0x00007fffeac0f000 0x2000             0x20d000           r--p  /home/viktor/miniconda3/lib/libiomp5.so 
+0x00007fffeac0f000 0x00007fffeac19000 0xa000             0x20f000           rw-p  /home/viktor/miniconda3/lib/libiomp5.so 
+0x00007fffeac19000 0x00007fffeac46000 0x2d000            0x0                rw-p   
+0x00007fffeac46000 0x00007fffeac50000 0xa000             0x28a000           rw-p  /home/viktor/miniconda3/lib/libiomp5.so 
+0x00007fffeac53000 0x00007fffeac6e000 0x1b000            0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so 
+0x00007fffeac6e000 0x00007fffeac8c000 0x1e000            0x1b000            r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so 
+0x00007fffeac8c000 0x00007fffeace4000 0x58000            0x39000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so 
+0x00007fffeace4000 0x00007fffeace5000 0x1000             0x91000            ---p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so 
+0x00007fffeace5000 0x00007fffeace6000 0x1000             0x91000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so 
+0x00007fffeace6000 0x00007fffeacea000 0x4000             0x92000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so 
+0x00007fffeacea000 0x00007fffead00000 0x16000            0xc1000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/cython_lapack.cpython-313-x86_64-linux-gnu.so 
+0x00007fffead00000 0x00007fffeae00000 0x100000           0x0                rw-p   
+0x00007fffeae00000 0x00007fffeb0fc000 0x2fc000           0x0                r--p  /home/viktor/miniconda3/lib/libmkl_rt.so.2 
+0x00007fffeb0fc000 0x00007fffeb61a000 0x51e000           0x2fc000           r-xp  /home/viktor/miniconda3/lib/libmkl_rt.so.2 
+0x00007fffeb61a000 0x00007fffeb8df000 0x2c5000           0x81a000           r--p  /home/viktor/miniconda3/lib/libmkl_rt.so.2 
+0x00007fffeb8df000 0x00007fffeb8e5000 0x6000             0xade000           r--p  /home/viktor/miniconda3/lib/libmkl_rt.so.2 
+0x00007fffeb8e5000 0x00007fffeb8e7000 0x2000             0xae4000           rw-p  /home/viktor/miniconda3/lib/libmkl_rt.so.2 
+0x00007fffeb8e7000 0x00007fffeb90f000 0x28000            0x0                rw-p   
+0x00007fffeb90f000 0x00007fffeba3f000 0x130000           0xde7000           rw-p  /home/viktor/miniconda3/lib/libmkl_rt.so.2 
+0x00007fffeba44000 0x00007fffeba48000 0x4000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_pcg64.cpython-313-x86_64-linux-gnu.so 
+0x00007fffeba48000 0x00007fffeba59000 0x11000            0x4000             r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_pcg64.cpython-313-x86_64-linux-gnu.so 
+0x00007fffeba59000 0x00007fffeba5f000 0x6000             0x15000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_pcg64.cpython-313-x86_64-linux-gnu.so 
+0x00007fffeba5f000 0x00007fffeba60000 0x1000             0x1a000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_pcg64.cpython-313-x86_64-linux-gnu.so 
+0x00007fffeba60000 0x00007fffeba61000 0x1000             0x1b000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_pcg64.cpython-313-x86_64-linux-gnu.so 
+0x00007fffeba61000 0x00007fffeba62000 0x1000             0x0                rw-p   
+0x00007fffeba62000 0x00007fffeba65000 0x3000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/fft/_pocketfft_umath.cpython-313-x86_64-linux-gnu.so 
+0x00007fffeba65000 0x00007fffebacd000 0x68000            0x3000             r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/fft/_pocketfft_umath.cpython-313-x86_64-linux-gnu.so 
+0x00007fffebacd000 0x00007fffebad3000 0x6000             0x6b000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/fft/_pocketfft_umath.cpython-313-x86_64-linux-gnu.so 
+0x00007fffebad3000 0x00007fffebad4000 0x1000             0x70000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/fft/_pocketfft_umath.cpython-313-x86_64-linux-gnu.so 
+0x00007fffebad4000 0x00007fffebad5000 0x1000             0x71000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/fft/_pocketfft_umath.cpython-313-x86_64-linux-gnu.so 
+0x00007fffebad5000 0x00007fffebada000 0x5000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/_cyutility.cpython-313-x86_64-linux-gnu.so 
+0x00007fffebada000 0x00007fffebaf6000 0x1c000            0x5000             r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/_cyutility.cpython-313-x86_64-linux-gnu.so 
+0x00007fffebaf6000 0x00007fffebafc000 0x6000             0x21000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/_cyutility.cpython-313-x86_64-linux-gnu.so 
+0x00007fffebafc000 0x00007fffebafd000 0x1000             0x27000            ---p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/_cyutility.cpython-313-x86_64-linux-gnu.so 
+0x00007fffebafd000 0x00007fffebafe000 0x1000             0x27000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/_cyutility.cpython-313-x86_64-linux-gnu.so 
+0x00007fffebafe000 0x00007fffebb00000 0x2000             0x28000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/_cyutility.cpython-313-x86_64-linux-gnu.so 
+0x00007fffebb00000 0x00007fffebc00000 0x100000           0x0                rw-p   
+0x00007fffebc00000 0x00007ffff3c00000 0x8000000          0x0                rw-p   
+0x00007ffff3c00000 0x00007ffff3c21000 0x21000            0x0                r--p  /usr/lib/x86_64-linux-gnu/libgfortran.so.5.0.0 
+0x00007ffff3c21000 0x00007ffff3f4a000 0x329000           0x21000            r-xp  /usr/lib/x86_64-linux-gnu/libgfortran.so.5.0.0 
+0x00007ffff3f4a000 0x00007ffff3f7d000 0x33000            0x34a000           r--p  /usr/lib/x86_64-linux-gnu/libgfortran.so.5.0.0 
+0x00007ffff3f7d000 0x00007ffff3f7e000 0x1000             0x37d000           r--p  /usr/lib/x86_64-linux-gnu/libgfortran.so.5.0.0 
+0x00007ffff3f7e000 0x00007ffff3f80000 0x2000             0x37e000           rw-p  /usr/lib/x86_64-linux-gnu/libgfortran.so.5.0.0 
+0x00007ffff3f83000 0x00007ffff3f84000 0x1000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_heapq.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff3f84000 0x00007ffff3f87000 0x3000             0x1000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_heapq.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff3f87000 0x00007ffff3f8a000 0x3000             0x4000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_heapq.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff3f8a000 0x00007ffff3f8b000 0x1000             0x6000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_heapq.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff3f8b000 0x00007ffff3f8c000 0x1000             0x7000             rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_heapq.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff3f8c000 0x00007ffff3f8e000 0x2000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/binascii.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff3f8e000 0x00007ffff3f92000 0x4000             0x2000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/binascii.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff3f92000 0x00007ffff3f94000 0x2000             0x6000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/binascii.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff3f94000 0x00007ffff3f95000 0x1000             0x7000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/binascii.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff3f95000 0x00007ffff3f96000 0x1000             0x8000             rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/binascii.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff3f96000 0x00007ffff3f9c000 0x6000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_cythonized_array_utils.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff3f9c000 0x00007ffff3fea000 0x4e000            0x6000             r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_cythonized_array_utils.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff3fea000 0x00007ffff3ff7000 0xd000             0x54000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_cythonized_array_utils.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff3ff7000 0x00007ffff3ff9000 0x2000             0x60000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_cythonized_array_utils.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff3ff9000 0x00007ffff3ffb000 0x2000             0x62000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/linalg/_cythonized_array_utils.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff3ffb000 0x00007ffff3ffc000 0x1000             0x0                rw-p   
+0x00007ffff3ffc000 0x00007ffff3fff000 0x3000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/linalg/_umath_linalg.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff3fff000 0x00007ffff4016000 0x17000            0x3000             r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/linalg/_umath_linalg.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff4016000 0x00007ffff4019000 0x3000             0x1a000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/linalg/_umath_linalg.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff4019000 0x00007ffff401a000 0x1000             0x1d000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/linalg/_umath_linalg.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff401a000 0x00007ffff401b000 0x1000             0x1e000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/linalg/_umath_linalg.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff401b000 0x00007ffff4020000 0x5000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_pickle.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff4020000 0x00007ffff4034000 0x14000            0x5000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_pickle.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff4034000 0x00007ffff403a000 0x6000             0x19000            r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_pickle.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff403a000 0x00007ffff403b000 0x1000             0x1f000            r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_pickle.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff403b000 0x00007ffff403c000 0x1000             0x20000            rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_pickle.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff403c000 0x00007ffff4042000 0x6000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_datetime.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff4042000 0x00007ffff4055000 0x13000            0x6000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_datetime.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff4055000 0x00007ffff405b000 0x6000             0x19000            r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_datetime.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff405b000 0x00007ffff405c000 0x1000             0x1f000            r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_datetime.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff405c000 0x00007ffff405f000 0x3000             0x20000            rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_datetime.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff405f000 0x00007ffff4064000 0x5000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/mkl/_py_mkl_service.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff4064000 0x00007ffff407e000 0x1a000            0x5000             r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/mkl/_py_mkl_service.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff407e000 0x00007ffff4084000 0x6000             0x1f000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/mkl/_py_mkl_service.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff4084000 0x00007ffff4085000 0x1000             0x25000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/mkl/_py_mkl_service.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff4085000 0x00007ffff4086000 0x1000             0x26000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/mkl/_py_mkl_service.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff4086000 0x00007ffff4087000 0x1000             0x0                rw-p   
+0x00007ffff4087000 0x00007ffff4088000 0x1000             0x0                r--p  /usr/lib/x86_64-linux-gnu/librt.so.1 
+0x00007ffff4088000 0x00007ffff4089000 0x1000             0x1000             r-xp  /usr/lib/x86_64-linux-gnu/librt.so.1 
+0x00007ffff4089000 0x00007ffff408a000 0x1000             0x2000             r--p  /usr/lib/x86_64-linux-gnu/librt.so.1 
+0x00007ffff408a000 0x00007ffff408b000 0x1000             0x2000             r--p  /usr/lib/x86_64-linux-gnu/librt.so.1 
+0x00007ffff408b000 0x00007ffff408c000 0x1000             0x3000             rw-p  /usr/lib/x86_64-linux-gnu/librt.so.1 
+0x00007ffff408c000 0x00007ffff408f000 0x3000             0x0                r--p  /home/viktor/miniconda3/lib/libgcc_s.so.1 
+0x00007ffff408f000 0x00007ffff40a1000 0x12000            0x3000             r-xp  /home/viktor/miniconda3/lib/libgcc_s.so.1 
+0x00007ffff40a1000 0x00007ffff40a4000 0x3000             0x15000            r--p  /home/viktor/miniconda3/lib/libgcc_s.so.1 
+0x00007ffff40a4000 0x00007ffff40a5000 0x1000             0x17000            r--p  /home/viktor/miniconda3/lib/libgcc_s.so.1 
+0x00007ffff40a5000 0x00007ffff40a6000 0x1000             0x18000            rw-p  /home/viktor/miniconda3/lib/libgcc_s.so.1 
+0x00007ffff40a6000 0x00007ffff40ac000 0x6000             0x0                r--p  /usr/lib/x86_64-linux-gnu/libmvec.so.1 
+0x00007ffff40ac000 0x00007ffff40cf000 0x23000            0x6000             r-xp  /usr/lib/x86_64-linux-gnu/libmvec.so.1 
+0x00007ffff40cf000 0x00007ffff419f000 0xd0000            0x29000            r--p  /usr/lib/x86_64-linux-gnu/libmvec.so.1 
+0x00007ffff419f000 0x00007ffff41a0000 0x1000             0xf8000            r--p  /usr/lib/x86_64-linux-gnu/libmvec.so.1 
+0x00007ffff41a0000 0x00007ffff41a1000 0x1000             0xf9000            rw-p  /usr/lib/x86_64-linux-gnu/libmvec.so.1 
+0x00007ffff41a1000 0x00007ffff41ac000 0xb000             0x0                r--p  /usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0 
+0x00007ffff41ac000 0x00007ffff41ee000 0x42000            0xb000             r-xp  /usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0 
+0x00007ffff41ee000 0x00007ffff41fe000 0x10000            0x4d000            r--p  /usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0 
+0x00007ffff41fe000 0x00007ffff41ff000 0x1000             0x5c000            r--p  /usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0 
+0x00007ffff41ff000 0x00007ffff4200000 0x1000             0x5d000            rw-p  /usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0 
+0x00007ffff4200000 0x00007ffff4334000 0x134000           0x0                r--p  /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.32.so 
+0x00007ffff4334000 0x00007ffff4345000 0x11000            0x134000           r-xp  /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.32.so 
+0x00007ffff4345000 0x00007ffff4348000 0x3000             0x145000           ---p  /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.32.so 
+0x00007ffff4348000 0x00007ffff65c3000 0x227b000          0x148000           r-xp  /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.32.so 
+0x00007ffff65c3000 0x00007ffff66a1000 0xde000            0x23c3000          r--p  /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.32.so 
+0x00007ffff66a1000 0x00007ffff66a8000 0x7000             0x24a0000          r--p  /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.32.so 
+0x00007ffff66a8000 0x00007ffff66c6000 0x1e000            0x24a7000          rw-p  /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.32.so 
+0x00007ffff66c6000 0x00007ffff66d8000 0x12000            0x0                rw-p   
+0x00007ffff66de000 0x00007ffff66e2000 0x4000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/_lib/_ccallback_c.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff66e2000 0x00007ffff66ee000 0xc000             0x4000             r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/_lib/_ccallback_c.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff66ee000 0x00007ffff66f1000 0x3000             0x10000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/_lib/_ccallback_c.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff66f1000 0x00007ffff66f2000 0x1000             0x12000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/_lib/_ccallback_c.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff66f2000 0x00007ffff66f3000 0x1000             0x13000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/scipy/_lib/_ccallback_c.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff66f3000 0x00007ffff66f4000 0x1000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_contextvars.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff66f4000 0x00007ffff66f5000 0x1000             0x1000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_contextvars.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff66f5000 0x00007ffff66f6000 0x1000             0x2000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_contextvars.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff66f6000 0x00007ffff66f7000 0x1000             0x2000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_contextvars.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff66f7000 0x00007ffff66f8000 0x1000             0x3000             rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_contextvars.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff66f8000 0x00007ffff66f9000 0x1000             0x0                r--p  /home/viktor/task5-v36-legacy-control/build-v36-qualification/libstatus_verifier.so 
+0x00007ffff66f9000 0x00007ffff66fc000 0x3000             0x1000             r-xp  /home/viktor/task5-v36-legacy-control/build-v36-qualification/libstatus_verifier.so 
+0x00007ffff66fc000 0x00007ffff66fd000 0x1000             0x4000             r--p  /home/viktor/task5-v36-legacy-control/build-v36-qualification/libstatus_verifier.so 
+0x00007ffff66fd000 0x00007ffff66fe000 0x1000             0x4000             r--p  /home/viktor/task5-v36-legacy-control/build-v36-qualification/libstatus_verifier.so 
+0x00007ffff66fe000 0x00007ffff66ff000 0x1000             0x5000             rw-p  /home/viktor/task5-v36-legacy-control/build-v36-qualification/libstatus_verifier.so 
+0x00007ffff66ff000 0x00007ffff6701000 0x2000             0x0                r--p  /home/viktor/task5-v36-legacy-control/build-v36-qualification/libaffine_bundle_solver.so 
+0x00007ffff6701000 0x00007ffff6734000 0x33000            0x2000             r-xp  /home/viktor/task5-v36-legacy-control/build-v36-qualification/libaffine_bundle_solver.so 
+0x00007ffff6734000 0x00007ffff6736000 0x2000             0x35000            r--p  /home/viktor/task5-v36-legacy-control/build-v36-qualification/libaffine_bundle_solver.so 
+0x00007ffff6736000 0x00007ffff6737000 0x1000             0x36000            r--p  /home/viktor/task5-v36-legacy-control/build-v36-qualification/libaffine_bundle_solver.so 
+0x00007ffff6737000 0x00007ffff6738000 0x1000             0x37000            rw-p  /home/viktor/task5-v36-legacy-control/build-v36-qualification/libaffine_bundle_solver.so 
+0x00007ffff673b000 0x00007ffff6740000 0x5000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_bounded_integers.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6740000 0x00007ffff6783000 0x43000            0x5000             r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_bounded_integers.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6783000 0x00007ffff678b000 0x8000             0x48000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_bounded_integers.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff678b000 0x00007ffff678c000 0x1000             0x50000            r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_bounded_integers.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff678c000 0x00007ffff678d000 0x1000             0x51000            rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/numpy/random/_bounded_integers.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff678d000 0x00007ffff6790000 0x3000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_multibytecodec.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6790000 0x00007ffff6796000 0x6000             0x3000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_multibytecodec.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6796000 0x00007ffff6798000 0x2000             0x9000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_multibytecodec.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6798000 0x00007ffff6799000 0x1000             0xb000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_multibytecodec.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6799000 0x00007ffff679a000 0x1000             0xc000             rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_multibytecodec.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff679e000 0x00007ffff689e000 0x100000           0x0                rw-p   
+0x00007ffff689e000 0x00007ffff68a2000 0x4000             0x0                r--p  /home/viktor/miniconda3/lib/liblzma.so.5.6.4 
+0x00007ffff68a2000 0x00007ffff68c0000 0x1e000            0x4000             r-xp  /home/viktor/miniconda3/lib/liblzma.so.5.6.4 
+0x00007ffff68c0000 0x00007ffff68cc000 0xc000             0x22000            r--p  /home/viktor/miniconda3/lib/liblzma.so.5.6.4 
+0x00007ffff68cc000 0x00007ffff68cd000 0x1000             0x2e000            r--p  /home/viktor/miniconda3/lib/liblzma.so.5.6.4 
+0x00007ffff68cd000 0x00007ffff68ce000 0x1000             0x2f000            rw-p  /home/viktor/miniconda3/lib/liblzma.so.5.6.4 
+0x00007ffff68ce000 0x00007ffff68d0000 0x2000             0x0                r--p  /home/viktor/miniconda3/lib/libbz2.so.1.0.8 
+0x00007ffff68d0000 0x00007ffff68de000 0xe000             0x2000             r-xp  /home/viktor/miniconda3/lib/libbz2.so.1.0.8 
+0x00007ffff68de000 0x00007ffff68e0000 0x2000             0x10000            r--p  /home/viktor/miniconda3/lib/libbz2.so.1.0.8 
+0x00007ffff68e0000 0x00007ffff68e1000 0x1000             0x11000            r--p  /home/viktor/miniconda3/lib/libbz2.so.1.0.8 
+0x00007ffff68e1000 0x00007ffff68e2000 0x1000             0x12000            rw-p  /home/viktor/miniconda3/lib/libbz2.so.1.0.8 
+0x00007ffff68e2000 0x00007ffff68e5000 0x3000             0x0                r--p  /home/viktor/miniconda3/lib/libz.so.1.2.13 
+0x00007ffff68e5000 0x00007ffff68f7000 0x12000            0x3000             r-xp  /home/viktor/miniconda3/lib/libz.so.1.2.13 
+0x00007ffff68f7000 0x00007ffff68fe000 0x7000             0x15000            r--p  /home/viktor/miniconda3/lib/libz.so.1.2.13 
+0x00007ffff68fe000 0x00007ffff68ff000 0x1000             0x1b000            r--p  /home/viktor/miniconda3/lib/libz.so.1.2.13 
+0x00007ffff68ff000 0x00007ffff6900000 0x1000             0x1c000            rw-p  /home/viktor/miniconda3/lib/libz.so.1.2.13 
+0x00007ffff6900000 0x00007ffff6a00000 0x100000           0x0                rw-p   
+0x00007ffff6a00000 0x00007ffff6ab8000 0xb8000            0x0                r--p  /home/viktor/miniconda3/lib/libcrypto.so.3 
+0x00007ffff6ab8000 0x00007ffff6d15000 0x25d000           0xb8000            r-xp  /home/viktor/miniconda3/lib/libcrypto.so.3 
+0x00007ffff6d15000 0x00007ffff6def000 0xda000            0x315000           r--p  /home/viktor/miniconda3/lib/libcrypto.so.3 
+0x00007ffff6def000 0x00007ffff6e4a000 0x5b000            0x3ef000           r--p  /home/viktor/miniconda3/lib/libcrypto.so.3 
+0x00007ffff6e4a000 0x00007ffff6e4d000 0x3000             0x44a000           rw-p  /home/viktor/miniconda3/lib/libcrypto.so.3 
+0x00007ffff6e4d000 0x00007ffff6e50000 0x3000             0x0                rw-p   
+0x00007ffff6e51000 0x00007ffff6e52000 0x1000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/mkl/_mklinit.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e52000 0x00007ffff6e53000 0x1000             0x1000             r-xp  /home/viktor/miniconda3/lib/python3.13/site-packages/mkl/_mklinit.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e53000 0x00007ffff6e54000 0x1000             0x2000             r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/mkl/_mklinit.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e54000 0x00007ffff6e55000 0x1000             0x2000             r--p  /home/viktor/miniconda3/lib/python3.13/site-packages/mkl/_mklinit.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e55000 0x00007ffff6e56000 0x1000             0x3000             rw-p  /home/viktor/miniconda3/lib/python3.13/site-packages/mkl/_mklinit.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e56000 0x00007ffff6e59000 0x3000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_lzma.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e59000 0x00007ffff6e5d000 0x4000             0x3000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_lzma.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e5d000 0x00007ffff6e60000 0x3000             0x7000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_lzma.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e60000 0x00007ffff6e61000 0x1000             0x9000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_lzma.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e61000 0x00007ffff6e62000 0x1000             0xa000             rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_lzma.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e62000 0x00007ffff6e64000 0x2000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_bz2.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e64000 0x00007ffff6e66000 0x2000             0x2000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_bz2.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e66000 0x00007ffff6e68000 0x2000             0x4000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_bz2.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e68000 0x00007ffff6e69000 0x1000             0x5000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_bz2.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e69000 0x00007ffff6e6a000 0x1000             0x6000             rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_bz2.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e6a000 0x00007ffff6e6d000 0x3000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/zlib.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e6d000 0x00007ffff6e71000 0x4000             0x3000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/zlib.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e71000 0x00007ffff6e74000 0x3000             0x7000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/zlib.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e74000 0x00007ffff6e75000 0x1000             0xa000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/zlib.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e75000 0x00007ffff6e76000 0x1000             0xb000             rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/zlib.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e76000 0x00007ffff6e7a000 0x4000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/math.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e7a000 0x00007ffff6e84000 0xa000             0x4000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/math.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e84000 0x00007ffff6e89000 0x5000             0xe000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/math.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e89000 0x00007ffff6e8a000 0x1000             0x13000            r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/math.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e8a000 0x00007ffff6e8b000 0x1000             0x14000            rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/math.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e8b000 0x00007ffff6e8f000 0x4000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_struct.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e8f000 0x00007ffff6e94000 0x5000             0x4000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_struct.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e94000 0x00007ffff6e98000 0x4000             0x9000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_struct.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e98000 0x00007ffff6e99000 0x1000             0xc000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_struct.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e99000 0x00007ffff6e9a000 0x1000             0xd000             rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_struct.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6e9a000 0x00007ffff6e9d000 0x3000             0x0                r--p  /home/viktor/miniconda3/lib/libffi.so.8.1.2 
+0x00007ffff6e9d000 0x00007ffff6ea7000 0xa000             0x3000             r-xp  /home/viktor/miniconda3/lib/libffi.so.8.1.2 
+0x00007ffff6ea7000 0x00007ffff6ea9000 0x2000             0xd000             r--p  /home/viktor/miniconda3/lib/libffi.so.8.1.2 
+0x00007ffff6ea9000 0x00007ffff6eaa000 0x1000             0xe000             r--p  /home/viktor/miniconda3/lib/libffi.so.8.1.2 
+0x00007ffff6eaa000 0x00007ffff6eab000 0x1000             0xf000             rw-p  /home/viktor/miniconda3/lib/libffi.so.8.1.2 
+0x00007ffff6eab000 0x00007ffff6eb2000 0x7000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_ctypes.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6eb2000 0x00007ffff6ec3000 0x11000            0x7000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_ctypes.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6ec3000 0x00007ffff6eca000 0x7000             0x18000            r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_ctypes.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6eca000 0x00007ffff6ecb000 0x1000             0x1f000            r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_ctypes.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6ecb000 0x00007ffff6ecd000 0x2000             0x20000            rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_ctypes.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6ecd000 0x00007ffff6fcd000 0x100000           0x0                rw-p   
+0x00007ffff6fcd000 0x00007ffff6fce000 0x1000             0xb000             r-xp  /home/viktor/miniconda3/lib/libffi.so.8.1.2 
+0x00007ffff6fce000 0x00007ffff6fcf000 0x1000             0x0                rw-p   
+0x00007ffff6fcf000 0x00007ffff6fd0000 0x1000             0x0                r--p  /home/viktor/task5-v36-legacy-control/build-v36-qualification/libcertified_solver.so 
+0x00007ffff6fd0000 0x00007ffff6fd5000 0x5000             0x1000             r-xp  /home/viktor/task5-v36-legacy-control/build-v36-qualification/libcertified_solver.so 
+0x00007ffff6fd5000 0x00007ffff6fd6000 0x1000             0x6000             r--p  /home/viktor/task5-v36-legacy-control/build-v36-qualification/libcertified_solver.so 
+0x00007ffff6fd6000 0x00007ffff6fd7000 0x1000             0x6000             r--p  /home/viktor/task5-v36-legacy-control/build-v36-qualification/libcertified_solver.so 
+0x00007ffff6fd7000 0x00007ffff6fd8000 0x1000             0x7000             rw-p  /home/viktor/task5-v36-legacy-control/build-v36-qualification/libcertified_solver.so 
+0x00007ffff6fd8000 0x00007ffff6fda000 0x2000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_random.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6fda000 0x00007ffff6fdc000 0x2000             0x2000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_random.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6fdc000 0x00007ffff6fdd000 0x1000             0x4000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_random.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6fdd000 0x00007ffff6fde000 0x1000             0x4000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_random.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6fde000 0x00007ffff6fdf000 0x1000             0x5000             rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_random.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6fdf000 0x00007ffff6fe1000 0x2000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_bisect.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6fe1000 0x00007ffff6fe3000 0x2000             0x2000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_bisect.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6fe3000 0x00007ffff6fe4000 0x1000             0x4000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_bisect.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6fe4000 0x00007ffff6fe5000 0x1000             0x5000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_bisect.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6fe5000 0x00007ffff6fe6000 0x1000             0x6000             rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_bisect.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6fe6000 0x00007ffff6fe9000 0x3000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/select.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6fe9000 0x00007ffff6fec000 0x3000             0x3000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/select.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6fec000 0x00007ffff6fee000 0x2000             0x6000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/select.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6fee000 0x00007ffff6fef000 0x1000             0x8000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/select.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6fef000 0x00007ffff6ff0000 0x1000             0x9000             rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/select.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6ff0000 0x00007ffff6ff2000 0x2000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_posixsubprocess.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6ff2000 0x00007ffff6ff5000 0x3000             0x2000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_posixsubprocess.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6ff5000 0x00007ffff6ff6000 0x1000             0x5000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_posixsubprocess.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6ff6000 0x00007ffff6ff7000 0x1000             0x5000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_posixsubprocess.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6ff7000 0x00007ffff6ff8000 0x1000             0x6000             rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_posixsubprocess.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6ff8000 0x00007ffff6ffa000 0x2000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/fcntl.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6ffa000 0x00007ffff6ffc000 0x2000             0x2000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/fcntl.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6ffc000 0x00007ffff6ffe000 0x2000             0x4000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/fcntl.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6ffe000 0x00007ffff6fff000 0x1000             0x5000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/fcntl.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff6fff000 0x00007ffff7000000 0x1000             0x6000             rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/fcntl.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7000000 0x00007ffff7200000 0x200000           0x0                rw-p   
+0x00007ffff7200000 0x00007ffff7a41000 0x841000           0x0                r--p  /usr/lib/locale/locale-archive 
+0x00007ffff7a42000 0x00007ffff7a44000 0x2000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_opcode.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7a44000 0x00007ffff7a46000 0x2000             0x2000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_opcode.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7a46000 0x00007ffff7a47000 0x1000             0x4000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_opcode.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7a47000 0x00007ffff7a48000 0x1000             0x5000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_opcode.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7a48000 0x00007ffff7a49000 0x1000             0x6000             rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_opcode.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7a49000 0x00007ffff7a4c000 0x3000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_json.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7a4c000 0x00007ffff7a52000 0x6000             0x3000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_json.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7a52000 0x00007ffff7a54000 0x2000             0x9000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_json.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7a54000 0x00007ffff7a55000 0x1000             0xa000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_json.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7a55000 0x00007ffff7a56000 0x1000             0xb000             rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_json.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7a56000 0x00007ffff7a58000 0x2000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_blake2.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7a58000 0x00007ffff7a60000 0x8000             0x2000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_blake2.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7a60000 0x00007ffff7a62000 0x2000             0xa000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_blake2.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7a62000 0x00007ffff7a63000 0x1000             0xb000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_blake2.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7a63000 0x00007ffff7a64000 0x1000             0xc000             rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_blake2.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7a64000 0x00007ffff7ba5000 0x141000           0x0                rw-p   
+0x00007ffff7ba5000 0x00007ffff7c00000 0x5b000            0x0                r--p  /usr/lib/locale/C.utf8/LC_CTYPE 
+0x00007ffff7c00000 0x00007ffff7c28000 0x28000            0x0                r--p  /usr/lib/x86_64-linux-gnu/libc.so.6 
+0x00007ffff7c28000 0x00007ffff7dc0000 0x198000           0x28000            r-xp  /usr/lib/x86_64-linux-gnu/libc.so.6 
+0x00007ffff7dc0000 0x00007ffff7e0e000 0x4e000            0x1c0000           r--p  /usr/lib/x86_64-linux-gnu/libc.so.6 
+0x00007ffff7e0e000 0x00007ffff7e12000 0x4000             0x20e000           r--p  /usr/lib/x86_64-linux-gnu/libc.so.6 
+0x00007ffff7e12000 0x00007ffff7e14000 0x2000             0x212000           rw-p  /usr/lib/x86_64-linux-gnu/libc.so.6 
+0x00007ffff7e14000 0x00007ffff7e21000 0xd000             0x0                rw-p   
+0x00007ffff7e21000 0x00007ffff7e23000 0x2000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/grp.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7e23000 0x00007ffff7e24000 0x1000             0x2000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/grp.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7e24000 0x00007ffff7e25000 0x1000             0x3000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/grp.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7e25000 0x00007ffff7e26000 0x1000             0x3000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/grp.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7e26000 0x00007ffff7e27000 0x1000             0x4000             rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/grp.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7e27000 0x00007ffff7e29000 0x2000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/resource.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7e29000 0x00007ffff7e2a000 0x1000             0x2000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/resource.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7e2a000 0x00007ffff7e2b000 0x1000             0x3000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/resource.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7e2b000 0x00007ffff7e2c000 0x1000             0x3000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/resource.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7e2c000 0x00007ffff7e2d000 0x1000             0x4000             rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/resource.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7e2d000 0x00007ffff7e31000 0x4000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_hashlib.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7e31000 0x00007ffff7e37000 0x6000             0x4000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_hashlib.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7e37000 0x00007ffff7e3b000 0x4000             0xa000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_hashlib.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7e3b000 0x00007ffff7e3c000 0x1000             0xe000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_hashlib.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7e3c000 0x00007ffff7e3d000 0x1000             0xf000             rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/_hashlib.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7e3d000 0x00007ffff7e63000 0x26000            0x0                rw-p   
+0x00007ffff7e63000 0x00007ffff7e75000 0x12000            0x0                r--p  /usr/lib/x86_64-linux-gnu/libm.so.6 
+0x00007ffff7e75000 0x00007ffff7f15000 0xa0000            0x12000            r-xp  /usr/lib/x86_64-linux-gnu/libm.so.6 
+0x00007ffff7f15000 0x00007ffff7f87000 0x72000            0xb2000            r--p  /usr/lib/x86_64-linux-gnu/libm.so.6 
+0x00007ffff7f87000 0x00007ffff7f88000 0x1000             0x123000           r--p  /usr/lib/x86_64-linux-gnu/libm.so.6 
+0x00007ffff7f88000 0x00007ffff7f89000 0x1000             0x124000           rw-p  /usr/lib/x86_64-linux-gnu/libm.so.6 
+0x00007ffff7f89000 0x00007ffff7f8a000 0x1000             0x0                r--p  /usr/lib/x86_64-linux-gnu/libutil.so.1 
+0x00007ffff7f8a000 0x00007ffff7f8b000 0x1000             0x1000             r-xp  /usr/lib/x86_64-linux-gnu/libutil.so.1 
+0x00007ffff7f8b000 0x00007ffff7f8c000 0x1000             0x2000             r--p  /usr/lib/x86_64-linux-gnu/libutil.so.1 
+0x00007ffff7f8c000 0x00007ffff7f8d000 0x1000             0x2000             r--p  /usr/lib/x86_64-linux-gnu/libutil.so.1 
+0x00007ffff7f8d000 0x00007ffff7f8e000 0x1000             0x3000             rw-p  /usr/lib/x86_64-linux-gnu/libutil.so.1 
+0x00007ffff7f8e000 0x00007ffff7f8f000 0x1000             0x0                r--p  /usr/lib/x86_64-linux-gnu/libdl.so.2 
+0x00007ffff7f8f000 0x00007ffff7f90000 0x1000             0x1000             r-xp  /usr/lib/x86_64-linux-gnu/libdl.so.2 
+0x00007ffff7f90000 0x00007ffff7f91000 0x1000             0x2000             r--p  /usr/lib/x86_64-linux-gnu/libdl.so.2 
+0x00007ffff7f91000 0x00007ffff7f92000 0x1000             0x2000             r--p  /usr/lib/x86_64-linux-gnu/libdl.so.2 
+0x00007ffff7f92000 0x00007ffff7f93000 0x1000             0x3000             rw-p  /usr/lib/x86_64-linux-gnu/libdl.so.2 
+0x00007ffff7f93000 0x00007ffff7f94000 0x1000             0x0                r--p  /usr/lib/x86_64-linux-gnu/libpthread.so.0 
+0x00007ffff7f94000 0x00007ffff7f95000 0x1000             0x1000             r-xp  /usr/lib/x86_64-linux-gnu/libpthread.so.0 
+0x00007ffff7f95000 0x00007ffff7f96000 0x1000             0x2000             r--p  /usr/lib/x86_64-linux-gnu/libpthread.so.0 
+0x00007ffff7f96000 0x00007ffff7f97000 0x1000             0x2000             r--p  /usr/lib/x86_64-linux-gnu/libpthread.so.0 
+0x00007ffff7f97000 0x00007ffff7f98000 0x1000             0x3000             rw-p  /usr/lib/x86_64-linux-gnu/libpthread.so.0 
+0x00007ffff7f98000 0x00007ffff7f99000 0x1000             0x0                rw-p   
+0x00007ffff7f99000 0x00007ffff7f9d000 0x4000             0x0                r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/array.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7f9d000 0x00007ffff7fa4000 0x7000             0x4000             r-xp  /home/viktor/miniconda3/lib/python3.13/lib-dynload/array.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7fa4000 0x00007ffff7fa9000 0x5000             0xb000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/array.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7fa9000 0x00007ffff7faa000 0x1000             0xf000             r--p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/array.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7faa000 0x00007ffff7fab000 0x1000             0x10000            rw-p  /home/viktor/miniconda3/lib/python3.13/lib-dynload/array.cpython-313-x86_64-linux-gnu.so 
+0x00007ffff7fab000 0x00007ffff7faf000 0x4000             0x0                rw-p   
+0x00007ffff7faf000 0x00007ffff7fb6000 0x7000             0x0                r--s  /usr/lib/x86_64-linux-gnu/gconv/gconv-modules.cache 
+0x00007ffff7fb6000 0x00007ffff7fb8000 0x2000             0x0                rw-p   
+0x00007ffff7fb8000 0x00007ffff7fbc000 0x4000             0x0                r--p  [vvar] 
+0x00007ffff7fbc000 0x00007ffff7fbe000 0x2000             0x0                r--p  [vvar_vclock] 
+0x00007ffff7fbe000 0x00007ffff7fc0000 0x2000             0x0                r-xp  [vdso] 
+0x00007ffff7fc0000 0x00007ffff7fc1000 0x1000             0x0                r--p  /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 
+0x00007ffff7fc1000 0x00007ffff7ff0000 0x2f000            0x1000             r-xp  /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 
+0x00007ffff7ff0000 0x00007ffff7ffb000 0xb000             0x30000            r--p  /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 
+0x00007ffff7ffb000 0x00007ffff7ffd000 0x2000             0x3b000            r--p  /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 
+0x00007ffff7ffd000 0x00007ffff7ffe000 0x1000             0x3d000            rw-p  /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 
+0x00007ffff7ffe000 0x00007ffff7fff000 0x1000             0x0                rw-p   
+0x00007ffffffdd000 0x00007ffffffff000 0x22000            0x0                rw-p  [stack] 
+0xffffffffff600000 0xffffffffff601000 0x1000             0x0                --xp  [vsyscall] 
