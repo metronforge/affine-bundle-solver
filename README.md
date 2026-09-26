@@ -113,7 +113,8 @@ Produces `libaffine_bundle_solver.so` (fast router),
   process-wide
 
 The second one matters more than it looks. The fast router is compiled with
-`-ffast-math` and the proof kernels with `-frounding-math -fno-fast-math`, but
+`-ffast-math` and the proof kernels with
+`-frounding-math -fno-fast-math -ffp-contract=off`, but
 separate compilation is *necessary and not sufficient*: FTZ/DAZ are runtime
 MXCSR state, and on some toolchains a `-ffast-math` link sets them for the
 whole process at load time. That would silently flush the subnormals the
@@ -185,7 +186,12 @@ Deliberately narrow, and worth reading before citing:
   does not replace a proof.
 - The executable checker is a strict-C research prototype. The soundness
   theorem assumes valid outward arithmetic bounds; GCC does not implement
-  `#pragma STDC FENV_ACCESS`, so the contract rests on `-frounding-math`.
+  `#pragma STDC FENV_ACCESS`, so the contract rests on `-frounding-math`,
+  together with `-ffp-contract=off`: rounding-mode awareness does not forbid
+  fused multiply-add, which on FMA-capable targets would make the reported
+  radii depend on the build target (soundness is unaffected, because every
+  contractible site is an upward-rounded sum of non-negative terms).
+  `tools/check_fp_contraction.sh` enforces this at build time.
   Compiler-independent closure would need validated interval arithmetic,
   MPFR-style directed arithmetic, or a formally verified checker.
 - Performance claims are restricted to the named laptop, software stack,

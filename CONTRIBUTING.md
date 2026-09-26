@@ -52,8 +52,9 @@ soundness argument and needs to be argued in the manuscript, not only tested.
 
 **Floating-point flags are part of the contract, not tuning.** `build.sh`
 compiles the router with `-ffast-math` and the proof kernels with
-`-frounding-math -fno-fast-math`, and keeps `-ffast-math` off the link line.
-Each of those is load-bearing and each is checked at build time by a probe.
+`-frounding-math -fno-fast-math -ffp-contract=off`, and keeps `-ffast-math`
+off the link line. Each of those is load-bearing and each is checked at build
+time by a probe or by `tools/check_fp_contraction.sh`.
 Changing them requires re-reading the reproducibility section of the
 manuscript first.
 

@@ -54,10 +54,10 @@ echo "openblas  : $(basename "$OPENBLAS")"
 INCLUDES="-Iinclude -Isrc"
 BLAS_DEFS="-DABS_SCIPY_BLAS"
 
-$CC $INCLUDES $BLAS_DEFS $COMMON -frounding-math -fno-fast-math -fPIC -c src/formation_guard.c \
+$CC $INCLUDES $BLAS_DEFS $COMMON -frounding-math -fno-fast-math -ffp-contract=off -fPIC -c src/formation_guard.c \
   -o formation_guard.san.o
 
-$CC $INCLUDES $BLAS_DEFS $COMMON -frounding-math -fno-fast-math -shared -fPIC \
+$CC $INCLUDES $BLAS_DEFS $COMMON -frounding-math -fno-fast-math -ffp-contract=off -shared -fPIC \
   src/status_certificate.c -o libstatus_verifier.so -lm
 
 # --- fast router: same source, sanitizable floating-point mode (see header).
@@ -69,7 +69,7 @@ $CC $SANFLAGS -shared -fopenmp bsolver.san.o formation_guard.san.o \
   -latomic -lm
 
 # --- audit API: links against both of the above, mirroring build.sh
-$CC $INCLUDES $BLAS_DEFS $COMMON -frounding-math -fno-fast-math -shared -fPIC \
+$CC $INCLUDES $BLAS_DEFS $COMMON -frounding-math -fno-fast-math -ffp-contract=off -shared -fPIC \
   src/certified_api.c -o libcertified_solver.so \
   -L. -laffine_bundle_solver -lstatus_verifier \
   "$OPENBLAS" -Wl,-rpath,'$ORIGIN' -Wl,-rpath,"$RPATH" -lm
