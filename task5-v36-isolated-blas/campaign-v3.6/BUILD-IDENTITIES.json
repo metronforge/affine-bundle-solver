@@ -1,0 +1,26 @@
+{
+  "accepted_main": {
+    "commit": "bb6c30d03191a92695b16d21581bfea6dce9942e",
+    "tree": "e621eef836c2e6edd633c03d657cc582e0e04344"
+  },
+  "configuration": {
+    "ABS_ARCH_FLAGS": "-march=native",
+    "ABS_BLAS": "system",
+    "ABS_BUILD_EXAMPLES": false,
+    "ABS_BUILD_TESTING": false,
+    "cmake_generator": "Unix Makefiles",
+    "compiler": "cc (Ubuntu 15.2.0-16ubuntu1) 15.2.0"
+  },
+  "m1": {
+    "certified_solver_sha256": "3dd20bd5c63e42cb1d18c192570eebb99ffa69cc2abf35c1d400689cf8d8f4b6",
+    "router_sha256": "e8e5db7df0a5ecf324ea92d120e5199b3262cd6e639ca5fbc8774f609c0cf3ef",
+    "status_verifier_sha256": "d5981ebc325ec7a17cf0d66cf89017c6c4ebbfeb67576bc428417cfbc5d63b37"
+  },
+  "m2": {
+    "certified_solver_sha256": "040605f13b4f9e8a4f782d187e7814811fe0d6f5d1165f0b9d34525f6e09e968",
+    "router_sha256": "e8e5db7df0a5ecf324ea92d120e5199b3262cd6e639ca5fbc8774f609c0cf3ef",
+    "status_verifier_sha256": "d5981ebc325ec7a17cf0d66cf89017c6c4ebbfeb67576bc428417cfbc5d63b37"
+  },
+  "note": "The certified wrapper hashes differ only because each embeds its independent build-directory RPATH; router and verifier binaries are byte-identical."
+}
+
