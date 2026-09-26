@@ -1,0 +1,18 @@
+{
+  "remote": "origin",
+  "branch": "evidence/task5-v3.9-corrected-verifier-20260926",
+  "commit": "72bb497fd73536f66543693cac46f36e77041edd",
+  "tree": "0b52e6c6f324a7854dd03049607727b3c993ec76",
+  "parent": "40ebbec524f1354f2f7ff1a35eaaaef9d6f39d45",
+  "candidate_branch_commit": "40fe4d015d988ce0ea9c6133c8715b424bba51d7",
+  "origin_main": "bb6c30d03191a92695b16d21581bfea6dce9942e",
+  "files": {
+    "CONTROL-IDENTITIES.json": "379db58a936ac4d4202241ef9cb0c99c2f46b4660067b1262e3fa0b813bbc171",
+    "ENVIRONMENT.json": "c3c913c6212e38a4f696935ca54ca79ce817384ef9ab9df0d0e7c83ef46327c2",
+    "manifest.json": "2dd6db6c30fa4bb019c8a52576c6045e3cf8ee8f303f96b69e649b3e927f23e7",
+    "schedule.json": "1d957711f0104c31fd21e22dc09417d0bec192026a1cc140abbe50d5e9adc6ba",
+    "PROTOCOL.md": "72f72b041fe3e939b2fd8bf3b35a3675eceba7eb1dc42bb180b3205357d840f5",
+    "COMMANDS.md": "a3e5e55fdff33d4e79af20f86cf81ced065e330753b0da91c4f1591ef6833f22"
+  },
+  "fetched_back_and_verified": true
+}
