@@ -487,6 +487,11 @@ if(ABS_BUILD_TESTING)
                    -- ${CMAKE_CURRENT_SOURCE_DIR}/src/formation_guard.c
                       ${CMAKE_CURRENT_SOURCE_DIR}/src/status_certificate.c
                       ${CMAKE_CURRENT_SOURCE_DIR}/src/certified_api.c)
+  add_test(NAME fp_contraction_fail_closed
+           COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_fp_contraction_gate.sh
+                   ${CMAKE_CURRENT_SOURCE_DIR}/tools/check_fp_contraction.sh
+                   ${CMAKE_C_COMPILER}
+                   ${CMAKE_CURRENT_SOURCE_DIR})
 
   find_package(Python3 COMPONENTS Interpreter)
   if(Python3_Interpreter_FOUND)

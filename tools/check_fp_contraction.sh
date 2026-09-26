@@ -25,8 +25,8 @@
 # The portable x86-64 baseline has no FMA, so compiling for it would pass
 # vacuously.  The sources are therefore compiled here for an FMA-capable
 # target: -march=x86-64-v3 on x86_64; the default target on aarch64, where FMA
-# is always available.  On any other architecture the check reports SKIPPED
-# and exits 0, loudly, rather than pretending to have checked.
+# is always available.  On any other architecture the check fails closed
+# rather than pretending to have checked.
 set -euo pipefail
 
 cc=(); flags=(); sources=(); part=0
@@ -49,7 +49,7 @@ if ! command -v "$OBJDUMP" >/dev/null 2>&1; then
   exit 1
 fi
 
-machine=$(uname -m)
+machine=${ABS_FP_CHECK_MACHINE:-$(uname -m)}
 case $machine in
   x86_64)
     target=(-march=x86-64-v3)
@@ -58,8 +58,8 @@ case $machine in
     target=()
     fused='\bfn?m(add|sub)\b' ;;
   *)
-    echo "fp-contraction check: SKIPPED -- no FMA target known for '$machine'"
-    exit 0 ;;
+    echo "fp-contraction check: FAILED -- no FMA target known for '$machine'" >&2
+    exit 1 ;;
 esac
 
 work=$(mktemp -d)
@@ -67,8 +67,36 @@ trap 'rm -rf "$work"' EXIT
 total_fused=0
 for src in "${sources[@]}"; do
   obj="$work/$(basename "${src%.c}").o"
+  case $(basename "$src") in
+    formation_guard.c) expected_symbol=fg_sketch_formation_eps ;;
+    status_certificate.c) expected_symbol=bs_verify_unique ;;
+    certified_api.c) expected_symbol=bsolve_certified_diag_api ;;
+    *)
+      echo "fp-contraction check: FAILED -- no expected target symbol registered for $src" >&2
+      exit 1 ;;
+  esac
   "${cc[@]}" "${flags[@]}" "${target[@]}" -c "$src" -o "$obj"
-  listing=$("$OBJDUMP" -d --no-show-raw-insn "$obj")
+  if ! symbols=$("$OBJDUMP" -t "$obj"); then
+    echo "fp-contraction check: FAILED -- could not inspect symbols in $src" >&2
+    exit 1
+  fi
+  if ! grep -Eq "[[:space:]]${expected_symbol}$" <<<"$symbols"; then
+    echo "fp-contraction check: FAILED -- target symbol '$expected_symbol' absent from $src" >&2
+    exit 1
+  fi
+  if ! relevant=$("$OBJDUMP" -d --no-show-raw-insn --disassemble="$expected_symbol" "$obj"); then
+    echo "fp-contraction check: FAILED -- could not disassemble target symbol '$expected_symbol' in $src" >&2
+    exit 1
+  fi
+  nrelevant=$(grep -c -E '^[[:space:]]+[0-9a-f]+:' <<<"$relevant" || true)
+  if ((nrelevant == 0)); then
+    echo "fp-contraction check: FAILED -- no relevant instructions inspected for '$expected_symbol' in $src" >&2
+    exit 1
+  fi
+  if ! listing=$("$OBJDUMP" -d --no-show-raw-insn "$obj"); then
+    echo "fp-contraction check: FAILED -- could not disassemble $src" >&2
+    exit 1
+  fi
   # A listing without instructions would make the check vacuous.
   ninsn=$(grep -c -E '^[[:space:]]+[0-9a-f]+:' <<<"$listing" || true)
   if ((ninsn == 0)); then
@@ -76,7 +104,7 @@ for src in "${sources[@]}"; do
     exit 1
   fi
   nfused=$(grep -c -E "$fused" <<<"$listing" || true)
-  echo "fp-contraction check: $src: $nfused fused multiply-add(s) in $ninsn instructions (${target[*]:-default target})"
+  echo "fp-contraction check: $src: $nfused fused multiply-add(s) in $ninsn instructions; target '$expected_symbol' has $nrelevant instructions (${target[*]:-default target})"
   if ((nfused > 0)); then
     grep -E "$fused" <<<"$listing" | head -5 | sed 's/^/    /'
   fi
