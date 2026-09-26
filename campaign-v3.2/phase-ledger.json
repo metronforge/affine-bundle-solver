@@ -1,0 +1,62 @@
+{
+  "campaign_id": "task5-v3.2-bottleneck-20260926",
+  "clock": "time.perf_counter_ns / CLOCK_MONOTONIC_RAW",
+  "interpretation": "Every raw trial reconciles exactly. Independently aggregated component medians differ slightly from the median end-to-end time because medians are not additive. Inclusive values overlap and are not summed.",
+  "slots": [
+    {
+      "slot_id": "V31-025",
+      "uninstrumented_total_ms": 105.767532,
+      "instrumented_total_ms": 76.665786,
+      "unattributed_ms": 0.0,
+      "component_median_sum_ms": 76.813363,
+      "median_aggregation_delta_ms": 0.147577,
+      "phases": [
+        ["python_control_preparation", 0.966968, 0.966968, 1.2613],
+        ["ffi_api_boundary", 44.541280, 0.170379, 0.2222],
+        ["router_execution", 28.577188, 6.076661, 7.9262],
+        ["selected_numerical_kernels", 36.415408, 36.415408, 47.4989],
+        ["solution_reconstruction", 13.172521, 0.966815, 1.2611],
+        ["residual_status_certification", 0.092345, 0.092345, 0.1205],
+        ["independent_verification", 1.345285, 1.345285, 1.7547],
+        ["serialization_harness_bookkeeping", 30.779502, 30.779502, 40.1476]
+      ]
+    },
+    {
+      "slot_id": "V31-026",
+      "uninstrumented_total_ms": 148.232329,
+      "instrumented_total_ms": 156.308851,
+      "unattributed_ms": 0.0,
+      "component_median_sum_ms": 155.893791,
+      "median_aggregation_delta_ms": -0.415060,
+      "phases": [
+        ["python_control_preparation", 1.031390, 1.031390, 0.6598],
+        ["ffi_api_boundary", 123.114834, 0.176280, 0.1128],
+        ["router_execution", 15.387703, 15.387703, 9.8444],
+        ["selected_numerical_kernels", 44.810438, 44.810438, 28.6679],
+        ["solution_reconstruction", 37.681674, 4.588049, 2.9352],
+        ["residual_status_certification", 10.666062, 0.396771, 0.2538],
+        ["independent_verification", 59.893360, 59.893360, 38.3173],
+        ["serialization_harness_bookkeeping", 29.609800, 29.609800, 18.9431]
+      ]
+    },
+    {
+      "slot_id": "V31-027",
+      "uninstrumented_total_ms": 286.065952,
+      "instrumented_total_ms": 310.641491,
+      "unattributed_ms": 0.0,
+      "component_median_sum_ms": 311.538569,
+      "median_aggregation_delta_ms": 0.897078,
+      "phases": [
+        ["python_control_preparation", 0.941045, 0.941045, 0.3029],
+        ["ffi_api_boundary", 285.803342, 0.202873, 0.0653],
+        ["router_execution", 13.069878, 13.069878, 4.2074],
+        ["selected_numerical_kernels", 224.238990, 224.238990, 72.1858],
+        ["solution_reconstruction", 230.005900, 17.928504, 5.7714],
+        ["residual_status_certification", 4.406409, 0.265757, 0.0856],
+        ["independent_verification", 30.631222, 30.631222, 9.8606],
+        ["serialization_harness_bookkeeping", 24.260300, 24.260300, 7.8097]
+      ]
+    }
+  ],
+  "phase_columns": ["component", "inclusive_ms", "exclusive_ms", "exclusive_percent"]
+}

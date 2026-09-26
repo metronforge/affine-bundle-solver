@@ -1,0 +1,41 @@
+{
+  "campaign_id": "task5-v3.2-bottleneck-20260926",
+  "captured_date": "2026-09-26",
+  "host": "viktor-ws",
+  "kernel": "Linux 7.0.0-34-generic x86_64",
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "logical_cpus": 22,
+  "physical_cores": 16,
+  "cpu_frequency_mhz": {
+    "minimum": 400.0,
+    "maximum": 5100.0
+  },
+  "scaling_driver": "intel_pstate",
+  "scaling_governor": "powersave",
+  "python": "3.13.5",
+  "numpy": "2.3.1",
+  "scipy": "1.16.1",
+  "compiler": "gcc 15.2.0",
+  "perf": "7.0.14",
+  "strace": "6.19",
+  "perf_event_paranoid": 4,
+  "blas_lapack": "/usr/lib/x86_64-linux-gnu/libopenblas.so.0",
+  "openmp": "/usr/lib/x86_64-linux-gnu/libgomp.so.1",
+  "thread_configuration": {
+    "OMP_NUM_THREADS": "4",
+    "OPENBLAS_NUM_THREADS": "4",
+    "MKL_NUM_THREADS": "4",
+    "BLIS_NUM_THREADS": "4",
+    "NUMEXPR_NUM_THREADS": "4"
+  },
+  "harness_branch": "perf/task5-v3.2-bottleneck-analysis",
+  "harness_measurement_base": "1827f2d458bcf55b0ade81a1174d1fa2ceb9d9ad",
+  "solver_commit": "f66cd87a7b198497cc53d63b2bb04b85c3e64f53",
+  "solver_parent": "0ace47c78b7ed2e7b067a77254326bd17f2e2623",
+  "solver_tree": "4173cef889e0f1ec3ef60bc8aeadad26937a1711",
+  "solver_library": "/projects/research-assistant/task5-solver-final/build-task5-final/libcertified_solver.so",
+  "solver_library_sha256": "3e44f86e3a4bdf6418e9b343fabb63142329f7997221745c24687ce2328f6535",
+  "solver_pr": "https://github.com/metronforge/affine-bundle-solver/pull/45",
+  "solver_ci": "https://github.com/metronforge/affine-bundle-solver/actions/runs/36197900181",
+  "thermal_observation": "ELIGIBLE_NO_THROTTLE_SIGNAL"
+}

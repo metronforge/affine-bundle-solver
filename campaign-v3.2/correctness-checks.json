@@ -1,0 +1,15 @@
+{
+  "campaign_id": "task5-v3.2-bottleneck-20260926",
+  "focused_test_command": "OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 MKL_NUM_THREADS=4 BLIS_NUM_THREADS=4 NUMEXPR_NUM_THREADS=4 pytest -q",
+  "focused_test_result": {
+    "passed": 26,
+    "skipped": 3,
+    "failed": 0
+  },
+  "cycle4_candidate_trials": 15,
+  "candidate_router_execution_values": [1],
+  "candidate_control_meaningful_fields_agree": true,
+  "thermal_eligibility_values": ["ELIGIBLE_NO_THROTTLE_SIGNAL"],
+  "standalone_driver_note": "V31-027 gen_rc=6 and verify_rc=99 are expected: a compatible system has no inconsistent witness, and 99 is the driver's not-invoked verifier sentinel. The supported combined API returned zero in every standalone trial.",
+  "canonical_27_slot_campaign_started": false
+}

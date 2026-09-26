@@ -1,0 +1,16 @@
+{
+  "campaign_id": "task5-v3.2-bottleneck-20260926",
+  "scope": "diagnostic-only-exactly-four-pdca-cycles",
+  "harness_baseline": "1827f2d458bcf55b0ade81a1174d1fa2ceb9d9ad",
+  "diagnostic_harness_commit": "56d1e9cf179100b504cb4f96ee17d6bf490b24a9",
+  "diagnostic_harness_tree": "9daef9e39caffcbf08700c9abe384400731fabca",
+  "solver_commit": "f66cd87a7b198497cc53d63b2bb04b85c3e64f53",
+  "solver_parent": "0ace47c78b7ed2e7b067a77254326bd17f2e2623",
+  "solver_tree": "4173cef889e0f1ec3ef60bc8aeadad26937a1711",
+  "solver_library_sha256": "3e44f86e3a4bdf6418e9b343fabb63142329f7997221745c24687ce2328f6535",
+  "runner_sha256": "53fa1bdd1b23eacadce9a6bf949ac706e30ccad272290b26fc7bed052a2b542d",
+  "solver_binding_sha256": "7199f416b6b9af4ad2bb735ef5cd2276c996dda341e2dadd527f9f4a61794c44",
+  "materializer_sha256": "70ff9a35164cc5233868addac2e63cb02836bed2ff4dedb0e49f1a976da76752",
+  "canonical_27_slot_campaign_started": false,
+  "solver_modified": false
+}
