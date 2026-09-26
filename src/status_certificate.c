@@ -268,6 +268,14 @@ int bs_verify_unique(const double *A, const double *b, int m, int n,
             fesetround(FE_UPWARD);
             unique_row_pass(w->packed_lu, n, lr, w->scale[ks], arow, evec, ehi);
             for (int j = 0; j < n; ++j) evec[j] = fmax(fabs(elo[j]), fabs(ehi[j]));
+#ifdef ABS_TEST_UNIQUE_ROW_HOOK
+            /* Test-only observation point (never compiled into installed
+               libraries): exposes each reconstructed row to the row-level
+               differential in tests/test_unique_verifier_rows.c. */
+            extern void abs_test_unique_row_hook(int row, int n, const double *lo,
+                                                 const double *hi, const double *err);
+            abs_test_unique_row_hook(i, n, elo, ehi, evec);
+#endif
             da_up = norm_up(evec, n);
         }
         double res_up = residual_abs_up(A+(size_t)i*n, b[i], w->x, n);
