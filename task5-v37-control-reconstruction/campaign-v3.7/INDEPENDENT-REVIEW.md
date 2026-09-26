@@ -30,7 +30,12 @@ resources, and all registered statistics.
 The reviewer initially classified missing tracking plus a missing v3.7
 `SHA256SUMS` as a closure blocker, not a scientific-data failure. Closure now
 adds and verifies that complete inventory before the final push. A follow-up
-review of the sealed inventory is recorded below once available.
+review verified all 57 inventory entries, confirmed the raw and both analyses
+are committed at `73de62f0d6dc82caadf0c8a6a899e992df5dc864` and present at the
+remote tip, and found no remaining Critical issue. Its sole remaining Important
+instruction was to commit and push this report plus `SHA256SUMS`, then re-run
+the checksum verification from the committed tree; that is the final closure
+sequence and does not touch performance data.
 
 ## Nonblocking caveats
 
