@@ -363,6 +363,44 @@ if(ABS_BUILD_TESTING)
     status_verifier OpenMP::OpenMP_C ${ABS_BLAS_LIBRARIES} ${ABS_ATOMIC_LIBRARY} m)
   add_test(NAME test_certified_reuse COMMAND abs_certified_reuse_test)
 
+  # Linker wrapping counts every QRCP invocation made by the audit source and
+  # verifies that the compatible-tall fallback factors its invariant matrix
+  # once (one workspace query plus one executing call).  The test also hashes
+  # the exact factorization input before LAPACK mutates it in place.
+  add_executable(abs_reusable_qrcp_test
+    tests/test_reusable_qrcp.c src/certified_api.c
+    $<TARGET_OBJECTS:abs_router_obj>
+    $<TARGET_OBJECTS:abs_formation_guard_obj>)
+  target_compile_options(abs_reusable_qrcp_test PRIVATE
+    -O2 -frounding-math -fno-fast-math ${ABS_INSTRUMENTATION})
+  target_compile_definitions(abs_reusable_qrcp_test PRIVATE ${ABS_BLAS_DEFINES})
+  target_include_directories(abs_reusable_qrcp_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src)
+  target_link_options(abs_reusable_qrcp_test PRIVATE ${ABS_INSTRUMENTATION})
+  if(ABS_BLAS STREQUAL "scipy-openblas")
+    target_link_options(abs_reusable_qrcp_test PRIVATE -Wl,--wrap=scipy_dgeqp3_)
+  else()
+    target_link_options(abs_reusable_qrcp_test PRIVATE -Wl,--wrap=dgeqp3_)
+  endif()
+  target_link_libraries(abs_reusable_qrcp_test PRIVATE
+    status_verifier OpenMP::OpenMP_C ${ABS_BLAS_LIBRARIES} ${ABS_ATOMIC_LIBRARY} m)
+  add_test(NAME test_reusable_qrcp COMMAND abs_reusable_qrcp_test)
+
+  add_executable(abs_reusable_qrcp_enomem_test
+    tests/test_reusable_qrcp_enomem.c src/certified_api.c
+    $<TARGET_OBJECTS:abs_router_obj>
+    $<TARGET_OBJECTS:abs_formation_guard_obj>)
+  target_compile_options(abs_reusable_qrcp_enomem_test PRIVATE
+    -O2 -frounding-math -fno-fast-math ${ABS_INSTRUMENTATION})
+  target_compile_definitions(abs_reusable_qrcp_enomem_test PRIVATE
+    ${ABS_BLAS_DEFINES} ABS_TEST_QRCP_ALLOC)
+  target_include_directories(abs_reusable_qrcp_enomem_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src)
+  target_link_options(abs_reusable_qrcp_enomem_test PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_libraries(abs_reusable_qrcp_enomem_test PRIVATE
+    status_verifier OpenMP::OpenMP_C ${ABS_BLAS_LIBRARIES} ${ABS_ATOMIC_LIBRARY} m)
+  add_test(NAME test_reusable_qrcp_enomem COMMAND abs_reusable_qrcp_enomem_test)
+
   # Exercise the actual private SVD state, including both compact-VT readers.
   add_executable(abs_dgesdd_core_state_test
     tests/test_dgesdd_core_state.c

@@ -266,88 +266,95 @@ static int infinite_witness_from_x(const double *A,const double *b,int m,int n,
     return 0;
 }
 
-/* Build one explicit computed left-null direction from a pivoted QR.
-   If rank_hint < m, column rank_hint of the implicit Q is orthogonal to the
-   first rank_hint pivoted source columns.  For a rank-revealing rank_hint this
-   gives a left-null proposal without forming an m-by-m Q.  The proposal is
-   untrusted; the strict verifier still checks A^T y. */
-static int left_null_vector_qrcp(const double *A,int m,int n,int rank_hint,double *y) {
-    if(!A||!y||m<=0||n<0||rank_hint<0||rank_hint>=m)return 1;
-    if(n==0){for(int i=0;i<m;i++)y[i]=(i==rank_hint?1.0:0.0);return 0;}
-    int M=m,N=n,LDA=m,K=(m<n?m:n),info=0,lwork=-1,one=1,LDC=m;
-    double *Ac=(double*)malloc((size_t)m*n*sizeof(double));
-    int *jpvt=(int*)calloc((size_t)n,sizeof(int));
-    double *tau=(double*)malloc((size_t)K*sizeof(double));
-    double *v=(double*)calloc((size_t)m,sizeof(double));
-    if(!Ac||!jpvt||!tau||!v){free(Ac);free(jpvt);free(tau);free(v);return 2;}
-    for(int j=0;j<n;j++)for(int i=0;i<m;i++)Ac[i+(size_t)j*m]=A[(size_t)i*n+j];
-    double wq=0.0;
-    dgeqp3_(&M,&N,Ac,&LDA,jpvt,tau,&wq,&lwork,&info);
-    if(info){free(Ac);free(jpvt);free(tau);free(v);return 3;}
-    lwork=(int)wq;if(lwork<1)lwork=1;double *work=(double*)malloc((size_t)lwork*sizeof(double));
-    if(!work){free(Ac);free(jpvt);free(tau);free(v);return 4;}
-    memset(jpvt,0,(size_t)n*sizeof(int));
-    for(int j=0;j<n;j++)for(int i=0;i<m;i++)Ac[i+(size_t)j*m]=A[(size_t)i*n+j];
-    dgeqp3_(&M,&N,Ac,&LDA,jpvt,tau,work,&lwork,&info);
-    free(work);free(jpvt);
-    if(info){free(Ac);free(tau);free(v);return 5;}
-    v[rank_hint]=1.0;
-    char side='L',trans='N';lwork=-1;wq=0.0;
-    dormqr_(&side,&trans,&M,&one,&K,Ac,&LDA,tau,v,&LDC,&wq,&lwork,&info);
-    if(info){free(Ac);free(tau);free(v);return 6;}
-    lwork=(int)wq;if(lwork<1)lwork=1;work=(double*)malloc((size_t)lwork*sizeof(double));
-    if(!work){free(Ac);free(tau);free(v);return 7;}
-    dormqr_(&side,&trans,&M,&one,&K,Ac,&LDA,tau,v,&LDC,work,&lwork,&info);
-    free(work);free(Ac);free(tau);
-    if(info){free(v);return 8;}
-    memcpy(y,v,(size_t)m*sizeof(double));free(v);return 0;
+/* One QRCP owns the invariant normalized tall matrix throughout the
+   inconsistent-witness scan.  DGEQP3 overwrites `a` with R and Householder
+   vectors; DORMQR consumes that representation but does not mutate it.  The
+   state is invocation-local, so reuse introduces no shared mutable state. */
+typedef struct {
+    int m,n,k,lda,rank,lwork,qwork_len,ready;
+    double *a,*tau,*work,*qwork,*v;
+    int *jpvt;
+} BSLeftNullQRCP;
+
+#ifdef ABS_TEST_QRCP_ALLOC
+extern void *abs_test_qrcp_malloc(size_t);
+extern void *abs_test_qrcp_calloc(size_t,size_t);
+#define QRCP_MALLOC(size) abs_test_qrcp_malloc(size)
+#define QRCP_CALLOC(count,size) abs_test_qrcp_calloc((count),(size))
+#else
+#define QRCP_MALLOC(size) malloc(size)
+#define QRCP_CALLOC(count,size) calloc((count),(size))
+#endif
+
+static void left_null_qrcp_free(BSLeftNullQRCP *q) {
+    if(!q)return;
+    free(q->a);free(q->tau);free(q->work);free(q->qwork);free(q->v);free(q->jpvt);
+    memset(q,0,sizeof(*q));
 }
 
-/* Project b onto the computed orthogonal complement of the first
-   rank_hint pivoted QR directions.  The crucial difference from the old
-   tail projection is that we discard only the numerically supported rank,
-   not blindly the first n Q coordinates. */
-static int left_null_projection_rank_qrcp(const double *A,const double *b,int m,int n,int rank_hint,
-                                          double *y,long double *tail_rel) {
+static int left_null_qrcp_init(BSLeftNullQRCP *q,const double *A,int m,int n,int rank) {
+    int info=0,lwork=-1,one=1;double wq=0.0;char side='L',trans='N';
+    if(!q||!A||m<=0||n<=0||rank<0||rank>=m)return 1;
+    memset(q,0,sizeof(*q));q->m=m;q->n=n;q->k=(m<n?m:n);q->lda=m;q->rank=rank;
+    q->a=(double*)QRCP_MALLOC((size_t)m*n*sizeof(double));
+    q->tau=(double*)QRCP_MALLOC((size_t)q->k*sizeof(double));
+    q->jpvt=(int*)QRCP_CALLOC((size_t)n,sizeof(int));
+    q->v=(double*)QRCP_CALLOC((size_t)m,sizeof(double));
+    if(!q->a||!q->tau||!q->jpvt||!q->v){left_null_qrcp_free(q);return 2;}
+    for(int j=0;j<n;j++)for(int i=0;i<m;i++)q->a[i+(size_t)j*m]=A[(size_t)i*n+j];
+    dgeqp3_(&q->m,&q->n,q->a,&q->lda,q->jpvt,q->tau,&wq,&lwork,&info);
+    if(info){left_null_qrcp_free(q);return 3;}
+    q->lwork=(int)wq;if(q->lwork<1)q->lwork=1;
+    q->work=(double*)QRCP_MALLOC((size_t)q->lwork*sizeof(double));
+    if(!q->work){left_null_qrcp_free(q);return 4;}
+    memset(q->jpvt,0,(size_t)n*sizeof(int));
+    for(int j=0;j<n;j++)for(int i=0;i<m;i++)q->a[i+(size_t)j*m]=A[(size_t)i*n+j];
+    dgeqp3_(&q->m,&q->n,q->a,&q->lda,q->jpvt,q->tau,q->work,&q->lwork,&info);
+    if(info){left_null_qrcp_free(q);return 5;}
+    lwork=-1;wq=0.0;
+    dormqr_(&side,&trans,&q->m,&one,&q->k,q->a,&q->lda,q->tau,q->v,&q->m,&wq,&lwork,&info);
+    if(info){left_null_qrcp_free(q);return 6;}
+    q->qwork_len=(int)wq;if(q->qwork_len<1)q->qwork_len=1;
+    q->qwork=(double*)QRCP_MALLOC((size_t)q->qwork_len*sizeof(double));
+    if(!q->qwork){left_null_qrcp_free(q);return 7;}
+    q->ready=1;return 0;
+}
+
+static int left_null_qrcp_apply(BSLeftNullQRCP *q,char trans,double *v) {
+    char side='L';int one=1,info=0;
+    if(!q||!q->ready||!v||(trans!='N'&&trans!='T'))return 1;
+    dormqr_(&side,&trans,&q->m,&one,&q->k,q->a,&q->lda,q->tau,v,&q->m,
+            q->qwork,&q->qwork_len,&info);
+    return info?2:0;
+}
+
+/* Build one explicit computed left-null direction from the reusable implicit
+   Q.  The proposal remains untrusted; the strict verifier still checks it. */
+static int left_null_qrcp_column(BSLeftNullQRCP *q,int rank_hint,double *y) {
+    if(!q||!q->ready||!y||rank_hint<0||rank_hint>=q->m)return 1;
+    memset(q->v,0,(size_t)q->m*sizeof(double));q->v[rank_hint]=1.0;
+    if(left_null_qrcp_apply(q,'N',q->v))return 2;
+    memcpy(y,q->v,(size_t)q->m*sizeof(double));return 0;
+}
+
+/* Project b onto the complement of the first rank_hint pivoted QR directions
+   using the same immutable factorization that supplies scan columns. */
+static int left_null_qrcp_projection(BSLeftNullQRCP *q,const double *b,int rank_hint,
+                                     double *y,long double *tail_rel) {
+    long double bn2=0.0L,tn2=0.0L,vn2=0.0L;
     if(tail_rel)*tail_rel=0.0L;
-    if(!A||!b||!y||m<=0||n<0||rank_hint<0||rank_hint>m)return 1;
-    if(n==0){
-        long double bn2=0.0L;for(int i=0;i<m;i++){y[i]=b[i];bn2+=(long double)b[i]*b[i];}
-        if(tail_rel)*tail_rel=(bn2>0.0L?1.0L:0.0L);return 0;
-    }
-    int M=m,N=n,LDA=m,K=(m<n?m:n),info=0,lwork=-1,one=1,LDC=m;
-    double *Ac=(double*)malloc((size_t)m*n*sizeof(double));int *jpvt=(int*)calloc((size_t)n,sizeof(int));
-    double *tau=(double*)malloc((size_t)K*sizeof(double));double *v=(double*)malloc((size_t)m*sizeof(double));
-    if(!Ac||!jpvt||!tau||!v){free(Ac);free(jpvt);free(tau);free(v);return 2;}
-    for(int j=0;j<n;j++)for(int i=0;i<m;i++)Ac[i+(size_t)j*m]=A[(size_t)i*n+j];
-    double wq=0.0;dgeqp3_(&M,&N,Ac,&LDA,jpvt,tau,&wq,&lwork,&info);
-    if(info){free(Ac);free(jpvt);free(tau);free(v);return 3;}
-    lwork=(int)wq;if(lwork<1)lwork=1;double *work=(double*)malloc((size_t)lwork*sizeof(double));
-    if(!work){free(Ac);free(jpvt);free(tau);free(v);return 4;}
-    memset(jpvt,0,(size_t)n*sizeof(int));for(int j=0;j<n;j++)for(int i=0;i<m;i++)Ac[i+(size_t)j*m]=A[(size_t)i*n+j];
-    dgeqp3_(&M,&N,Ac,&LDA,jpvt,tau,work,&lwork,&info);free(work);free(jpvt);
-    if(info){free(Ac);free(tau);free(v);return 5;}
-    memcpy(v,b,(size_t)m*sizeof(double));char side='L',trans='T';lwork=-1;wq=0.0;
-    dormqr_(&side,&trans,&M,&one,&K,Ac,&LDA,tau,v,&LDC,&wq,&lwork,&info);
-    if(info){free(Ac);free(tau);free(v);return 6;}
-    lwork=(int)wq;if(lwork<1)lwork=1;work=(double*)malloc((size_t)lwork*sizeof(double));
-    if(!work){free(Ac);free(tau);free(v);return 7;}
-    dormqr_(&side,&trans,&M,&one,&K,Ac,&LDA,tau,v,&LDC,work,&lwork,&info);free(work);
-    if(info){free(Ac);free(tau);free(v);return 8;}
-    long double bn2=0.0L,tn2=0.0L;for(int i=0;i<m;i++)bn2+=(long double)b[i]*b[i];
-    for(int i=0;i<rank_hint && i<m;i++)v[i]=0.0;
-    for(int i=rank_hint;i<m;i++)tn2+=(long double)v[i]*v[i];
+    if(!q||!q->ready||!b||!y||rank_hint<0||rank_hint>q->m)return 1;
+    memcpy(q->v,b,(size_t)q->m*sizeof(double));
+    if(left_null_qrcp_apply(q,'T',q->v))return 2;
+    for(int i=0;i<q->m;i++)bn2+=(long double)b[i]*b[i];
+    for(int i=0;i<rank_hint&&i<q->m;i++)q->v[i]=0.0;
+    for(int i=rank_hint;i<q->m;i++)tn2+=(long double)q->v[i]*q->v[i];
     if(tail_rel)*tail_rel=(bn2>0.0L?sqrtl(tn2/bn2):0.0L);
-    trans='N';lwork=-1;wq=0.0;dormqr_(&side,&trans,&M,&one,&K,Ac,&LDA,tau,v,&LDC,&wq,&lwork,&info);
-    if(info){free(Ac);free(tau);free(v);return 9;}
-    lwork=(int)wq;if(lwork<1)lwork=1;work=(double*)malloc((size_t)lwork*sizeof(double));
-    if(!work){free(Ac);free(tau);free(v);return 10;}
-    dormqr_(&side,&trans,&M,&one,&K,Ac,&LDA,tau,v,&LDC,work,&lwork,&info);
-    free(work);free(Ac);free(tau);if(info){free(v);return 11;}
-    long double vn2=0.0L;for(int i=0;i<m;i++){long double q=v[i];vn2+=q*q;}
-    if(!(vn2>0.0L)){free(v);return 12;}
-    long double inv=1.0L/sqrtl(vn2);for(int i=0;i<m;i++)y[i]=(double)((long double)v[i]*inv);
-    free(v);return 0;
+    if(left_null_qrcp_apply(q,'N',q->v))return 3;
+    for(int i=0;i<q->m;i++){long double z=q->v[i];vn2+=z*z;}
+    if(!(vn2>0.0L))return 4;
+    {long double inv=1.0L/sqrtl(vn2);for(int i=0;i<q->m;i++)y[i]=(double)((long double)q->v[i]*inv);}
+    return 0;
 }
 
 
@@ -373,15 +380,24 @@ int bs_generate_inconsistent_witness(const double *A,const double *b,int m,int n
        first n Q columns are arbitrary completion directions and can erase
        genuine left-null content.  In that case the rank-revealing LS residual
        is the appropriate construction. */
-    int rank=0;
+    int rank=0;BSLeftNullQRCP qrcp={0};
     if(n>0 && least_squares_x(An,bn,m,n,x,&rank)){free(x);free(An);free(bn);free(ybar);free(dmant);free(dexp);bs_inconsistent_witness_free(w);return 4;}
     int have_y=0;
     if(rank<m){
         long double tail_rel=0.0L;
-        if(left_null_projection_rank_qrcp(An,bn,m,n,rank,ybar,&tail_rel)==0 && tail_rel>256.0L*(long double)DBL_EPSILON)
-            have_y=1;
-        else if(left_null_vector_qrcp(An,m,n,rank,ybar)==0)
-            have_y=1;
+        if(n==0){
+            long double bn2=0.0L;for(int i=0;i<m;i++){ybar[i]=bn[i];bn2+=(long double)bn[i]*bn[i];}
+            tail_rel=(bn2>0.0L?1.0L:0.0L);
+            if(tail_rel>256.0L*(long double)DBL_EPSILON)have_y=1;
+            else {memset(ybar,0,(size_t)m*sizeof(double));ybar[rank]=1.0;have_y=1;}
+        } else {
+            if(left_null_qrcp_init(&qrcp,An,m,n,rank)){
+                free(x);free(An);free(bn);free(ybar);free(dmant);free(dexp);bs_inconsistent_witness_free(w);return 6;
+            }
+            if(left_null_qrcp_projection(&qrcp,bn,rank,ybar,&tail_rel)==0 &&
+               tail_rel>256.0L*(long double)DBL_EPSILON)have_y=1;
+            else if(left_null_qrcp_column(&qrcp,rank,ybar)==0)have_y=1;
+        }
     }
     if(!have_y){
         long double yn2=0.0L,btb=0.0L;
@@ -390,7 +406,7 @@ int bs_generate_inconsistent_witness(const double *A,const double *b,int m,int n
             double yi=(double)((long double)bn[i]-ax);ybar[i]=yi;yn2+=(long double)yi*yi;btb+=(long double)bn[i]*bn[i];
         }
         if(!(yn2>0.0L)){
-            if(!(btb>0.0L)){free(x);free(An);free(bn);free(ybar);free(dmant);free(dexp);bs_inconsistent_witness_free(w);return 5;}
+            if(!(btb>0.0L)){left_null_qrcp_free(&qrcp);free(x);free(An);free(bn);free(ybar);free(dmant);free(dexp);bs_inconsistent_witness_free(w);return 5;}
             memcpy(ybar,bn,(size_t)m*sizeof(double));
         }
     }
@@ -406,7 +422,8 @@ int bs_generate_inconsistent_witness(const double *A,const double *b,int m,int n
        acceptance authority. */
     if((mrc||best<0) && rank<m){
         for(int qi=rank+1;qi<m;qi++){
-            if(left_null_vector_qrcp(An,m,n,qi,ybar)!=0)continue;
+            if(n==0){memset(ybar,0,(size_t)m*sizeof(double));ybar[qi]=1.0;}
+            else if(left_null_qrcp_column(&qrcp,qi,ybar)!=0)continue;
             long double good2=0.0L;
             for(int i=0;i<m;i++)if(dmant[i]!=0.0L){long double z=ybar[i];good2+=z*z;}
             if(!(good2>1024.0L*(long double)DBL_EPSILON*(long double)DBL_EPSILON))continue;
@@ -414,7 +431,7 @@ int bs_generate_inconsistent_witness(const double *A,const double *b,int m,int n
             if(!mrc&&best>=0)break;
         }
     }
-    free(x);free(An);free(bn);free(ybar);free(dmant);free(dexp);
+    left_null_qrcp_free(&qrcp);free(x);free(An);free(bn);free(ybar);free(dmant);free(dexp);
     if(mrc||best<0){bs_inconsistent_witness_free(w);return 6;}
     w->pivot_row=best;return 0;
 }
