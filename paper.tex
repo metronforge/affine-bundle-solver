@@ -410,6 +410,8 @@ All nonselected coefficient rows remain unchanged and the right-hand side is def
 \]
 Since $D,P,L,U$ are nonsingular, $\widetilde A$ has full column rank, while $x$ proves consistency. The nearby system therefore has exactly one solution. The checker validates source indices, positive scales, bijectivity of the permutation, and nonzero diagonal entries of $U$. Triangularity is imposed by the packed representation rather than validated: the checker reads only the strictly lower part as $L$, with the unit diagonal implicit, and only the upper part as $U$. It then computes outward rowwise bounds for $DPLU-B$ and the induced right-hand-side change.
 
+For each selected source row, the implementation performs one downward-rounded and one upward-rounded pass directly over the row-major packed factor. Each pass traverses the contributing rows of $U$ and accumulates all affected output columns in increasing inner-index order; it neither materializes factor columns nor invokes a separate dot product for every output entry. The checker saves the caller's rounding mode before these passes and restores it on every subsequent return path. Source and witness floating-point fields must be finite, and a finite input can still overflow during bound construction. If any endpoint, norm, residual bound, induced right-hand-side bound, row perturbation, source norm, or final quotient needed for the unique radius is non-finite, the checker returns a nonzero verifier code with $\eta_{\rm uniq}^+=+\infty$ rather than accepting a certificate. Thus overflow and any derived NaN or infinity fail closed.
+
 \subsection{Infinite-status object}
 Let $z\in\R^n$ be nonzero and let $x\in\R^n$. Define
 \[
@@ -760,8 +762,12 @@ classification or return the router's rank interval. Their timings are
 therefore contextual observations, not claims of task-equivalent speedup.
 
 The implementation evidence is separate. The public C regression tests call
-the router and certificate APIs directly. The two property batteries exercise
-classification transformations and independently checked certificate objects.
+the router and certificate APIs directly. A dedicated strict-C differential
+compares every reconstructed unique-object row with the former materialized
+column-dot kernel under all four caller rounding modes, checks rounding-mode
+restoration, and requires overflowed derived bounds to be rejected. The two
+property batteries exercise classification transformations and independently
+checked certificate objects.
 The Python harnesses invoke the C APIs, compare the returned outputs with
 construction-based, metamorphic, and high-precision oracles, and record and
 aggregate the resulting pass/fail outcomes.
@@ -915,6 +921,7 @@ The accompanying package separates the optimized router from strict proof kernel
 \item \texttt{tools/check\_fp\_contraction.sh}: build-time check that the strict kernels, compiled with their exact flags for an FMA-capable target, contain no fused multiply-add;
 \item \texttt{tests/pbt\_equivalence\_orbits.py}: the 8,335-check equivalence-orbit property battery;
 \item \texttt{tests/pbt\_certificate\_equivariance.py}: focused row-scaling and extreme-range certificate property battery;
+\item \texttt{tests/test\_unique\_verifier\_rows.c}: strict row-reconstruction differential, rounding-mode restoration, and non-finite-bound rejection checks;
 \item \texttt{tests/benchmark\_certified\_audit.py}: matched optional-audit timing harness;
 \item \texttt{tests/test\_certified\_api.py}: certified-API regression;
 \item \texttt{tests/test\_verifier\_adversarial.py}: malformed-object regression;
