@@ -45,10 +45,21 @@ read -r -a ARCH_ARGV <<< "$ARCH_FLAGS"
 read -r -a INCLUDE_ARGV <<< "$INCLUDES"
 read -r -a BLAS_DEF_ARGV <<< "$BLAS_DEFS"
 
+# Floating-point contract of every strict kernel (formation guard, status
+# checker, certified API, both probes).  -frounding-math makes the compiler
+# honour the dynamic rounding mode but does not forbid contraction: GCC's
+# GNU-mode default is -ffp-contract=fast and clang's is =on, so on an
+# FMA-capable target a*b+c may become one fused instruction with a single
+# rounding.  Every such site in the strict kernels is an upward-rounded sum of
+# non-negative terms, so fusion would not make a certificate unsound, but
+# eta_S^+ would then depend on the build target.  tools/check_fp_contraction.sh
+# below proves that these exact flags suppress fusion.
+STRICT_FP_ARGV=(-frounding-math -fno-fast-math -ffp-contract=off)
+
 # Strict compressed-rank witness: a-posteriori provenance bounds, separate from fast-math.
 FORMATION_ARGV=("${CC_ARGV[@]}" -O2 -fPIC "${INCLUDE_ARGV[@]}"
   "${BLAS_DEF_ARGV[@]}" -c src/formation_guard.c -o formation_guard.o
-  -frounding-math -fno-fast-math)
+  "${STRICT_FP_ARGV[@]}")
 "${FORMATION_ARGV[@]}"
 
 # Fast numerical route.  Sketch/proposal arithmetic may use fast-math, but no
@@ -84,28 +95,35 @@ ROUTER_LINK_ARGV=("${CC_ARGV[@]}" -shared -fopenmp bsolver.o
 rm -f formation_guard.o bsolver.o
 
 # The certificate checker has a deliberately separate floating-point contract.
-"${CC_ARGV[@]}" -O2 -frounding-math -fno-fast-math src/rounding_probe.c \
+"${CC_ARGV[@]}" -O2 "${STRICT_FP_ARGV[@]}" src/rounding_probe.c \
   -o .rounding_probe -lm
 ./.rounding_probe
 rm -f .rounding_probe
 
 "${CC_ARGV[@]}" -O2 -shared -fPIC "${INCLUDE_ARGV[@]}" \
   src/status_certificate.c -o libstatus_verifier.so \
-  -frounding-math -fno-fast-math -lm
+  "${STRICT_FP_ARGV[@]}" -lm
 
 "${CC_ARGV[@]}" -O2 -shared -fPIC "${INCLUDE_ARGV[@]}" \
   "${BLAS_DEF_ARGV[@]}" src/certified_api.c -o libcertified_solver.so \
-  -frounding-math -fno-fast-math -L. -laffine_bundle_solver -lstatus_verifier \
+  "${STRICT_FP_ARGV[@]}" -L. -laffine_bundle_solver -lstatus_verifier \
   "$OPENBLAS" -Wl,-rpath,'$ORIGIN' -Wl,-rpath,"$RPATH" -lm
 
 # Separate compilation of the fast and strict kernels is necessary but not
 # sufficient: FTZ/DAZ are runtime MXCSR state and a -ffast-math link can set
 # them process-wide at load time, which would make the subnormal-range
 # certificate checks vacuous.  Verify that it does not happen here.
-"${CC_ARGV[@]}" -O2 -frounding-math -fno-fast-math src/mxcsr_probe.c \
+"${CC_ARGV[@]}" -O2 "${STRICT_FP_ARGV[@]}" src/mxcsr_probe.c \
   -o .mxcsr_probe -ldl
 ./.mxcsr_probe ./libaffine_bundle_solver.so ./libcertified_solver.so
 rm -f .mxcsr_probe
+
+# Structural gate for the contraction half of the contract: compile the strict
+# sources with exactly the flags used above, for an FMA-capable target, and
+# fail the build on any fused multiply-add.
+tools/check_fp_contraction.sh "${CC_ARGV[@]}" \
+  -- -O2 -fPIC "${STRICT_FP_ARGV[@]}" "${INCLUDE_ARGV[@]}" "${BLAS_DEF_ARGV[@]}" \
+  -- src/formation_guard.c src/status_certificate.c src/certified_api.c
 
 # Publish provenance only after every build and runtime probe succeeds. The
 # JSON receives the exact expanded arrays used above, not reconstructed flags.

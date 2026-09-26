@@ -81,6 +81,13 @@ assert rows[0][1] < rows[-1][1] * 1e-8
 inc = np.array([q[2] for q in rows])
 assert inc.max() < 1e-12
 assert inc.max() / inc.min() < 10.0
+# The manuscript prints this table's digits for the reference platform only.
+# What is reproducible across BLAS/LAPACK builds is pinned here: the unique
+# radius follows the compatibility defect (eta_unique/eps is 0.763-0.799 on
+# the reference platform), and the inconsistent radius stays at machine scale.
+uniq_ratio = [eu / eps for eps, eu, _ in rows]
+assert all(0.75 <= q <= 0.81 for q in uniq_ratio), uniq_ratio
+assert inc.max() < 1e-14, inc
 
 # Semantic attack: even the nearly compatible floating data admit a machine-
 # scale inconsistent proof object.  This does not violate soundness; it records
@@ -241,6 +248,9 @@ assert r2.accepted_status_mask == 7, (
 mirror = np.array([r2.eta_unique, r2.eta_infinite, r2.eta_inconsistent])
 assert np.all(np.isfinite(mirror))
 assert mirror.max() < 1e-12, mirror
+# Paper: (1.08e-15, 6.63e-16, 1.75e-15) on the reference platform; the
+# trailing digits are build dependent, the machine scale is not.
+assert mirror.max() < 1e-14, mirror
 print('rank-deficient-compatible '
       f'eta_unique={r2.eta_unique:.3e} '
       f'eta_infinite={r2.eta_infinite:.3e} '

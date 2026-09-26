@@ -2,7 +2,7 @@
   "schema_version": 1,
   "manuscript": {
     "path": "paper.tex",
-    "sha256": "78c86d727ffb9eff730858e7a708873d29031bfc6e0b65c8eccbb0652f96fbba"
+    "sha256": "3377160de6dd996896e3f63098c642bf3b0f2851b2bd59c2f1552f5e51bf743b"
   },
   "candidate_artifact": {
     "source_sha": "67eef1fbda6f7486357cba200f01c9f355ac854a",

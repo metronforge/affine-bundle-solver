@@ -17,9 +17,19 @@ include(CMakePackageConfigHelpers)
 # installation carrying a SciPy wheel, but it must reproduce the same split:
 #
 #   src/bsolver.c          -O3 <arch> -fopenmp -ffast-math   COMPILE ONLY
-#   src/formation_guard.c  -O2 -frounding-math -fno-fast-math
+#   src/formation_guard.c  ABS_STRICT_FP_FLAGS
 #   src/status_certificate.c, src/certified_api.c, both probes
-#                          -O2 -frounding-math -fno-fast-math
+#                          ABS_STRICT_FP_FLAGS
+#
+# ABS_STRICT_FP_FLAGS is -O2 -frounding-math -fno-fast-math -ffp-contract=off.
+# -frounding-math makes the compiler honour the dynamic rounding mode but does
+# not forbid contraction: GCC's GNU-mode default is -ffp-contract=fast and
+# clang's is =on, so on an FMA-capable target a*b+c may become one fused
+# instruction with a single rounding.  Every such site in the strict kernels
+# is an upward-rounded sum of non-negative terms, so fusion would not make a
+# certificate unsound, but eta_S^+ would then depend on the build target.
+# The strict_fp_contraction test compiles the strict sources with these exact
+# flags for an FMA-capable target and fails on any fused instruction.
 #
 # formation_guard.c is compiled strictly and then linked INTO the fast
 # library.  That is why it is an OBJECT library here: object libraries carry
@@ -139,6 +149,9 @@ endif()
 
 separate_arguments(ABS_ARCH_FLAG_LIST UNIX_COMMAND "${ABS_ARCH_FLAGS}")
 
+# One definition of the strict floating-point flags; see the contract above.
+set(ABS_STRICT_FP_FLAGS -O2 -frounding-math -fno-fast-math -ffp-contract=off)
+
 set(ABS_INSTRUMENTATION "")
 if(ABS_SANITIZE)
   set(ABS_INSTRUMENTATION -fsanitize=address,undefined -fno-omit-frame-pointer -g)
@@ -154,7 +167,7 @@ endif()
 add_library(abs_formation_guard_obj OBJECT src/formation_guard.c)
 set_target_properties(abs_formation_guard_obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_compile_options(abs_formation_guard_obj PRIVATE
-  -O2 -frounding-math -fno-fast-math ${ABS_INSTRUMENTATION})
+  ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
 target_compile_definitions(abs_formation_guard_obj PRIVATE ${ABS_BLAS_DEFINES})
 target_include_directories(abs_formation_guard_obj PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -186,7 +199,7 @@ target_include_directories(affine_bundle_solver
 
 add_library(status_verifier SHARED src/status_certificate.c)
 target_compile_options(status_verifier PRIVATE
-  -O2 -frounding-math -fno-fast-math ${ABS_INSTRUMENTATION})
+  ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
 target_link_options(status_verifier PRIVATE ${ABS_INSTRUMENTATION})
 target_link_libraries(status_verifier PRIVATE m)
 target_include_directories(status_verifier
@@ -195,7 +208,7 @@ target_include_directories(status_verifier
 
 add_library(certified_solver SHARED src/certified_api.c)
 target_compile_options(certified_solver PRIVATE
-  -O2 -frounding-math -fno-fast-math ${ABS_INSTRUMENTATION})
+  ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
 target_compile_definitions(certified_solver PRIVATE ${ABS_BLAS_DEFINES})
 target_link_options(certified_solver PRIVATE ${ABS_INSTRUMENTATION})
 target_link_libraries(certified_solver
@@ -227,7 +240,7 @@ endif()
 # ---------------------------------------------------------------------------
 
 add_executable(abs_rounding_probe src/rounding_probe.c)
-target_compile_options(abs_rounding_probe PRIVATE -O2 -frounding-math -fno-fast-math)
+target_compile_options(abs_rounding_probe PRIVATE ${ABS_STRICT_FP_FLAGS})
 target_link_libraries(abs_rounding_probe PRIVATE m)
 add_custom_command(TARGET abs_rounding_probe POST_BUILD
   COMMAND abs_rounding_probe
@@ -235,7 +248,7 @@ add_custom_command(TARGET abs_rounding_probe POST_BUILD
 
 add_executable(abs_mxcsr_probe src/mxcsr_probe.c)
 target_compile_options(abs_mxcsr_probe PRIVATE
-  -O2 -frounding-math -fno-fast-math ${ABS_INSTRUMENTATION})
+  ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
 target_link_options(abs_mxcsr_probe PRIVATE ${ABS_INSTRUMENTATION})
 target_link_libraries(abs_mxcsr_probe PRIVATE ${CMAKE_DL_LIBS})
 
@@ -336,7 +349,7 @@ if(ABS_BUILD_TESTING)
     $<TARGET_OBJECTS:abs_router_once_obj>
     $<TARGET_OBJECTS:abs_formation_guard_obj>)
   target_compile_options(abs_certified_diag_once_test PRIVATE
-    -O2 -frounding-math -fno-fast-math ${ABS_INSTRUMENTATION})
+    ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
   target_compile_definitions(abs_certified_diag_once_test PRIVATE ${ABS_BLAS_DEFINES})
   target_include_directories(abs_certified_diag_once_test PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -353,7 +366,7 @@ if(ABS_BUILD_TESTING)
     $<TARGET_OBJECTS:abs_router_obj>
     $<TARGET_OBJECTS:abs_formation_guard_obj>)
   target_compile_options(abs_certified_reuse_test PRIVATE
-    -O2 -frounding-math -fno-fast-math ${ABS_INSTRUMENTATION})
+    ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
   target_compile_definitions(abs_certified_reuse_test PRIVATE
     ${ABS_BLAS_DEFINES} ABS_TEST_CERTIFIED_LSTSQ)
   target_include_directories(abs_certified_reuse_test PRIVATE
@@ -372,7 +385,7 @@ if(ABS_BUILD_TESTING)
     $<TARGET_OBJECTS:abs_router_obj>
     $<TARGET_OBJECTS:abs_formation_guard_obj>)
   target_compile_options(abs_reusable_qrcp_test PRIVATE
-    -O2 -frounding-math -fno-fast-math ${ABS_INSTRUMENTATION})
+    ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
   target_compile_definitions(abs_reusable_qrcp_test PRIVATE ${ABS_BLAS_DEFINES})
   target_include_directories(abs_reusable_qrcp_test PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -391,7 +404,7 @@ if(ABS_BUILD_TESTING)
     $<TARGET_OBJECTS:abs_router_obj>
     $<TARGET_OBJECTS:abs_formation_guard_obj>)
   target_compile_options(abs_reusable_qrcp_enomem_test PRIVATE
-    -O2 -frounding-math -fno-fast-math ${ABS_INSTRUMENTATION})
+    ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
   target_compile_definitions(abs_reusable_qrcp_enomem_test PRIVATE
     ${ABS_BLAS_DEFINES} ABS_TEST_QRCP_ALLOC)
   target_include_directories(abs_reusable_qrcp_enomem_test PRIVATE
@@ -445,6 +458,26 @@ if(ABS_BUILD_TESTING)
            -DLINK_RULE=${CMAKE_BINARY_DIR}/CMakeFiles/affine_bundle_solver.dir/link.txt
            -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/check_link_contract.cmake)
 
+  # Structural counterpart for the strict kernels: compiled with the exact
+  # ABS_STRICT_FP_FLAGS for an FMA-capable target, they must contain no fused
+  # multiply-add.  The portable baseline has no FMA, so checking the objects
+  # built above would pass vacuously.
+  list(TRANSFORM ABS_BLAS_DEFINES PREPEND "-D" OUTPUT_VARIABLE _abs_blas_define_flags)
+  add_test(NAME strict_fp_contraction
+           COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/check_fp_contraction.sh
+                   ${CMAKE_C_COMPILER}
+                   -- ${ABS_STRICT_FP_FLAGS} ${_abs_blas_define_flags}
+                      -I${CMAKE_CURRENT_SOURCE_DIR}/include
+                      -I${CMAKE_CURRENT_SOURCE_DIR}/src
+                   -- ${CMAKE_CURRENT_SOURCE_DIR}/src/formation_guard.c
+                      ${CMAKE_CURRENT_SOURCE_DIR}/src/status_certificate.c
+                      ${CMAKE_CURRENT_SOURCE_DIR}/src/certified_api.c)
+  add_test(NAME fp_contraction_fail_closed
+           COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_fp_contraction_gate.sh
+                   ${CMAKE_CURRENT_SOURCE_DIR}/tools/check_fp_contraction.sh
+                   ${CMAKE_C_COMPILER}
+                   ${CMAKE_CURRENT_SOURCE_DIR})
+
   find_package(Python3 COMPONENTS Interpreter)
   if(Python3_Interpreter_FOUND)
     # The batteries locate the shared objects through ABS_LIB_DIR and fall
@@ -476,7 +509,8 @@ message(STATUS "")
 message(STATUS "affine-bundle-solver ${PROJECT_VERSION}")
 message(STATUS "  BLAS provider ....... ${ABS_BLAS_DESCRIPTION}")
 message(STATUS "  Router arch flags ... ${ABS_ARCH_FLAGS}")
-message(STATUS "  Strict kernels ...... -O2 -frounding-math -fno-fast-math")
+list(JOIN ABS_STRICT_FP_FLAGS " " _abs_strict_fp_display)
+message(STATUS "  Strict kernels ...... ${_abs_strict_fp_display}")
 if(ABS_SANITIZE)
   message(STATUS "  Instrumentation ..... ASan + UBSan")
 elseif(ABS_COVERAGE)

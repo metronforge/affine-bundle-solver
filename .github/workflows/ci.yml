@@ -256,6 +256,10 @@ jobs:
         run: |
           # The native example executables load instrumented shared libraries
           # but are not themselves linked to ASan, so preload its runtime.
+          # Keep strict_fp_contraction out of this partition: it is a
+          # structural compiler/objdump gate, and preloading libasan into every
+          # subprocess makes the sanitizer runtime rather than the gate the
+          # thing under test. The ordinary and full-CMake jobs run it directly.
           export LD_PRELOAD="$(gcc -print-file-name=libasan.so)"
           ctest --test-dir build-asan --output-on-failure --timeout 90 \
                 --output-log sanitizer-logs/native-leaks.ctest.log \
@@ -283,7 +287,7 @@ jobs:
           # fixture in sanitizer CI; all other Python CTests still run.
           ctest --test-dir build-asan --output-on-failure --timeout 90 \
                 --output-log sanitizer-logs/python-semantics.ctest.log \
-                -E '^(test_certified_diag|test_certified_diag_once|test_dgesdd_core_state|test_native_solver_lifecycle|test_stream_storage_native|test_stream_storage|rounding_probe|mxcsr_probe|link_contract|example_classify|example_certify|example_streaming)$'
+                -E '^(test_certified_diag|test_certified_diag_once|test_dgesdd_core_state|test_native_solver_lifecycle|test_stream_storage_native|test_stream_storage|rounding_probe|mxcsr_probe|link_contract|strict_fp_contraction|example_classify|example_certify|example_streaming)$'
       - name: Python property batteries with ASan, FakeStack and UBSan
         if: matrix.partition == 'python-semantics'
         env:

@@ -19,12 +19,13 @@
  * process-wide floating-point mode.
  *
  * Rationale.  build.sh compiles the fast router with -ffast-math and the
- * proof kernels with -frounding-math -fno-fast-math.  Separate compilation
- * is necessary but NOT sufficient: on some toolchains a -ffast-math link
- * pulls in crtfastmath.o, whose constructor sets the FTZ (flush-to-zero)
- * and DAZ (denormals-are-zero) bits of MXCSR for the WHOLE PROCESS at load
- * time.  Those bits are runtime state, not a compile-time property, so they
- * would then also apply to the strict checker running in the same process.
+ * proof kernels with -frounding-math -fno-fast-math -ffp-contract=off.
+ * Separate compilation is necessary but NOT sufficient: on some toolchains
+ * a -ffast-math link pulls in crtfastmath.o, whose constructor sets the FTZ
+ * (flush-to-zero) and DAZ (denormals-are-zero) bits of MXCSR for the WHOLE
+ * PROCESS at load time.  Those bits are runtime state, not a compile-time
+ * property, so they would then also apply to the strict checker running in
+ * the same process.
  *
  * That would silently invalidate exactly the tests the certificate battery
  * relies on: it exercises "global verifier scales from deep subnormal
