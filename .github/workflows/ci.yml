@@ -256,10 +256,14 @@ jobs:
         run: |
           # The native example executables load instrumented shared libraries
           # but are not themselves linked to ASan, so preload its runtime.
+          # Keep strict_fp_contraction out of this partition: it is a
+          # structural compiler/objdump gate, and preloading libasan into every
+          # subprocess makes the sanitizer runtime rather than the gate the
+          # thing under test. The ordinary and full-CMake jobs run it directly.
           export LD_PRELOAD="$(gcc -print-file-name=libasan.so)"
           ctest --test-dir build-asan --output-on-failure --timeout 90 \
                 --output-log sanitizer-logs/native-leaks.ctest.log \
-                -R '^(test_certified_diag|test_certified_diag_once|test_dgesdd_core_state|test_native_solver_lifecycle|rounding_probe|mxcsr_probe|link_contract|strict_fp_contraction|example_classify|example_certify|example_streaming)$'
+                -R '^(test_certified_diag|test_certified_diag_once|test_dgesdd_core_state|test_native_solver_lifecycle|rounding_probe|mxcsr_probe|link_contract|example_classify|example_certify|example_streaming)$'
       - name: Native stream ENOMEM with LSan and FakeStack
         if: matrix.partition == 'stream-enomem'
         run: |
