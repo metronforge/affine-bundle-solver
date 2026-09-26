@@ -458,6 +458,21 @@ if(ABS_BUILD_TESTING)
            -DLINK_RULE=${CMAKE_BINARY_DIR}/CMakeFiles/affine_bundle_solver.dir/link.txt
            -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/check_link_contract.cmake)
 
+  # Row-level differential for the unique checker against a frozen copy of the
+  # kernel it replaced.  The checker source is compiled into the test with a
+  # private observation hook, so no installed library carries the hook.
+  add_executable(abs_unique_verifier_rows_test
+    tests/test_unique_verifier_rows.c src/status_certificate.c)
+  target_compile_options(abs_unique_verifier_rows_test PRIVATE
+    ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
+  target_compile_definitions(abs_unique_verifier_rows_test PRIVATE
+    ABS_TEST_UNIQUE_ROW_HOOK)
+  target_include_directories(abs_unique_verifier_rows_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include)
+  target_link_options(abs_unique_verifier_rows_test PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_libraries(abs_unique_verifier_rows_test PRIVATE m)
+  add_test(NAME test_unique_verifier_rows COMMAND abs_unique_verifier_rows_test)
+
   # Structural counterpart for the strict kernels: compiled with the exact
   # ABS_STRICT_FP_FLAGS for an FMA-capable target, they must contain no fused
   # multiply-add.  The portable baseline has no FMA, so checking the objects
