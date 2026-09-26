@@ -509,6 +509,9 @@ if(ABS_BUILD_TESTING)
             test_core_rank_boundary
             test_blockprefix_guard
             test_route_agreement
+            test_transition_contract_regression
+            test_exact_compatibility_row_order
+            test_row_order_contradiction_control
             test_dgesdd_compact_vt
             test_dgesdd_candidate_semantics)
       add_test(NAME ${_battery}

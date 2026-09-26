@@ -912,7 +912,12 @@ static Result solve_router(const double*A,const double*b,const double*xt,int m,i
     }
 #endif
     Result r=solve_router_raw(A,b,xt,m,n,sp,qv,alpha,seed,do_full_residual);
-    if(r.cls==CLS_UNDECIDABLE || (r.cls==CLS_INCONSISTENT && r.fallback)){
+    /* Point statuses produced from a grey source event or an unarbitrated
+       contradiction are provisional.  The source QRCP policy, not route
+       order or a compressed/random candidate, owns those semantic claims. */
+    int source_arbitration=(r.cls==CLS_UNDECIDABLE || r.cls==CLS_INCONSISTENT ||
+                            (r.cls==CLS_INFINITE && r.accepted_random && g_grey_total>0));
+    if(source_arbitration){
         Result t={0};
         int src=try_sampled_source_fullrank(A,b,xt,m,n,2e-10,seed,&t);
         if(src<0){Result f={0};BS_FAIL_RESULT(f,now_sec());return f;}
