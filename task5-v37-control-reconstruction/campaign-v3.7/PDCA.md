@@ -39,3 +39,23 @@ Uncertainty: the precise internal OpenBLAS allocation invariant is not observabl
 ### ACT
 
 Accept Cycle 2. Use a newly rebuilt, explicitly labeled L-v3.7 binary from exact f66 source plus the v3.7 bootstrap correction. Do not call it the original v3.6 control and do not alter v3.6 evidence.
+
+## Cycle 3 — Reconstruct and validate the controls
+
+### PLAN
+
+Hypothesis: exact f66 source rebuilt with the frozen recipe plus the bootstrap correction is a stable legacy-equivalent control, while M and A remain their exact immutable binaries. Acceptance requires meaningful equality against the original wherever it safely executes, L/M/A equality on targeted V31-026, ten fresh isolated L/V31-026 completions, correct ABI/exports, valid system/SciPy BLAS checks, sanitizers, and a committed/pushed immutable protocol before candidate timing. Any incomplete workload, mismatch, crash, or identity drift blocks qualification.
+
+### DO
+
+L-v3.7 was rebuilt from exact f66 with GCC 15.2.0, GNU ld 2.46, system OpenBLAS 0.3.32, Unix Makefiles, `-march=native`, and the preserved strict flags. M and A reuse their exact verified binaries. Seven deterministic bundles were regenerated; the three qualification input hashes match v3.6 byte-for-byte. Original versus reconstructed legacy was run on six safe cases spanning shapes/scales/sizes. L/M/A were compared on targeted V31-026. Ten additional isolated reconstructed V31-026 processes were executed. Native system-BLAS, SciPy-OpenBLAS, ASan/UBSan, ENOMEM, header, and export checks were performed. The schedule, manifest, identities, statistics, and gates were frozen.
+
+### CHECK
+
+All six safe original/reconstructed comparisons agree in every meaningful field. Targeted L/M/A agree. Ten of ten fresh L-v3.7 V31-026 processes complete with full output and router count one. System-BLAS checks pass 9/9, SciPy-OpenBLAS checks 8/8, valid ASan/UBSan checks 8/8, and the separately valid ENOMEM test passes. Public header SHA-256 is identical and exported symbol-set SHA-256 is `7116ee323800282ee0bfe6fb977f05725087898460624e478454e1aa92829048` for all arms. Runtime fingerprints show SciPy 4, system OpenBLAS 1, MKL/libiomp/libgomp 1 for L and system OpenBLAS 4/libgomp 1 with forbidden runtimes absent for M/A.
+
+The rebuilt L library differs bytewise from v3.6 because its RUNPATH identifies the new build directory; source tree, produced component hashes, public ABI, workload, and meaningful output equivalence are independently established.
+
+### ACT
+
+Accept Cycle 3 contingent on pushing the immutable manifest/protocol branch. Once pushed, execute exactly the committed qualification once; do not amend its schedule or retry an observation.

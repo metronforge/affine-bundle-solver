@@ -1,4 +1,7 @@
 /build/
+/build-l-v37-asan/
+/build-l-v37-control/
+/build-l-v37-scipy/
 /.pytest_cache/
 __pycache__/
 *.pyc

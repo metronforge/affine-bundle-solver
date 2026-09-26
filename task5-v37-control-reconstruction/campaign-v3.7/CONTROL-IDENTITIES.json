@@ -1,0 +1,43 @@
+{
+  "campaign_id": "task5-v3.7-reconstructed-control-20260926",
+  "L-v3.7": {
+    "source_commit": "f66cd87a7b198497cc53d63b2bb04b85c3e64f53",
+    "source_tree": "4173cef889e0f1ec3ef60bc8aeadad26937a1711",
+    "label": "reconstructed legacy-equivalent; not the v3.6 binary",
+    "library": "/home/viktor/task5-v37-control-reconstruction/build-l-v37-control/libcertified_solver.so",
+    "library_sha256": "7536975097bf05107a0deed26bc1e961f4c3e66c5066c72be3053e62c11703e9",
+    "router_sha256": "e8e5db7df0a5ecf324ea92d120e5199b3262cd6e639ca5fbc8774f609c0cf3ef",
+    "status_verifier_sha256": "d5981ebc325ec7a17cf0d66cf89017c6c4ebbfeb67576bc428417cfbc5d63b37",
+    "runtime_correction": "OPENBLAS_NUM_THREADS=4 at process bootstrap; direct policy retains SciPy OpenBLAS=4 and lowers system OpenBLAS=1"
+  },
+  "M-v3.7": {
+    "source_commit": "bb6c30d03191a92695b16d21581bfea6dce9942e",
+    "source_tree": "e621eef836c2e6edd633c03d657cc582e0e04344",
+    "library": "/home/viktor/task5-v36-main-calibration/build-m1/libcertified_solver.so",
+    "library_sha256": "3dd20bd5c63e42cb1d18c192570eebb99ffa69cc2abf35c1d400689cf8d8f4b6"
+  },
+  "A-v3.7": {
+    "source_commit": "dd30ef900ff7f48d4fe97e79aae94b7e64c48741",
+    "source_tree": "a89ce2def1fc1b2ef4644cc4d17f13c533b099b7",
+    "source_parent": "bb6c30d03191a92695b16d21581bfea6dce9942e",
+    "title": "perf: accelerate strict unique-row verification",
+    "library": "/home/viktor/task5-v36-row-axpy/build-v36-qualification/libcertified_solver.so",
+    "library_sha256": "e66ae3a97f9adcacc249d83674d7ec62a11d57e2ed2d94ebe67241f4e2dc89b6"
+  },
+  "build": {
+    "compiler": "cc (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+    "linker": "GNU ld 2.46",
+    "generator": "Unix Makefiles",
+    "ABS_BLAS": "system",
+    "ABS_ARCH_FLAGS": "-march=native",
+    "strict_flags": "-O2 -frounding-math -fno-fast-math",
+    "abi": "ELF64 little-endian x86-64; LP64 Fortran integers; public header and exported-symbol-set identical"
+  },
+  "numeric_runtimes": {
+    "scipy_openblas": {"version": "0.3.28", "sha256": "3e739a2435af49d2d938749f316aa338c65f41c9ae6615406e7cf83feb662f46"},
+    "system_openblas": {"version": "0.3.32", "sha256": "be2e7d119279836105e0361be92c78dbcd8a6e7357e74339bdbb32a5195ee35e"},
+    "libgomp": {"sha256": "645478cbe100d1465b9d45f7047bca3965358f4d399937e544f55ac7a924d5a3"},
+    "libiomp5": {"sha256": "7deed2fcc4e8ed02c620a70182d6168d73d18382c4f8317aeef2fb1734973acd"},
+    "mkl_rt": {"interface": "LP64", "sha256": "75173baf355b7493185b2268dc65617e6e061b18fb10cff224171db108ca7600"}
+  }
+}

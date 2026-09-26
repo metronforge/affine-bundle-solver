@@ -1,0 +1,16 @@
+{
+  "campaign_id": "task5-v3.7-reconstructed-control-20260926",
+  "schema_version": 37,
+  "protocol_revision": "v3.7-bootstrap-safe-openblas",
+  "comparison": {"L": "L-v3.7", "M": "M-v3.7", "A": "A-v3.7"},
+  "candidate_unchanged": "dd30ef900ff7f48d4fe97e79aae94b7e64c48741",
+  "schedule": {"path": "schedule.json", "sha256": "df5a4d2c621d3c397182619afd0011ae13a786d2931f3850aaf8670e541e2f06", "rows": 288, "warmups": 9, "eligible": 279, "seed": 2026093704},
+  "statistics": {"paired_log_ratios": true, "bootstrap_resamples": 100000, "bootstrap_seed": 2026093799, "confidence": 0.95},
+  "runtime": {"configuration": "C1", "affinity": [1,3,6,8], "active_compute_threads": 4, "legacy_scipy_openblas_threads": 4, "legacy_system_openblas_threads": 1, "solver_system_openblas_threads": 4, "inactive_threads": 1},
+  "slots": [
+    {"slot_id":"V31-025","m":128,"n":256,"matrix_sha256":"ae77d74a9276db7dd008753165491aac6bdca74020eec59f8e7a4085daad46fa","rhs_sha256":"ac94e8646fb4131e46bc29e55415f71dcd121ff42caed26b1a7ff465236cad31"},
+    {"slot_id":"V31-026","m":192,"n":192,"matrix_sha256":"db495d35a3bcd4d9dfe46dc628ea65742fd887e9034aa1575541bacf8307d8df","rhs_sha256":"a8d07aef52e57bc1b8519d7466fd47e090185aa7377f9725513e2fd24611fa26"},
+    {"slot_id":"V31-027","m":256,"n":128,"matrix_sha256":"72cf90935bc50103db647e01998cfb1bf5d7b6328910919f7a655d2bc16f22f2","rhs_sha256":"b280b37f2bbda9a0d71ef52f706aaa735ad389129a920dab1e3775e0fb2ae900"}
+  ],
+  "qualification": {"repetitions_per_arm_slot":31,"excluded_warmups_per_arm_slot":1,"timeout_seconds":30,"selective_exclusions":false,"selective_reruns":false}
+}

@@ -2,6 +2,7 @@ from task5v36.runtime import CONFIGURATIONS
 from task5v36.protocol import build_schedule
 from task5v37 import CAMPAIGN_ID
 from task5v37.runtime import bootstrap_environment
+from task5v37.validation import BASE_ENV
 
 
 def test_legacy_bootstraps_scipy_openblas_at_active_budget():
@@ -25,3 +26,10 @@ def test_v37_campaign_identity_and_frozen_schedule():
     assert len(schedule) == 288
     assert sum(row["phase"] == "eligible" for row in schedule) == 279
     assert len({row["observation_id"] for row in schedule}) == 288
+
+
+def test_validation_environment_is_deterministic_and_inactive_runtimes_are_one():
+    assert BASE_ENV["OMP_NUM_THREADS"] == "1"
+    assert BASE_ENV["MKL_NUM_THREADS"] == "1"
+    assert BASE_ENV["OMP_DYNAMIC"] == "FALSE"
+    assert BASE_ENV["PYTHONHASHSEED"] == "0"
