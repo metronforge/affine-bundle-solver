@@ -1,0 +1,68 @@
+[  2%] Built target abs_formation_guard_obj
+[  5%] Built target abs_router_obj
+[  7%] Building C object CMakeFiles/abs_rounding_probe.dir/src/rounding_probe.c.o
+[ 10%] Building C object CMakeFiles/abs_mxcsr_probe.dir/src/mxcsr_probe.c.o
+[ 12%] Linking C executable abs_rounding_probe
+[ 15%] Linking C executable abs_mxcsr_probe
+Probe: directed rounding is distinguishable
+directed-rounding probe: PASS
+[ 15%] Built target abs_rounding_probe
+[ 17%] Building C object CMakeFiles/abs_router_once_obj.dir/src/bsolver.c.o
+[ 17%] Built target abs_mxcsr_probe
+[ 20%] Building C object CMakeFiles/abs_dgesdd_core_state_test.dir/tests/test_dgesdd_core_state.c.o
+[ 22%] Linking C executable abs_dgesdd_core_state_test
+[ 22%] Built target abs_dgesdd_core_state_test
+[ 25%] Built target affine_bundle_solver
+[ 27%] Building C object CMakeFiles/status_verifier.dir/src/status_certificate.c.o
+[ 30%] Linking C shared library libstatus_verifier.so
+[ 30%] Built target status_verifier
+[ 35%] Built target abs_stream_storage_native_test
+[ 37%] Building C object examples/CMakeFiles/example_classify.dir/classify.c.o
+[ 40%] Linking C executable example_classify
+/usr/bin/x86_64-linux-gnu-ld.bfd: /usr/lib/x86_64-linux-gnu/libasan.so.8: warning: the use of `tmpnam_r' is dangerous, better use `mkstemp'
+/usr/bin/x86_64-linux-gnu-ld.bfd: /usr/lib/x86_64-linux-gnu/libasan.so.8: warning: the use of `tmpnam' is dangerous, better use `mkstemp'
+/usr/bin/x86_64-linux-gnu-ld.bfd: /usr/lib/x86_64-linux-gnu/libasan.so.8: warning: the use of `tempnam' is dangerous, better use `mkstemp'
+[ 40%] Built target example_classify
+[ 42%] Building C object examples/CMakeFiles/example_streaming.dir/streaming.c.o
+[ 45%] Linking C executable example_streaming
+/usr/bin/x86_64-linux-gnu-ld.bfd: /usr/lib/x86_64-linux-gnu/libasan.so.8: warning: the use of `tmpnam_r' is dangerous, better use `mkstemp'
+/usr/bin/x86_64-linux-gnu-ld.bfd: /usr/lib/x86_64-linux-gnu/libasan.so.8: warning: the use of `tmpnam' is dangerous, better use `mkstemp'
+/usr/bin/x86_64-linux-gnu-ld.bfd: /usr/lib/x86_64-linux-gnu/libasan.so.8: warning: the use of `tempnam' is dangerous, better use `mkstemp'
+[ 45%] Built target example_streaming
+[ 47%] Building C object CMakeFiles/certified_solver.dir/src/certified_api.c.o
+[ 50%] Linking C shared library libcertified_solver.so
+Probe: loading the fast library does not change the process FP mode
+mxcsr probe: PASS (FTZ=0 DAZ=0 unchanged, subnormals preserved)
+[ 50%] Built target certified_solver
+[ 52%] Building C object CMakeFiles/abs_certified_reuse_test.dir/tests/test_certified_reuse.c.o
+[ 55%] Building C object CMakeFiles/abs_certified_reuse_test.dir/src/certified_api.c.o
+[ 55%] Built target abs_router_once_obj
+[ 57%] Building C object CMakeFiles/abs_reusable_qrcp_test.dir/tests/test_reusable_qrcp.c.o
+[ 60%] Building C object CMakeFiles/abs_reusable_qrcp_test.dir/src/certified_api.c.o
+[ 62%] Linking C executable abs_certified_reuse_test
+[ 62%] Built target abs_certified_reuse_test
+[ 65%] Building C object CMakeFiles/abs_reusable_qrcp_enomem_test.dir/tests/test_reusable_qrcp_enomem.c.o
+[ 67%] Building C object CMakeFiles/abs_reusable_qrcp_enomem_test.dir/src/certified_api.c.o
+[ 70%] Linking C executable abs_reusable_qrcp_test
+[ 70%] Built target abs_reusable_qrcp_test
+[ 72%] Building C object CMakeFiles/abs_reusable_qrcp_reentrant_test.dir/tests/test_reusable_qrcp_reentrant.c.o
+[ 75%] Linking C executable abs_reusable_qrcp_reentrant_test
+[ 75%] Built target abs_reusable_qrcp_reentrant_test
+[ 77%] Building C object CMakeFiles/abs_native_solver_lifecycle_test.dir/tests/test_native_solver_lifecycle.c.o
+[ 80%] Linking C executable abs_reusable_qrcp_enomem_test
+[ 82%] Linking C executable abs_native_solver_lifecycle_test
+[ 82%] Built target abs_reusable_qrcp_enomem_test
+[ 85%] Building C object examples/CMakeFiles/example_certify.dir/certify.c.o
+[ 85%] Built target abs_native_solver_lifecycle_test
+[ 87%] Building C object CMakeFiles/abs_certified_diag_test.dir/tests/test_certified_diag.c.o
+[ 90%] Linking C executable example_certify
+/usr/bin/x86_64-linux-gnu-ld.bfd: /usr/lib/x86_64-linux-gnu/libasan.so.8: warning: the use of `tmpnam_r' is dangerous, better use `mkstemp'
+/usr/bin/x86_64-linux-gnu-ld.bfd: /usr/lib/x86_64-linux-gnu/libasan.so.8: warning: the use of `tmpnam' is dangerous, better use `mkstemp'
+/usr/bin/x86_64-linux-gnu-ld.bfd: /usr/lib/x86_64-linux-gnu/libasan.so.8: warning: the use of `tempnam' is dangerous, better use `mkstemp'
+[ 90%] Built target example_certify
+[ 92%] Linking C executable abs_certified_diag_test
+[ 95%] Building C object CMakeFiles/abs_certified_diag_once_test.dir/tests/test_certified_diag_once.c.o
+[ 95%] Built target abs_certified_diag_test
+[ 97%] Building C object CMakeFiles/abs_certified_diag_once_test.dir/src/certified_api.c.o
+[100%] Linking C executable abs_certified_diag_once_test
+[100%] Built target abs_certified_diag_once_test

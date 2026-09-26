@@ -1,0 +1,9 @@
+Test project /projects/research-assistant/task5-v35-manuscript/build-v35-paper-asan
+    Start 13: strict_fp_contraction
+1/2 Test #13: strict_fp_contraction ............   Passed    1.28 sec
+    Start 14: fp_contraction_fail_closed
+2/2 Test #14: fp_contraction_fail_closed .......   Passed    0.53 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =   1.81 sec

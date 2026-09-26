@@ -1,0 +1,17 @@
+-- Install configuration: ""
+-- Installing: /projects/research-assistant/task5-v35-manuscript/.v35-prefix/lib/libaffine_bundle_solver.so
+-- Set non-toolchain portion of runtime path of "/projects/research-assistant/task5-v35-manuscript/.v35-prefix/lib/libaffine_bundle_solver.so" to "$ORIGIN"
+-- Installing: /projects/research-assistant/task5-v35-manuscript/.v35-prefix/lib/libstatus_verifier.so
+-- Set non-toolchain portion of runtime path of "/projects/research-assistant/task5-v35-manuscript/.v35-prefix/lib/libstatus_verifier.so" to "$ORIGIN"
+-- Installing: /projects/research-assistant/task5-v35-manuscript/.v35-prefix/lib/libcertified_solver.so
+-- Set non-toolchain portion of runtime path of "/projects/research-assistant/task5-v35-manuscript/.v35-prefix/lib/libcertified_solver.so" to "$ORIGIN"
+-- Installing: /projects/research-assistant/task5-v35-manuscript/.v35-prefix/include/affine_bundle
+-- Installing: /projects/research-assistant/task5-v35-manuscript/.v35-prefix/include/affine_bundle/certified_api.h
+-- Installing: /projects/research-assistant/task5-v35-manuscript/.v35-prefix/include/affine_bundle/router.h
+-- Installing: /projects/research-assistant/task5-v35-manuscript/.v35-prefix/include/affine_bundle/status_certificate.h
+-- Installing: /projects/research-assistant/task5-v35-manuscript/.v35-prefix/include/affine_bundle/stream.h
+-- Installing: /projects/research-assistant/task5-v35-manuscript/.v35-prefix/lib/cmake/affine-bundle-solver/affine-bundle-solverTargets.cmake
+-- Installing: /projects/research-assistant/task5-v35-manuscript/.v35-prefix/lib/cmake/affine-bundle-solver/affine-bundle-solverTargets-noconfig.cmake
+-- Installing: /projects/research-assistant/task5-v35-manuscript/.v35-prefix/lib/cmake/affine-bundle-solver/affine-bundle-solverConfig.cmake
+-- Installing: /projects/research-assistant/task5-v35-manuscript/.v35-prefix/lib/cmake/affine-bundle-solver/affine-bundle-solverConfigVersion.cmake
+-- Installing: /projects/research-assistant/task5-v35-manuscript/.v35-prefix/lib/pkgconfig/affine-bundle-solver.pc

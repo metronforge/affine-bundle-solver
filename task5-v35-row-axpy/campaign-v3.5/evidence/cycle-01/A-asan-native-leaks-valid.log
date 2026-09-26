@@ -1,0 +1,506 @@
+Test project /projects/research-assistant/task5-v35-solver-candidate/build-v35-asan
+      Start  1: test_certified_diag
+ 1/13 Test  #1: test_certified_diag ..............   Passed    0.09 sec
+      Start  2: test_certified_diag_once
+ 2/13 Test  #2: test_certified_diag_once .........   Passed    0.06 sec
+      Start  7: test_dgesdd_core_state
+ 3/13 Test  #7: test_dgesdd_core_state ...........   Passed    0.06 sec
+      Start  8: test_native_solver_lifecycle
+ 4/13 Test  #8: test_native_solver_lifecycle .....   Passed    0.06 sec
+      Start 10: rounding_probe
+ 5/13 Test #10: rounding_probe ...................   Passed    0.02 sec
+      Start 11: mxcsr_probe
+ 6/13 Test #11: mxcsr_probe ......................   Passed    0.04 sec
+      Start 12: link_contract
+ 7/13 Test #12: link_contract ....................   Passed    0.04 sec
+      Start 13: test_unique_verifier_rows
+ 8/13 Test #13: test_unique_verifier_rows ........   Passed    2.67 sec
+      Start 14: strict_fp_contraction
+ 9/13 Test #14: strict_fp_contraction ............***Failed    0.20 sec
+
+=================================================================
+==363752==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 8 byte(s) in 1 object(s) allocated from:
+    #0 0x72966bb2b60f in malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:67
+    #1 0x5e08c67a15e6  (/usr/lib/cargo/bin/coreutils/mktemp+0x53f5e6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #2 0x5e08c67a15b3  (/usr/lib/cargo/bin/coreutils/mktemp+0x53f5b3) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #3 0x5e08c67a52e2  (/usr/lib/cargo/bin/coreutils/mktemp+0x5432e2) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #4 0x5e08c67a505a  (/usr/lib/cargo/bin/coreutils/mktemp+0x54305a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #5 0x5e08c67a56c7  (/usr/lib/cargo/bin/coreutils/mktemp+0x5436c7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #6 0x5e08c63d676f  (/usr/lib/cargo/bin/coreutils/mktemp+0x17476f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #7 0x5e08c6425977  (/usr/lib/cargo/bin/coreutils/mktemp+0x1c3977) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #8 0x5e08c63e02c6  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e2c6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #9 0x5e08c63e0215  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e215) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #10 0x5e08c657af5c  (/usr/lib/cargo/bin/coreutils/mktemp+0x318f5c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #11 0x5e08c63e0203  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e203) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #12 0x72966b62a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #13 0x72966b62a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #14 0x5e08c636a004  (/usr/lib/cargo/bin/coreutils/mktemp+0x108004) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+
+Indirect leak of 14560 byte(s) in 35 object(s) allocated from:
+    #0 0x72966bb2b60f in malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:67
+    #1 0x5e08c63561ac  (/usr/lib/cargo/bin/coreutils/mktemp+0xf41ac) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #2 0x5e08c64548d7  (/usr/lib/cargo/bin/coreutils/mktemp+0x1f28d7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #3 0x5e08c6451297  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ef297) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #4 0x5e08c6450dc6  (/usr/lib/cargo/bin/coreutils/mktemp+0x1eedc6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #5 0x5e08c644dcbf  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ebcbf) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #6 0x5e08c644c6f8  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea6f8) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #7 0x5e08c644e228  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec228) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #8 0x5e08c644e01e  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec01e) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #9 0x5e08c644c666  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea666) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #10 0x5e08c644b5ab  (/usr/lib/cargo/bin/coreutils/mktemp+0x1e95ab) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #11 0x5e08c67a52b4  (/usr/lib/cargo/bin/coreutils/mktemp+0x5432b4) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #12 0x5e08c67a505a  (/usr/lib/cargo/bin/coreutils/mktemp+0x54305a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #13 0x5e08c67a56c7  (/usr/lib/cargo/bin/coreutils/mktemp+0x5436c7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #14 0x5e08c63d676f  (/usr/lib/cargo/bin/coreutils/mktemp+0x17476f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #15 0x5e08c6425977  (/usr/lib/cargo/bin/coreutils/mktemp+0x1c3977) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #16 0x5e08c63e02c6  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e2c6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #17 0x5e08c63e0215  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e215) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #18 0x5e08c657af5c  (/usr/lib/cargo/bin/coreutils/mktemp+0x318f5c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #19 0x5e08c63e0203  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e203) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #20 0x72966b62a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #21 0x72966b62a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #22 0x5e08c636a004  (/usr/lib/cargo/bin/coreutils/mktemp+0x108004) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+
+Indirect leak of 9216 byte(s) in 1 object(s) allocated from:
+    #0 0x72966bb2a6cf in realloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:81
+    #1 0x5e08c635618f  (/usr/lib/cargo/bin/coreutils/mktemp+0xf418f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #2 0x5e08c64548d7  (/usr/lib/cargo/bin/coreutils/mktemp+0x1f28d7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #3 0x5e08c6451160  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ef160) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #4 0x5e08c6450d3e  (/usr/lib/cargo/bin/coreutils/mktemp+0x1eed3e) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #5 0x5e08c644e0e2  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec0e2) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #6 0x5e08c644c666  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea666) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #7 0x5e08c644b5ab  (/usr/lib/cargo/bin/coreutils/mktemp+0x1e95ab) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #8 0x5e08c67a52b4  (/usr/lib/cargo/bin/coreutils/mktemp+0x5432b4) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #9 0x5e08c67a505a  (/usr/lib/cargo/bin/coreutils/mktemp+0x54305a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #10 0x5e08c67a56c7  (/usr/lib/cargo/bin/coreutils/mktemp+0x5436c7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #11 0x5e08c63d676f  (/usr/lib/cargo/bin/coreutils/mktemp+0x17476f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #12 0x5e08c6425977  (/usr/lib/cargo/bin/coreutils/mktemp+0x1c3977) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #13 0x5e08c63e02c6  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e2c6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #14 0x5e08c63e0215  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e215) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #15 0x5e08c657af5c  (/usr/lib/cargo/bin/coreutils/mktemp+0x318f5c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #16 0x5e08c63e0203  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e203) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #17 0x72966b62a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #18 0x72966b62a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #19 0x5e08c636a004  (/usr/lib/cargo/bin/coreutils/mktemp+0x108004) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+
+Indirect leak of 5824 byte(s) in 7 object(s) allocated from:
+    #0 0x72966bb2a6cf in realloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:81
+    #1 0x5e08c635618f  (/usr/lib/cargo/bin/coreutils/mktemp+0xf418f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #2 0x5e08c64548d7  (/usr/lib/cargo/bin/coreutils/mktemp+0x1f28d7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #3 0x5e08c6451297  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ef297) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #4 0x5e08c6450dc6  (/usr/lib/cargo/bin/coreutils/mktemp+0x1eedc6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #5 0x5e08c644dcbf  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ebcbf) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #6 0x5e08c644c6f8  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea6f8) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #7 0x5e08c644e228  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec228) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #8 0x5e08c644e01e  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec01e) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #9 0x5e08c644c666  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea666) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #10 0x5e08c644b5ab  (/usr/lib/cargo/bin/coreutils/mktemp+0x1e95ab) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #11 0x5e08c67a52b4  (/usr/lib/cargo/bin/coreutils/mktemp+0x5432b4) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #12 0x5e08c67a505a  (/usr/lib/cargo/bin/coreutils/mktemp+0x54305a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #13 0x5e08c67a56c7  (/usr/lib/cargo/bin/coreutils/mktemp+0x5436c7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #14 0x5e08c63d676f  (/usr/lib/cargo/bin/coreutils/mktemp+0x17476f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #15 0x5e08c6425977  (/usr/lib/cargo/bin/coreutils/mktemp+0x1c3977) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #16 0x5e08c63e02c6  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e2c6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #17 0x5e08c63e0215  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e215) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #18 0x5e08c657af5c  (/usr/lib/cargo/bin/coreutils/mktemp+0x318f5c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #19 0x5e08c63e0203  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e203) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #20 0x72966b62a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #21 0x72966b62a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #22 0x5e08c636a004  (/usr/lib/cargo/bin/coreutils/mktemp+0x108004) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+
+Indirect leak of 4160 byte(s) in 10 object(s) allocated from:
+    #0 0x72966bb2b60f in malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:67
+    #1 0x5e08c63561ac  (/usr/lib/cargo/bin/coreutils/mktemp+0xf41ac) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #2 0x5e08c64548d7  (/usr/lib/cargo/bin/coreutils/mktemp+0x1f28d7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #3 0x5e08c6451297  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ef297) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #4 0x5e08c6450dc6  (/usr/lib/cargo/bin/coreutils/mktemp+0x1eedc6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #5 0x5e08c644db7c  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ebb7c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #6 0x5e08c644c6f8  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea6f8) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #7 0x5e08c644e228  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec228) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #8 0x5e08c644e01e  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec01e) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #9 0x5e08c644c666  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea666) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #10 0x5e08c644b5ab  (/usr/lib/cargo/bin/coreutils/mktemp+0x1e95ab) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #11 0x5e08c67a52b4  (/usr/lib/cargo/bin/coreutils/mktemp+0x5432b4) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #12 0x5e08c67a505a  (/usr/lib/cargo/bin/coreutils/mktemp+0x54305a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #13 0x5e08c67a56c7  (/usr/lib/cargo/bin/coreutils/mktemp+0x5436c7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #14 0x5e08c63d676f  (/usr/lib/cargo/bin/coreutils/mktemp+0x17476f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #15 0x5e08c6425977  (/usr/lib/cargo/bin/coreutils/mktemp+0x1c3977) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #16 0x5e08c63e02c6  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e2c6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #17 0x5e08c63e0215  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e215) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #18 0x5e08c657af5c  (/usr/lib/cargo/bin/coreutils/mktemp+0x318f5c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #19 0x5e08c63e0203  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e203) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #20 0x72966b62a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #21 0x72966b62a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #22 0x5e08c636a004  (/usr/lib/cargo/bin/coreutils/mktemp+0x108004) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+
+Indirect leak of 4080 byte(s) in 1 object(s) allocated from:
+    #0 0x72966bb2b60f in malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:67
+    #1 0x5e08c63543c9  (/usr/lib/cargo/bin/coreutils/mktemp+0xf23c9) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #2 0x5e08c638dd40  (/usr/lib/cargo/bin/coreutils/mktemp+0x12bd40) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #3 0x5e08c6573a9d  (/usr/lib/cargo/bin/coreutils/mktemp+0x311a9d) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #4 0x5e08c64f17b5  (/usr/lib/cargo/bin/coreutils/mktemp+0x28f7b5) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #5 0x5e08c67a527a  (/usr/lib/cargo/bin/coreutils/mktemp+0x54327a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #6 0x5e08c67a505a  (/usr/lib/cargo/bin/coreutils/mktemp+0x54305a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #7 0x5e08c67a56c7  (/usr/lib/cargo/bin/coreutils/mktemp+0x5436c7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #8 0x5e08c63d676f  (/usr/lib/cargo/bin/coreutils/mktemp+0x17476f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #9 0x5e08c6425977  (/usr/lib/cargo/bin/coreutils/mktemp+0x1c3977) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #10 0x5e08c63e02c6  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e2c6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #11 0x5e08c63e0215  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e215) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #12 0x5e08c657af5c  (/usr/lib/cargo/bin/coreutils/mktemp+0x318f5c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #13 0x5e08c63e0203  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e203) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #14 0x72966b62a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #15 0x72966b62a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #16 0x5e08c636a004  (/usr/lib/cargo/bin/coreutils/mktemp+0x108004) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+
+Indirect leak of 2496 byte(s) in 3 object(s) allocated from:
+    #0 0x72966bb2a6cf in realloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:81
+    #1 0x5e08c635618f  (/usr/lib/cargo/bin/coreutils/mktemp+0xf418f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #2 0x5e08c64548d7  (/usr/lib/cargo/bin/coreutils/mktemp+0x1f28d7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #3 0x5e08c6451297  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ef297) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #4 0x5e08c6450dc6  (/usr/lib/cargo/bin/coreutils/mktemp+0x1eedc6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #5 0x5e08c644db7c  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ebb7c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #6 0x5e08c644c6f8  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea6f8) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #7 0x5e08c644e228  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec228) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #8 0x5e08c644e01e  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec01e) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #9 0x5e08c644c666  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea666) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #10 0x5e08c644b5ab  (/usr/lib/cargo/bin/coreutils/mktemp+0x1e95ab) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #11 0x5e08c67a52b4  (/usr/lib/cargo/bin/coreutils/mktemp+0x5432b4) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #12 0x5e08c67a505a  (/usr/lib/cargo/bin/coreutils/mktemp+0x54305a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #13 0x5e08c67a56c7  (/usr/lib/cargo/bin/coreutils/mktemp+0x5436c7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #14 0x5e08c63d676f  (/usr/lib/cargo/bin/coreutils/mktemp+0x17476f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #15 0x5e08c6425977  (/usr/lib/cargo/bin/coreutils/mktemp+0x1c3977) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #16 0x5e08c63e02c6  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e2c6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #17 0x5e08c63e0215  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e215) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #18 0x5e08c657af5c  (/usr/lib/cargo/bin/coreutils/mktemp+0x318f5c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #19 0x5e08c63e0203  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e203) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #20 0x72966b62a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #21 0x72966b62a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #22 0x5e08c636a004  (/usr/lib/cargo/bin/coreutils/mktemp+0x108004) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+
+Indirect leak of 2496 byte(s) in 6 object(s) allocated from:
+    #0 0x72966bb2b60f in malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:67
+    #1 0x5e08c63561ac  (/usr/lib/cargo/bin/coreutils/mktemp+0xf41ac) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #2 0x5e08c64548d7  (/usr/lib/cargo/bin/coreutils/mktemp+0x1f28d7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #3 0x5e08c6451297  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ef297) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #4 0x5e08c6450dc6  (/usr/lib/cargo/bin/coreutils/mktemp+0x1eedc6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #5 0x5e08c644db7c  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ebb7c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #6 0x5e08c644c9e9  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea9e9) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #7 0x5e08c644b751  (/usr/lib/cargo/bin/coreutils/mktemp+0x1e9751) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #8 0x5e08c644cd46  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ead46) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #9 0x5e08c644db07  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ebb07) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #10 0x5e08c644c6f8  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea6f8) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #11 0x5e08c644e228  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec228) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #12 0x5e08c644e01e  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec01e) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #13 0x5e08c644c666  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea666) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #14 0x5e08c644b5ab  (/usr/lib/cargo/bin/coreutils/mktemp+0x1e95ab) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #15 0x5e08c67a52b4  (/usr/lib/cargo/bin/coreutils/mktemp+0x5432b4) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #16 0x5e08c67a505a  (/usr/lib/cargo/bin/coreutils/mktemp+0x54305a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #17 0x5e08c67a56c7  (/usr/lib/cargo/bin/coreutils/mktemp+0x5436c7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #18 0x5e08c63d676f  (/usr/lib/cargo/bin/coreutils/mktemp+0x17476f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #19 0x5e08c6425977  (/usr/lib/cargo/bin/coreutils/mktemp+0x1c3977) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #20 0x5e08c63e02c6  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e2c6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #21 0x5e08c63e0215  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e215) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #22 0x5e08c657af5c  (/usr/lib/cargo/bin/coreutils/mktemp+0x318f5c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #23 0x5e08c63e0203  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e203) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #24 0x72966b62a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #25 0x72966b62a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #26 0x5e08c636a004  (/usr/lib/cargo/bin/coreutils/mktemp+0x108004) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+
+Indirect leak of 336 byte(s) in 3 object(s) allocated from:
+    #0 0x72966bb2b60f in malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:67
+    #1 0x5e08c645498a  (/usr/lib/cargo/bin/coreutils/mktemp+0x1f298a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #2 0x5e08c64512d5  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ef2d5) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #3 0x5e08c644c913  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea913) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #4 0x5e08c644b751  (/usr/lib/cargo/bin/coreutils/mktemp+0x1e9751) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #5 0x5e08c644cd46  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ead46) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #6 0x5e08c644db07  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ebb07) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #7 0x5e08c644c6f8  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea6f8) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #8 0x5e08c644e228  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec228) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #9 0x5e08c644e01e  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec01e) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #10 0x5e08c644c666  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea666) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #11 0x5e08c644b5ab  (/usr/lib/cargo/bin/coreutils/mktemp+0x1e95ab) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #12 0x5e08c67a52b4  (/usr/lib/cargo/bin/coreutils/mktemp+0x5432b4) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #13 0x5e08c67a505a  (/usr/lib/cargo/bin/coreutils/mktemp+0x54305a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #14 0x5e08c67a56c7  (/usr/lib/cargo/bin/coreutils/mktemp+0x5436c7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #15 0x5e08c63d676f  (/usr/lib/cargo/bin/coreutils/mktemp+0x17476f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #16 0x5e08c6425977  (/usr/lib/cargo/bin/coreutils/mktemp+0x1c3977) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #17 0x5e08c63e02c6  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e2c6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #18 0x5e08c63e0215  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e215) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #19 0x5e08c657af5c  (/usr/lib/cargo/bin/coreutils/mktemp+0x318f5c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #20 0x5e08c63e0203  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e203) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #21 0x72966b62a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #22 0x72966b62a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #23 0x5e08c636a004  (/usr/lib/cargo/bin/coreutils/mktemp+0x108004) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+
+Indirect leak of 48 byte(s) in 1 object(s) allocated from:
+    #0 0x72966bb2b60f in malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:67
+    #1 0x5e08c644b570  (/usr/lib/cargo/bin/coreutils/mktemp+0x1e9570) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #2 0x5e08c67a52b4  (/usr/lib/cargo/bin/coreutils/mktemp+0x5432b4) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #3 0x5e08c67a505a  (/usr/lib/cargo/bin/coreutils/mktemp+0x54305a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #4 0x5e08c67a56c7  (/usr/lib/cargo/bin/coreutils/mktemp+0x5436c7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #5 0x5e08c63d676f  (/usr/lib/cargo/bin/coreutils/mktemp+0x17476f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #6 0x5e08c6425977  (/usr/lib/cargo/bin/coreutils/mktemp+0x1c3977) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #7 0x5e08c63e02c6  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e2c6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #8 0x5e08c63e0215  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e215) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #9 0x5e08c657af5c  (/usr/lib/cargo/bin/coreutils/mktemp+0x318f5c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #10 0x5e08c63e0203  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e203) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #11 0x72966b62a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #12 0x72966b62a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #13 0x5e08c636a004  (/usr/lib/cargo/bin/coreutils/mktemp+0x108004) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+
+SUMMARY: AddressSanitizer: 43224 byte(s) leaked in 68 allocation(s).
+
+      Start 15: fp_contraction_fail_closed
+10/13 Test #15: fp_contraction_fail_closed .......***Failed    0.19 sec
+
+=================================================================
+==363758==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 8 byte(s) in 1 object(s) allocated from:
+    #0 0x77023bb2b60f in malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:67
+    #1 0x57e5cfeca5e6  (/usr/lib/cargo/bin/coreutils/mktemp+0x53f5e6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #2 0x57e5cfeca5b3  (/usr/lib/cargo/bin/coreutils/mktemp+0x53f5b3) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #3 0x57e5cfece2e2  (/usr/lib/cargo/bin/coreutils/mktemp+0x5432e2) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #4 0x57e5cfece05a  (/usr/lib/cargo/bin/coreutils/mktemp+0x54305a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #5 0x57e5cfece6c7  (/usr/lib/cargo/bin/coreutils/mktemp+0x5436c7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #6 0x57e5cfaff76f  (/usr/lib/cargo/bin/coreutils/mktemp+0x17476f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #7 0x57e5cfb4e977  (/usr/lib/cargo/bin/coreutils/mktemp+0x1c3977) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #8 0x57e5cfb092c6  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e2c6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #9 0x57e5cfb09215  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e215) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #10 0x57e5cfca3f5c  (/usr/lib/cargo/bin/coreutils/mktemp+0x318f5c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #11 0x57e5cfb09203  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e203) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #12 0x77023b62a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #13 0x77023b62a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #14 0x57e5cfa93004  (/usr/lib/cargo/bin/coreutils/mktemp+0x108004) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+
+Indirect leak of 14560 byte(s) in 35 object(s) allocated from:
+    #0 0x77023bb2b60f in malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:67
+    #1 0x57e5cfa7f1ac  (/usr/lib/cargo/bin/coreutils/mktemp+0xf41ac) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #2 0x57e5cfb7d8d7  (/usr/lib/cargo/bin/coreutils/mktemp+0x1f28d7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #3 0x57e5cfb7a297  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ef297) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #4 0x57e5cfb79dc6  (/usr/lib/cargo/bin/coreutils/mktemp+0x1eedc6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #5 0x57e5cfb76cbf  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ebcbf) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #6 0x57e5cfb756f8  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea6f8) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #7 0x57e5cfb77228  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec228) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #8 0x57e5cfb7701e  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec01e) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #9 0x57e5cfb75666  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea666) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #10 0x57e5cfb745ab  (/usr/lib/cargo/bin/coreutils/mktemp+0x1e95ab) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #11 0x57e5cfece2b4  (/usr/lib/cargo/bin/coreutils/mktemp+0x5432b4) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #12 0x57e5cfece05a  (/usr/lib/cargo/bin/coreutils/mktemp+0x54305a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #13 0x57e5cfece6c7  (/usr/lib/cargo/bin/coreutils/mktemp+0x5436c7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #14 0x57e5cfaff76f  (/usr/lib/cargo/bin/coreutils/mktemp+0x17476f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #15 0x57e5cfb4e977  (/usr/lib/cargo/bin/coreutils/mktemp+0x1c3977) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #16 0x57e5cfb092c6  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e2c6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #17 0x57e5cfb09215  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e215) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #18 0x57e5cfca3f5c  (/usr/lib/cargo/bin/coreutils/mktemp+0x318f5c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #19 0x57e5cfb09203  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e203) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #20 0x77023b62a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #21 0x77023b62a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #22 0x57e5cfa93004  (/usr/lib/cargo/bin/coreutils/mktemp+0x108004) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+
+Indirect leak of 9216 byte(s) in 1 object(s) allocated from:
+    #0 0x77023bb2a6cf in realloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:81
+    #1 0x57e5cfa7f18f  (/usr/lib/cargo/bin/coreutils/mktemp+0xf418f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #2 0x57e5cfb7d8d7  (/usr/lib/cargo/bin/coreutils/mktemp+0x1f28d7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #3 0x57e5cfb7a160  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ef160) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #4 0x57e5cfb79d3e  (/usr/lib/cargo/bin/coreutils/mktemp+0x1eed3e) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #5 0x57e5cfb770e2  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec0e2) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #6 0x57e5cfb75666  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea666) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #7 0x57e5cfb745ab  (/usr/lib/cargo/bin/coreutils/mktemp+0x1e95ab) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #8 0x57e5cfece2b4  (/usr/lib/cargo/bin/coreutils/mktemp+0x5432b4) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #9 0x57e5cfece05a  (/usr/lib/cargo/bin/coreutils/mktemp+0x54305a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #10 0x57e5cfece6c7  (/usr/lib/cargo/bin/coreutils/mktemp+0x5436c7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #11 0x57e5cfaff76f  (/usr/lib/cargo/bin/coreutils/mktemp+0x17476f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #12 0x57e5cfb4e977  (/usr/lib/cargo/bin/coreutils/mktemp+0x1c3977) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #13 0x57e5cfb092c6  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e2c6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #14 0x57e5cfb09215  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e215) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #15 0x57e5cfca3f5c  (/usr/lib/cargo/bin/coreutils/mktemp+0x318f5c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #16 0x57e5cfb09203  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e203) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #17 0x77023b62a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #18 0x77023b62a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #19 0x57e5cfa93004  (/usr/lib/cargo/bin/coreutils/mktemp+0x108004) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+
+Indirect leak of 5824 byte(s) in 7 object(s) allocated from:
+    #0 0x77023bb2a6cf in realloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:81
+    #1 0x57e5cfa7f18f  (/usr/lib/cargo/bin/coreutils/mktemp+0xf418f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #2 0x57e5cfb7d8d7  (/usr/lib/cargo/bin/coreutils/mktemp+0x1f28d7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #3 0x57e5cfb7a297  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ef297) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #4 0x57e5cfb79dc6  (/usr/lib/cargo/bin/coreutils/mktemp+0x1eedc6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #5 0x57e5cfb76cbf  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ebcbf) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #6 0x57e5cfb756f8  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea6f8) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #7 0x57e5cfb77228  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec228) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #8 0x57e5cfb7701e  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec01e) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #9 0x57e5cfb75666  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea666) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #10 0x57e5cfb745ab  (/usr/lib/cargo/bin/coreutils/mktemp+0x1e95ab) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #11 0x57e5cfece2b4  (/usr/lib/cargo/bin/coreutils/mktemp+0x5432b4) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #12 0x57e5cfece05a  (/usr/lib/cargo/bin/coreutils/mktemp+0x54305a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #13 0x57e5cfece6c7  (/usr/lib/cargo/bin/coreutils/mktemp+0x5436c7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #14 0x57e5cfaff76f  (/usr/lib/cargo/bin/coreutils/mktemp+0x17476f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #15 0x57e5cfb4e977  (/usr/lib/cargo/bin/coreutils/mktemp+0x1c3977) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #16 0x57e5cfb092c6  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e2c6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #17 0x57e5cfb09215  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e215) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #18 0x57e5cfca3f5c  (/usr/lib/cargo/bin/coreutils/mktemp+0x318f5c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #19 0x57e5cfb09203  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e203) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #20 0x77023b62a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #21 0x77023b62a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #22 0x57e5cfa93004  (/usr/lib/cargo/bin/coreutils/mktemp+0x108004) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+
+Indirect leak of 4160 byte(s) in 10 object(s) allocated from:
+    #0 0x77023bb2b60f in malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:67
+    #1 0x57e5cfa7f1ac  (/usr/lib/cargo/bin/coreutils/mktemp+0xf41ac) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #2 0x57e5cfb7d8d7  (/usr/lib/cargo/bin/coreutils/mktemp+0x1f28d7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #3 0x57e5cfb7a297  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ef297) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #4 0x57e5cfb79dc6  (/usr/lib/cargo/bin/coreutils/mktemp+0x1eedc6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #5 0x57e5cfb76b7c  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ebb7c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #6 0x57e5cfb756f8  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea6f8) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #7 0x57e5cfb77228  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec228) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #8 0x57e5cfb7701e  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec01e) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #9 0x57e5cfb75666  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea666) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #10 0x57e5cfb745ab  (/usr/lib/cargo/bin/coreutils/mktemp+0x1e95ab) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #11 0x57e5cfece2b4  (/usr/lib/cargo/bin/coreutils/mktemp+0x5432b4) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #12 0x57e5cfece05a  (/usr/lib/cargo/bin/coreutils/mktemp+0x54305a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #13 0x57e5cfece6c7  (/usr/lib/cargo/bin/coreutils/mktemp+0x5436c7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #14 0x57e5cfaff76f  (/usr/lib/cargo/bin/coreutils/mktemp+0x17476f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #15 0x57e5cfb4e977  (/usr/lib/cargo/bin/coreutils/mktemp+0x1c3977) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #16 0x57e5cfb092c6  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e2c6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #17 0x57e5cfb09215  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e215) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #18 0x57e5cfca3f5c  (/usr/lib/cargo/bin/coreutils/mktemp+0x318f5c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #19 0x57e5cfb09203  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e203) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #20 0x77023b62a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #21 0x77023b62a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #22 0x57e5cfa93004  (/usr/lib/cargo/bin/coreutils/mktemp+0x108004) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+
+Indirect leak of 4080 byte(s) in 1 object(s) allocated from:
+    #0 0x77023bb2b60f in malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:67
+    #1 0x57e5cfa7d3c9  (/usr/lib/cargo/bin/coreutils/mktemp+0xf23c9) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #2 0x57e5cfab6d40  (/usr/lib/cargo/bin/coreutils/mktemp+0x12bd40) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #3 0x57e5cfc9ca9d  (/usr/lib/cargo/bin/coreutils/mktemp+0x311a9d) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #4 0x57e5cfc1a7b5  (/usr/lib/cargo/bin/coreutils/mktemp+0x28f7b5) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #5 0x57e5cfece27a  (/usr/lib/cargo/bin/coreutils/mktemp+0x54327a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #6 0x57e5cfece05a  (/usr/lib/cargo/bin/coreutils/mktemp+0x54305a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #7 0x57e5cfece6c7  (/usr/lib/cargo/bin/coreutils/mktemp+0x5436c7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #8 0x57e5cfaff76f  (/usr/lib/cargo/bin/coreutils/mktemp+0x17476f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #9 0x57e5cfb4e977  (/usr/lib/cargo/bin/coreutils/mktemp+0x1c3977) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #10 0x57e5cfb092c6  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e2c6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #11 0x57e5cfb09215  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e215) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #12 0x57e5cfca3f5c  (/usr/lib/cargo/bin/coreutils/mktemp+0x318f5c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #13 0x57e5cfb09203  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e203) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #14 0x77023b62a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #15 0x77023b62a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #16 0x57e5cfa93004  (/usr/lib/cargo/bin/coreutils/mktemp+0x108004) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+
+Indirect leak of 2496 byte(s) in 3 object(s) allocated from:
+    #0 0x77023bb2a6cf in realloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:81
+    #1 0x57e5cfa7f18f  (/usr/lib/cargo/bin/coreutils/mktemp+0xf418f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #2 0x57e5cfb7d8d7  (/usr/lib/cargo/bin/coreutils/mktemp+0x1f28d7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #3 0x57e5cfb7a297  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ef297) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #4 0x57e5cfb79dc6  (/usr/lib/cargo/bin/coreutils/mktemp+0x1eedc6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #5 0x57e5cfb76b7c  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ebb7c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #6 0x57e5cfb756f8  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea6f8) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #7 0x57e5cfb77228  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec228) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #8 0x57e5cfb7701e  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec01e) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #9 0x57e5cfb75666  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea666) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #10 0x57e5cfb745ab  (/usr/lib/cargo/bin/coreutils/mktemp+0x1e95ab) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #11 0x57e5cfece2b4  (/usr/lib/cargo/bin/coreutils/mktemp+0x5432b4) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #12 0x57e5cfece05a  (/usr/lib/cargo/bin/coreutils/mktemp+0x54305a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #13 0x57e5cfece6c7  (/usr/lib/cargo/bin/coreutils/mktemp+0x5436c7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #14 0x57e5cfaff76f  (/usr/lib/cargo/bin/coreutils/mktemp+0x17476f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #15 0x57e5cfb4e977  (/usr/lib/cargo/bin/coreutils/mktemp+0x1c3977) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #16 0x57e5cfb092c6  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e2c6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #17 0x57e5cfb09215  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e215) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #18 0x57e5cfca3f5c  (/usr/lib/cargo/bin/coreutils/mktemp+0x318f5c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #19 0x57e5cfb09203  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e203) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #20 0x77023b62a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #21 0x77023b62a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #22 0x57e5cfa93004  (/usr/lib/cargo/bin/coreutils/mktemp+0x108004) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+
+Indirect leak of 2496 byte(s) in 6 object(s) allocated from:
+    #0 0x77023bb2b60f in malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:67
+    #1 0x57e5cfa7f1ac  (/usr/lib/cargo/bin/coreutils/mktemp+0xf41ac) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #2 0x57e5cfb7d8d7  (/usr/lib/cargo/bin/coreutils/mktemp+0x1f28d7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #3 0x57e5cfb7a297  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ef297) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #4 0x57e5cfb79dc6  (/usr/lib/cargo/bin/coreutils/mktemp+0x1eedc6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #5 0x57e5cfb76b7c  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ebb7c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #6 0x57e5cfb759e9  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea9e9) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #7 0x57e5cfb74751  (/usr/lib/cargo/bin/coreutils/mktemp+0x1e9751) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #8 0x57e5cfb75d46  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ead46) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #9 0x57e5cfb76b07  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ebb07) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #10 0x57e5cfb756f8  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea6f8) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #11 0x57e5cfb77228  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec228) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #12 0x57e5cfb7701e  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec01e) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #13 0x57e5cfb75666  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea666) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #14 0x57e5cfb745ab  (/usr/lib/cargo/bin/coreutils/mktemp+0x1e95ab) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #15 0x57e5cfece2b4  (/usr/lib/cargo/bin/coreutils/mktemp+0x5432b4) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #16 0x57e5cfece05a  (/usr/lib/cargo/bin/coreutils/mktemp+0x54305a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #17 0x57e5cfece6c7  (/usr/lib/cargo/bin/coreutils/mktemp+0x5436c7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #18 0x57e5cfaff76f  (/usr/lib/cargo/bin/coreutils/mktemp+0x17476f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #19 0x57e5cfb4e977  (/usr/lib/cargo/bin/coreutils/mktemp+0x1c3977) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #20 0x57e5cfb092c6  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e2c6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #21 0x57e5cfb09215  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e215) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #22 0x57e5cfca3f5c  (/usr/lib/cargo/bin/coreutils/mktemp+0x318f5c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #23 0x57e5cfb09203  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e203) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #24 0x77023b62a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #25 0x77023b62a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #26 0x57e5cfa93004  (/usr/lib/cargo/bin/coreutils/mktemp+0x108004) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+
+Indirect leak of 336 byte(s) in 3 object(s) allocated from:
+    #0 0x77023bb2b60f in malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:67
+    #1 0x57e5cfb7d98a  (/usr/lib/cargo/bin/coreutils/mktemp+0x1f298a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #2 0x57e5cfb7a2d5  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ef2d5) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #3 0x57e5cfb75913  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea913) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #4 0x57e5cfb74751  (/usr/lib/cargo/bin/coreutils/mktemp+0x1e9751) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #5 0x57e5cfb75d46  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ead46) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #6 0x57e5cfb76b07  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ebb07) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #7 0x57e5cfb756f8  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea6f8) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #8 0x57e5cfb77228  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec228) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #9 0x57e5cfb7701e  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ec01e) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #10 0x57e5cfb75666  (/usr/lib/cargo/bin/coreutils/mktemp+0x1ea666) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #11 0x57e5cfb745ab  (/usr/lib/cargo/bin/coreutils/mktemp+0x1e95ab) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #12 0x57e5cfece2b4  (/usr/lib/cargo/bin/coreutils/mktemp+0x5432b4) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #13 0x57e5cfece05a  (/usr/lib/cargo/bin/coreutils/mktemp+0x54305a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #14 0x57e5cfece6c7  (/usr/lib/cargo/bin/coreutils/mktemp+0x5436c7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #15 0x57e5cfaff76f  (/usr/lib/cargo/bin/coreutils/mktemp+0x17476f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #16 0x57e5cfb4e977  (/usr/lib/cargo/bin/coreutils/mktemp+0x1c3977) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #17 0x57e5cfb092c6  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e2c6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #18 0x57e5cfb09215  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e215) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #19 0x57e5cfca3f5c  (/usr/lib/cargo/bin/coreutils/mktemp+0x318f5c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #20 0x57e5cfb09203  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e203) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #21 0x77023b62a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #22 0x77023b62a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #23 0x57e5cfa93004  (/usr/lib/cargo/bin/coreutils/mktemp+0x108004) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+
+Indirect leak of 48 byte(s) in 1 object(s) allocated from:
+    #0 0x77023bb2b60f in malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:67
+    #1 0x57e5cfb74570  (/usr/lib/cargo/bin/coreutils/mktemp+0x1e9570) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #2 0x57e5cfece2b4  (/usr/lib/cargo/bin/coreutils/mktemp+0x5432b4) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #3 0x57e5cfece05a  (/usr/lib/cargo/bin/coreutils/mktemp+0x54305a) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #4 0x57e5cfece6c7  (/usr/lib/cargo/bin/coreutils/mktemp+0x5436c7) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #5 0x57e5cfaff76f  (/usr/lib/cargo/bin/coreutils/mktemp+0x17476f) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #6 0x57e5cfb4e977  (/usr/lib/cargo/bin/coreutils/mktemp+0x1c3977) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #7 0x57e5cfb092c6  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e2c6) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #8 0x57e5cfb09215  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e215) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #9 0x57e5cfca3f5c  (/usr/lib/cargo/bin/coreutils/mktemp+0x318f5c) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #10 0x57e5cfb09203  (/usr/lib/cargo/bin/coreutils/mktemp+0x17e203) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+    #11 0x77023b62a600 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:59
+    #12 0x77023b62a717 in __libc_start_main_impl ../csu/libc-start.c:360
+    #13 0x57e5cfa93004  (/usr/lib/cargo/bin/coreutils/mktemp+0x108004) (BuildId: 3d35b26ede5ed84094cb43b61d3b9f01b9ff41f7)
+
+SUMMARY: AddressSanitizer: 43224 byte(s) leaked in 68 allocation(s).
+
+      Start 29: example_classify
+11/13 Test #29: example_classify .................   Passed    0.05 sec
+      Start 30: example_certify
+12/13 Test #30: example_certify ..................   Passed    0.09 sec
+      Start 31: example_streaming
+13/13 Test #31: example_streaming ................   Passed    0.59 sec
+
+85% tests passed, 2 tests failed out of 13
+
+Total Test time (real) =   4.17 sec
+
+The following tests FAILED:
+	 14 - strict_fp_contraction (Failed)
+	 15 - fp_contraction_fail_closed (Failed)
+Errors while running CTest

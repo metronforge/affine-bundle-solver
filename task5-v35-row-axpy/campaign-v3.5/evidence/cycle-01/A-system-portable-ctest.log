@@ -1,0 +1,67 @@
+Test project /projects/research-assistant/task5-v35-solver-candidate/build-v35-system
+      Start  1: test_certified_diag
+      Start  2: test_certified_diag_once
+ 1/31 Test  #1: test_certified_diag .....................   Passed    0.01 sec
+ 2/31 Test  #2: test_certified_diag_once ................   Passed    0.01 sec
+      Start  3: test_certified_reuse
+      Start  4: test_reusable_qrcp
+ 3/31 Test  #4: test_reusable_qrcp ......................   Passed    0.01 sec
+      Start  5: test_reusable_qrcp_enomem
+ 4/31 Test  #3: test_certified_reuse ....................   Passed    0.02 sec
+      Start  6: test_reusable_qrcp_reentrant
+ 5/31 Test  #5: test_reusable_qrcp_enomem ...............   Passed    0.01 sec
+      Start  7: test_dgesdd_core_state
+ 6/31 Test  #6: test_reusable_qrcp_reentrant ............   Passed    0.02 sec
+      Start  8: test_native_solver_lifecycle
+ 7/31 Test  #7: test_dgesdd_core_state ..................   Passed    0.01 sec
+      Start  9: test_stream_storage_native
+ 8/31 Test  #8: test_native_solver_lifecycle ............   Passed    0.01 sec
+      Start 10: rounding_probe
+ 9/31 Test #10: rounding_probe ..........................   Passed    0.00 sec
+      Start 11: mxcsr_probe
+10/31 Test #11: mxcsr_probe .............................   Passed    0.01 sec
+      Start 12: link_contract
+11/31 Test #12: link_contract ...........................   Passed    0.01 sec
+      Start 13: test_unique_verifier_rows
+12/31 Test  #9: test_stream_storage_native ..............   Passed    0.04 sec
+      Start 14: strict_fp_contraction
+13/31 Test #14: strict_fp_contraction ...................   Passed    1.29 sec
+      Start 15: fp_contraction_fail_closed
+14/31 Test #15: fp_contraction_fail_closed ..............   Passed    0.54 sec
+      Start 16: test_certified_api
+15/31 Test #13: test_unique_verifier_rows ...............   Passed    1.85 sec
+      Start 17: test_status_profile_semantics
+16/31 Test #16: test_certified_api ......................   Passed    0.22 sec
+      Start 18: test_verifier_adversarial
+17/31 Test #17: test_status_profile_semantics ...........   Passed    0.25 sec
+      Start 19: test_meta_api_absent_solution_quality
+18/31 Test #18: test_verifier_adversarial ...............   Passed    0.11 sec
+      Start 20: test_streaming_equivalence
+19/31 Test #19: test_meta_api_absent_solution_quality ...   Passed    0.22 sec
+      Start 21: test_threshold_contract
+20/31 Test #20: test_streaming_equivalence ..............   Passed    0.39 sec
+      Start 22: test_public_diagnostics
+21/31 Test #22: test_public_diagnostics .................   Passed    0.21 sec
+      Start 23: test_stream_storage
+22/31 Test #23: test_stream_storage .....................   Passed    0.07 sec
+      Start 24: test_core_rank_boundary
+23/31 Test #21: test_threshold_contract .................   Passed    1.80 sec
+      Start 25: test_blockprefix_guard
+24/31 Test #24: test_core_rank_boundary .................   Passed    1.33 sec
+      Start 26: test_route_agreement
+25/31 Test #25: test_blockprefix_guard ..................   Passed    3.59 sec
+      Start 27: test_dgesdd_compact_vt
+26/31 Test #27: test_dgesdd_compact_vt ..................   Passed    0.04 sec
+      Start 28: test_dgesdd_candidate_semantics
+27/31 Test #28: test_dgesdd_candidate_semantics .........   Passed    0.25 sec
+      Start 29: example_classify
+28/31 Test #29: example_classify ........................   Passed    0.01 sec
+      Start 30: example_certify
+29/31 Test #30: example_certify .........................   Passed    0.01 sec
+      Start 31: example_streaming
+30/31 Test #31: example_streaming .......................   Passed    0.11 sec
+31/31 Test #26: test_route_agreement ....................   Passed    9.77 sec
+
+100% tests passed, 0 tests failed out of 31
+
+Total Test time (real) =  14.02 sec

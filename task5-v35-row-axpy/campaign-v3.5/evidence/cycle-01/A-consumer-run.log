@@ -1,0 +1,14 @@
+status=2 cls=2 rank=2 interval=[2,5]
+	linux-vdso.so.1 (0x0000790711097000)
+	libaffine_bundle_solver.so (0x0000790711050000)
+	libm.so.6 => /usr/lib/x86_64-linux-gnu/libm.so.6 (0x0000790710f0c000)
+	libc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x0000790710c00000)
+	libscipy_openblas-68440149.so => /home/viktor/miniconda3/lib/python3.13/site-packages/scipy.libs/libscipy_openblas-68440149.so (0x000079070f600000)
+	libgomp.so.1 => /usr/lib/x86_64-linux-gnu/libgomp.so.1 (0x0000790710ead000)
+	/lib64/ld-linux-x86-64.so.2 (0x0000790711099000)
+	libpthread.so.0 => /usr/lib/x86_64-linux-gnu/libpthread.so.0 (0x0000790710ea6000)
+	libgfortran-040039e1-0352e75f.so.5.0.0 => /home/viktor/miniconda3/lib/python3.13/site-packages/scipy.libs/libgfortran-040039e1-0352e75f.so.5.0.0 (0x000079070f000000)
+	libquadmath-96973f99-934c22de.so.0.0.0 => /home/viktor/miniconda3/lib/python3.13/site-packages/scipy.libs/libquadmath-96973f99-934c22de.so.0.0.0 (0x000079070ec00000)
+	libz.so.1 => /usr/lib/x86_64-linux-gnu/libz.so.1 (0x0000790710e88000)
+	libgcc_s.so.1 => /usr/lib/x86_64-linux-gnu/libgcc_s.so.1 (0x0000790710e5a000)
+-I/projects/research-assistant/task5-v35-solver-candidate/.v35/prefix/lib/pkgconfig/../../include -L/projects/research-assistant/task5-v35-solver-candidate/.v35/prefix/lib/pkgconfig/../../lib -lcertified_solver -lstatus_verifier -laffine_bundle_solver

@@ -1,0 +1,6 @@
+T bs_inconsistent_witness_free
+T bs_infinite_witness_free
+T bs_unique_witness_free
+T bs_verify_inconsistent
+T bs_verify_infinite
+T bs_verify_unique

@@ -1,0 +1,20 @@
+{
+  "architecture": "x86_64",
+  "kernel": "Linux 7.0.0-34-generic",
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "logical_cpus": 22,
+  "p_core_cpu_set": "1,3,6,8",
+  "p_core_basis": "distinct physical cores 1,2,3,4 in topology; logical CPUs 0-11 are P-core siblings",
+  "governor": "powersave",
+  "turbo_disabled": false,
+  "temperature_sensor": "not exposed through /sys/class/thermal",
+  "gcc": "15.2.0",
+  "clang": null,
+  "cmake": "4.2.3",
+  "python": "3.13.5",
+  "numpy": "2.3.1",
+  "scipy": "1.16.1",
+  "python_blas": "Intel oneMKL 2023.1 with libiomp5",
+  "solver_blas": "system OpenBLAS",
+  "binutils_objdump": "2.46"
+}

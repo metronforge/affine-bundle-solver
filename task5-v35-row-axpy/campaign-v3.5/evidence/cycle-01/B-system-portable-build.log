@@ -1,0 +1,66 @@
+[ 10%] Building C object CMakeFiles/abs_formation_guard_obj.dir/src/formation_guard.c.o
+[ 10%] Building C object CMakeFiles/abs_router_obj.dir/src/bsolver.c.o
+[ 10%] Building C object CMakeFiles/abs_mxcsr_probe.dir/src/mxcsr_probe.c.o
+[ 10%] Building C object CMakeFiles/abs_rounding_probe.dir/src/rounding_probe.c.o
+[ 12%] Linking C executable abs_rounding_probe
+[ 15%] Linking C executable abs_mxcsr_probe
+Probe: directed rounding is distinguishable
+directed-rounding probe: PASS
+[ 15%] Built target abs_mxcsr_probe
+[ 15%] Built target abs_rounding_probe
+[ 20%] Building C object CMakeFiles/abs_router_once_obj.dir/src/bsolver.c.o
+[ 20%] Building C object CMakeFiles/status_verifier.dir/src/status_certificate.c.o
+[ 20%] Built target abs_formation_guard_obj
+[ 22%] Building C object CMakeFiles/abs_dgesdd_core_state_test.dir/tests/test_dgesdd_core_state.c.o
+[ 25%] Linking C shared library libstatus_verifier.so
+[ 25%] Built target status_verifier
+[ 27%] Linking C executable abs_dgesdd_core_state_test
+[ 27%] Built target abs_dgesdd_core_state_test
+[ 27%] Built target abs_router_obj
+[ 30%] Building C object CMakeFiles/abs_certified_reuse_test.dir/tests/test_certified_reuse.c.o
+[ 35%] Linking C shared library libaffine_bundle_solver.so
+[ 35%] Building C object CMakeFiles/abs_reusable_qrcp_test.dir/tests/test_reusable_qrcp.c.o
+[ 37%] Building C object CMakeFiles/abs_certified_reuse_test.dir/src/certified_api.c.o
+[ 40%] Building C object CMakeFiles/abs_reusable_qrcp_test.dir/src/certified_api.c.o
+Contract: no fast-math flag on the router link line
+-- link contract: no fast-math flag on the router link line
+[ 40%] Built target abs_router_once_obj
+[ 40%] Built target affine_bundle_solver
+[ 42%] Building C object CMakeFiles/abs_reusable_qrcp_enomem_test.dir/tests/test_reusable_qrcp_enomem.c.o
+[ 45%] Building C object CMakeFiles/abs_certified_diag_once_test.dir/tests/test_certified_diag_once.c.o
+[ 47%] Building C object CMakeFiles/abs_reusable_qrcp_enomem_test.dir/src/certified_api.c.o
+[ 50%] Building C object CMakeFiles/abs_certified_diag_once_test.dir/src/certified_api.c.o
+[ 52%] Linking C executable abs_certified_reuse_test
+[ 55%] Linking C executable abs_reusable_qrcp_test
+[ 55%] Built target abs_certified_reuse_test
+[ 55%] Built target abs_reusable_qrcp_test
+[ 57%] Building C object CMakeFiles/abs_stream_storage_native_test.dir/tests/test_stream_storage_native.c.o
+[ 60%] Building C object examples/CMakeFiles/example_classify.dir/classify.c.o
+[ 62%] Linking C executable abs_reusable_qrcp_enomem_test
+[ 65%] Linking C executable abs_certified_diag_once_test
+[ 67%] Linking C executable abs_stream_storage_native_test
+[ 70%] Linking C executable example_classify
+[ 70%] Built target abs_reusable_qrcp_enomem_test
+[ 70%] Built target abs_certified_diag_once_test
+[ 70%] Built target abs_stream_storage_native_test
+[ 72%] Building C object examples/CMakeFiles/example_streaming.dir/streaming.c.o
+[ 72%] Built target example_classify
+[ 75%] Building C object CMakeFiles/certified_solver.dir/src/certified_api.c.o
+[ 77%] Linking C executable example_streaming
+[ 77%] Built target example_streaming
+[ 80%] Linking C shared library libcertified_solver.so
+Probe: loading the fast library does not change the process FP mode
+mxcsr probe: PASS (FTZ=0 DAZ=0 unchanged, subnormals preserved)
+[ 80%] Built target certified_solver
+[ 82%] Building C object CMakeFiles/abs_native_solver_lifecycle_test.dir/tests/test_native_solver_lifecycle.c.o
+[ 87%] Building C object CMakeFiles/abs_reusable_qrcp_reentrant_test.dir/tests/test_reusable_qrcp_reentrant.c.o
+[ 87%] Building C object CMakeFiles/abs_certified_diag_test.dir/tests/test_certified_diag.c.o
+[ 90%] Building C object examples/CMakeFiles/example_certify.dir/certify.c.o
+[ 92%] Linking C executable abs_reusable_qrcp_reentrant_test
+[ 95%] Linking C executable abs_native_solver_lifecycle_test
+[ 97%] Linking C executable example_certify
+[100%] Linking C executable abs_certified_diag_test
+[100%] Built target abs_reusable_qrcp_reentrant_test
+[100%] Built target abs_native_solver_lifecycle_test
+[100%] Built target example_certify
+[100%] Built target abs_certified_diag_test

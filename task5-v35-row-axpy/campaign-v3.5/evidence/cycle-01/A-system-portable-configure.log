@@ -1,0 +1,30 @@
+-- The C compiler identification is GNU 15.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Looking for sgemm_
+-- Looking for sgemm_ - not found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Looking for sgemm_
+-- Looking for sgemm_ - found
+-- Found BLAS: /usr/lib/x86_64-linux-gnu/libopenblas.so
+-- Looking for cheev_
+-- Looking for cheev_ - found
+-- Found LAPACK: /usr/lib/x86_64-linux-gnu/libopenblas.so;-lm;-ldl
+-- Found OpenMP_C: -fopenmp (found version "4.5")
+-- Found OpenMP: TRUE (found version "4.5") found components: C
+-- Found Python3: /home/viktor/miniconda3/bin/python3 (found version "3.13.5") found components: Interpreter
+-- 
+-- affine-bundle-solver 0.4.4
+--   BLAS provider ....... system (/usr/lib/x86_64-linux-gnu/libopenblas.so)
+--   Router arch flags ... 
+--   Strict kernels ...... -O2 -frounding-math -fno-fast-math -ffp-contract=off
+--   build.sh remains the canonical manuscript reproduction path.
+-- 
+-- Configuring done (1.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: /projects/research-assistant/task5-v35-solver-candidate/build-v35-system

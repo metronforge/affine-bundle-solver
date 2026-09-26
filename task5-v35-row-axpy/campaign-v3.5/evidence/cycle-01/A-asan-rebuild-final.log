@@ -1,0 +1,21 @@
+[  4%] Built target abs_formation_guard_obj
+[  4%] Built target abs_router_obj
+[  9%] Built target abs_mxcsr_probe
+[ 13%] Built target abs_rounding_probe
+[ 18%] Built target abs_router_once_obj
+[ 20%] Built target abs_dgesdd_core_state_test
+[ 23%] Built target affine_bundle_solver
+[ 30%] Built target abs_unique_verifier_rows_test
+[ 34%] Built target status_verifier
+[ 39%] Built target abs_stream_storage_native_test
+[ 48%] Built target example_streaming
+[ 48%] Built target example_classify
+[ 53%] Built target certified_solver
+[ 60%] Built target abs_certified_diag_once_test
+[ 67%] Built target abs_reusable_qrcp_test
+[ 74%] Built target abs_certified_reuse_test
+[ 83%] Built target abs_reusable_qrcp_reentrant_test
+[ 86%] Built target abs_reusable_qrcp_enomem_test
+[ 90%] Built target abs_native_solver_lifecycle_test
+[ 95%] Built target example_certify
+[100%] Built target abs_certified_diag_test

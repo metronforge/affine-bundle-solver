@@ -1,0 +1,7 @@
+Test project /projects/research-assistant/task5-v35-solver-candidate/build-v35-asan
+    Start 9: test_stream_storage_native
+1/1 Test #9: test_stream_storage_native .......   Passed    0.04 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.04 sec

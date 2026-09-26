@@ -1,0 +1,14 @@
+Test project /projects/research-assistant/task5-v35-solver-candidate/build-v35-asan
+    Start 9: test_stream_storage_native
+1/1 Test #9: test_stream_storage_native .......Subprocess aborted***Exception:   0.02 sec
+==365038==ERROR: AddressSanitizer: out of memory: failed to allocate 0xb19000 (11636736) bytes of FakeStack (error code: 12)
+ERROR: Failed to mmap
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.02 sec
+
+The following tests FAILED:
+	  9 - test_stream_storage_native (Subprocess aborted)
+Errors while running CTest

@@ -1,0 +1,25 @@
+Test project /projects/research-assistant/task5-v35-manuscript/build-v35-paper-asan
+      Start  1: test_certified_diag
+ 1/10 Test  #1: test_certified_diag ..............   Passed    0.07 sec
+      Start  2: test_certified_diag_once
+ 2/10 Test  #2: test_certified_diag_once .........   Passed    0.05 sec
+      Start  7: test_dgesdd_core_state
+ 3/10 Test  #7: test_dgesdd_core_state ...........   Passed    0.04 sec
+      Start  8: test_native_solver_lifecycle
+ 4/10 Test  #8: test_native_solver_lifecycle .....   Passed    0.07 sec
+      Start 10: rounding_probe
+ 5/10 Test #10: rounding_probe ...................   Passed    0.02 sec
+      Start 11: mxcsr_probe
+ 6/10 Test #11: mxcsr_probe ......................   Passed    0.04 sec
+      Start 12: link_contract
+ 7/10 Test #12: link_contract ....................   Passed    0.05 sec
+      Start 28: example_classify
+ 8/10 Test #28: example_classify .................   Passed    0.04 sec
+      Start 29: example_certify
+ 9/10 Test #29: example_certify ..................   Passed    0.06 sec
+      Start 30: example_streaming
+10/10 Test #30: example_streaming ................   Passed    0.61 sec
+
+100% tests passed, 0 tests failed out of 10
+
+Total Test time (real) =   1.05 sec

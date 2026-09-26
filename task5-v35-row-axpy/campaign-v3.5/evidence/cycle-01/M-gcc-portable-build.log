@@ -1,0 +1,3 @@
+directed-rounding probe: PASS
+mxcsr probe: PASS (FTZ=0 DAZ=0 unchanged, subnormals preserved)
+Built fast solver, strict verifier, and certified audit API.

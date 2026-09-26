@@ -1,0 +1,8 @@
+$ CC=gcc ARCH_FLAGS="-march=native" ./build.sh
+directed-rounding probe: PASS
+mxcsr probe: PASS (FTZ=0 DAZ=0 unchanged, subnormals preserved)
+fp-contraction check: src/formation_guard.c: 0 fused multiply-add(s) in 2117 instructions; target 'fg_sketch_formation_eps' has 98 instructions (-march=x86-64-v3)
+fp-contraction check: src/status_certificate.c: 0 fused multiply-add(s) in 1810 instructions; target 'bs_verify_unique' has 481 instructions (-march=x86-64-v3)
+fp-contraction check: src/certified_api.c: 0 fused multiply-add(s) in 3807 instructions; target 'bsolve_certified_diag_api' has 181 instructions (-march=x86-64-v3)
+fp-contraction check: PASSED (3 sources)
+Built fast solver, strict verifier, and certified audit API.

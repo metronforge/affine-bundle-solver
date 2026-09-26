@@ -1,0 +1,9 @@
+[ 16%] Building C object CMakeFiles/consumer.dir/main.c.o
+[ 33%] Linking C executable consumer
+[ 33%] Built target consumer
+[ 50%] Building C object CMakeFiles/consumer_certified_diag.dir/certified_diag.c.o
+[ 66%] Linking C executable consumer_certified_diag
+[ 66%] Built target consumer_certified_diag
+[ 83%] Building CXX object CMakeFiles/consumer_certified_diag_cpp.dir/certified_diag.cpp.o
+[100%] Linking CXX executable consumer_certified_diag_cpp
+[100%] Built target consumer_certified_diag_cpp

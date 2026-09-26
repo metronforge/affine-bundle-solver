@@ -1,0 +1,73 @@
+{
+  "campaign_id": "task5-v3.5-row-axpy-qualification-20260926",
+  "created_date": "2026-09-26",
+  "repository": "https://github.com/metronforge/affine-bundle-solver.git",
+  "harness": {
+    "base_branch": "perf/task5-v3.4-shared-overhead-validation",
+    "base_commit": "65a73e4f8d9efe152d8870ddf8026627791f20fb",
+    "base_tree": "7d24f4a0fe848df4c0b6ee30aa48e4a2cb2d958e",
+    "branch": "perf/task5-v3.5-row-axpy-validation"
+  },
+  "solver": {
+    "main": {
+      "commit": "1621d104a27eef3b12ec291384cac5f517da79f4",
+      "tree": "86dd1f677664160e40de72c0121e72fa5e54a83b"
+    },
+    "legacy_control": {
+      "commit": "f66cd87a7b198497cc53d63b2bb04b85c3e64f53",
+      "tree": "4173cef889e0f1ec3ef60bc8aeadad26937a1711"
+    },
+    "flag_only": {
+      "commit": "ad8b8bea07feefdbb81fd791459816c5f118c053",
+      "tree": "aba3faaa4dc58585b70da16a9d8464ac24daa00c"
+    },
+    "branch_a_original": {
+      "commit": "0b9f9cf5a8d223801e2f17c08013f4a0936c632c",
+      "tree": "d085526dd951839963b654f5965bc87a24b77eba"
+    },
+    "branch_a_qualified": {
+      "branch": "perf/task5-v3.5-row-axpy-verifier",
+      "commit": "69728e36e1fd2532503c0fdf2735d02c3322ad94",
+      "tree": "7bc54dc7c39352d2eeb52ac791ccd3967d9567a3",
+      "blocking_corrections": [
+        "27a9f53f410df05a32c93f3092b4ad8eaecd71e2",
+        "69728e36e1fd2532503c0fdf2735d02c3322ad94"
+      ]
+    },
+    "branch_b_original": {
+      "commit": "6d8a4651ffd25f187dd2d5cbe3a527e03d559b08",
+      "tree": "863747a36a5cb9edacc42d7a64f53b0a018131fc"
+    },
+    "branch_b_qualified": {
+      "branch": "fix/manuscript-implementation-drift",
+      "commit": "b8d22717b1cb9a67fe6dd60cf0c8162cbed3d7c2",
+      "tree": "1c686f76a86632ce3b526cffe85857a047309414",
+      "blocking_corrections": [
+        "38fccf12403ccce46da060b6c1b145bf567452d7",
+        "b8d22717b1cb9a67fe6dd60cf0c8162cbed3d7c2"
+      ]
+    },
+    "v34_comparison": {
+      "commit": "5409f2a0ce35e6471b158b92e32eb3af91f68cf6",
+      "tree": "f93452c2c4f4735b57b6643f2640de835a973535"
+    }
+  },
+  "libraries": {
+    "L": {"sha256": "c0868aeb6912399e4fe17d5f8b1226c08bbd01f50fa105a1c807d31c9ec9e1a0"},
+    "M1": {"sha256": "67ccf3d95815cb0de11c4c2e007739abf802294e2997207618817ede7b040402"},
+    "M2": {"sha256": "d5d55d62c41e037aee53c6872d57a4f7bc1ff1f0874f7c8b7fd7e45fabbede9a"},
+    "F": {"sha256": "eed4685e5e2fc70c0354933b8b39fe4a451926a5911e528743b4c2fa48c06bea"},
+    "A": {"sha256": "5e291626e23978617965d27c963490b802b2d376f57b4ef6826de60344c9fc67"}
+  },
+  "input_manifest": {
+    "path": "campaign-v3.1/manifest.json",
+    "sha256": "4355f139e933a28ad7886b7648148d7e44f7a3071661a1f482985987b5450c05",
+    "slots": ["V31-025", "V31-026", "V31-027"]
+  },
+  "immutability": {
+    "branch_a_or_b_timing_before_corrections": false,
+    "history_rewritten": false,
+    "main_modified": false,
+    "prs_opened": false
+  }
+}

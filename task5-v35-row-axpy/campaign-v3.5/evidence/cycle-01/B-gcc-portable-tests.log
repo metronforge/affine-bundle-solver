@@ -1,0 +1,581 @@
+== test_certified_api ==
+unique 1.6937415569662819e-15 profile 1.6937415569662819e-15 1.3644038572546293 2.108646639773842e-15
+infinite 1.817851511198081e-15 profile 2.5238298839099317e-15 1.817851511198081e-15 3.582351311204122e-15
+inconsistent 2.206939163970076e-15 profile 0.0008588049968827029 0.0008588049968817033 2.206939163970076e-15
+PASS
+== test_verifier_adversarial ==
+adversarial verifier checks: PASS
+== test_status_profile_semantics ==
+degenerate case: ||P_null b0|| = 3.996e-15, 0 of 41 candidates accepted, first interval [-8.153e-17, 1.766e-15]
+controlled case: delta = 1.716e-07, rc=0, interval [4.290e-08, 4.290e-08], eta = 1.861e-15
+eps=1e-12 eta_unique=7.985e-13 eta_inconsistent=2.220e-15
+eps=1e-09 eta_unique=7.985e-10 eta_inconsistent=2.008e-15
+eps=1e-06 eta_unique=7.985e-07 eta_inconsistent=2.135e-15
+eps=1e-03 eta_unique=7.982e-04 eta_inconsistent=1.897e-15
+eps=1e-01 eta_unique=7.628e-02 eta_inconsistent=1.781e-15
+compatible-adversarial eta_inconsistent=not observed (0/41 candidates accepted, ||P_null b0||=4.00e-15); the rounding-level residual did not clear the verifier envelope on this platform
+PRIMARY PASS
+rank-deficient-compatible eta_unique=1.064e-15 eta_infinite=6.292e-16 eta_inconsistent=1.971e-15
+MIRROR PASS
+== test_meta_api_absent_solution_quality ==
+PASS incompatible meta API exports no solution-quality field
+== test_streaming_equivalence ==
+  case                            stream        router     interval  deferred
+  ------------------------------------------------------------------------------
+  full_400x12                     UNIQUE        UNIQUE     [12, 12]         0
+  full_800x24                     UNIQUE        UNIQUE     [24, 24]         0
+  full_1500x32                    UNIQUE        UNIQUE     [32, 32]         0
+  rankdef_600x20r12             INFINITE      INFINITE     [12, 12]         0
+  rankdef_1200x32r20            INFINITE      INFINITE     [20, 20]         0
+  inconsistent_500x16       INCONSISTENT  INCONSISTENT     [16, 16]         0
+  inconsistent_900x24       INCONSISTENT  INCONSISTENT     [24, 24]         0
+  under_64x128                  INFINITE      INFINITE     [64, 64]         0
+  under_100x300                 INFINITE      INFINITE   [100, 100]         0
+
+  cost of 1000 inserts, by position in the stream: 4.9 ms, 6.3 ms, 4.8 ms, 4.8 ms
+
+ok: 9 systems, 0 with deferred rows, insert cost flat across the stream
+== test_threshold_contract ==
+  header : dependence 1e-13, growth 1e-09
+  library: dependence 1e-13, growth 1e-09
+
+  Row = in-span row + eps * out-of-span direction
+       eps    verdict   expected
+  ----------------------------------------
+     1e-15     ABSORB   ABSORB
+     1e-14     ABSORB   ABSORB
+     1e-12      DEFER   DEFER
+     1e-11      DEFER   DEFER
+     1e-10      DEFER   DEFER
+     1e-07       GROW   GROW
+     1e-06       GROW   GROW
+
+  Same systems, rescaled.  Scale must not change the verdict.
+       eps      1e-08      1e+00      1e+08
+  --------------------------------------------
+     1e-15     ABSORB     ABSORB     ABSORB
+     1e-14     ABSORB     ABSORB     ABSORB
+     1e-12      DEFER      DEFER      DEFER
+     1e-11      DEFER      DEFER      DEFER
+     1e-10      DEFER      DEFER      DEFER
+     1e-07       GROW       GROW       GROW
+     1e-06       GROW       GROW       GROW
+
+  quality threshold: header 1e-14, library 1e-14
+  48 systems, 48 deterministic UNIQUE with a witness, largest backward error 9.884e-15
+
+ok: thresholds match the header, separate the three verdicts, are scale-free, and every deterministic UNIQUE carries an acceptable witness
+== test_public_diagnostics ==
+bsolve_router_api agrees with bsolve_router_meta_api
+  [ok] same class, rank, fallback and randomised flag: overdetermined full rank
+  [ok] same class, rank, fallback and randomised flag: overdetermined rank deficient
+  [ok] same class, rank, fallback and randomised flag: inconsistent
+  [ok] same class, rank, fallback and randomised flag: square
+  [ok] same class, rank, fallback and randomised flag: underdetermined
+  [ok] same class, rank, fallback and randomised flag: near the band
+
+non-finite input is rejected at both boundaries, in the right layout
+  [ok] both entry points return FAIL
+  [ok] meta FAIL fills out[1] and out[9] with valid codes
+  [ok] meta FAIL leaves no elapsed time in a rank field
+  [ok] meta FAIL exports no residual, error or backward error
+
+bsolve_router_diag_api: same classification, plus the grey buffer
+  [ok] diag writes the meta vector unchanged: overdetermined full rank
+  [ok] grey count within the buffer: overdetermined full rank (0)
+  [ok] grey indices are distinct: overdetermined full rank
+  [ok] grey indices are source rows: overdetermined full rank
+  [ok] total grey events include the repeats: overdetermined full rank
+  [ok] diag writes the meta vector unchanged: overdetermined rank deficient
+  [ok] grey count within the buffer: overdetermined rank deficient (0)
+  [ok] grey indices are distinct: overdetermined rank deficient
+  [ok] grey indices are source rows: overdetermined rank deficient
+  [ok] total grey events include the repeats: overdetermined rank deficient
+  [ok] diag writes the meta vector unchanged: inconsistent
+  [ok] grey count within the buffer: inconsistent (0)
+  [ok] grey indices are distinct: inconsistent
+  [ok] grey indices are source rows: inconsistent
+  [ok] total grey events include the repeats: inconsistent
+  [ok] diag writes the meta vector unchanged: square
+  [ok] grey count within the buffer: square (0)
+  [ok] grey indices are distinct: square
+  [ok] grey indices are source rows: square
+  [ok] total grey events include the repeats: square
+  [ok] diag writes the meta vector unchanged: underdetermined
+  [ok] grey count within the buffer: underdetermined (0)
+  [ok] grey indices are distinct: underdetermined
+  [ok] grey indices are source rows: underdetermined
+  [ok] total grey events include the repeats: underdetermined
+  [ok] diag writes the meta vector unchanged: near the band
+  [ok] grey count within the buffer: near the band (1)
+  [ok] grey indices are distinct: near the band
+  [ok] grey indices are source rows: near the band
+  [ok] total grey events include the repeats: near the band
+  [ok] the count does not depend on the caller's buffer
+  [ok] at most grey_cap indices are copied
+
+last-call diagnostics are in range
+  [ok] core rank interval ordered and bounded: overdetermined full rank (-1, -1)
+  [ok] core QR rank in range: overdetermined full rank (-1)
+  [ok] orthogonality eta finite and >= 0: overdetermined full rank
+  [ok] core rank interval ordered and bounded: overdetermined rank deficient (-1, -1)
+  [ok] core QR rank in range: overdetermined rank deficient (5)
+  [ok] orthogonality eta finite and >= 0: overdetermined rank deficient
+  [ok] core rank interval ordered and bounded: inconsistent (-1, -1)
+  [ok] core QR rank in range: inconsistent (-1)
+  [ok] orthogonality eta finite and >= 0: inconsistent
+  [ok] core rank interval ordered and bounded: square (-1, -1)
+  [ok] core QR rank in range: square (-1)
+  [ok] orthogonality eta finite and >= 0: square
+  [ok] core rank interval ordered and bounded: underdetermined (-1, -1)
+  [ok] core QR rank in range: underdetermined (6)
+  [ok] orthogonality eta finite and >= 0: underdetermined
+  [ok] core rank interval ordered and bounded: near the band (-1, -1)
+  [ok] core QR rank in range: near the band (8)
+  [ok] orthogonality eta finite and >= 0: near the band
+
+formation-guard counters
+  [ok] reset zeroes all three
+  [ok] escalations do not exceed checks (1, 0, 0)
+  [ok] counters accumulate (1, 0, 0) -> (2, 0, 0)
+  [ok] reset works a second time
+
+diagnostics describe the most recent router call
+  [ok] meta reports the quiet system the same way whatever preceded it (1 then 0, reference 0)
+  [ok] bsolve_router_api leaves the same grey total as meta on the same system (got 0, meta gives 0)
+  [ok] the core QR rank belongs to the system just classified (width-8 call gave 8, width-6 call gave -1)
+
+abs_stream_solution
+  [ok] an open full-rank stream exports a solution
+  [ok] the exported solution satisfies the inserted rows (1.44e-16)
+  [ok] a consistent stream of rank < n still exports a point
+  [ok] that point satisfies the rows inserted so far (1.71e-16)
+  [ok] a contradictory row closes the stream
+  [ok] a closed stream exports no solution
+  [ok] and does not write into the caller's buffer
+  [ok] a deferred row makes the status UNDECIDABLE
+  [ok] a stream with a deferred row exports no solution
+
+ok: every public diagnostic entry point behaves as its header states
+== test_stream_storage ==
+rank-adaptive stream storage: PASS
+allocation failure leaves row count and rank unchanged; retry succeeds
+== test_core_rank_boundary ==
+a singular value above the window leaves a point rank
+  [ok] 200x16 gap 1e-04: deterministic UNIQUE at rank 16 (got UNIQUE [16,16])
+  [ok] 200x16 gap 1e-06: deterministic UNIQUE at rank 16 (got UNIQUE [16,16])
+  [ok] 200x16 gap 1e-08: deterministic UNIQUE at rank 16 (got UNIQUE [16,16])
+  [ok] 400x32 gap 1e-04: deterministic UNIQUE at rank 32 (got UNIQUE [32,32])
+  [ok] 400x32 gap 1e-06: deterministic UNIQUE at rank 32 (got UNIQUE [32,32])
+  [ok] 400x32 gap 1e-08: deterministic UNIQUE at rank 32 (got UNIQUE [32,32])
+  [ok] 1000x64 gap 1e-04: deterministic UNIQUE at rank 64 (got UNIQUE [64,64])
+  [ok] 1000x64 gap 1e-06: deterministic UNIQUE at rank 64 (got UNIQUE [64,64])
+  [ok] 1000x64 gap 1e-08: deterministic UNIQUE at rank 64 (got UNIQUE [64,64])
+  [ok] 256x256 gap 1e-04: deterministic UNIQUE at rank 256 (got UNIQUE [256,256])
+  [ok] 256x256 gap 1e-06: deterministic UNIQUE at rank 256 (got UNIQUE [256,256])
+  [ok] 256x256 gap 1e-08: deterministic UNIQUE at rank 256 (got UNIQUE [256,256])
+
+a singular value inside the window is refused, with an interval
+  [ok] 200x16 gap 1e-12: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 200x16 gap 1e-12: interval [15,16] brackets both candidate ranks
+  [ok] 200x16 gap 1e-12: no point rank is claimed
+  [ok] 200x16 gap 1e-12: core interval reported and ordered (15, 15)
+  [ok] 200x16 gap 1e-11: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 200x16 gap 1e-11: interval [15,16] brackets both candidate ranks
+  [ok] 200x16 gap 1e-11: no point rank is claimed
+  [ok] 200x16 gap 1e-11: core interval reported and ordered (15, 16)
+  [ok] 200x16 gap 1e-10: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 200x16 gap 1e-10: interval [15,16] brackets both candidate ranks
+  [ok] 200x16 gap 1e-10: no point rank is claimed
+  [ok] 200x16 gap 1e-10: core interval reported and ordered (15, 16)
+  [ok] 400x32 gap 1e-12: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 400x32 gap 1e-12: interval [31,32] brackets both candidate ranks
+  [ok] 400x32 gap 1e-12: no point rank is claimed
+  [ok] 400x32 gap 1e-12: core interval reported and ordered (31, 31)
+  [ok] 400x32 gap 1e-11: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 400x32 gap 1e-11: interval [31,32] brackets both candidate ranks
+  [ok] 400x32 gap 1e-11: no point rank is claimed
+  [ok] 400x32 gap 1e-11: core interval reported and ordered (31, 32)
+  [ok] 400x32 gap 1e-10: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 400x32 gap 1e-10: interval [31,32] brackets both candidate ranks
+  [ok] 400x32 gap 1e-10: no point rank is claimed
+  [ok] 400x32 gap 1e-10: core interval reported and ordered (31, 32)
+  [ok] 1000x64 gap 1e-12: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 1000x64 gap 1e-12: interval [63,64] brackets both candidate ranks
+  [ok] 1000x64 gap 1e-12: no point rank is claimed
+  [ok] 1000x64 gap 1e-12: core interval reported and ordered (63, 63)
+  [ok] 1000x64 gap 1e-11: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 1000x64 gap 1e-11: interval [63,64] brackets both candidate ranks
+  [ok] 1000x64 gap 1e-11: no point rank is claimed
+  [ok] 1000x64 gap 1e-11: core interval reported and ordered (63, 64)
+  [ok] 1000x64 gap 1e-10: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 1000x64 gap 1e-10: interval [63,64] brackets both candidate ranks
+  [ok] 1000x64 gap 1e-10: no point rank is claimed
+  [ok] 1000x64 gap 1e-10: core interval reported and ordered (63, 64)
+  [ok] 256x256 gap 1e-12: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 256x256 gap 1e-12: interval [255,256] brackets both candidate ranks
+  [ok] 256x256 gap 1e-12: no point rank is claimed
+  [ok] 256x256 gap 1e-12: core interval reported and ordered (255, 255)
+  [ok] 256x256 gap 1e-11: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 256x256 gap 1e-11: interval [255,256] brackets both candidate ranks
+  [ok] 256x256 gap 1e-11: no point rank is claimed
+  [ok] 256x256 gap 1e-11: core interval reported and ordered (255, 256)
+  [ok] 256x256 gap 1e-10: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 256x256 gap 1e-10: interval [255,256] brackets both candidate ranks
+  [ok] 256x256 gap 1e-10: no point rank is claimed
+  [ok] 256x256 gap 1e-10: core interval reported and ordered (255, 256)
+
+a singular value below the window makes the direction absent
+  [ok] 200x16 gap 1e-14: INFINITE at rank 15 (got INFINITE rank 15)
+  [ok] 200x16 gap 1e-16: INFINITE at rank 15 (got INFINITE rank 15)
+  [ok] 200x16 gap 0e+00: INFINITE at rank 15 (got INFINITE rank 15)
+  [ok] 400x32 gap 1e-14: INFINITE at rank 31 (got INFINITE rank 31)
+  [ok] 400x32 gap 1e-16: INFINITE at rank 31 (got INFINITE rank 31)
+  [ok] 400x32 gap 0e+00: INFINITE at rank 31 (got INFINITE rank 31)
+  [ok] 1000x64 gap 1e-14: INFINITE at rank 63 (got INFINITE rank 63)
+  [ok] 1000x64 gap 1e-16: INFINITE at rank 63 (got INFINITE rank 63)
+  [ok] 1000x64 gap 0e+00: INFINITE at rank 63 (got INFINITE rank 63)
+  [ok] 256x256 gap 1e-14: INFINITE at rank 255 (got INFINITE rank 255)
+  [ok] 256x256 gap 1e-16: INFINITE at rank 255 (got INFINITE rank 255)
+  [ok] 256x256 gap 0e+00: INFINITE at rank 255 (got INFINITE rank 255)
+
+the verdict does not depend on the scale of the system
+  [ok] gap 1e-04 scaled by 2^-40: UNIQUE unchanged (got UNIQUE)
+  [ok] gap 1e-04 scaled by 2^-12: UNIQUE unchanged (got UNIQUE)
+  [ok] gap 1e-04 scaled by 2^+12: UNIQUE unchanged (got UNIQUE)
+  [ok] gap 1e-04 scaled by 2^+40: UNIQUE unchanged (got UNIQUE)
+  [ok] gap 1e-12 scaled by 2^-40: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-12 scaled by 2^-12: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-12 scaled by 2^+12: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-12 scaled by 2^+40: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-11 scaled by 2^-40: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-11 scaled by 2^-12: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-11 scaled by 2^+12: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-11 scaled by 2^+40: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-10 scaled by 2^-40: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-10 scaled by 2^-12: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-10 scaled by 2^+12: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-10 scaled by 2^+40: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-14 scaled by 2^-40: INFINITE unchanged (got INFINITE)
+  [ok] gap 1e-14 scaled by 2^-12: INFINITE unchanged (got INFINITE)
+  [ok] gap 1e-14 scaled by 2^+12: INFINITE unchanged (got INFINITE)
+  [ok] gap 1e-14 scaled by 2^+40: INFINITE unchanged (got INFINITE)
+
+the verdict does not depend on the sketch seed
+  [ok] gap 1e-12: five seeds agree (UNDECIDABLE)
+  [ok] gap 1e-11: five seeds agree (UNDECIDABLE)
+  [ok] gap 1e-10: five seeds agree (UNDECIDABLE)
+
+an unresolved rank never yields a consistency verdict
+  [ok] 200x16 gap 1e-12 with a contradictory row: UNDECIDABLE is not a consistent verdict
+  [ok] 200x16 gap 1e-11 with a contradictory row: UNDECIDABLE is not a consistent verdict
+  [ok] 200x16 gap 1e-10 with a contradictory row: UNDECIDABLE is not a consistent verdict
+  [ok] 400x32 gap 1e-12 with a contradictory row: UNDECIDABLE is not a consistent verdict
+  [ok] 400x32 gap 1e-11 with a contradictory row: UNDECIDABLE is not a consistent verdict
+  [ok] 400x32 gap 1e-10 with a contradictory row: UNDECIDABLE is not a consistent verdict
+  [ok] 1000x64 gap 1e-12 with a contradictory row: UNDECIDABLE is not a consistent verdict
+  [ok] 1000x64 gap 1e-11 with a contradictory row: UNDECIDABLE is not a consistent verdict
+  [ok] 1000x64 gap 1e-10 with a contradictory row: UNDECIDABLE is not a consistent verdict
+  [ok] 256x256 gap 1e-12 with a contradictory row: UNDECIDABLE is not a consistent verdict
+  [ok] 256x256 gap 1e-11 with a contradictory row: UNDECIDABLE is not a consistent verdict
+  [ok] 256x256 gap 1e-10 with a contradictory row: UNDECIDABLE is not a consistent verdict
+
+the boundary is a property of the data, not of a row ordering
+  [ok] gap 1e-12: UNDECIDABLE survives a row permutation (got UNDECIDABLE)
+  [ok] gap 1e-11: UNDECIDABLE survives a row permutation (got UNDECIDABLE)
+  [ok] gap 1e-10: UNDECIDABLE survives a row permutation (got UNDECIDABLE)
+
+ok: the compressed-core rank boundary separates decide, refuse and discard, and the refusal is stable under scale, seed and ordering
+== test_blockprefix_guard ==
+above the window the guard certifies the full rank
+  [ok] 800x192 gap 1e-06: deterministic UNIQUE at [192,192] (got UNIQUE c1 [192,192])
+  [ok] 800x192 gap 1e-06 contradictory: deterministic INCONSISTENT (got INCONSISTENT c1)
+  [ok] 800x192 gap 1e-08: deterministic UNIQUE at [192,192] (got UNIQUE c1 [192,192])
+  [ok] 800x192 gap 1e-08 contradictory: deterministic INCONSISTENT (got INCONSISTENT c1)
+  [ok] 2000x256 gap 1e-06: deterministic UNIQUE at [256,256] (got UNIQUE c1 [256,256])
+  [ok] 2000x256 gap 1e-06 contradictory: deterministic INCONSISTENT (got INCONSISTENT c1)
+  [ok] 2000x256 gap 1e-08: deterministic UNIQUE at [256,256] (got UNIQUE c1 [256,256])
+  [ok] 2000x256 gap 1e-08 contradictory: deterministic INCONSISTENT (got INCONSISTENT c1)
+
+inside the window the guard declines and no rank is claimed
+  [ok] 800x192 gap 1e-10: UNDECIDABLE with no certainty (got UNDECIDABLE c3)
+  [ok] 800x192 gap 1e-10: interval [191,192] brackets both candidate ranks and is not a point
+  [ok] 800x192 gap 1e-11: UNDECIDABLE with no certainty (got UNDECIDABLE c3)
+  [ok] 800x192 gap 1e-11: interval [191,192] brackets both candidate ranks and is not a point
+  [ok] 800x192 gap 1e-12: UNDECIDABLE with no certainty (got UNDECIDABLE c3)
+  [ok] 800x192 gap 1e-12: interval [191,192] brackets both candidate ranks and is not a point
+  [ok] 2000x256 gap 1e-10: UNDECIDABLE with no certainty (got UNDECIDABLE c3)
+  [ok] 2000x256 gap 1e-10: interval [255,256] brackets both candidate ranks and is not a point
+  [ok] 2000x256 gap 1e-11: UNDECIDABLE with no certainty (got UNDECIDABLE c3)
+  [ok] 2000x256 gap 1e-11: interval [255,256] brackets both candidate ranks and is not a point
+  [ok] 2000x256 gap 1e-12: UNDECIDABLE with no certainty (got UNDECIDABLE c3)
+  [ok] 2000x256 gap 1e-12: interval [255,256] brackets both candidate ranks and is not a point
+
+an unresolved rank blocks a consistency verdict in both directions
+  [ok] 800x192 gap 1e-10 contradictory: still UNDECIDABLE, compressed evidence does not certify a source contradiction (got UNDECIDABLE)
+  [ok] 800x192 gap 1e-11 contradictory: still UNDECIDABLE, compressed evidence does not certify a source contradiction (got UNDECIDABLE)
+  [ok] 800x192 gap 1e-12 contradictory: still UNDECIDABLE, compressed evidence does not certify a source contradiction (got UNDECIDABLE)
+  [ok] 2000x256 gap 1e-10 contradictory: still UNDECIDABLE, compressed evidence does not certify a source contradiction (got UNDECIDABLE)
+  [ok] 2000x256 gap 1e-11 contradictory: still UNDECIDABLE, compressed evidence does not certify a source contradiction (got UNDECIDABLE)
+  [ok] 2000x256 gap 1e-12 contradictory: still UNDECIDABLE, compressed evidence does not certify a source contradiction (got UNDECIDABLE)
+
+below the window the direction is absent and the verdict is decided
+  [ok] 800x192 gap 1e-14: INFINITE at rank 191 (got INFINITE rank 191)
+  [ok] 800x192 gap 1e-14 contradictory: deterministic INCONSISTENT at a point rank (got INCONSISTENT c1 [191,191])
+  [ok] 800x192 gap 0e+00: INFINITE at rank 191 (got INFINITE rank 191)
+  [ok] 800x192 gap 0e+00 contradictory: deterministic INCONSISTENT at a point rank (got INCONSISTENT c1 [191,191])
+  [ok] 2000x256 gap 1e-14: INFINITE at rank 255 (got INFINITE rank 255)
+  [ok] 2000x256 gap 1e-14 contradictory: deterministic INCONSISTENT at a point rank (got INCONSISTENT c1 [255,255])
+  [ok] 2000x256 gap 0e+00: INFINITE at rank 255 (got INFINITE rank 255)
+  [ok] 2000x256 gap 0e+00 contradictory: deterministic INCONSISTENT at a point rank (got INCONSISTENT c1 [255,255])
+
+the refusal is a property of the data
+  [ok] gap 1e-10: three sketch seeds agree (UNDECIDABLE)
+  [ok] gap 1e-10: UNDECIDABLE survives a row permutation
+  [ok] gap 1e-10 scaled by 2^-30: UNDECIDABLE unchanged
+  [ok] gap 1e-10 scaled by 2^+30: UNDECIDABLE unchanged
+  [ok] gap 1e-11: three sketch seeds agree (UNDECIDABLE)
+  [ok] gap 1e-11: UNDECIDABLE survives a row permutation
+  [ok] gap 1e-11 scaled by 2^-30: UNDECIDABLE unchanged
+  [ok] gap 1e-11 scaled by 2^+30: UNDECIDABLE unchanged
+  [ok] gap 1e-12: three sketch seeds agree (UNDECIDABLE)
+  [ok] gap 1e-12: UNDECIDABLE survives a row permutation
+  [ok] gap 1e-12 scaled by 2^-30: UNDECIDABLE unchanged
+  [ok] gap 1e-12 scaled by 2^+30: UNDECIDABLE unchanged
+
+ok: the formation-guard gate refuses an uncertifiable rank and keeps an unresolved rank out of every consistency verdict
+== test_route_agreement ==
+  [ok] cond 1e+01 300x64 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+01 300x64 d1 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/64  global_qr=UNDECIDABLE/64  block=INCONSISTENT/64  fast=INCONSISTENT/64  auto_qr=INCONSISTENT/64]
+  [ok] cond 1e+03 300x64 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+03 300x64 d1 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/64  global_qr=UNDECIDABLE/64  block=INCONSISTENT/64  fast=INCONSISTENT/64  auto_qr=INCONSISTENT/64]
+  [ok] cond 1e+06 300x64 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+06 300x64 d1 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/64  global_qr=UNDECIDABLE/64  block=UNDECIDABLE/64  fast=INCONSISTENT/64  auto_qr=INCONSISTENT/64]
+  [ok] gap 1e-10 300x64 d1 consistent: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+  [ok] gap 1e-10 300x64 d1 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+  [ok] gap 1e-13 300x64 d1 consistent: 5 decided verdicts agree  [router=INFINITE/63  global_qr=INFINITE/63  block=INFINITE/63  fast=INFINITE/63  auto_qr=INFINITE/63]
+  [ok] gap 1e-13 300x64 d1 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+  [ok] gap 0e+00 300x64 d1 consistent: 5 decided verdicts agree  [router=INFINITE/63  global_qr=INFINITE/63  block=INFINITE/63  fast=INFINITE/63  auto_qr=INFINITE/63]
+  [ok] gap 0e+00 300x64 d1 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=INCONSISTENT/63  auto_qr=INCONSISTENT/63]
+  [ok] cond 1e+01 200x200 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+  [ok] cond 1e+01 200x200 d1 contradictory: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+  [ok] cond 1e+03 200x200 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+  [ok] cond 1e+03 200x200 d1 contradictory: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+  [ok] cond 1e+06 200x200 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+  [ok] cond 1e+06 200x200 d1 contradictory: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+  [ok] gap 1e-10 200x200 d1 consistent: 3 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNIQUE/200  block=UNDECIDABLE/199  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+  [ok] gap 1e-10 200x200 d1 contradictory: 3 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNIQUE/200  block=UNDECIDABLE/199  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+  [ok] gap 1e-13 200x200 d1 consistent: 2 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNDECIDABLE/199  block=UNDECIDABLE/199  fast=INFINITE/199  auto_qr=INFINITE/199]
+  [ok] gap 1e-13 200x200 d1 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNDECIDABLE/199  block=UNDECIDABLE/199  fast=UNDECIDABLE/199  auto_qr=UNDECIDABLE/199]
+  [ok] gap 0e+00 200x200 d1 consistent: 5 decided verdicts agree  [router=INFINITE/199  global_qr=INFINITE/199  block=INFINITE/199  fast=INFINITE/199  auto_qr=INFINITE/199]
+  [ok] gap 0e+00 200x200 d1 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/199  global_qr=INCONSISTENT/199  block=UNDECIDABLE/199  fast=INCONSISTENT/199  auto_qr=INCONSISTENT/199]
+  [ok] cond 1e+01 64x64 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+01 64x64 d1 contradictory: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+03 64x64 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+03 64x64 d1 contradictory: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+06 64x64 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+06 64x64 d1 contradictory: 4 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNDECIDABLE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] gap 1e-10 64x64 d1 consistent: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+  [ok] gap 1e-10 64x64 d1 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+  [ok] gap 1e-13 64x64 d1 consistent: 3 decided verdicts agree  [router=INFINITE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=INFINITE/63  auto_qr=INFINITE/63]
+  [ok] gap 1e-13 64x64 d1 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+  [ok] gap 0e+00 64x64 d1 consistent: 5 decided verdicts agree  [router=INFINITE/63  global_qr=INFINITE/63  block=INFINITE/63  fast=INFINITE/63  auto_qr=INFINITE/63]
+  [ok] gap 0e+00 64x64 d1 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/63  global_qr=INCONSISTENT/63  block=UNDECIDABLE/63  fast=INCONSISTENT/63  auto_qr=INCONSISTENT/63]
+  [ok] cond 1e+01 800x192 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/192  global_qr=UNIQUE/192  block=UNIQUE/192  fast=UNIQUE/192  auto_qr=UNIQUE/192]
+  [ok] cond 1e+01 800x192 d1 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/192  global_qr=UNDECIDABLE/192  block=INCONSISTENT/192  fast=INCONSISTENT/192  auto_qr=INCONSISTENT/192]
+  [ok] cond 1e+03 800x192 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/192  global_qr=UNIQUE/192  block=UNIQUE/192  fast=UNIQUE/192  auto_qr=UNIQUE/192]
+  [ok] cond 1e+03 800x192 d1 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/192  global_qr=UNDECIDABLE/192  block=UNDECIDABLE/192  fast=INCONSISTENT/192  auto_qr=INCONSISTENT/192]
+  [ok] cond 1e+06 800x192 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/192  global_qr=UNIQUE/192  block=UNIQUE/192  fast=UNIQUE/192  auto_qr=UNIQUE/192]
+  [ok] cond 1e+06 800x192 d1 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/192  global_qr=UNDECIDABLE/192  block=UNDECIDABLE/192  fast=INCONSISTENT/192  auto_qr=INCONSISTENT/192]
+  [ok] gap 1e-10 800x192 d1 consistent: 0 decided verdicts agree  [router=UNDECIDABLE/191  global_qr=UNDECIDABLE/191  block=UNDECIDABLE/191  fast=UNDECIDABLE/191  auto_qr=UNDECIDABLE/191]
+  [ok] gap 1e-10 800x192 d1 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/191  global_qr=UNDECIDABLE/191  block=UNDECIDABLE/191  fast=UNDECIDABLE/191  auto_qr=UNDECIDABLE/191]
+  [ok] gap 1e-13 800x192 d1 consistent: 5 decided verdicts agree  [router=INFINITE/191  global_qr=INFINITE/191  block=INFINITE/191  fast=INFINITE/191  auto_qr=INFINITE/191]
+  [ok] gap 1e-13 800x192 d1 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/191  global_qr=UNDECIDABLE/191  block=UNDECIDABLE/191  fast=INCONSISTENT/191  auto_qr=INCONSISTENT/191]
+  [ok] gap 0e+00 800x192 d1 consistent: 5 decided verdicts agree  [router=INFINITE/191  global_qr=INFINITE/191  block=INFINITE/191  fast=INFINITE/191  auto_qr=INFINITE/191]
+  [ok] gap 0e+00 800x192 d1 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/191  global_qr=UNDECIDABLE/191  block=UNDECIDABLE/191  fast=INCONSISTENT/191  auto_qr=INCONSISTENT/191]
+  [ok] cond 1e+01 300x64 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+01 300x64 d2 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/64  global_qr=UNDECIDABLE/64  block=INCONSISTENT/64  fast=INCONSISTENT/64  auto_qr=INCONSISTENT/64]
+  [ok] cond 1e+03 300x64 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+03 300x64 d2 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/64  global_qr=UNDECIDABLE/64  block=INCONSISTENT/64  fast=INCONSISTENT/64  auto_qr=INCONSISTENT/64]
+  [ok] cond 1e+06 300x64 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+06 300x64 d2 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/64  global_qr=UNDECIDABLE/64  block=UNDECIDABLE/64  fast=INCONSISTENT/64  auto_qr=INCONSISTENT/64]
+  [ok] gap 1e-10 300x64 d2 consistent: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+  [ok] gap 1e-10 300x64 d2 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+  [ok] gap 1e-13 300x64 d2 consistent: 5 decided verdicts agree  [router=INFINITE/63  global_qr=INFINITE/63  block=INFINITE/63  fast=INFINITE/63  auto_qr=INFINITE/63]
+  [ok] gap 1e-13 300x64 d2 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+  [ok] gap 0e+00 300x64 d2 consistent: 5 decided verdicts agree  [router=INFINITE/63  global_qr=INFINITE/63  block=INFINITE/63  fast=INFINITE/63  auto_qr=INFINITE/63]
+  [ok] gap 0e+00 300x64 d2 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=INCONSISTENT/63  auto_qr=INCONSISTENT/63]
+  [ok] cond 1e+01 200x200 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+  [ok] cond 1e+01 200x200 d2 contradictory: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+  [ok] cond 1e+03 200x200 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+  [ok] cond 1e+03 200x200 d2 contradictory: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+  [ok] cond 1e+06 200x200 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+  [ok] cond 1e+06 200x200 d2 contradictory: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+  [ok] gap 1e-10 200x200 d2 consistent: 0 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNDECIDABLE/199  block=UNDECIDABLE/199  fast=UNDECIDABLE/199  auto_qr=UNDECIDABLE/199]
+  [ok] gap 1e-10 200x200 d2 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNDECIDABLE/199  block=UNDECIDABLE/199  fast=UNDECIDABLE/199  auto_qr=UNDECIDABLE/199]
+  [ok] gap 1e-13 200x200 d2 consistent: 2 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNDECIDABLE/199  block=UNDECIDABLE/199  fast=INFINITE/199  auto_qr=INFINITE/199]
+  [ok] gap 1e-13 200x200 d2 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNDECIDABLE/199  block=UNDECIDABLE/199  fast=UNDECIDABLE/199  auto_qr=UNDECIDABLE/199]
+  [ok] gap 0e+00 200x200 d2 consistent: 5 decided verdicts agree  [router=INFINITE/199  global_qr=INFINITE/199  block=INFINITE/199  fast=INFINITE/199  auto_qr=INFINITE/199]
+  [ok] gap 0e+00 200x200 d2 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/199  global_qr=INCONSISTENT/199  block=UNDECIDABLE/199  fast=INCONSISTENT/199  auto_qr=INCONSISTENT/199]
+  [ok] cond 1e+01 64x64 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+01 64x64 d2 contradictory: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+03 64x64 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+03 64x64 d2 contradictory: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+06 64x64 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+06 64x64 d2 contradictory: 4 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNDECIDABLE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] gap 1e-10 64x64 d2 consistent: 4 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNDECIDABLE/63  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] gap 1e-10 64x64 d2 contradictory: 4 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNDECIDABLE/63  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] gap 1e-13 64x64 d2 consistent: 3 decided verdicts agree  [router=INFINITE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=INFINITE/63  auto_qr=INFINITE/63]
+  [ok] gap 1e-13 64x64 d2 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+  [ok] gap 0e+00 64x64 d2 consistent: 5 decided verdicts agree  [router=INFINITE/63  global_qr=INFINITE/63  block=INFINITE/63  fast=INFINITE/63  auto_qr=INFINITE/63]
+  [ok] gap 0e+00 64x64 d2 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/63  global_qr=INCONSISTENT/63  block=UNDECIDABLE/63  fast=INCONSISTENT/63  auto_qr=INCONSISTENT/63]
+  [ok] cond 1e+01 800x192 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/192  global_qr=UNIQUE/192  block=UNIQUE/192  fast=UNIQUE/192  auto_qr=UNIQUE/192]
+  [ok] cond 1e+01 800x192 d2 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/192  global_qr=UNDECIDABLE/192  block=INCONSISTENT/192  fast=INCONSISTENT/192  auto_qr=INCONSISTENT/192]
+  [ok] cond 1e+03 800x192 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/192  global_qr=UNIQUE/192  block=UNIQUE/192  fast=UNIQUE/192  auto_qr=UNIQUE/192]
+  [ok] cond 1e+03 800x192 d2 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/192  global_qr=UNDECIDABLE/192  block=INCONSISTENT/192  fast=INCONSISTENT/192  auto_qr=INCONSISTENT/192]
+  [ok] cond 1e+06 800x192 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/192  global_qr=UNIQUE/192  block=UNIQUE/192  fast=UNIQUE/192  auto_qr=UNIQUE/192]
+  [ok] cond 1e+06 800x192 d2 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/192  global_qr=UNDECIDABLE/192  block=UNDECIDABLE/192  fast=INCONSISTENT/192  auto_qr=INCONSISTENT/192]
+  [ok] gap 1e-10 800x192 d2 consistent: 0 decided verdicts agree  [router=UNDECIDABLE/191  global_qr=UNDECIDABLE/191  block=UNDECIDABLE/191  fast=UNDECIDABLE/191  auto_qr=UNDECIDABLE/191]
+  [ok] gap 1e-10 800x192 d2 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/191  global_qr=UNDECIDABLE/191  block=UNDECIDABLE/191  fast=UNDECIDABLE/191  auto_qr=UNDECIDABLE/191]
+  [ok] gap 1e-13 800x192 d2 consistent: 5 decided verdicts agree  [router=INFINITE/191  global_qr=INFINITE/191  block=INFINITE/191  fast=INFINITE/191  auto_qr=INFINITE/191]
+  [ok] gap 1e-13 800x192 d2 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/191  global_qr=INCONSISTENT/191  block=UNDECIDABLE/191  fast=INCONSISTENT/191  auto_qr=INCONSISTENT/191]
+  [ok] gap 0e+00 800x192 d2 consistent: 5 decided verdicts agree  [router=INFINITE/191  global_qr=INFINITE/191  block=INFINITE/191  fast=INFINITE/191  auto_qr=INFINITE/191]
+  [ok] gap 0e+00 800x192 d2 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/191  global_qr=UNDECIDABLE/191  block=UNDECIDABLE/191  fast=INCONSISTENT/191  auto_qr=INCONSISTENT/191]
+  [ok] cond 1e+01 300x64 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+01 300x64 d3 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/64  global_qr=UNDECIDABLE/64  block=INCONSISTENT/64  fast=INCONSISTENT/64  auto_qr=INCONSISTENT/64]
+  [ok] cond 1e+03 300x64 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+03 300x64 d3 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/64  global_qr=UNDECIDABLE/64  block=INCONSISTENT/64  fast=INCONSISTENT/64  auto_qr=INCONSISTENT/64]
+  [ok] cond 1e+06 300x64 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+06 300x64 d3 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/64  global_qr=UNDECIDABLE/64  block=UNDECIDABLE/64  fast=INCONSISTENT/64  auto_qr=INCONSISTENT/64]
+  [ok] gap 1e-10 300x64 d3 consistent: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+  [ok] gap 1e-10 300x64 d3 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+  [ok] gap 1e-13 300x64 d3 consistent: 4 decided verdicts agree  [router=INFINITE/63  global_qr=INFINITE/63  block=UNDECIDABLE/63  fast=INFINITE/63  auto_qr=INFINITE/63]
+  [ok] gap 1e-13 300x64 d3 contradictory: 2 decided verdicts agree  [router=INCONSISTENT/63  global_qr=INCONSISTENT/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+  [ok] gap 0e+00 300x64 d3 consistent: 5 decided verdicts agree  [router=INFINITE/63  global_qr=INFINITE/63  block=INFINITE/63  fast=INFINITE/63  auto_qr=INFINITE/63]
+  [ok] gap 0e+00 300x64 d3 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=INCONSISTENT/63  auto_qr=INCONSISTENT/63]
+  [ok] cond 1e+01 200x200 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+  [ok] cond 1e+01 200x200 d3 contradictory: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+  [ok] cond 1e+03 200x200 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+  [ok] cond 1e+03 200x200 d3 contradictory: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+  [ok] cond 1e+06 200x200 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+  [ok] cond 1e+06 200x200 d3 contradictory: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+  [ok] gap 1e-10 200x200 d3 consistent: 3 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNIQUE/200  block=UNDECIDABLE/199  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+  [ok] gap 1e-10 200x200 d3 contradictory: 3 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNIQUE/200  block=UNDECIDABLE/199  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+  [ok] gap 1e-13 200x200 d3 consistent: 2 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNDECIDABLE/199  block=UNDECIDABLE/199  fast=INFINITE/199  auto_qr=INFINITE/199]
+  [ok] gap 1e-13 200x200 d3 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNDECIDABLE/199  block=UNDECIDABLE/199  fast=UNDECIDABLE/199  auto_qr=UNDECIDABLE/199]
+  [ok] gap 0e+00 200x200 d3 consistent: 5 decided verdicts agree  [router=INFINITE/199  global_qr=INFINITE/199  block=INFINITE/199  fast=INFINITE/199  auto_qr=INFINITE/199]
+  [ok] gap 0e+00 200x200 d3 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/199  global_qr=INCONSISTENT/199  block=UNDECIDABLE/199  fast=INCONSISTENT/199  auto_qr=INCONSISTENT/199]
+  [ok] cond 1e+01 64x64 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+01 64x64 d3 contradictory: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+03 64x64 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+03 64x64 d3 contradictory: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+06 64x64 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] cond 1e+06 64x64 d3 contradictory: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] gap 1e-10 64x64 d3 consistent: 4 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNDECIDABLE/63  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] gap 1e-10 64x64 d3 contradictory: 4 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNDECIDABLE/63  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+  [ok] gap 1e-13 64x64 d3 consistent: 3 decided verdicts agree  [router=INFINITE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=INFINITE/63  auto_qr=INFINITE/63]
+  [ok] gap 1e-13 64x64 d3 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+  [ok] gap 0e+00 64x64 d3 consistent: 5 decided verdicts agree  [router=INFINITE/63  global_qr=INFINITE/63  block=INFINITE/63  fast=INFINITE/63  auto_qr=INFINITE/63]
+  [ok] gap 0e+00 64x64 d3 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/63  global_qr=INCONSISTENT/63  block=UNDECIDABLE/63  fast=INCONSISTENT/63  auto_qr=INCONSISTENT/63]
+  [ok] cond 1e+01 800x192 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/192  global_qr=UNIQUE/192  block=UNIQUE/192  fast=UNIQUE/192  auto_qr=UNIQUE/192]
+  [ok] cond 1e+01 800x192 d3 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/192  global_qr=UNDECIDABLE/192  block=INCONSISTENT/192  fast=INCONSISTENT/192  auto_qr=INCONSISTENT/192]
+  [ok] cond 1e+03 800x192 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/192  global_qr=UNIQUE/192  block=UNIQUE/192  fast=UNIQUE/192  auto_qr=UNIQUE/192]
+  [ok] cond 1e+03 800x192 d3 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/192  global_qr=UNDECIDABLE/192  block=INCONSISTENT/192  fast=INCONSISTENT/192  auto_qr=INCONSISTENT/192]
+  [ok] cond 1e+06 800x192 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/192  global_qr=UNIQUE/192  block=UNIQUE/192  fast=UNIQUE/192  auto_qr=UNIQUE/192]
+  [ok] cond 1e+06 800x192 d3 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/192  global_qr=UNDECIDABLE/192  block=UNDECIDABLE/192  fast=INCONSISTENT/192  auto_qr=INCONSISTENT/192]
+  [ok] gap 1e-10 800x192 d3 consistent: 0 decided verdicts agree  [router=UNDECIDABLE/191  global_qr=UNDECIDABLE/191  block=UNDECIDABLE/191  fast=UNDECIDABLE/191  auto_qr=UNDECIDABLE/191]
+  [ok] gap 1e-10 800x192 d3 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/191  global_qr=UNDECIDABLE/191  block=UNDECIDABLE/191  fast=UNDECIDABLE/191  auto_qr=UNDECIDABLE/191]
+  [ok] gap 1e-13 800x192 d3 consistent: 4 decided verdicts agree  [router=INFINITE/191  global_qr=INFINITE/191  block=UNDECIDABLE/191  fast=INFINITE/191  auto_qr=INFINITE/191]
+  [ok] gap 1e-13 800x192 d3 contradictory: 1 decided verdicts agree  [router=INCONSISTENT/191  global_qr=UNDECIDABLE/191  block=UNDECIDABLE/191  fast=UNDECIDABLE/191  auto_qr=UNDECIDABLE/191]
+  [ok] gap 0e+00 800x192 d3 consistent: 5 decided verdicts agree  [router=INFINITE/191  global_qr=INFINITE/191  block=INFINITE/191  fast=INFINITE/191  auto_qr=INFINITE/191]
+  [ok] gap 0e+00 800x192 d3 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/191  global_qr=UNDECIDABLE/191  block=UNDECIDABLE/191  fast=INCONSISTENT/191  auto_qr=INCONSISTENT/191]
+  [ok] cond 1e+03 1024x512 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/512  global_qr=UNIQUE/512  block=UNIQUE/512  fast=UNIQUE/512  auto_qr=UNIQUE/512]
+  [ok] cond 1e+03 1024x512 d2 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/512  global_qr=UNDECIDABLE/512  block=INCONSISTENT/512  fast=INCONSISTENT/512  auto_qr=INCONSISTENT/512]
+  [ok] cond 1e+03 1024x512 d9 consistent: 5 decided verdicts agree  [router=UNIQUE/512  global_qr=UNIQUE/512  block=UNIQUE/512  fast=UNIQUE/512  auto_qr=UNIQUE/512]
+  [ok] cond 1e+03 1024x512 d9 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/512  global_qr=UNDECIDABLE/512  block=INCONSISTENT/512  fast=INCONSISTENT/512  auto_qr=INCONSISTENT/512]
+
+148 systems x 5 routes
+ok: no two routes return contradictory decided verdicts, so the measurement that selects a route cannot select a classification
+....................................................
+----------------------------------------------------------------------
+Ran 52 tests in 0.269s
+
+OK
+{
+  "artifact_integrity": {
+    "reasons": [
+      "artifact_not_audited"
+    ],
+    "valid": null
+  },
+  "benchmark_protocol_eligibility": {
+    "eligible": false,
+    "reasons": [
+      "benchmark_protocol_not_audited"
+    ]
+  },
+  "manuscript_claim_coverage": {
+    "complete": true,
+    "reasons": []
+  },
+  "manuscript_publication_readiness": {
+    "ready": false,
+    "reasons": [
+      "benchmark_protocol_not_audited"
+    ]
+  }
+}
+{
+  "artifact_integrity": {
+    "reasons": [],
+    "valid": true
+  },
+  "benchmark_protocol_eligibility": {
+    "eligible": true,
+    "reasons": []
+  },
+  "manuscript_claim_coverage": {
+    "complete": true,
+    "reasons": []
+  },
+  "manuscript_publication_readiness": {
+    "ready": true,
+    "reasons": []
+  }
+}
+{
+  "checks": 8335,
+  "failure_counts_by_severity": {
+    "known-representation": 154
+  },
+  "failure_counts_by_property": {
+    "affine_translation_2^30": 24,
+    "inconsistent_affine_translation_sweep": 130
+  }
+}
+{
+  "checks": 2271,
+  "failure_counts": {},
+  "stats": {
+    "inconsistent_eta_max": 3.804041769527259e-15,
+    "inconsistent_eta_median": 1.0038180773724985e-16,
+    "shadow_ratio_min": 1.0000000000000002,
+    "shadow_ratio_max": 1.234613460327718
+  }
+}
+running pbt_certificate_equivariance ...
+running pbt_equivalence_orbits ...
+
+==============================================================================
+Manuscript claim reproduction
+==============================================================================
+  [ok ] pbt_equivalence_orbits:checks = 8335  (paper: 8335)
+  [ok ] pbt_equivalence_orbits:failure_counts_by_severity.known-representation = 154  (paper: 154)
+  [ok ] pbt_certificate_equivariance:checks = 2271  (paper: 2271)
+  [ok ] pbt_certificate_equivariance:stats.inconsistent_eta_max = 3.804042e-15  (must be <= 1e-14, 0.98x reference)
+  [ok ] pbt_certificate_equivariance:stats.inconsistent_eta_median = 1.003818e-16  (must be <= 1e-15, 1.07x reference)
+  [ok ] pbt_certificate_equivariance:stats.shadow_ratio_min = 1.000000  (paper: within [1.0, 2.0])
+  [ok ] pbt_certificate_equivariance:stats.shadow_ratio_max = 1.234613  (paper: within [1.0, 2.0])
+  [ok ] pbt_certificate_equivariance:failure_counts is empty  (paper: zero failure)
+
+all 8 manuscript claims reproduced

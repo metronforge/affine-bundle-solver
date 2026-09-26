@@ -1,0 +1,179 @@
+Test project /projects/research-assistant/task5-v35-solver-baseline/build-v35-asan
+    Start 9: test_stream_storage_native
+1/1 Test #9: test_stream_storage_native .......Subprocess aborted***Exception:   0.03 sec
+==373349==ERROR: AddressSanitizer: out of memory: failed to allocate 0xb19000 (11636736) bytes of FakeStack (error code: 12)
+==373349==Process memory map follows:
+	0x00007fff7000-0x00008fff7000	
+	0x00008fff7000-0x02008fff7000	
+	0x02008fff7000-0x10007fff8000	
+	0x62dcdb881000-0x62dcdb883000	/projects/research-assistant/task5-v35-solver-baseline/build-v35-asan/abs_stream_storage_native_test
+	0x62dcdb883000-0x62dcdb885000	/projects/research-assistant/task5-v35-solver-baseline/build-v35-asan/abs_stream_storage_native_test
+	0x62dcdb885000-0x62dcdb886000	/projects/research-assistant/task5-v35-solver-baseline/build-v35-asan/abs_stream_storage_native_test
+	0x62dcdb886000-0x62dcdb887000	/projects/research-assistant/task5-v35-solver-baseline/build-v35-asan/abs_stream_storage_native_test
+	0x62dcdb887000-0x62dcdb888000	/projects/research-assistant/task5-v35-solver-baseline/build-v35-asan/abs_stream_storage_native_test
+	0x6e34e2066000-0x6e34eaf23000	
+	0x6e34eaf23000-0x6e34ec726000	
+	0x6e34ec726000-0x6e34ed23f000	
+	0x6e34ed23f000-0x6e34eea42000	
+	0x6e34eea42000-0x6e34f0b8d000	
+	0x6e34f0b8d000-0x6e34f2b91000	
+	0x6e34f2b91000-0x6e34f4cdc000	
+	0x6e34f4cdc000-0x6e34f54dd000	
+	0x6e34f54dd000-0x6e34f5ff6000	
+	0x6e34f5ff6000-0x6e34fb000000	
+	0x6e34fb000000-0x6e35ab000000	
+	0x6e35ab000000-0x6e35ab800000	
+	0x6e35ab800000-0x6e35ab900000	
+	0x6e35aba00000-0x6e35abb00000	
+	0x6e35abc00000-0x6e35abd00000	
+	0x6e35abe00000-0x6e35abf00000	
+	0x6e35ac0e7000-0x6e35acc20000	
+	0x6e35acc20000-0x6e35ad400000	
+	0x6e35ad5de000-0x6e55ad5e0000	
+	0x6e55ad5e0000-0x6e55ad620000	
+	0x6e55ad620000-0x6e63ad5e0000	
+	0x6e63ad5e0000-0x6e63ad620000	
+	0x6e63ad620000-0x6e65ad5e0000	
+	0x6e65ad5e0000-0x6e65ad620000	
+	0x6e65ad620000-0x6e73ad5e0000	
+	0x6e73ad5e0000-0x6e73ad620000	
+	0x6e73ad620000-0x6ea5ad5e0000	
+	0x6ea5ad5e0000-0x6ea5ad620000	
+	0x6ea5ad620000-0x6eb3ad5e0000	
+	0x6eb3ad5e0000-0x6eb3ad620000	
+	0x6eb3ad620000-0x6eb5ad5e0000	
+	0x6eb5ad5e0000-0x6eb5ad620000	
+	0x6eb5ad620000-0x6ec3ad5e0000	
+	0x6ec3ad5e0000-0x6ec3ad620000	
+	0x6ec3ad620000-0x6f15ad5e0000	
+	0x6f15ad5e0000-0x6f15ad6a0000	
+	0x6f15ad6a0000-0x6f23ad5e0000	
+	0x6f23ad5e0000-0x6f23ad620000	
+	0x6f23ad620000-0x6f45ad5e0000	
+	0x6f45ad5e0000-0x6f45ad620000	
+	0x6f45ad620000-0x6f53ad5e0000	
+	0x6f53ad5e0000-0x6f53ad620000	
+	0x6f53ad620000-0x6f75ad5e0000	
+	0x6f75ad5e0000-0x6f75ad620000	
+	0x6f75ad620000-0x6f83ad5e0000	
+	0x6f83ad5e0000-0x6f83ad620000	
+	0x6f83ad620000-0x6f85ad5e0000	
+	0x6f85ad5e0000-0x6f85ad620000	
+	0x6f85ad620000-0x6f93ad5e0000	
+	0x6f93ad5e0000-0x6f93ad620000	
+	0x6f93ad620000-0x6fa5ad5e0000	
+	0x6fa5ad5e0000-0x6fa5ad620000	
+	0x6fa5ad620000-0x6fb3ad5e0000	
+	0x6fb3ad5e0000-0x6fb3ad620000	
+	0x6fb3ad620000-0x6fc5ad5e0000	
+	0x6fc5ad5e0000-0x6fc5ad620000	
+	0x6fc5ad620000-0x6fd3ad5e0000	
+	0x6fd3ad5e0000-0x6fd3ad620000	
+	0x6fd3ad620000-0x7075ad5e0000	
+	0x7075ad5e0000-0x7075ad760000	
+	0x7075ad760000-0x7083ad5e0000	
+	0x7083ad5e0000-0x7083ad620000	
+	0x7083ad620000-0x7145ad5e0000	
+	0x7145ad5e0000-0x7145ad620000	
+	0x7145ad620000-0x7153ad5e0000	
+	0x7153ad5e0000-0x7153ad620000	
+	0x7153ad620000-0x7235ad5e0000	
+	0x7235ad5e0000-0x7235ad5e2000	
+	0x7235ad5e2000-0x7235ad600000	
+	0x7235ad600000-0x7235ad700000	
+	0x7235ad800000-0x7235ad900000	
+	0x7235ada00000-0x7235adb00000	
+	0x7235adbc3000-0x7235add00000	
+	0x7235add09000-0x7235ae200000	
+	0x7235ae200000-0x7235ae221000	/usr/lib/x86_64-linux-gnu/libgfortran.so.5.0.0
+	0x7235ae221000-0x7235ae54a000	/usr/lib/x86_64-linux-gnu/libgfortran.so.5.0.0
+	0x7235ae54a000-0x7235ae57d000	/usr/lib/x86_64-linux-gnu/libgfortran.so.5.0.0
+	0x7235ae57d000-0x7235ae57e000	/usr/lib/x86_64-linux-gnu/libgfortran.so.5.0.0
+	0x7235ae57e000-0x7235ae580000	/usr/lib/x86_64-linux-gnu/libgfortran.so.5.0.0
+	0x7235ae58c000-0x7235ae600000	
+	0x7235ae600000-0x7235ae6a3000	/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.35
+	0x7235ae6a3000-0x7235ae7fe000	/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.35
+	0x7235ae7fe000-0x7235ae88a000	/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.35
+	0x7235ae88a000-0x7235ae899000	/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.35
+	0x7235ae899000-0x7235ae89c000	/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.35
+	0x7235ae89c000-0x7235ae8a0000	
+	0x7235ae8a9000-0x7235ae920000	
+	0x7235ae920000-0x7235aea54000	/usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.32.so
+	0x7235aea54000-0x7235aea65000	/usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.32.so
+	0x7235aea65000-0x7235aea68000	/usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.32.so
+	0x7235aea68000-0x7235b0ce3000	/usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.32.so
+	0x7235b0ce3000-0x7235b0dc1000	/usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.32.so
+	0x7235b0dc1000-0x7235b0dc8000	/usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.32.so
+	0x7235b0dc8000-0x7235b0de6000	/usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.32.so
+	0x7235b0de6000-0x7235b0df8000	
+	0x7235b0dfa000-0x7235b0e00000	
+	0x7235b0e00000-0x7235b0e28000	/usr/lib/x86_64-linux-gnu/libc.so.6
+	0x7235b0e28000-0x7235b0fc0000	/usr/lib/x86_64-linux-gnu/libc.so.6
+	0x7235b0fc0000-0x7235b100e000	/usr/lib/x86_64-linux-gnu/libc.so.6
+	0x7235b100e000-0x7235b1012000	/usr/lib/x86_64-linux-gnu/libc.so.6
+	0x7235b1012000-0x7235b1014000	/usr/lib/x86_64-linux-gnu/libc.so.6
+	0x7235b1014000-0x7235b1022000	
+	0x7235b1022000-0x7235b1200000	
+	0x7235b1200000-0x7235b1207000	/usr/lib/x86_64-linux-gnu/libubsan.so.1.0.0
+	0x7235b1207000-0x7235b125d000	/usr/lib/x86_64-linux-gnu/libubsan.so.1.0.0
+	0x7235b125d000-0x7235b1276000	/usr/lib/x86_64-linux-gnu/libubsan.so.1.0.0
+	0x7235b1276000-0x7235b1278000	/usr/lib/x86_64-linux-gnu/libubsan.so.1.0.0
+	0x7235b1278000-0x7235b127b000	/usr/lib/x86_64-linux-gnu/libubsan.so.1.0.0
+	0x7235b127b000-0x7235b18df000	
+	0x7235b18df000-0x7235b18e5000	/usr/lib/x86_64-linux-gnu/libmvec.so.1
+	0x7235b18e5000-0x7235b1908000	/usr/lib/x86_64-linux-gnu/libmvec.so.1
+	0x7235b1908000-0x7235b19d8000	/usr/lib/x86_64-linux-gnu/libmvec.so.1
+	0x7235b19d8000-0x7235b19d9000	/usr/lib/x86_64-linux-gnu/libmvec.so.1
+	0x7235b19d9000-0x7235b19da000	/usr/lib/x86_64-linux-gnu/libmvec.so.1
+	0x7235b19da000-0x7235b19ec000	/usr/lib/x86_64-linux-gnu/libm.so.6
+	0x7235b19ec000-0x7235b1a8c000	/usr/lib/x86_64-linux-gnu/libm.so.6
+	0x7235b1a8c000-0x7235b1afe000	/usr/lib/x86_64-linux-gnu/libm.so.6
+	0x7235b1afe000-0x7235b1aff000	/usr/lib/x86_64-linux-gnu/libm.so.6
+	0x7235b1aff000-0x7235b1b00000	/usr/lib/x86_64-linux-gnu/libm.so.6
+	0x7235b1b00000-0x7235b1b3d000	/projects/research-assistant/task5-v35-solver-baseline/build-v35-asan/libaffine_bundle_solver.so
+	0x7235b1b3d000-0x7235b1bac000	/projects/research-assistant/task5-v35-solver-baseline/build-v35-asan/libaffine_bundle_solver.so
+	0x7235b1bac000-0x7235b1bb9000	/projects/research-assistant/task5-v35-solver-baseline/build-v35-asan/libaffine_bundle_solver.so
+	0x7235b1bb9000-0x7235b1bba000	/projects/research-assistant/task5-v35-solver-baseline/build-v35-asan/libaffine_bundle_solver.so
+	0x7235b1bba000-0x7235b1c00000	/projects/research-assistant/task5-v35-solver-baseline/build-v35-asan/libaffine_bundle_solver.so
+	0x7235b1c00000-0x7235b1c38000	/usr/lib/x86_64-linux-gnu/libasan.so.8.0.0
+	0x7235b1c38000-0x7235b1d93000	/usr/lib/x86_64-linux-gnu/libasan.so.8.0.0
+	0x7235b1d93000-0x7235b1dd2000	/usr/lib/x86_64-linux-gnu/libasan.so.8.0.0
+	0x7235b1dd2000-0x7235b1dd6000	/usr/lib/x86_64-linux-gnu/libasan.so.8.0.0
+	0x7235b1dd6000-0x7235b1dda000	/usr/lib/x86_64-linux-gnu/libasan.so.8.0.0
+	0x7235b1dda000-0x7235b2310000	
+	0x7235b2310000-0x7235b2349000	
+	0x7235b2349000-0x7235b2354000	/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+	0x7235b2354000-0x7235b2396000	/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+	0x7235b2396000-0x7235b23a6000	/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+	0x7235b23a6000-0x7235b23a7000	/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+	0x7235b23a7000-0x7235b23a8000	/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+	0x7235b23a8000-0x7235b23ac000	/usr/lib/x86_64-linux-gnu/libgcc_s.so.1
+	0x7235b23ac000-0x7235b23d0000	/usr/lib/x86_64-linux-gnu/libgcc_s.so.1
+	0x7235b23d0000-0x7235b23d4000	/usr/lib/x86_64-linux-gnu/libgcc_s.so.1
+	0x7235b23d4000-0x7235b23d5000	/usr/lib/x86_64-linux-gnu/libgcc_s.so.1
+	0x7235b23d5000-0x7235b23d6000	/usr/lib/x86_64-linux-gnu/libgcc_s.so.1
+	0x7235b23d6000-0x7235b23dc000	
+	0x7235b23dc000-0x7235b23f8000	
+	0x7235b23f8000-0x7235b23fc000	[vvar]
+	0x7235b23fc000-0x7235b23fe000	[vvar_vclock]
+	0x7235b23fe000-0x7235b2400000	[vdso]
+	0x7235b2400000-0x7235b2401000	/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+	0x7235b2401000-0x7235b2430000	/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+	0x7235b2430000-0x7235b243b000	/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+	0x7235b243b000-0x7235b243d000	/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+	0x7235b243d000-0x7235b243e000	/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+	0x7235b243e000-0x7235b243f000	
+	0x7ffd092eb000-0x7ffd0930d000	[stack]
+	0xffffffffff600000-0xffffffffff601000	[vsyscall]
+==373349==End of process memory map.
+AddressSanitizer: CHECK failed: sanitizer_common.cpp:61 "((0 && "unable to mmap")) != (0)" (0x0, 0x0) (tid=373358)
+ERROR: Failed to mmap
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.03 sec
+
+The following tests FAILED:
+	  9 - test_stream_storage_native (Subprocess aborted)
+Errors while running CTest
