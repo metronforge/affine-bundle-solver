@@ -250,6 +250,7 @@ int bs_verify_unique(const double *A, const double *b, int m, int n,
 
     int old = fegetround();
     double xn_up = norm_up(w->x, n), best = 0.0;
+    int xn_finite = isfinite(xn_up);
     /* ehi and elo hold the upward and downward bounds of scale*(LU)[lr,:]-a_i;
        evec is the pass accumulator and then the entrywise |error| bound. */
     double *ehi = (double *)malloc((size_t)n*sizeof(double));
@@ -261,13 +262,18 @@ int bs_verify_unique(const double *A, const double *b, int m, int n,
         double da_up = 0.0;
         int ks = pos[i];
         if (ks >= 0) {
+            int row_finite = 1;
             int lr = w->perm[ks];
             const double *arow = A + (size_t)i*n;
             fesetround(FE_DOWNWARD);
             unique_row_pass(w->packed_lu, n, lr, w->scale[ks], arow, evec, elo);
             fesetround(FE_UPWARD);
             unique_row_pass(w->packed_lu, n, lr, w->scale[ks], arow, evec, ehi);
-            for (int j = 0; j < n; ++j) evec[j] = fmax(fabs(elo[j]), fabs(ehi[j]));
+            for (int j = 0; j < n; ++j) {
+                evec[j] = fmax(fabs(elo[j]), fabs(ehi[j]));
+                if (!isfinite(elo[j]) || !isfinite(ehi[j]) || !isfinite(evec[j]))
+                    row_finite = 0;
+            }
 #ifdef ABS_TEST_UNIQUE_ROW_HOOK
             /* Test-only observation point (never compiled into installed
                libraries): exposes each reconstructed row to the row-level
@@ -276,16 +282,32 @@ int bs_verify_unique(const double *A, const double *b, int m, int n,
                                                  const double *hi, const double *err);
             abs_test_unique_row_hook(i, n, elo, ehi, evec);
 #endif
-            da_up = norm_up(evec, n);
+            da_up = row_finite ? norm_up(evec, n) : INFINITY;
         }
         double res_up = residual_abs_up(A+(size_t)i*n, b[i], w->x, n);
+        if (!xn_finite || !isfinite(da_up) || !isfinite(res_up)) {
+            best = INFINITY;
+            continue;
+        }
         fesetround(FE_UPWARD);
         double db_up = res_up + da_up*xn_up;
+        if (!isfinite(db_up)) {
+            best = INFINITY;
+            continue;
+        }
         double pert = hypot_up(da_up, db_up);
         double src = norm_aug_lower(A+(size_t)i*n, b[i], n);
+        if (!isfinite(pert) || !isfinite(src)) {
+            best = INFINITY;
+            continue;
+        }
         double q;
         if (src == 0.0) q = (pert == 0.0 ? 0.0 : INFINITY);
         else { fesetround(FE_UPWARD); q = pert/src; }
+        if (!isfinite(q)) {
+            best = INFINITY;
+            continue;
+        }
         if (q > best) best = q;
     }
     free(pos); free(ehi); free(elo); free(evec); fesetround(old);

@@ -25,6 +25,7 @@
 #include "affine_bundle/status_certificate.h"
 
 #include <fenv.h>
+#include <float.h>
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -112,6 +113,57 @@ static double draw(int cls) {
 static long n_calls, n_rows, n_entries, n_zero_sign_only, n_failures;
 
 static int same_bits(double a, double b) { return memcmp(&a, &b, sizeof a) == 0; }
+
+static void expect_nonfinite_bound_rejected(const char *name,
+                                            const double *A, const double *b,
+                                            int m, int n,
+                                            const BSUniqueWitness *w) {
+    int row_index[2];
+    double lo[4], hi[4], err[4];
+    hook_rows = 0;
+    hook_n = n;
+    hook_row_index = row_index;
+    hook_lo = lo;
+    hook_hi = hi;
+    hook_err = err;
+
+    int saved = fegetround();
+    double eta = 0.0;
+    fesetround(FE_TOWARDZERO);
+    int rc = bs_verify_unique(A, b, m, n, w, &eta);
+    int after = fegetround();
+    fesetround(saved);
+
+    if (rc != 7 || !isinf(eta) || eta < 0.0) {
+        ++n_failures;
+        fprintf(stderr, "[%s] non-finite derived bound accepted: rc=%d eta=%.17g\n",
+                name, rc, eta);
+    }
+    if (after != FE_TOWARDZERO) {
+        ++n_failures;
+        fprintf(stderr, "[%s] rounding mode not restored\n", name);
+    }
+}
+
+static void test_nonfinite_derived_bounds_fail_closed(void) {
+    {
+        const double A[] = {1.0}, b[] = {0.0};
+        int idx[] = {0}, perm[] = {0};
+        double scale[] = {DBL_MAX}, packed_lu[] = {2.0}, x[] = {0.0};
+        BSUniqueWitness w = {1, 1, idx, scale, perm, packed_lu, x};
+        expect_nonfinite_bound_rejected("reconstruction-overflow", A, b, 1, 1, &w);
+    }
+    {
+        const double A[] = {1.0, 0.0, 0.0, 1.0};
+        const double b[] = {DBL_MAX, DBL_MAX};
+        int idx[] = {0, 1}, perm[] = {0, 1};
+        double scale[] = {1.0, 1.0};
+        double packed_lu[] = {1.0, 0.0, 0.0, 1.0};
+        double x[] = {DBL_MAX, DBL_MAX};
+        BSUniqueWitness w = {2, 2, idx, scale, perm, packed_lu, x};
+        expect_nonfinite_bound_rejected("solution-norm-overflow", A, b, 2, 2, &w);
+    }
+}
 
 static void run_case(int cls, int m, int n) {
     double *A = malloc(sizeof(double)*(size_t)m*n), *b = malloc(sizeof(double)*(size_t)m);
@@ -208,6 +260,7 @@ static void run_case(int cls, int m, int n) {
 }
 
 int main(void) {
+    test_nonfinite_derived_bounds_fail_closed();
     for (int t = 0; t < 480; ++t) {
         int n = 1 + (int)(next_u64() % 24), m = n + (int)(next_u64() % 8);
         run_case(t % CLS_COUNT, m, n);
