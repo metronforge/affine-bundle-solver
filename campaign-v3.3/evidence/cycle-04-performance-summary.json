@@ -1,0 +1,45 @@
+{
+  "campaign_id": "task5-v3.3-reusable-qrcp-20260926",
+  "cycle": 4,
+  "official_trials_per_path_per_slot": 5,
+  "excluded_warmups_per_path_per_slot": 1,
+  "solver_control": "f66cd87a7b198497cc53d63b2bb04b85c3e64f53",
+  "solver_candidate": "1621d104a27eef3b12ec291384cac5f517da79f4",
+  "candidate_tree": "86dd1f677664160e40de72c0121e72fa5e54a83b",
+  "qrcp_counts": {
+    "target_domain_before": 258,
+    "target_domain_after": 2,
+    "full_call_before": 262,
+    "full_call_after": 6
+  },
+  "slots": [
+    {"slot_id":"V31-025","control_median_ns":99656336,"candidate_median_ns":83643546,"speedup":1.1914408315496332,"control_cv":0.27721432144791464,"candidate_cv":0.07567465738561462,"rss_ratio":0.9982146045349045},
+    {"slot_id":"V31-026","control_median_ns":166435522,"candidate_median_ns":164321868,"speedup":1.0128628893142817,"control_cv":0.07785281301664486,"candidate_cv":0.09766818126833349,"rss_ratio":0.993371771008308},
+    {"slot_id":"V31-027","control_median_ns":285705415,"candidate_median_ns":112473890,"speedup":2.540193239515411,"control_cv":0.03851155900085265,"candidate_cv":0.08694599167435406,"rss_ratio":0.9949897517649738}
+  ],
+  "geometric_mean_speedup": 1.4526577258405202,
+  "correctness_pairs": 15,
+  "meaningful_mismatches": 0,
+  "candidate_router_execution_values": [1],
+  "thermal": {"eligible": true,"throttling_observed": false,"max_temperature_millic":58050,"sampled_frequency_khz_min":400000,"sampled_frequency_khz_max":2507598},
+  "pre_gate": {"geometric_mean_at_least_1_5":false,"no_slot_more_than_10_percent_slower":true,"semantic_agreement":true,"one_router_execution":true,"rss_within_10_percent":true,"thermally_eligible":true,"passed":false},
+  "residual_v31_027_profile": {
+    "method": "monotonic LD_PRELOAD interposition; profiler-attached and excluded from official timing",
+    "instrumented_total_median_ns": 101679730,
+    "api_median_ns": 72696424,
+    "router_median_ns": 12604795,
+    "witness_generation_median_ns": 25121961,
+    "verification_median_ns": 20440949,
+    "hotspots": [
+      {"function":"dgeqp3_","calls":6,"inclusive_median_ns":17327158,"share":0.17040916611403276},
+      {"function":"dgelsy_","calls":4,"inclusive_median_ns":12978943,"share":0.12764533304720616},
+      {"function":"dgesvd_","calls":2,"inclusive_median_ns":7480893,"share":0.07357310055799715},
+      {"function":"dormqr_","calls":133,"inclusive_median_ns":3006201,"share":0.029565391253497626}
+    ],
+    "preferred_perf_result": "unavailable: perf_event_paranoid=4",
+    "instrumented_to_uninstrumented_ratio": 0.904029637456302
+  },
+  "canonical_campaign_started": false,
+  "canonical_campaign_reason": "frozen three-slot geometric-mean speedup was below 1.5x",
+  "decision": "CORRECT_OPTIMIZATION_TARGET_NOT_MET"
+}

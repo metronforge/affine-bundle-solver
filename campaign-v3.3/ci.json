@@ -1,0 +1,20 @@
+{
+  "pull_request": 46,
+  "url": "https://github.com/metronforge/affine-bundle-solver/pull/46",
+  "head": "87b239745f38514286a7a9d29f11b1a59f5b8245",
+  "actions_run": "https://github.com/metronforge/affine-bundle-solver/actions/runs/36234297268",
+  "all_passed": true,
+  "checks": [
+    "gcc / portable",
+    "gcc / native",
+    "clang / portable",
+    "ASan + UBSan / native-leaks",
+    "ASan + UBSan / stream-enomem",
+    "ASan + UBSan / python-semantics",
+    "cmake, system BLAS, install and consume",
+    "verified release candidate",
+    "portable vs native agree",
+    "classification does not depend on the BLAS",
+    "verification gate"
+  ]
+}

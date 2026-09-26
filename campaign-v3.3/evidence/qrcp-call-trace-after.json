@@ -1,0 +1,10 @@
+{
+  "campaign_id": "task5-v3.3-reusable-qrcp-20260926",
+  "solver_commit": "1621d104a27eef3b12ec291384cac5f517da79f4",
+  "solver_tree": "86dd1f677664160e40de72c0121e72fa5e54a83b",
+  "slot_id": "V31-027",
+  "command": "TASK5_SOLVER_LIB=/projects/research-assistant/task5-solver-v33-merged/build-v33-final/libcertified_solver.so OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 MKL_NUM_THREADS=4 BLIS_NUM_THREADS=4 NUMEXPR_NUM_THREADS=4 LD_PRELOAD=/projects/research-assistant/task5-v33-reusable-qrcp/campaign-v3.3/build/qrcp-trace/libtask5v33_qrcp_input_trace.so python -m task5v32.native_trial --slot V31-027",
+  "raw_trace": "QRCP_INPUT_TRACE m=256 n=128 lda=256 storage=column-major calls=2 query=1 execute=1 unique_hashes=1 jpvt_seed_zero=1 hashes=ae484947e5ef1103",
+  "parsed": {"m":256,"n":128,"lda":256,"storage":"column-major","calls":2,"query":1,"execute":1,"unique_hashes":1,"jpvt_seed_zero":1,"hashes":["ae484947e5ef1103"]},
+  "failed_probe_retained": "The first invocation referenced the not-yet-built tracer shared object; ld.so rejected LD_PRELOAD and the run was excluded. The tracer was then built from committed source and the successful trace above was retained."
+}

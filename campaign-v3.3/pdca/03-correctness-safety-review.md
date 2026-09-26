@@ -31,4 +31,4 @@ The independent exact-head review reported zero Critical, Important, or Minor fi
 
 ## ACT
 
-Accept locally and enter the solver merge gate. Push the reviewed head, require all exact-head CI jobs to pass, fetch and revalidate the base immediately before a squash merge, and bind Cycle 4 only to the verified immutable squash commit. No official performance timing is authorized before that sequence completes.
+Accept. PR #46 ran eleven exact-head jobs successfully and was squash-merged once as `1621d104a27eef3b12ec291384cac5f517da79f4`. The merge has exactly one parent (`f66cd87a7b198497cc53d63b2bb04b85c3e64f53`), the Conventional Commit title `perf: reuse QRCP in tall inconsistent-witness scan (#46)`, and tree `86dd1f677664160e40de72c0121e72fa5e54a83b`, exactly matching the reviewed head. Cycle 4 is bound only to a fresh build of this immutable merge commit.

@@ -1,0 +1,29 @@
+{
+  "campaign_id": "task5-v3.3-reusable-qrcp-20260926",
+  "solver": {
+    "control_commit": "f66cd87a7b198497cc53d63b2bb04b85c3e64f53",
+    "control_tree": "4173cef889e0f1ec3ef60bc8aeadad26937a1711",
+    "reviewed_head": "87b239745f38514286a7a9d29f11b1a59f5b8245",
+    "merge_commit": "1621d104a27eef3b12ec291384cac5f517da79f4",
+    "merge_parent": "f66cd87a7b198497cc53d63b2bb04b85c3e64f53",
+    "merge_parent_count": 1,
+    "merge_tree": "86dd1f677664160e40de72c0121e72fa5e54a83b",
+    "branch": "perf/task5-v3.3-reusable-qrcp",
+    "pull_request": "https://github.com/metronforge/affine-bundle-solver/pull/46"
+  },
+  "harness": {
+    "branch": "perf/task5-v3.3-reusable-qrcp-validation",
+    "design_baseline": "1827f2d458bcf55b0ade81a1174d1fa2ceb9d9ad",
+    "campaign_baseline": "4e2a6a0183dac1201e99ca083e6a67c45716c4c2",
+    "differential_harness_commit": "6964f5d3aa8aa77741fc9f563d17913a5f3bffbc",
+    "evidence_source_commit": "91ba4963380f5592f0856ed640113e6d57110c00"
+  },
+  "artifacts": {
+    "manifest_sha256": "d14f3a6daa4bdc16dd9a3d2f458a5a0aa8ce01b3f7d52b8f01785a5dafedaf4e",
+    "control_library_sha256": "3e44f86e3a4bdf6418e9b343fabb63142329f7997221745c24687ce2328f6535",
+    "candidate_library_sha256": "4a4f54b7bcc985cd144b4b2d9deff464b1f04977527020dbfb5c77b5d3fea7e6"
+  },
+  "thread_count": 4,
+  "canonical_campaign_started": false,
+  "terminal_verdict": "CORRECT_OPTIMIZATION_TARGET_NOT_MET"
+}

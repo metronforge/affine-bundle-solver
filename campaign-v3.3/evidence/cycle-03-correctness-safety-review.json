@@ -34,5 +34,15 @@
     {"probe": "local clang build", "reason": "clang executable unavailable", "safe_alternative": "exact-head GitHub CI clang/portable"},
     {"probe": "installed consumer from sanitized build cwd", "reason": "trailing-empty LD_LIBRARY_PATH resolved local sanitizer libraries", "safe_alternative": "3/3 passed from /tmp with LD_LIBRARY_PATH unset"}
   ],
-  "act": "accept_pending_exact_head_ci_and_verified_squash_merge"
+  "pull_request": {
+    "number": 46,
+    "url": "https://github.com/metronforge/affine-bundle-solver/pull/46",
+    "exact_head_ci_jobs_passed": 11,
+    "merge_commit": "1621d104a27eef3b12ec291384cac5f517da79f4",
+    "merge_parent": "f66cd87a7b198497cc53d63b2bb04b85c3e64f53",
+    "merge_parent_count": 1,
+    "merge_tree": "86dd1f677664160e40de72c0121e72fa5e54a83b",
+    "reviewed_tree_match": true
+  },
+  "act": "accept_verified_squash_merge"
 }
