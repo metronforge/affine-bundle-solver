@@ -7,6 +7,18 @@
 #include <sys/resource.h>
 #include <unistd.h>
 
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((noinline))
+#endif
+static void warm_fake_stack(void)
+{
+    static volatile unsigned char *escaped;
+    volatile unsigned char probe[32] = {0};
+    escaped = probe;
+    probe[0] = 1;
+    if (probe[0] != 1) abort();
+}
+
 static int virtual_bytes(rlim_t *bytes)
 {
     unsigned long long pages;
@@ -32,6 +44,10 @@ int main(void)
 
     if (!row) goto done;
     row[0] = 1.0;
+    /* ASan creates its FakeStack lazily.  Force that runtime allocation
+       before RLIMIT_AS is lowered so the limit targets the solver allocation,
+       not sanitizer bookkeeping. */
+    warm_fake_stack();
     stream = abs_stream_create(n);
     if (!stream || getrlimit(RLIMIT_AS, &original) || !virtual_bytes(&used)) goto done;
     if (used > RLIM_INFINITY - 1024 * 1024) goto done;
