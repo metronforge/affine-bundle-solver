@@ -35,8 +35,14 @@ extern void bsolve_router_meta_api(const double*,const double*,const double*,int
 extern void dgelsy_(int*,int*,int*,double*,int*,double*,int*,int*,double*,int*,double*,int*,int*);
 extern void dgeqp3_(int*,int*,double*,int*,int*,double*,double*,int*,int*);
 extern void dgesvd_(char*,char*,int*,int*,double*,int*,double*,double*,int*,double*,int*,double*,int*,int*);
+extern void dgesdd_(char*,int*,int*,double*,int*,double*,double*,int*,double*,int*,double*,int*,int*,int*);
 extern void dgeqrf_(int*,int*,double*,int*,double*,double*,int*,int*);
 extern void dormqr_(char*,char*,int*,int*,int*,double*,int*,double*,double*,int*,double*,int*,int*);
+
+#ifdef ABS_TEST_INFINITE_FASTPATH_HOOK
+extern void abs_test_infinite_fastpath_hook(int);
+extern int abs_test_infinite_force_qrcp_reject(void);
+#endif
 
 static double row_norm(const double *a, int n) {
     long double s = 0.0L;
@@ -242,6 +248,83 @@ static int smallest_right_vector(const double *A,int m,int n,double *z) {
     free(Ac);free(s);free(VT);free(work);return info?5:0;
 }
 
+/* DGESDD is an untrusted candidate generator.  The strict infinite verifier
+   remains the sole acceptance authority.  For m >= n, JOBZ='O' avoids a
+   separate U allocation; VT remains n-by-n and is addressed through LDVT.
+   A wide fallback needs JOBZ='A' because a right null vector may lie beyond
+   the first m right singular rows. */
+static int smallest_right_vector_dgesdd(const double *A,int m,int n,double *z) {
+    if(n<=0)return 1;
+    if(m==0){for(int j=0;j<n;j++)z[j]=(j==0?1.0:0.0);return 0;}
+    int M=m,N=n,LDA=m,K=(m<n?m:n),LDVT=n,info=0,lwork=-1;
+    char job=(m>=n?'O':'A');
+    int LDU=(job=='A'?m:1);
+    double *Ac=(double*)malloc((size_t)m*n*sizeof(double));
+    double *s=(double*)malloc((size_t)K*sizeof(double));
+    double *U=(job=='A'?(double*)malloc((size_t)m*m*sizeof(double)):NULL);
+    double *VT=(double*)malloc((size_t)n*n*sizeof(double));
+    int *iwork=(int*)malloc((size_t)8*K*sizeof(int));
+    double udummy=0.0,wq=0.0;
+    if(!Ac||!s||(job=='A'&&!U)||!VT||!iwork){free(Ac);free(s);free(U);free(VT);free(iwork);return 2;}
+    for(int j=0;j<n;j++)for(int i=0;i<m;i++)Ac[i+(size_t)j*m]=A[(size_t)i*n+j];
+    dgesdd_(&job,&M,&N,Ac,&LDA,s,(U?U:&udummy),&LDU,VT,&LDVT,&wq,&lwork,iwork,&info);
+    if(info){free(Ac);free(s);free(U);free(VT);free(iwork);return 3;}
+    lwork=(int)wq;if(lwork<1)lwork=1;
+    double *work=(double*)malloc((size_t)lwork*sizeof(double));
+    if(!work){free(Ac);free(s);free(U);free(VT);free(iwork);return 4;}
+    for(int j=0;j<n;j++)for(int i=0;i<m;i++)Ac[i+(size_t)j*m]=A[(size_t)i*n+j];
+    dgesdd_(&job,&M,&N,Ac,&LDA,s,(U?U:&udummy),&LDU,VT,&LDVT,work,&lwork,iwork,&info);
+    if(!info)for(int j=0;j<n;j++)z[j]=VT[(n-1)+(size_t)j*LDVT];
+    free(Ac);free(s);free(U);free(VT);free(iwork);free(work);return info?5:0;
+}
+
+/* Deterministic QRCP proposal only.  The cutoff controls candidate
+   availability, not a public rank decision; the verifier checks the witness
+   independently before any INFINITE proof is accepted. */
+static int right_null_vector_qrcp(const double *A,int m,int n,double *z) {
+    if(n<=0)return 1;
+    if(m==0){for(int j=0;j<n;j++)z[j]=(j==0?1.0:0.0);return 0;}
+    int M=m,N=n,LDA=m,K=(m<n?m:n),info=0,lwork=-1;
+    double *Ac=(double*)malloc((size_t)m*n*sizeof(double));
+    double *tau=(double*)malloc((size_t)K*sizeof(double));
+    double *zp=(double*)calloc((size_t)n,sizeof(double));
+    int *jpvt=(int*)calloc((size_t)n,sizeof(int));
+    double wq=0.0;
+    if(!Ac||!tau||!zp||!jpvt){free(Ac);free(tau);free(zp);free(jpvt);return 2;}
+    for(int j=0;j<n;j++)for(int i=0;i<m;i++)Ac[i+(size_t)j*m]=A[(size_t)i*n+j];
+    dgeqp3_(&M,&N,Ac,&LDA,jpvt,tau,&wq,&lwork,&info);
+    if(info){free(Ac);free(tau);free(zp);free(jpvt);return 3;}
+    lwork=(int)wq;if(lwork<1)lwork=1;
+    double *work=(double*)malloc((size_t)lwork*sizeof(double));
+    if(!work){free(Ac);free(tau);free(zp);free(jpvt);return 4;}
+    memset(jpvt,0,(size_t)n*sizeof(int));
+    for(int j=0;j<n;j++)for(int i=0;i<m;i++)Ac[i+(size_t)j*m]=A[(size_t)i*n+j];
+    dgeqp3_(&M,&N,Ac,&LDA,jpvt,tau,work,&lwork,&info);
+    free(work);free(tau);
+    if(info){free(Ac);free(zp);free(jpvt);return 5;}
+    double lead=K>0?fabs(Ac[0]):0.0,tol=1e-12*lead;
+    int r=0;while(r<K&&fabs(Ac[r+(size_t)r*m])>tol)r++;
+    if(r>=n){free(Ac);free(zp);free(jpvt);return 6;}
+    zp[r]=1.0;
+    for(int i=r-1;i>=0;i--){
+        long double sum=-(long double)Ac[i+(size_t)r*m];
+        for(int j=i+1;j<r;j++)sum-=(long double)Ac[i+(size_t)j*m]*(long double)zp[j];
+        double d=Ac[i+(size_t)i*m];
+        if(d==0.0){free(Ac);free(zp);free(jpvt);return 7;}
+        zp[i]=(double)(sum/(long double)d);
+    }
+    long double zn2=0.0L;
+    for(int j=0;j<n;j++){
+        int original=jpvt[j]-1;
+        if(original<0||original>=n){free(Ac);free(zp);free(jpvt);return 8;}
+        z[original]=zp[j];zn2+=(long double)zp[j]*zp[j];
+    }
+    if(!(zn2>0.0L)){free(Ac);free(zp);free(jpvt);return 9;}
+    long double inv=1.0L/sqrtl(zn2);
+    for(int j=0;j<n;j++)z[j]=(double)((long double)z[j]*inv);
+    free(Ac);free(zp);free(jpvt);return 0;
+}
+
 int bs_generate_infinite_witness(const double *A,const double *b,int m,int n,BSInfiniteWitness *w) {
     if(!A||!b||!w||m<0||n<=0||!finite_array(A,(size_t)m*n)||!finite_array(b,(size_t)m))return 1;
     memset(w,0,sizeof(*w));w->n=n;w->x=(double*)malloc((size_t)n*sizeof(double));w->z=(double*)malloc((size_t)n*sizeof(double));
@@ -264,6 +347,27 @@ static int infinite_witness_from_x(const double *A,const double *b,int m,int n,
     memcpy(w->x,x,(size_t)n*sizeof(double));
     if(smallest_right_vector(A,m,n,w->z)){bs_infinite_witness_free(w);return 4;}
     return 0;
+}
+
+/* Private combined-audit constructor.  It preserves the public standalone
+   DGESVD generator while allowing the combined path to reuse UNIQUE's x. */
+static int infinite_witness_prepare(const double *A,const double *b,int m,int n,
+                                    const double *x,BSInfiniteWitness *w) {
+    if(!A||!b||!w||m<0||n<=0||!finite_array(A,(size_t)m*n)||!finite_array(b,(size_t)m))return 1;
+    memset(w,0,sizeof(*w));w->n=n;
+    w->x=(double*)malloc((size_t)n*sizeof(double));w->z=(double*)malloc((size_t)n*sizeof(double));
+    if(!w->x||!w->z){bs_infinite_witness_free(w);return 2;}
+    if(x)memcpy(w->x,x,(size_t)n*sizeof(double));
+    else {int rank=0;if(least_squares_x(A,b,m,n,w->x,&rank)){bs_infinite_witness_free(w);return 3;}}
+    return 0;
+}
+
+static int infinite_witness_set_qrcp(const double *A,int m,int n,BSInfiniteWitness *w) {
+    return right_null_vector_qrcp(A,m,n,w->z) ? 4 : 0;
+}
+
+static int infinite_witness_set_dgesdd(const double *A,int m,int n,BSInfiniteWitness *w) {
+    return smallest_right_vector_dgesdd(A,m,n,w->z) ? 4 : 0;
 }
 
 /* One QRCP owns the invariant normalized tall matrix throughout the
@@ -444,9 +548,35 @@ static void run_unique_and_infinite_profiles(const double *A,const double *b,int
     if(!grc && !vrc && isfinite(eta)){out->eta_unique=eta;out->accepted_status_mask|=1;}
     {
         BSInfiniteWitness iw={0}; double ieta=INFINITY;
-        int igrc=(!grc ? infinite_witness_from_x(A,b,m,n,w.x,&iw)
-                       : bs_generate_infinite_witness(A,b,m,n,&iw)), ivrc=0;
-        if(!igrc) ivrc=bs_verify_infinite(A,b,m,n,&iw,&ieta);
+        int igrc=infinite_witness_prepare(A,b,m,n,!grc?w.x:NULL,&iw), ivrc=0;
+        if(!igrc){
+#ifdef ABS_TEST_INFINITE_FASTPATH_HOOK
+            abs_test_infinite_fastpath_hook(1);
+#endif
+            igrc=infinite_witness_set_qrcp(A,m,n,&iw);
+            if(!igrc){
+#ifdef ABS_TEST_INFINITE_FASTPATH_HOOK
+                abs_test_infinite_fastpath_hook(2);
+#endif
+                ivrc=bs_verify_infinite(A,b,m,n,&iw,&ieta);
+#ifdef ABS_TEST_INFINITE_FASTPATH_HOOK
+                if(abs_test_infinite_force_qrcp_reject())ivrc=7;
+#endif
+            }
+        }
+        if(igrc||ivrc){
+#ifdef ABS_TEST_INFINITE_FASTPATH_HOOK
+            abs_test_infinite_fastpath_hook(3);
+#endif
+            igrc=infinite_witness_set_dgesdd(A,m,n,&iw);
+            ivrc=0;
+            if(!igrc){
+#ifdef ABS_TEST_INFINITE_FASTPATH_HOOK
+                abs_test_infinite_fastpath_hook(4);
+#endif
+                ieta=INFINITY;ivrc=bs_verify_infinite(A,b,m,n,&iw,&ieta);
+            }
+        }
         bs_infinite_witness_free(&iw);
         out->infinite_generator_code=igrc; out->infinite_verifier_code=ivrc;
         if(!igrc && !ivrc && isfinite(ieta)){out->eta_infinite=ieta;out->accepted_status_mask|=2;}
