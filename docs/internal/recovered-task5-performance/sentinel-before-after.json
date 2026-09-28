@@ -28,7 +28,7 @@
     "grey_total_events": 92
   },
   "N069": {
-    "candidate_combined_ms": 247007.740264,
+    "candidate_combined_ms": 132134.921346,
     "retained_corrected_evidence_combined_ms": 208178.802565,
     "status": "UNDECIDABLE",
     "rank_interval": [3251, 3633],
@@ -36,6 +36,6 @@
     "grey_distinct_count": 64,
     "grey_total_events": 764,
     "router_diagnostics_unchanged": true,
-    "timing_note": "candidate measurement overlapped two unexpected stopped-campaign runner processes; semantic guard passed, but this timing is not used as a regression claim"
+    "timing_note": "the retained clean timing was measured after stopping two unexpected Task-5 runner processes; an earlier contaminated 247007.740264 ms sample is excluded"
   }
 }

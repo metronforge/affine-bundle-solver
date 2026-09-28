@@ -21,4 +21,6 @@ N020 combined time fell from the preserved 1,405.55 seconds to 141.09 seconds
 at the campaign thread configuration.  Its isolated strict UNIQUE verifier is
 bitwise deterministic across 1, 2, 4, 8, and 16 workers, falling from 45.93 to
 7.06 seconds.  The Task-5 runner was not resumed; all 13 pre-freeze checkpoints
-were checksum-validated after stopping two unexpected runner processes.
+were checksum-validated after stopping two unexpected runner processes.  A
+clean N069 rerun took 132.13 seconds (versus 208.18 seconds in retained
+corrected evidence) with identical semantic and diagnostic fields.
