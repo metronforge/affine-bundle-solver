@@ -1,0 +1,41 @@
+{
+  "environment": {"OPENBLAS_NUM_THREADS": "16", "OMP_NUM_THREADS": "16", "ABS_CERT_UNIQUE_THREADS": "16"},
+  "method": "frozen manifest materialization; one bsolve_certified_diag_api call per isolated sentinel; no Task-5 checkpoint write",
+  "N016": {
+    "pre_freeze_current_main_combined_ms": 93191.89257,
+    "candidate_combined_ms": 13338.57787,
+    "speedup": 6.986675,
+    "status": "INFINITE",
+    "rank_interval": [2047, 2048],
+    "accepted_mask": 7
+  },
+  "N020": {
+    "user_observed_current_main_wall_seconds": 1638.6,
+    "preserved_pre_freeze_checkpoint_combined_ms": 1405545.172376,
+    "candidate_combined_ms": 141089.684234,
+    "checkpoint_to_candidate_speedup": 9.961,
+    "status": "INFINITE",
+    "rank_interval": [4095, 4096],
+    "accepted_mask": 7,
+    "strong_target_under_200_seconds": true
+  },
+  "N065": {
+    "candidate_combined_ms": 17938.44075,
+    "status": "UNDECIDABLE",
+    "rank_interval": [1633, 1679],
+    "accepted_mask": 7,
+    "grey_distinct_count": 46,
+    "grey_total_events": 92
+  },
+  "N069": {
+    "candidate_combined_ms": 247007.740264,
+    "retained_corrected_evidence_combined_ms": 208178.802565,
+    "status": "UNDECIDABLE",
+    "rank_interval": [3251, 3633],
+    "accepted_mask": 7,
+    "grey_distinct_count": 64,
+    "grey_total_events": 764,
+    "router_diagnostics_unchanged": true,
+    "timing_note": "candidate measurement overlapped two unexpected stopped-campaign runner processes; semantic guard passed, but this timing is not used as a regression claim"
+  }
+}

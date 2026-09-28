@@ -1,0 +1,14 @@
+{
+  "control": "ABS_CERT_UNIQUE_THREADS",
+  "default": 1,
+  "invalid_values": ["invalid", "0", "-1", "overflow"],
+  "invalid_value_behavior": "deterministic one-worker fallback",
+  "tested_thread_counts": [1, 2, 4, 8, 16],
+  "test_unique_verifier_parallel": "PASS",
+  "test_unique_thread_fenv": "PASS",
+  "N016_eta_unique_bits_identical": true,
+  "N020_eta_unique_bits_identical": true,
+  "caller_rounding_mode_restored": true,
+  "worker_fenv_and_mxcsr_isolation": true,
+  "aggregation": "serial ascending source-row maximum; no OpenMP floating reduction"
+}

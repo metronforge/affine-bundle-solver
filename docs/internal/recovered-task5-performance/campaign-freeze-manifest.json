@@ -1,0 +1,19 @@
+{
+  "baseline_commit": "369c7d1c298ac0fa9ea21ac469c97ced5e53af86",
+  "baseline_tree": "632c6855f8baa4bf66e4f892c822df6c450d50b3",
+  "recovery_branch": "perf/recover-task5-certificate-optimizations",
+  "source_commits": [
+    "bba22d5 perf: parallelize strict unique verification",
+    "dc258c6 perf: accelerate infinite certificate witness generation"
+  ],
+  "solver_library_sha256": "65b9da93b8824cea33731d78a4896c4665d48fbc15a718eba436ef9763221841",
+  "certified_library_sha256": "27f972e7de1e49d207f25f419248a8d84e16f3db639651aab99741784e6e96a2",
+  "strict_verifier_sha256": "f412bf7383f153ae4060c659075d1fec186d74d970319436020032d0693d5dfe",
+  "public_headers": {
+    "status_certificate_h_sha256": "f0e099903c0e90912d28c441449476b17fb5705ff4d4219cf2994ae33e9209ed",
+    "certified_api_h_sha256": "2172d6584e9f3c4518a0d7478ddc70fa8c02a5ea78bf9105d57f24265fa8595b"
+  },
+  "thread_environment": {"OPENBLAS_NUM_THREADS": "16", "OMP_NUM_THREADS": "16", "ABS_CERT_UNIQUE_THREADS": "16"},
+  "task5_pre_freeze_evidence": {"checkpoint_count": 13, "checkpoint_hash_validation": "PASS", "classification": "PRE_FREEZE_CURRENT_MAIN_EVIDENCE"},
+  "manifest_v2_sha256": "2556f0601e7aec95f33b332c69ed90fd189904f1f52d46a212808de00220a575"
+}

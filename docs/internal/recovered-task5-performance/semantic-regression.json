@@ -1,0 +1,14 @@
+{
+  "fast_regression_ctest": {"tests": 37, "result": "PASS"},
+  "task1_transition": "PASS: graph-03 UNDECIDABLE [3,4]",
+  "N049_source_arbitration": "PASS",
+  "dgesvd_vs_current_candidate_semantic_differential": {
+    "cases": 36,
+    "semantic_differences": 0,
+    "eta_diagnostic_only_differences": 33
+  },
+  "equivalence_pbt": {"checks": 8335, "new_hard_failures": 0, "known_representation_observations": 155},
+  "certificate_checks": {"checks": 2271, "failures": 0},
+  "strict_fp": {"rounding_probe": "PASS", "mxcsr_probe": "PASS", "contraction_gate": "PASS"},
+  "public_abi": "PASS: defined export symbol sets unchanged for router, certified, and strict verifier"
+}

@@ -1,0 +1,16 @@
+{
+  "public_standalone_bs_generate_infinite_witness": "unchanged DGESVD behavior",
+  "combined_path": "QRCP candidate -> unchanged strict verifier -> DGESDD candidate only on unavailable/rejected QRCP -> unchanged strict verifier",
+  "test_infinite_fastpath": "PASS",
+  "controls": {
+    "rank_deficient": "QRCP candidate accepted; DGESDD not called",
+    "forced_qrcp_rejection": "DGESDD fallback called and accepted",
+    "full_rank": "QRCP unavailable; DGESDD fallback called"
+  },
+  "semantic_differential": {
+    "cases": 36,
+    "status_rank_mask_code_differences": 0,
+    "eta_only_differences": 33,
+    "interpretation": "accepted witness-generation numerical variation; verifier remains authoritative"
+  }
+}

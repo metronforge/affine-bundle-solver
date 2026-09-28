@@ -1,0 +1,18 @@
+{
+  "method": "one generated frozen-manifest witness per slot; bs_verify_unique only; OpenBLAS=16, OMP=16",
+  "eta_bitwise_identical_per_slot": true,
+  "N016": [
+    {"threads": 1, "wall_seconds": 3.871677161019761, "eta_unique": 8.737810392112116e-15},
+    {"threads": 2, "wall_seconds": 2.7905455410073046, "eta_unique": 8.737810392112116e-15},
+    {"threads": 4, "wall_seconds": 1.3670965649944264, "eta_unique": 8.737810392112116e-15},
+    {"threads": 8, "wall_seconds": 0.7026560959930066, "eta_unique": 8.737810392112116e-15},
+    {"threads": 16, "wall_seconds": 0.5250335040036589, "eta_unique": 8.737810392112116e-15}
+  ],
+  "N020": [
+    {"threads": 1, "wall_seconds": 45.932511404011166, "eta_unique": 1.1622378596162376e-14},
+    {"threads": 2, "wall_seconds": 33.367502515000524, "eta_unique": 1.1622378596162376e-14},
+    {"threads": 4, "wall_seconds": 18.677516033989377, "eta_unique": 1.1622378596162376e-14},
+    {"threads": 8, "wall_seconds": 9.83978851599386, "eta_unique": 1.1622378596162376e-14},
+    {"threads": 16, "wall_seconds": 7.057410412002355, "eta_unique": 1.1622378596162376e-14}
+  ]
+}

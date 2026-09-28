@@ -1,0 +1,13 @@
+{
+  "build": "CMake ABS_SANITIZE=ON, AddressSanitizer + UndefinedBehaviorSanitizer",
+  "focused_tests": 11,
+  "result": "PASS",
+  "included": [
+    "unique verifier rows and parallel thread/fenv controls",
+    "infinite fastpath",
+    "certified diagnostics and reuse",
+    "reusable QRCP, ENOMEM, and reentrancy",
+    "native solver lifecycle"
+  ],
+  "tsan": "not locally preconfigured; not introduced"
+}
