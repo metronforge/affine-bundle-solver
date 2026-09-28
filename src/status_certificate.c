@@ -20,6 +20,7 @@
 #include <fenv.h>
 #include <limits.h>
 #include <math.h>
+#include <omp.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
@@ -248,69 +249,101 @@ int bs_verify_unique(const double *A, const double *b, int m, int n,
         pos[w->idx[i]] = i;
     }
 
-    int old = fegetround();
+    fenv_t caller_env;
+    if (fegetenv(&caller_env)) { free(pos); return 6; }
     double xn_up = norm_up(w->x, n), best = 0.0;
     int xn_finite = isfinite(xn_up);
-    /* ehi and elo hold the upward and downward bounds of scale*(LU)[lr,:]-a_i;
-       evec is the pass accumulator and then the entrywise |error| bound. */
-    double *ehi = (double *)malloc((size_t)n*sizeof(double));
-    double *elo = (double *)malloc((size_t)n*sizeof(double));
-    double *evec = (double *)malloc((size_t)n*sizeof(double));
-    if (!ehi || !elo || !evec) { free(pos); free(ehi); free(elo); free(evec); fesetround(old); return 6; }
+    double *row_eta = (double *)malloc((size_t)m * sizeof(double));
+    if (!row_eta) { free(pos); fesetenv(&caller_env); return 6; }
 
-    for (int i = 0; i < m; ++i) {
-        double da_up = 0.0;
-        int ks = pos[i];
-        if (ks >= 0) {
-            int row_finite = 1;
-            int lr = w->perm[ks];
-            const double *arow = A + (size_t)i*n;
-            fesetround(FE_DOWNWARD);
-            unique_row_pass(w->packed_lu, n, lr, w->scale[ks], arow, evec, elo);
-            fesetround(FE_UPWARD);
-            unique_row_pass(w->packed_lu, n, lr, w->scale[ks], arow, evec, ehi);
-            for (int j = 0; j < n; ++j) {
-                evec[j] = fmax(fabs(elo[j]), fabs(ehi[j]));
-                if (!isfinite(elo[j]) || !isfinite(ehi[j]) || !isfinite(evec[j]))
-                    row_finite = 0;
-            }
-#ifdef ABS_TEST_UNIQUE_ROW_HOOK
-            /* Test-only observation point (never compiled into installed
-               libraries): exposes each reconstructed row to the row-level
-               differential in tests/test_unique_verifier_rows.c. */
-            extern void abs_test_unique_row_hook(int row, int n, const double *lo,
-                                                 const double *hi, const double *err);
-            abs_test_unique_row_hook(i, n, elo, ehi, evec);
-#endif
-            da_up = row_finite ? norm_up(evec, n) : INFINITY;
-        }
-        double res_up = residual_abs_up(A+(size_t)i*n, b[i], w->x, n);
-        if (!xn_finite || !isfinite(da_up) || !isfinite(res_up)) {
-            best = INFINITY;
-            continue;
-        }
-        fesetround(FE_UPWARD);
-        double db_up = res_up + da_up*xn_up;
-        if (!isfinite(db_up)) {
-            best = INFINITY;
-            continue;
-        }
-        double pert = hypot_up(da_up, db_up);
-        double src = norm_aug_lower(A+(size_t)i*n, b[i], n);
-        if (!isfinite(pert) || !isfinite(src)) {
-            best = INFINITY;
-            continue;
-        }
-        double q;
-        if (src == 0.0) q = (pert == 0.0 ? 0.0 : INFINITY);
-        else { fesetround(FE_UPWARD); q = pert/src; }
-        if (!isfinite(q)) {
-            best = INFINITY;
-            continue;
-        }
-        if (q > best) best = q;
+    /* The source rows are independent after witness validation.  Every worker
+       owns its fenv and reconstruction buffers; a source-order serial maximum
+       below deliberately avoids an OpenMP floating-point reduction. */
+    int workers = 1, worker_setup_failed = 0;
+    const char *thread_text = getenv("ABS_CERT_UNIQUE_THREADS");
+    if (thread_text && *thread_text) {
+        char *end = NULL;
+        long requested = strtol(thread_text, &end, 10);
+        if (end && *end == '\0' && requested > 0 && requested <= INT_MAX)
+            workers = requested > m ? m : (int)requested;
     }
-    free(pos); free(ehi); free(elo); free(evec); fesetround(old);
+#ifdef ABS_TEST_UNIQUE_ROW_HOOK
+    /* The historical row differential records hook calls in append order.
+       Keep this test-only observer serial; installed code remains parallel. */
+    workers = 1;
+#endif
+
+#pragma omp parallel num_threads(workers) shared(worker_setup_failed,row_eta)
+    {
+        fenv_t worker_env;
+        int worker_ok = !fegetenv(&worker_env);
+        double *ehi = worker_ok ? (double *)malloc((size_t)n*sizeof(double)) : NULL;
+        double *elo = worker_ok ? (double *)malloc((size_t)n*sizeof(double)) : NULL;
+        double *evec = worker_ok ? (double *)malloc((size_t)n*sizeof(double)) : NULL;
+        worker_ok = worker_ok && ehi && elo && evec;
+        if (!worker_ok) {
+#pragma omp atomic write
+            worker_setup_failed = 1;
+        }
+#ifdef ABS_TEST_UNIQUE_THREAD_HOOK
+        if (worker_ok) {
+            extern void abs_test_unique_thread_hook(void);
+            abs_test_unique_thread_hook();
+        }
+#endif
+#pragma omp for schedule(static)
+        for (int i = 0; i < m; ++i) {
+            double q = INFINITY;
+            if (worker_ok && xn_finite) {
+                double da_up = 0.0;
+                int ks = pos[i];
+                if (ks >= 0) {
+                    int row_finite = 1;
+                    int lr = w->perm[ks];
+                    const double *arow = A + (size_t)i*n;
+                    fesetround(FE_DOWNWARD);
+                    unique_row_pass(w->packed_lu, n, lr, w->scale[ks], arow, evec, elo);
+                    fesetround(FE_UPWARD);
+                    unique_row_pass(w->packed_lu, n, lr, w->scale[ks], arow, evec, ehi);
+                    for (int j = 0; j < n; ++j) {
+                        evec[j] = fmax(fabs(elo[j]), fabs(ehi[j]));
+                        if (!isfinite(elo[j]) || !isfinite(ehi[j]) || !isfinite(evec[j]))
+                            row_finite = 0;
+                    }
+#ifdef ABS_TEST_UNIQUE_ROW_HOOK
+                    /* Test-only observation point (never compiled into
+                       installed libraries).  This target is serial above. */
+                    extern void abs_test_unique_row_hook(int row, int n, const double *lo,
+                                                         const double *hi, const double *err);
+                    abs_test_unique_row_hook(i, n, elo, ehi, evec);
+#endif
+                    da_up = row_finite ? norm_up(evec, n) : INFINITY;
+                }
+                double res_up = residual_abs_up(A+(size_t)i*n, b[i], w->x, n);
+                if (isfinite(da_up) && isfinite(res_up)) {
+                    fesetround(FE_UPWARD);
+                    double db_up = res_up + da_up*xn_up;
+                    if (isfinite(db_up)) {
+                        double pert = hypot_up(da_up, db_up);
+                        double src = norm_aug_lower(A+(size_t)i*n, b[i], n);
+                        if (isfinite(pert) && isfinite(src)) {
+                            if (src == 0.0) q = pert == 0.0 ? 0.0 : INFINITY;
+                            else { fesetround(FE_UPWARD); q = pert / src; }
+                            if (!isfinite(q)) q = INFINITY;
+                        }
+                    }
+                }
+            }
+            row_eta[i] = q;
+        }
+        free(ehi); free(elo); free(evec);
+        if (worker_ok) fesetenv(&worker_env);
+    }
+    if (worker_setup_failed) {
+        free(pos); free(row_eta); fesetenv(&caller_env); return 6;
+    }
+    for (int i = 0; i < m; ++i) if (row_eta[i] > best) best = row_eta[i];
+    free(pos); free(row_eta); fesetenv(&caller_env);
     *eta_up = best;
     return isfinite(best) ? 0 : 7;
 }

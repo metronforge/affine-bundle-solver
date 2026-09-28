@@ -1,0 +1,36 @@
+Recovered from session-log tool call 641.  Historical target:
+`/tmp/abs-v044-cert-opt-C/src/certified_api.c`.
+
+```diff
+--- a/src/certified_api.c
++++ b/src/certified_api.c
+@@
++extern void dgesdd_(char*,int*,int*,double*,int*,double*,double*,int*,
++                    double*,int*,double*,int*,int*,int*);
+@@
++static int smallest_right_vector_dgesdd(const double *A,int m,int n,double *z);
++static int right_null_vector_qrcp(const double *A,int m,int n,double *z);
+@@
+-    if(smallest_right_vector(A,m,n,w->z)){ ... }
++    if(right_null_vector_qrcp(A,m,n,w->z) &&
++       smallest_right_vector_dgesdd(A,m,n,w->z)){ ... }
+@@
+-    if(!grc) vrc=bs_verify_infinite(A,b,m,n,&w,&eta);
++    if(!grc) vrc=bs_verify_infinite(A,b,m,n,&w,&eta);
++    if(!grc && vrc && w.z &&
++       smallest_right_vector_dgesdd(A,m,n,w.z)==0)
++        vrc=bs_verify_infinite(A,b,m,n,&w,&eta);
+```
+
+The historical QRCP candidate copied `A` to LAPACK column-major storage,
+called `DGEQP3`, selected the first numerically deficient pivoted coordinate,
+solved the upper triangular leading block in descending index order, unpivoted
+the vector, and normalized it with a long-double Euclidean norm.  Its
+historical rank cutoff was `1e-12 * abs(R[0,0])`.  The candidate was untrusted;
+only the strict infinite verifier could accept it.
+
+The DGESDD routine queried its workspace, allocated `Ac`, `s`, full `U`,
+full `VT`, `iwork`, and work, then extracted the final right singular vector as
+`VT[(n-1) + j*LDVT]`.  Current-main adaptation keeps the `LDVT` rule but uses
+only the storage required by the certified candidate path and preserves the
+public standalone DGESVD generator.

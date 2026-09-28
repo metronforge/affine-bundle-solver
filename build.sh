@@ -100,7 +100,7 @@ rm -f formation_guard.o bsolver.o
 ./.rounding_probe
 rm -f .rounding_probe
 
-"${CC_ARGV[@]}" -O2 -shared -fPIC "${INCLUDE_ARGV[@]}" \
+"${CC_ARGV[@]}" -O2 -shared -fPIC -fopenmp "${INCLUDE_ARGV[@]}" \
   src/status_certificate.c -o libstatus_verifier.so \
   "${STRICT_FP_ARGV[@]}" -lm
 

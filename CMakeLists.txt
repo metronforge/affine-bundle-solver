@@ -201,7 +201,7 @@ add_library(status_verifier SHARED src/status_certificate.c)
 target_compile_options(status_verifier PRIVATE
   ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
 target_link_options(status_verifier PRIVATE ${ABS_INSTRUMENTATION})
-target_link_libraries(status_verifier PRIVATE m)
+target_link_libraries(status_verifier PRIVATE OpenMP::OpenMP_C m)
 target_include_directories(status_verifier
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
@@ -376,6 +376,23 @@ if(ABS_BUILD_TESTING)
     status_verifier OpenMP::OpenMP_C ${ABS_BLAS_LIBRARIES} ${ABS_ATOMIC_LIBRARY} m)
   add_test(NAME test_certified_reuse COMMAND abs_certified_reuse_test)
 
+  # Separately compiled audit source exposes only a test-local trace of the
+  # QRCP candidate, strict verification, and DGESDD fallback sequence.
+  add_executable(abs_infinite_fastpath_test
+    tests/test_infinite_fastpath.c src/certified_api.c
+    $<TARGET_OBJECTS:abs_router_obj>
+    $<TARGET_OBJECTS:abs_formation_guard_obj>)
+  target_compile_options(abs_infinite_fastpath_test PRIVATE
+    ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
+  target_compile_definitions(abs_infinite_fastpath_test PRIVATE
+    ${ABS_BLAS_DEFINES} ABS_TEST_INFINITE_FASTPATH_HOOK)
+  target_include_directories(abs_infinite_fastpath_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src)
+  target_link_options(abs_infinite_fastpath_test PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_libraries(abs_infinite_fastpath_test PRIVATE
+    status_verifier OpenMP::OpenMP_C ${ABS_BLAS_LIBRARIES} ${ABS_ATOMIC_LIBRARY} m)
+  add_test(NAME test_infinite_fastpath COMMAND abs_infinite_fastpath_test)
+
   # Linker wrapping counts every QRCP invocation made by the audit source and
   # verifies that the compatible-tall fallback factors its invariant matrix
   # once (one workspace query plus one executing call).  The test also hashes
@@ -472,6 +489,27 @@ if(ABS_BUILD_TESTING)
   target_link_options(abs_unique_verifier_rows_test PRIVATE ${ABS_INSTRUMENTATION})
   target_link_libraries(abs_unique_verifier_rows_test PRIVATE m)
   add_test(NAME test_unique_verifier_rows COMMAND abs_unique_verifier_rows_test)
+
+  # Test-only worker hook: verifies ABS_CERT_UNIQUE_THREADS, deterministic
+  # source-order eta aggregation, and restoration of the caller's fenv.
+  add_executable(abs_unique_verifier_parallel_test
+    tests/test_unique_verifier_parallel.c src/status_certificate.c)
+  target_compile_options(abs_unique_verifier_parallel_test PRIVATE
+    ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
+  target_compile_definitions(abs_unique_verifier_parallel_test PRIVATE
+    ABS_TEST_UNIQUE_THREAD_HOOK)
+  target_include_directories(abs_unique_verifier_parallel_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include)
+  target_link_options(abs_unique_verifier_parallel_test PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_libraries(abs_unique_verifier_parallel_test PRIVATE OpenMP::OpenMP_C m)
+  add_test(NAME test_unique_verifier_parallel COMMAND abs_unique_verifier_parallel_test)
+
+  add_executable(abs_unique_thread_fenv_test tests/test_unique_thread_fenv.c)
+  target_compile_options(abs_unique_thread_fenv_test PRIVATE
+    ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
+  target_link_options(abs_unique_thread_fenv_test PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_libraries(abs_unique_thread_fenv_test PRIVATE OpenMP::OpenMP_C m)
+  add_test(NAME test_unique_thread_fenv COMMAND abs_unique_thread_fenv_test)
 
   # Structural counterpart for the strict kernels: compiled with the exact
   # ABS_STRICT_FP_FLAGS for an FMA-capable target, they must contain no fused

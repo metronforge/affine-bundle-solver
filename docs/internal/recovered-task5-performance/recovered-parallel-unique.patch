@@ -1,0 +1,45 @@
+Recovered from session-log tool calls 577--578.  Historical target:
+`/tmp/abs-v044-cert-opt-A/src/status_certificate.c`.
+
+```diff
+--- a/src/status_certificate.c
++++ b/src/status_certificate.c
+@@
++#include <omp.h>
+@@ int bs_verify_unique(...)
+-    double *ucol = malloc((size_t)n*sizeof(double));
+-    double *lrow = malloc((size_t)n*sizeof(double));
+-    double *evec = malloc((size_t)n*sizeof(double));
+-    for (int i = 0; i < m; ++i) {
++    int alloc_fail = 0;
++    const char *te = getenv("ABS_CERT_UNIQUE_THREADS");
++    int nth = te ? atoi(te) : 1;
++    if (nth < 1) nth = 1;
++    if (nth > omp_get_num_procs()) nth = omp_get_num_procs();
++#pragma omp parallel num_threads(nth) reduction(max:best) shared(alloc_fail)
++    {
++      int thread_old = fegetround();
++      double *lrow = malloc((size_t)n*sizeof(double));
++      double *elo = malloc((size_t)n*sizeof(double));
++      double *evec = malloc((size_t)n*sizeof(double));
++      int local_ok = lrow && elo && evec;
++      if (!local_ok) {
++#pragma omp atomic write
++        alloc_fail = 1;
++      }
++#pragma omp for schedule(static)
++      for (int i = 0; i < m; ++i) {
++        if (!local_ok) continue;
++        /* For each selected row: FE_DOWNWARD pass over the unchanged
++           k-increasing dot order, then an FE_UPWARD pass, private buffers,
++           and a rowwise directed radius. */
++      }
++      free(lrow); free(elo); free(evec); fesetround(thread_old);
++    }
++    if (alloc_fail) return 6;
+```
+
+The full historical record additionally shows that this initial prototype used
+an OpenMP floating `reduction(max:best)`.  Current-main adaptation deliberately
+replaces that aggregation with per-source-row radii followed by a serial
+source-order maximum, to preserve deterministic strict semantics.
