@@ -1,0 +1,26 @@
+[  1%] Building C object CMakeFiles/abs_router_obj.dir/src/bsolver.c.o
+[  3%] Building C object CMakeFiles/abs_formation_guard_obj.dir/src/formation_guard.c.o
+[  5%] Building C object CMakeFiles/abs_rounding_probe.dir/src/rounding_probe.c.o
+[  7%] Linking C executable abs_rounding_probe
+Probe: directed rounding is distinguishable
+directed-rounding probe: PASS
+[  7%] Built target abs_rounding_probe
+[  8%] Building C object CMakeFiles/abs_mxcsr_probe.dir/src/mxcsr_probe.c.o
+[  8%] Built target abs_formation_guard_obj
+[ 10%] Building C object CMakeFiles/abs_router_once_obj.dir/src/bsolver.c.o
+[ 12%] Linking C executable abs_mxcsr_probe
+[ 12%] Built target abs_mxcsr_probe
+[ 14%] Building C object CMakeFiles/abs_dgesdd_core_state_test.dir/tests/test_dgesdd_core_state.c.o
+[ 15%] Linking C executable abs_dgesdd_core_state_test
+/usr/bin/ld: CMakeFiles/abs_dgesdd_core_state_test.dir/tests/test_dgesdd_core_state.c.o: in function `.omp_outlined.':
+test_dgesdd_core_state.c:(.text+0xa875): undefined reference to `__atomic_load'
+/usr/bin/ld: test_dgesdd_core_state.c:(.text+0xa8b9): undefined reference to `__atomic_compare_exchange'
+/usr/bin/ld: test_dgesdd_core_state.c:(.text+0xa8d7): undefined reference to `__atomic_load'
+/usr/bin/ld: test_dgesdd_core_state.c:(.text+0xa906): undefined reference to `__atomic_compare_exchange'
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+gmake[2]: *** [CMakeFiles/abs_dgesdd_core_state_test.dir/build.make:106: abs_dgesdd_core_state_test] Error 1
+gmake[1]: *** [CMakeFiles/Makefile2:750: CMakeFiles/abs_dgesdd_core_state_test.dir/all] Error 2
+gmake[1]: *** Waiting for unfinished jobs....
+[ 15%] Built target abs_router_once_obj
+[ 15%] Built target abs_router_obj
+gmake: *** [Makefile:146: all] Error 2

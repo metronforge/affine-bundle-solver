@@ -1,0 +1,9 @@
+{
+  "expected": "openblas",
+  "resolved": [
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.26.so",
+      "sha256": "bfc7492adbf84a8f567720a9e1fae2afc18f3d817da233e7f4d453683485308e"
+    }
+  ]
+}

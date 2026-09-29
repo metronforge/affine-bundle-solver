@@ -1,0 +1,80 @@
+-- Install configuration: ""
+-- Installing: /home/runner/work/_temp/abs-consumer/prefix/lib/libaffine_bundle_solver.so
+-- Set non-toolchain portion of runtime path of "/home/runner/work/_temp/abs-consumer/prefix/lib/libaffine_bundle_solver.so" to "$ORIGIN"
+-- Installing: /home/runner/work/_temp/abs-consumer/prefix/lib/libstatus_verifier.so
+-- Set non-toolchain portion of runtime path of "/home/runner/work/_temp/abs-consumer/prefix/lib/libstatus_verifier.so" to "$ORIGIN"
+-- Installing: /home/runner/work/_temp/abs-consumer/prefix/lib/libcertified_solver.so
+-- Set non-toolchain portion of runtime path of "/home/runner/work/_temp/abs-consumer/prefix/lib/libcertified_solver.so" to "$ORIGIN"
+-- Installing: /home/runner/work/_temp/abs-consumer/prefix/include/affine_bundle
+-- Installing: /home/runner/work/_temp/abs-consumer/prefix/include/affine_bundle/status_certificate.h
+-- Installing: /home/runner/work/_temp/abs-consumer/prefix/include/affine_bundle/certified_api.h
+-- Installing: /home/runner/work/_temp/abs-consumer/prefix/include/affine_bundle/stream.h
+-- Installing: /home/runner/work/_temp/abs-consumer/prefix/include/affine_bundle/operational_policy.h
+-- Installing: /home/runner/work/_temp/abs-consumer/prefix/include/affine_bundle/router.h
+-- Installing: /home/runner/work/_temp/abs-consumer/prefix/lib/cmake/affine-bundle-solver/affine-bundle-solverTargets.cmake
+-- Installing: /home/runner/work/_temp/abs-consumer/prefix/lib/cmake/affine-bundle-solver/affine-bundle-solverTargets-noconfig.cmake
+-- Installing: /home/runner/work/_temp/abs-consumer/prefix/lib/cmake/affine-bundle-solver/affine-bundle-solverConfig.cmake
+-- Installing: /home/runner/work/_temp/abs-consumer/prefix/lib/cmake/affine-bundle-solver/affine-bundle-solverConfigVersion.cmake
+-- Installing: /home/runner/work/_temp/abs-consumer/prefix/lib/pkgconfig/affine-bundle-solver.pc
+-- The C compiler identification is GNU 13.3.0
+-- The CXX compiler identification is GNU 13.3.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/gcc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/runner/work/_temp/abs-consumer/consumer-build
+[ 16%] Building C object CMakeFiles/consumer.dir/main.c.o
+[ 33%] Linking C executable consumer
+[ 33%] Built target consumer
+[ 50%] Building C object CMakeFiles/consumer_certified_diag.dir/certified_diag.c.o
+[ 66%] Linking C executable consumer_certified_diag
+[ 66%] Built target consumer_certified_diag
+[ 83%] Building CXX object CMakeFiles/consumer_certified_diag_cpp.dir/certified_diag.cpp.o
+[100%] Linking CXX executable consumer_certified_diag_cpp
+[100%] Built target consumer_certified_diag_cpp
+status=2 cls=2 rank=2 interval=[2,5]
+	linux-vdso.so.1 (0x0000ffb7bea58000)
+	libaffine_bundle_solver.so => /home/runner/work/_temp/abs-consumer/relocated/lib/libaffine_bundle_solver.so (0x0000ffb7be990000)
+	libm.so.6 => /lib/aarch64-linux-gnu/libm.so.6 (0x0000ffb7be8e0000)
+	libc.so.6 => /lib/aarch64-linux-gnu/libc.so.6 (0x0000ffb7be720000)
+	/lib/ld-linux-aarch64.so.1 (0x0000ffb7bea10000)
+	libgomp.so.1 => /lib/aarch64-linux-gnu/libgomp.so.1 (0x0000ffb7be6a0000)
+	libblas.so.3 => /lib/aarch64-linux-gnu/libblas.so.3 (0x0000ffb7be610000)
+	liblapack.so.3 => /lib/aarch64-linux-gnu/liblapack.so.3 (0x0000ffb7be050000)
+	libgcc_s.so.1 => /lib/aarch64-linux-gnu/libgcc_s.so.1 (0x0000ffb7be010000)
+	libgfortran.so.5 => /lib/aarch64-linux-gnu/libgfortran.so.5 (0x0000ffb7bde60000)
+	linux-vdso.so.1 (0x0000ffc3cf266000)
+	libcertified_solver.so => /home/runner/work/_temp/abs-consumer/relocated/lib/libcertified_solver.so (0x0000ffc3cf1c0000)
+	libc.so.6 => /lib/aarch64-linux-gnu/libc.so.6 (0x0000ffc3cf000000)
+	/lib/ld-linux-aarch64.so.1 (0x0000ffc3cf220000)
+	libaffine_bundle_solver.so => /home/runner/work/_temp/abs-consumer/relocated/lib/libaffine_bundle_solver.so (0x0000ffc3cefb0000)
+	libstatus_verifier.so => /home/runner/work/_temp/abs-consumer/relocated/lib/libstatus_verifier.so (0x0000ffc3cef80000)
+	libm.so.6 => /lib/aarch64-linux-gnu/libm.so.6 (0x0000ffc3ceed0000)
+	liblapack.so.3 => /lib/aarch64-linux-gnu/liblapack.so.3 (0x0000ffc3ce910000)
+	libgomp.so.1 => /lib/aarch64-linux-gnu/libgomp.so.1 (0x0000ffc3ce890000)
+	libblas.so.3 => /lib/aarch64-linux-gnu/libblas.so.3 (0x0000ffc3ce800000)
+	libgfortran.so.5 => /lib/aarch64-linux-gnu/libgfortran.so.5 (0x0000ffc3ce650000)
+	libgcc_s.so.1 => /lib/aarch64-linux-gnu/libgcc_s.so.1 (0x0000ffc3ce610000)
+	linux-vdso.so.1 (0x0000ff8be158c000)
+	libcertified_solver.so => /home/runner/work/_temp/abs-consumer/relocated/lib/libcertified_solver.so (0x0000ff8be14e0000)
+	libc.so.6 => /lib/aarch64-linux-gnu/libc.so.6 (0x0000ff8be1320000)
+	/lib/ld-linux-aarch64.so.1 (0x0000ff8be1540000)
+	libaffine_bundle_solver.so => /home/runner/work/_temp/abs-consumer/relocated/lib/libaffine_bundle_solver.so (0x0000ff8be12d0000)
+	libstatus_verifier.so => /home/runner/work/_temp/abs-consumer/relocated/lib/libstatus_verifier.so (0x0000ff8be12a0000)
+	libm.so.6 => /lib/aarch64-linux-gnu/libm.so.6 (0x0000ff8be11f0000)
+	liblapack.so.3 => /lib/aarch64-linux-gnu/liblapack.so.3 (0x0000ff8be0c30000)
+	libgomp.so.1 => /lib/aarch64-linux-gnu/libgomp.so.1 (0x0000ff8be0bb0000)
+	libblas.so.3 => /lib/aarch64-linux-gnu/libblas.so.3 (0x0000ff8be0b20000)
+	libgfortran.so.5 => /lib/aarch64-linux-gnu/libgfortran.so.5 (0x0000ff8be0970000)
+	libgcc_s.so.1 => /lib/aarch64-linux-gnu/libgcc_s.so.1 (0x0000ff8be0930000)
+-I/home/runner/work/_temp/abs-consumer/relocated/lib/pkgconfig/../../include -L/home/runner/work/_temp/abs-consumer/relocated/lib/pkgconfig/../../lib -lcertified_solver -lstatus_verifier -laffine_bundle_solver 
+status=2 cls=2 rank=2 interval=[2,5]
+installed CMake C/C++ and pkg-config consumers: PASS (relocated prefix, build unavailable)

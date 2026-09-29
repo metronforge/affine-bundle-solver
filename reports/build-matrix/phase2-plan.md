@@ -93,3 +93,22 @@ Expected: exact contracts pass, negative controls fail, snapshots agree.
 - [ ] Commit documents, push, run final exact HEAD Actions, verify clean tree.
 Expected: completely green final run; no public API/policy/release workflow changes;
 all valuable source/evidence committed, Phase 2 not merged.
+
+## Completion ledger
+
+Task 1: implemented in 3a474e2; full local CTest 45/45. Actual CI exposed a
+Clang libatomic search gap, corrected in 1ba318f; run 36627025489 all 19 green.
+Task 2: implemented in bc24fbd; local CTest 47/47 and both full batteries pass;
+run 36627216544 all 19 green, nine snapshots agree on 78 pairs.
+Task 3: review fixes in 0107160; run 36627551475 all 19 green. Raw evidence and
+support policy retained; final documentation-inclusive SHA/run reported in handoff.
+
+Review: no Critical/Minor; two Important coverage/identity findings corrected.
+Interval rejection now changes rounding before rejecting; the deliberate verifier
+mutation fails its restoration assertion. Reference job explicitly selects GCC13.
+No production numerical source, API or policy changed. No release/Phase2 merge.
+
+Rulings: continue inline in canonical repo per user autonomy; correct new quality
+fixture's assumed least-squares witness to actual source-row witness (analytic
+delta/(2+delta), no tolerance widening); final documentation and CI remain required
+despite review deferring those unfinished items. No findings silently waived.

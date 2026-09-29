@@ -1,0 +1,97 @@
+[  1%] Building C object CMakeFiles/abs_formation_guard_obj.dir/src/formation_guard.c.o
+[  4%] Building C object CMakeFiles/abs_rounding_probe.dir/src/rounding_probe.c.o
+[  4%] Building C object CMakeFiles/abs_router_obj.dir/src/bsolver.c.o
+[  6%] Linking C executable abs_rounding_probe
+Probe: directed rounding is distinguishable
+directed-rounding probe: PASS
+[  6%] Built target abs_rounding_probe
+[  8%] Building C object CMakeFiles/abs_mxcsr_probe.dir/src/mxcsr_probe.c.o
+[  8%] Built target abs_formation_guard_obj
+[  9%] Building C object CMakeFiles/abs_router_once_obj.dir/src/bsolver.c.o
+[ 11%] Linking C executable abs_mxcsr_probe
+[ 11%] Built target abs_mxcsr_probe
+[ 12%] Building C object CMakeFiles/abs_dgesdd_core_state_test.dir/tests/test_dgesdd_core_state.c.o
+[ 14%] Linking C executable abs_dgesdd_core_state_test
+[ 14%] Built target abs_dgesdd_core_state_test
+[ 16%] Building C object CMakeFiles/abs_stream_alloc_failure_test.dir/tests/test_stream_alloc_failure.c.o
+[ 16%] Built target abs_router_obj
+[ 17%] Building C object CMakeFiles/abs_unique_verifier_rows_test.dir/tests/test_unique_verifier_rows.c.o
+[ 19%] Building C object CMakeFiles/abs_unique_verifier_rows_test.dir/src/status_certificate.c.o
+[ 20%] Linking C executable abs_stream_alloc_failure_test
+[ 20%] Built target abs_stream_alloc_failure_test
+[ 22%] Building C object CMakeFiles/abs_unique_verifier_parallel_test.dir/tests/test_unique_verifier_parallel.c.o
+[ 24%] Building C object CMakeFiles/abs_unique_verifier_parallel_test.dir/src/status_certificate.c.o
+[ 25%] Linking C executable abs_unique_verifier_rows_test
+[ 25%] Built target abs_router_once_obj
+[ 27%] Building C object CMakeFiles/abs_unique_thread_fenv_test.dir/tests/test_unique_thread_fenv.c.o
+[ 27%] Built target abs_unique_verifier_rows_test
+[ 29%] Linking C shared library libaffine_bundle_solver.so
+[ 30%] Linking C executable abs_unique_thread_fenv_test
+Contract: no fast-math flag on the router link line
+-- link contract: no fast-math flag on the router link line
+[ 30%] Built target affine_bundle_solver
+[ 32%] Building C object CMakeFiles/status_verifier.dir/src/status_certificate.c.o
+[ 32%] Built target abs_unique_thread_fenv_test
+[ 33%] Building C object CMakeFiles/abs_range_rounding_negative.dir/tests/test_range_rounding.c.o
+[ 35%] Linking C executable abs_unique_verifier_parallel_test
+[ 37%] Building C object CMakeFiles/abs_range_rounding_negative.dir/tests/verifier_fenv_leak_control.c.o
+[ 37%] Built target abs_unique_verifier_parallel_test
+[ 38%] Building C object CMakeFiles/abs_stream_storage_native_test.dir/tests/test_stream_storage_native.c.o
+[ 40%] Linking C executable abs_stream_storage_native_test
+[ 41%] Linking C shared library libstatus_verifier.so
+[ 41%] Built target status_verifier
+[ 41%] Built target abs_stream_storage_native_test
+[ 43%] Building C object examples/CMakeFiles/example_classify.dir/classify.c.o
+[ 45%] Building C object examples/CMakeFiles/example_streaming.dir/streaming.c.o
+[ 46%] Linking C executable example_classify
+[ 48%] Linking C executable example_streaming
+[ 50%] Linking C executable abs_range_rounding_negative
+[ 50%] Built target example_classify
+[ 51%] Building C object CMakeFiles/certified_solver.dir/src/certified_api.c.o
+[ 51%] Built target example_streaming
+[ 51%] Built target abs_range_rounding_negative
+[ 53%] Building C object CMakeFiles/abs_certified_diag_once_test.dir/tests/test_certified_diag_once.c.o
+[ 54%] Building C object CMakeFiles/abs_certified_reuse_test.dir/tests/test_certified_reuse.c.o
+[ 56%] Building C object CMakeFiles/abs_certified_reuse_test.dir/src/certified_api.c.o
+[ 58%] Building C object CMakeFiles/abs_certified_diag_once_test.dir/src/certified_api.c.o
+[ 59%] Linking C shared library libcertified_solver.so
+Probe: loading the fast library does not change the process FP mode
+FP environment probe: PASS (MXCSR control=0x1f80 unchanged; input/output subnormals and directed rounding preserved)
+[ 59%] Built target certified_solver
+[ 61%] Building C object CMakeFiles/abs_infinite_fastpath_test.dir/tests/test_infinite_fastpath.c.o
+[ 62%] Linking C executable abs_certified_reuse_test
+[ 64%] Building C object CMakeFiles/abs_infinite_fastpath_test.dir/src/certified_api.c.o
+[ 66%] Linking C executable abs_certified_diag_once_test
+[ 66%] Built target abs_certified_reuse_test
+[ 67%] Building C object CMakeFiles/abs_reusable_qrcp_test.dir/tests/test_reusable_qrcp.c.o
+[ 67%] Built target abs_certified_diag_once_test
+[ 69%] Building C object CMakeFiles/abs_row_norm_range_test.dir/tests/test_row_norm_range.c.o
+[ 70%] Building C object CMakeFiles/abs_reusable_qrcp_test.dir/tests/reusable_qrcp_source.c.o
+[ 72%] Linking C executable abs_row_norm_range_test
+[ 72%] Built target abs_row_norm_range_test
+[ 74%] Building C object CMakeFiles/abs_range_rounding_test.dir/tests/test_range_rounding.c.o
+[ 75%] Linking C executable abs_range_rounding_test
+[ 77%] Linking C executable abs_infinite_fastpath_test
+[ 77%] Built target abs_infinite_fastpath_test
+[ 77%] Built target abs_range_rounding_test
+[ 79%] Building C object CMakeFiles/abs_reusable_qrcp_reentrant_test.dir/tests/test_reusable_qrcp_reentrant.c.o
+[ 80%] Building C object CMakeFiles/abs_reusable_qrcp_enomem_test.dir/tests/test_reusable_qrcp_enomem.c.o
+[ 82%] Linking C executable abs_reusable_qrcp_reentrant_test
+[ 83%] Building C object CMakeFiles/abs_reusable_qrcp_enomem_test.dir/src/certified_api.c.o
+[ 85%] Linking C executable abs_reusable_qrcp_test
+[ 85%] Built target abs_reusable_qrcp_reentrant_test
+[ 87%] Building C object CMakeFiles/abs_native_solver_lifecycle_test.dir/tests/test_native_solver_lifecycle.c.o
+[ 87%] Built target abs_reusable_qrcp_test
+[ 88%] Building C object examples/CMakeFiles/example_certify.dir/certify.c.o
+[ 90%] Linking C executable example_certify
+[ 91%] Linking C executable abs_native_solver_lifecycle_test
+[ 91%] Built target abs_native_solver_lifecycle_test
+[ 91%] Built target example_certify
+[ 93%] Building C object CMakeFiles/abs_certified_diag_test.dir/tests/test_certified_diag.c.o
+[ 95%] Building C object CMakeFiles/abs_operational_policy_test.dir/tests/test_operational_policy.c.o
+[ 96%] Linking C executable abs_certified_diag_test
+[ 98%] Linking C executable abs_operational_policy_test
+[ 98%] Built target abs_certified_diag_test
+[ 98%] Built target abs_operational_policy_test
+[100%] Linking C executable abs_reusable_qrcp_enomem_test
+[100%] Built target abs_reusable_qrcp_enomem_test

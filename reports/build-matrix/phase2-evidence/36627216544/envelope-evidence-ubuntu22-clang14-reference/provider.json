@@ -1,0 +1,13 @@
+{
+  "expected": "reference",
+  "resolved": [
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/blas/libblas.so.3.10.0",
+      "sha256": "bd8a282c845e100cbb28dd31f9cf19757d508bf7a07a7f62bbe8c04cafb81646"
+    },
+    {
+      "path": "/usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.10.0",
+      "sha256": "86b2c20720e2aafb6b84d20d252cd39c5b22a6f7452f8bb920a06d8c8439124c"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+-- The C compiler identification is GNU 13.3.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/gcc-13 - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Looking for sgemm_
+-- Looking for sgemm_ - found
+-- Found BLAS: /usr/lib/x86_64-linux-gnu/libopenblas.so
+-- Looking for cheev_
+-- Looking for cheev_ - found
+-- Found LAPACK: /usr/lib/x86_64-linux-gnu/libopenblas.so;/usr/lib/x86_64-linux-gnu/libopenblas.so
+-- Looking for dgecon_
+-- Looking for dgecon_ - found
+-- Looking for dgels_
+-- Looking for dgels_ - found
+-- Looking for dgelsy_
+-- Looking for dgelsy_ - found
+-- Looking for dgemm_
+-- Looking for dgemm_ - found
+-- Looking for dgemv_
+-- Looking for dgemv_ - found
+-- Looking for dgeqp3_
+-- Looking for dgeqp3_ - found
+-- Looking for dgeqrf_
+-- Looking for dgeqrf_ - found
+-- Looking for dgesdd_
+-- Looking for dgesdd_ - found
+-- Looking for dgesvd_
+-- Looking for dgesvd_ - found
+-- Looking for dgetrf_
+-- Looking for dgetrf_ - found
+-- Looking for dgetrs_
+-- Looking for dgetrs_ - found
+-- Looking for dorgqr_
+-- Looking for dorgqr_ - found
+-- Looking for dormqr_
+-- Looking for dormqr_ - found
+-- Looking for dtrcon_
+-- Looking for dtrcon_ - found
+-- Looking for dtrtri_
+-- Looking for dtrtri_ - found
+-- Found OpenMP_C: -fopenmp (found version "4.5")
+-- Found OpenMP: TRUE (found version "4.5") found components: C
+-- Found Python3: /opt/hostedtoolcache/Python/3.12.14/x64/bin/python3.12 (found version "3.12.14") found components: Interpreter
+-- 
+-- affine-bundle-solver 0.4.4
+--   BLAS provider ....... system (/usr/lib/x86_64-linux-gnu/libopenblas.so)
+--   Router arch flags ... 
+--   Strict kernels ...... -O2 -frounding-math -fno-fast-math -ffp-contract=off
+--   build.sh remains the canonical manuscript reproduction path.
+-- 
+-- Configuring done (2.9s)
+-- Generating done (0.1s)
+-- Build files have been written to: /home/runner/work/affine-bundle-solver/affine-bundle-solver/build-envelope

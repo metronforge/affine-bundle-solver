@@ -1,0 +1,83 @@
+-- Install configuration: ""
+-- Installing: /home/runner/work/_temp/abs-envelope-consumer/prefix/lib/libaffine_bundle_solver.so
+-- Set non-toolchain portion of runtime path of "/home/runner/work/_temp/abs-envelope-consumer/prefix/lib/libaffine_bundle_solver.so" to "$ORIGIN"
+-- Installing: /home/runner/work/_temp/abs-envelope-consumer/prefix/lib/libstatus_verifier.so
+-- Set non-toolchain portion of runtime path of "/home/runner/work/_temp/abs-envelope-consumer/prefix/lib/libstatus_verifier.so" to "$ORIGIN"
+-- Installing: /home/runner/work/_temp/abs-envelope-consumer/prefix/lib/libcertified_solver.so
+-- Set non-toolchain portion of runtime path of "/home/runner/work/_temp/abs-envelope-consumer/prefix/lib/libcertified_solver.so" to "$ORIGIN"
+-- Installing: /home/runner/work/_temp/abs-envelope-consumer/prefix/include/affine_bundle
+-- Installing: /home/runner/work/_temp/abs-envelope-consumer/prefix/include/affine_bundle/router.h
+-- Installing: /home/runner/work/_temp/abs-envelope-consumer/prefix/include/affine_bundle/status_certificate.h
+-- Installing: /home/runner/work/_temp/abs-envelope-consumer/prefix/include/affine_bundle/operational_policy.h
+-- Installing: /home/runner/work/_temp/abs-envelope-consumer/prefix/include/affine_bundle/stream.h
+-- Installing: /home/runner/work/_temp/abs-envelope-consumer/prefix/include/affine_bundle/certified_api.h
+-- Installing: /home/runner/work/_temp/abs-envelope-consumer/prefix/lib/cmake/affine-bundle-solver/affine-bundle-solverTargets.cmake
+-- Installing: /home/runner/work/_temp/abs-envelope-consumer/prefix/lib/cmake/affine-bundle-solver/affine-bundle-solverTargets-noconfig.cmake
+-- Installing: /home/runner/work/_temp/abs-envelope-consumer/prefix/lib/cmake/affine-bundle-solver/affine-bundle-solverConfig.cmake
+-- Installing: /home/runner/work/_temp/abs-envelope-consumer/prefix/lib/cmake/affine-bundle-solver/affine-bundle-solverConfigVersion.cmake
+-- Installing: /home/runner/work/_temp/abs-envelope-consumer/prefix/lib/pkgconfig/affine-bundle-solver.pc
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/gcc-11 - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/g++-11 - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/runner/work/_temp/abs-envelope-consumer/consumer-build
+[ 16%] Building C object CMakeFiles/consumer.dir/main.c.o
+[ 33%] Linking C executable consumer
+[ 33%] Built target consumer
+[ 50%] Building C object CMakeFiles/consumer_certified_diag.dir/certified_diag.c.o
+[ 66%] Linking C executable consumer_certified_diag
+[ 66%] Built target consumer_certified_diag
+[ 83%] Building CXX object CMakeFiles/consumer_certified_diag_cpp.dir/certified_diag.cpp.o
+[100%] Linking CXX executable consumer_certified_diag_cpp
+[100%] Built target consumer_certified_diag_cpp
+status=2 cls=2 rank=2 interval=[2,5]
+	linux-vdso.so.1 (0x00007ffd5b7c9000)
+	libaffine_bundle_solver.so => /home/runner/work/_temp/abs-envelope-consumer/relocated/lib/libaffine_bundle_solver.so (0x00007ffb623b1000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007ffb622be000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007ffb62000000)
+	libgomp.so.1 => /lib/x86_64-linux-gnu/libgomp.so.1 (0x00007ffb62274000)
+	libblas.so.3 => /lib/x86_64-linux-gnu/libblas.so.3 (0x00007ffb61f5a000)
+	liblapack.so.3 => /lib/x86_64-linux-gnu/liblapack.so.3 (0x00007ffb61800000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007ffb623e6000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007ffb62252000)
+	libgfortran.so.5 => /lib/x86_64-linux-gnu/libgfortran.so.5 (0x00007ffb61400000)
+	libquadmath.so.0 => /lib/x86_64-linux-gnu/libquadmath.so.0 (0x00007ffb617b8000)
+	linux-vdso.so.1 (0x00007ffdc5adf000)
+	libcertified_solver.so => /home/runner/work/_temp/abs-envelope-consumer/relocated/lib/libcertified_solver.so (0x00007fc1a339a000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fc1a3000000)
+	libaffine_bundle_solver.so => /home/runner/work/_temp/abs-envelope-consumer/relocated/lib/libaffine_bundle_solver.so (0x00007fc1a3361000)
+	libstatus_verifier.so => /home/runner/work/_temp/abs-envelope-consumer/relocated/lib/libstatus_verifier.so (0x00007fc1a335a000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007fc1a3273000)
+	liblapack.so.3 => /lib/x86_64-linux-gnu/liblapack.so.3 (0x00007fc1a2800000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007fc1a33ab000)
+	libgomp.so.1 => /lib/x86_64-linux-gnu/libgomp.so.1 (0x00007fc1a2fb6000)
+	libblas.so.3 => /lib/x86_64-linux-gnu/libblas.so.3 (0x00007fc1a275a000)
+	libgfortran.so.5 => /lib/x86_64-linux-gnu/libgfortran.so.5 (0x00007fc1a2400000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007fc1a3251000)
+	libquadmath.so.0 => /lib/x86_64-linux-gnu/libquadmath.so.0 (0x00007fc1a2f6e000)
+	linux-vdso.so.1 (0x00007ffe076d7000)
+	libcertified_solver.so => /home/runner/work/_temp/abs-envelope-consumer/relocated/lib/libcertified_solver.so (0x00007f827e47b000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f827e200000)
+	libaffine_bundle_solver.so => /home/runner/work/_temp/abs-envelope-consumer/relocated/lib/libaffine_bundle_solver.so (0x00007f827e442000)
+	libstatus_verifier.so => /home/runner/work/_temp/abs-envelope-consumer/relocated/lib/libstatus_verifier.so (0x00007f827e43b000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f827e119000)
+	liblapack.so.3 => /lib/x86_64-linux-gnu/liblapack.so.3 (0x00007f827d800000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007f827e48c000)
+	libgomp.so.1 => /lib/x86_64-linux-gnu/libgomp.so.1 (0x00007f827e0cf000)
+	libblas.so.3 => /lib/x86_64-linux-gnu/libblas.so.3 (0x00007f827e029000)
+	libgfortran.so.5 => /lib/x86_64-linux-gnu/libgfortran.so.5 (0x00007f827d400000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f827e009000)
+	libquadmath.so.0 => /lib/x86_64-linux-gnu/libquadmath.so.0 (0x00007f827dfc1000)
+-I/home/runner/work/_temp/abs-envelope-consumer/relocated/lib/pkgconfig/../../include -L/home/runner/work/_temp/abs-envelope-consumer/relocated/lib/pkgconfig/../../lib -lcertified_solver -lstatus_verifier -laffine_bundle_solver
+status=2 cls=2 rank=2 interval=[2,5]
+installed CMake C/C++ and pkg-config consumers: PASS (relocated prefix, build unavailable)
