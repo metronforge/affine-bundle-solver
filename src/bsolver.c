@@ -517,9 +517,14 @@ static int source_qrcp_policy(const double*A,const double*b,const double*xt,
        default shortcut's conservative upper bound. No proof verifier sees it. */
     if(quality!=BS_QUALITY_THR){
         double xn=norm2(x,n),berr=0.0;
+        if(bs_nonfinite(xn) || bs_any_nonfinite(x,(size_t)n))berr=INFINITY;
         for(int i=0;i<m;i++){
             double den=fabs(b[i])+norm2(A+(size_t)i*n,n)*xn+1e-300;
-            double be=fabs(dot(A+(size_t)i*n,x,n)-b[i])/den;
+            double residual=dot(A+(size_t)i*n,x,n)-b[i];
+            double be=fabs(residual)/den;
+            if(bs_nonfinite(den) || bs_nonfinite(residual) || bs_nonfinite(be)){
+                berr=INFINITY;break;
+            }
             if(be>berr)berr=be;
         }
         g_last_berr=berr;g_last_berr_valid=1;

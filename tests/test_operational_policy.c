@@ -19,6 +19,11 @@ static void *worker(void *arg) {
         assert(r.operational.policy_used.compatibility_tolerance==p.compatibility_tolerance);
         assert(r.operational.exact_source_status==BS_EXACT_SOURCE_UNKNOWN);
         assert(r.operational.exact_source_verification==BS_EXACT_VERIFY_NOT_VERIFIED);
+        const double dependent[]={1,0,1,0}, shifted[]={1,1+1e-12};
+        BSOperationalResultV1 op;bs_init_operational_result(&op);
+        assert(!bsolve_router_policy_api(dependent,shifted,NULL,2,2,1,2,2,17,0,&p,&op));
+        assert(op.operational_status==(arg?ABS_STATUS_INCONSISTENT:ABS_STATUS_INFINITE));
+        assert(op.router_meta[2]==1);
     }
     return NULL;
 }
@@ -85,6 +90,14 @@ int main(void) {
     assert(op.operational_status==ABS_STATUS_UNIQUE);
     p.quality_threshold=1e-16;
     assert(!bsolve_router_policy_api(tall,tb,NULL,3,2,1,2,2,17,0,&p,&op));
+    assert(op.operational_status==ABS_STATUS_UNDECIDABLE);
+    /* Overflow in a custom quality computation must never pass as zero error. */
+    double extreme[]={1e200,1e200,1e-200,0},eb[]={0,1};
+    double reversed[]={1e-200,0,1e200,1e200},rb[]={1,0};
+    bs_default_operational_policy(&p);p.quality_threshold=1e-10;
+    assert(!bsolve_router_policy_api(extreme,eb,NULL,2,2,1,2,2,17,0,&p,&op));
+    assert(op.operational_status==ABS_STATUS_UNDECIDABLE);
+    assert(!bsolve_router_policy_api(reversed,rb,NULL,2,2,1,2,2,17,0,&p,&op));
     assert(op.operational_status==ABS_STATUS_UNDECIDABLE);
     pthread_t t[2]; assert(!pthread_create(&t[0],NULL,worker,NULL));
     assert(!pthread_create(&t[1],NULL,worker,(void*)1));
