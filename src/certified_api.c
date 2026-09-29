@@ -51,7 +51,8 @@ static double row_norm(const double *a, int n) {
        arithmetic whenever normal, but avoid square overflow or
        underflow on such platforms. Power-of-two scaling is exact and changes
        no rank or acceptance threshold. */
-    if (!isfinite(s) || s < LDBL_MIN) {
+    /* Downward/toward-zero overflow saturates at LDBL_MAX instead of Inf. */
+    if (!isfinite(s) || s == LDBL_MAX || s < LDBL_MIN) {
         long double largest = 0.0L;
         for (int j = 0; j < n; ++j) {
             long double v = fabsl((long double)a[j]);

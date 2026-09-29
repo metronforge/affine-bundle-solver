@@ -445,6 +445,17 @@ if(ABS_BUILD_TESTING)
     status_verifier OpenMP::OpenMP_C ${ABS_BLAS_LIBRARIES} ${ABS_ATOMIC_LIBRARY} m)
   add_test(NAME test_reusable_qrcp COMMAND abs_reusable_qrcp_test)
 
+  add_executable(abs_row_norm_range_test tests/test_row_norm_range.c
+    $<TARGET_OBJECTS:abs_router_obj> $<TARGET_OBJECTS:abs_formation_guard_obj>)
+  target_compile_options(abs_row_norm_range_test PRIVATE
+    ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
+  target_compile_definitions(abs_row_norm_range_test PRIVATE ${ABS_BLAS_DEFINES})
+  target_include_directories(abs_row_norm_range_test PRIVATE include src)
+  target_link_options(abs_row_norm_range_test PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_libraries(abs_row_norm_range_test PRIVATE
+    status_verifier OpenMP::OpenMP_C ${ABS_BLAS_LIBRARIES} ${ABS_ATOMIC_LIBRARY} m)
+  add_test(NAME test_row_norm_range COMMAND abs_row_norm_range_test)
+
   add_executable(abs_reusable_qrcp_enomem_test
     tests/test_reusable_qrcp_enomem.c src/certified_api.c
     $<TARGET_OBJECTS:abs_router_obj>
