@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CMake-installed qualification SDKs, never release/version artifacts."""
+"""CMake-installed SDKs with explicit qualification or release identity."""
 import argparse
 import gzip
 import hashlib
@@ -12,6 +12,7 @@ import subprocess
 import tarfile
 
 from inspect_binary_sdk import audit, FLOORS
+from release_assets import validate_identity
 
 ROOT = Path(__file__).resolve().parents[1]
 HEADERS = {"router.h", "certified_api.h", "status_certificate.h", "stream.h", "operational_policy.h"}
@@ -62,10 +63,19 @@ def extract_verified(archive, destination):
     return prefix
 
 
-def package(build, output, target):
+def package_identity(mode, version, commit, target):
+    if mode == "qualification" and version is None:
+        return f"affine-bundle-solver-qual-{commit[:12]}-{target}", {}
+    if mode == "release" and version:
+        validate_identity(ROOT, version, commit, os.environ.get("GITHUB_SHA", ""))
+        return f"affine-bundle-solver-v{version}-{target}", {"version": version, "release_tag": "v" + version}
+    raise ValueError("release mode requires version; qualification mode prohibits version")
+
+
+def package(build, output, target, mode="qualification", version=None):
     build, output = Path(build).resolve(), Path(output).resolve()
     if command("git", "status", "--porcelain", "--untracked-files=no"):
-        raise ValueError("qualification requires a clean committed source tree")
+        raise ValueError("SDK packaging requires a clean committed source tree")
     commit = command("git", "rev-parse", "HEAD")
     actual = ("macos" if platform.system() == "Darwin" else "linux") + "-" + (
         "arm64" if platform.machine() in ("arm64", "aarch64") else platform.machine())
@@ -79,7 +89,7 @@ def package(build, output, target):
         raise ValueError("qualification requires empty arch flags and system LP64 provider")
     if any(x in (build / "compile_commands.json").read_text() for x in ("-march=native", "-mcpu=native")):
         raise ValueError("native tuning is prohibited")
-    name = f"affine-bundle-solver-qual-{commit[:12]}-{target}"
+    name, release_identity = package_identity(mode, version, commit, target)
     prefix = output / "stage" / name
     if prefix.exists():
         raise ValueError("staging prefix must be fresh")
@@ -115,8 +125,12 @@ def package(build, output, target):
                 deployment_target=cache.get("CMAKE_OSX_DEPLOYMENT_TARGET"),
                 tested_userspace_floor=FLOORS.get(target, "macOS 15"),
                 build_command="cmake --build <build> --parallel 3; cmake --install <build> --prefix <SDK>")
+    info.update(release_identity)
     (prefix / "DEPENDENCIES.md").write_text("# External runtime contract\n\n" + dependencies +
-        "\n\nOwn libraries use relative loader paths. This is a qualification SDK, not a released version.\n")
+        "\n\nOwn libraries use relative loader paths. " +
+        (f"Release SDK v{version}." if mode == "release" else "Qualification SDK, not a released version.") +
+        f"\nTested userspace floor: {info['tested_userspace_floor']}; CPU: {info['cpu_baseline']}. "
+        "This tested baseline does not guarantee arbitrary distribution compatibility.\n")
     inspection = audit(prefix, target, (ROOT, build, prefix, output))
     info["libraries"] = [{k: r[k] for k in ("path", "sha256", "needed")} for r in inspection["libraries"]]
     (prefix / "BUILD-INFO.json").write_text(json.dumps(info, indent=2) + "\n")
@@ -143,9 +157,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     sub = parser.add_subparsers(dest="action", required=True)
     p = sub.add_parser("package"); p.add_argument("build"); p.add_argument("output"); p.add_argument("target")
+    p.add_argument("--mode", choices=("qualification", "release"), default="qualification")
+    p.add_argument("--version")
     p = sub.add_parser("extract"); p.add_argument("archive"); p.add_argument("destination")
     args = parser.parse_args()
     if args.action == "package":
-        package(args.build, args.output, args.target)
+        package(args.build, args.output, args.target, args.mode, args.version)
     else:
         print(extract_verified(args.archive, args.destination))

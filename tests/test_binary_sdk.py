@@ -7,10 +7,26 @@ import tempfile
 import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from inspect_binary_sdk import check_elf, check_macho
-from package_binary_sdk import extract_verified, sha256
+from package_binary_sdk import extract_verified, sha256, package_identity
 
 
 class AuditContract(unittest.TestCase):
+    def test_packaging_modes_are_explicit(self):
+        from unittest.mock import patch
+        with patch('package_binary_sdk.validate_identity') as validate:
+            name, identity = package_identity('qualification', None, 'a' * 40, 'linux-x86_64')
+            self.assertEqual(name, 'affine-bundle-solver-qual-aaaaaaaaaaaa-linux-x86_64')
+            self.assertEqual(identity, {})
+            validate.assert_not_called()
+            with patch.dict('os.environ', {'GITHUB_SHA': 'a' * 40}):
+                name, identity = package_identity('release', '1.2.3', 'a' * 40, 'linux-x86_64')
+            self.assertEqual(name, 'affine-bundle-solver-v1.2.3-linux-x86_64')
+            self.assertEqual(identity, {'version': '1.2.3', 'release_tag': 'v1.2.3'})
+            validate.assert_called_once()
+        for mode, version in [('unknown', None), ('qualification', '1.2.3'), ('release', None)]:
+            with self.assertRaises(ValueError):
+                package_identity(mode, version, 'a' * 40, 'linux-x86_64')
+
     def test_elf_floor_and_loader_contract(self):
         hdr = "Machine: Advanced Micro Devices X86-64"
         dyn = "(SONAME) [libstatus_verifier.so]\n(NEEDED) [libc.so.6]\n(RUNPATH) [$ORIGIN]"
