@@ -11,6 +11,10 @@ static void tail_capture(const BState *pre, int p) {
     tail_stats[9]=pre->r; tail_stats[10]=p;
 }
 #define ABS_TAIL_ENTER(pre,p) tail_capture(pre,p)
+#ifdef ABS_TAIL_PROFILE_ONLY
+#define ABS_TAIL_COUNT(k,v) ((void)0)
+#else
 #define ABS_TAIL_COUNT(k,v) do { _Pragma("omp atomic update") tail_stats[k]+=(v); } while(0)
+#endif
 #define ABS_TAIL_START() (tail_phase_start=now_sec())
 #define ABS_TAIL_STOP() (tail_stats[8]+=now_sec()-tail_phase_start)

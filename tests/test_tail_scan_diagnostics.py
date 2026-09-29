@@ -19,9 +19,12 @@ for n in [192,193,196,256]:
    a,b=make_case(n+96,n,kind);a*=scale;b*=scale
    ident=f'{kind}/{n}/{scale}'
    outputs={}
-   for label,(prod,trace,_,_) in libs.items():
+   for label,(prod,trace,_,_,profile) in libs.items():
     plain=np.zeros(8);diag=np.zeros(8)
     trace.abs_tail_reset();invoke(prod,a,b,plain);invoke(trace,a,b,diag)
+    prof=np.zeros(8);profile.abs_tail_reset();invoke(profile,a,b,prof)
+    assert np.array_equal(plain[[0,1,2,3,5,6]],prof[[0,1,2,3,5,6]],equal_nan=True),(ident,label,'timer-only profile differs')
+    profile.abs_tail_release()
     outputs[label]=plain
     result['instrumentation_cases']+=1
     if semantic(plain)!=semantic(diag):result['instrumentation_decision_changes'].append([ident,label,plain.tolist(),diag.tolist()])
@@ -40,7 +43,7 @@ for n in [1,2,3,4,7,32,64,188,191,192,193,194,195,196,255,256,257,511,512,513]:
     b=np.ascontiguousarray(norm*(2e-10/(1-2e-10))*factor)
     for updates in [0,1]:
      out={k:np.zeros(8) for k in libs}
-     for k,(_,_,replay,_) in libs.items():replay.abs_tail_rows(a,b,x,z,8,n,updates,20260909,out[k])
+     for k,(_,_,replay,_,_) in libs.items():replay.abs_tail_rows(a,b,x,z,8,n,updates,20260909,out[k])
      ident=f'n={n}/shift={shift}/scale={scale}/factor={factor}/updates={updates}'
      result['row_cases']+=1
      if out['normal'][0]!=out['control'][0]:result['control_row_decision_changes'].append([ident,out['normal'].tolist(),out['control'].tolist()])

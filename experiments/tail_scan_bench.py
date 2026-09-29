@@ -26,12 +26,13 @@ def build(args):
     commands=freeze['compile_commands']
     router=next(c for c in commands if 'abs_router_obj.dir' in c['command'])
     extra=[]
-    for name,diag in [('tail',False),('trace',True)]:
+    for name,diag in [('tail',False),('trace',True),('profile',True)]:
         cmd=shlex.split(router['command'])
         cmd[cmd.index('-o')+1]=str(dest/f'{name}.o')
         cmd[cmd.index('-c')+1]=str(ROOT/'experiments/tail_scan_probe.c')
         cmd += ['-I'+str(ROOT/'experiments'), '-fopt-info-vec-all='+str(dest/f'{name}-vectorization.txt')]
         if diag:cmd+=['-DABS_TAIL_DIAGNOSTICS']
+        if name=='profile':cmd+=['-DABS_TAIL_PROFILE_ONLY']
         subprocess.run(cmd,cwd=dest,check=True)
         link=shlex.split((dest/'CMakeFiles/affine_bundle_solver.dir/link.txt').read_text())
         link=[str(dest/f'{name}.o') if x.endswith('abs_router_obj.dir/src/bsolver.c.o') else x for x in link]
@@ -67,7 +68,8 @@ def load(path):
     prod=ct.CDLL(str(path/'libaffine_bundle_solver.so'))
     trace=ct.CDLL(str(path/'libtrace.so'))
     replay=ct.CDLL(str(path/'libtail.so'))
-    for lib in [prod,trace,replay]:
+    profile=ct.CDLL(str(path/'libprofile.so'))
+    for lib in [prod,trace,replay,profile]:
         lib.bsolve_router_api.argtypes=[dp,dp,ct.c_void_p]+[ct.c_int]*5+[ct.c_ulonglong,ct.c_int,dp]
         lib.bsolve_router_api.restype=None
     trace.abs_tail_reset.argtypes=[];trace.abs_tail_reset.restype=None
@@ -78,7 +80,10 @@ def load(path):
     replay.abs_tail_replay.restype=None
     replay.abs_tail_rows.argtypes=[dp,dp,dp,dp,ct.c_int,ct.c_int,ct.c_int,ct.c_ulonglong,dp]
     replay.abs_tail_rows.restype=None
-    return prod,trace,replay,freeze
+    profile.abs_tail_reset.argtypes=[];profile.abs_tail_reset.restype=None
+    profile.abs_tail_release.argtypes=[];profile.abs_tail_release.restype=None
+    profile.abs_tail_stats.argtypes=[dp];profile.abs_tail_stats.restype=None
+    return prod,trace,replay,freeze,profile
 
 def make_case(m,n,kind,seed=20260929):
     import numpy as np
@@ -107,16 +112,16 @@ def bench(args):
     import numpy as np
     os.sched_setaffinity(0,set(map(int,args.cpus.split(','))))
     libs={k:load(v) for k,v in (s.split('=',1) for s in args.variant)}
-    result={'protocol':{'repeats':args.repeats,'warmups':3,'cpus':args.cpus,'threads':{k:os.environ[k] for k in common.THREADS},'seed':20260909,'timing':'separate uninstrumented replay and production router; telemetry separate'},'builds':{k:v[3] for k,v in libs.items()},'cases':[]}
+    result={'protocol':{'repeats':args.repeats,'warmups':3,'cpus':args.cpus,'threads':{k:os.environ[k] for k in common.THREADS},'seed':20260909,'harness_commit':common.run(['git','rev-parse','HEAD'],cwd=ROOT),'timing':'separate uninstrumented replay and production router; telemetry separate'},'builds':{k:v[3] for k,v in libs.items()},'cases':[]}
     for spec in args.cases.split(','):
         kind,shape=spec.split(':');m,n=map(int,shape.split('x'))
         a,b=make_case(m,n,kind)
         rng_data=np.random.default_rng(765+n)
         x=np.ascontiguousarray(rng_data.standard_normal(n))
         z=np.ascontiguousarray(rng_data.standard_normal(2*n))
-        case={'case':spec,'input_sha256':hashlib.sha256(a.tobytes()+b.tobytes()).hexdigest(),'trace':{},'results':{}}
+        case={'case':spec,'input_sha256':hashlib.sha256(a.tobytes()+b.tobytes()).hexdigest(),'micro_vectors_sha256':hashlib.sha256(x.tobytes()+z.tobytes()).hexdigest(),'trace':{},'results':{}}
         states={}
-        for label,(prod,trace,replay,_) in libs.items():
+        for label,(prod,trace,replay,_,profile) in libs.items():
             out=np.zeros(8);normal=np.zeros(8);stats=np.zeros(12)
             trace.abs_tail_reset();invoke(trace,a,b,out);trace.abs_tail_stats(stats)
             invoke(prod,a,b,normal)
@@ -134,7 +139,7 @@ def bench(args):
             for rep in range(args.repeats+3):
                 order=labels.copy();rng.shuffle(order)
                 for k in order:
-                    prod,trace,replay,_=libs[k]
+                    prod,trace,replay,_,profile=libs[k]
                     t=time.perf_counter()
                     if mode in ('four_dot','with_updates'):
                         replay.abs_tail_rows(a,b,x,z,m,n,int(mode=='with_updates'),20260909,outs[k])
@@ -146,11 +151,13 @@ def bench(args):
                     if rep>=3:times[k].append(elapsed)
             case['results'][mode]={k:{**common.summary(times[k]),'output':outs[k].tolist(),'decisions':[list(v) for v in sorted(decisions[k])]} for k in labels}
         # Profiling invocations are separate from ALL benchmark intervals above.
-        for k,(prod,trace,replay,_) in libs.items():
+        for k,(prod,trace,replay,_,profile) in libs.items():
             phases=[];totals=[];out=np.zeros(8);stats=np.zeros(12)
             for rep in range(args.repeats):
-                trace.abs_tail_reset();t=time.perf_counter();invoke(trace,a,b,out);totals.append(time.perf_counter()-t)
-                trace.abs_tail_stats(stats);phases.append(stats[8])
+                profile.abs_tail_reset();t=time.perf_counter();invoke(profile,a,b,out);totals.append(time.perf_counter()-t)
+                profile.abs_tail_stats(stats);phases.append(stats[8])
+                assert semantic(out)==case['trace'][k]['output'][:4]
+                profile.abs_tail_release()
             case['trace'][k]['phase']=common.summary(phases)
             case['trace'][k]['profile_router']=common.summary(totals)
             trace.abs_tail_release()
