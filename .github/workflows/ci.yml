@@ -10,6 +10,10 @@ on:
         description: Also qualify installed binary SDKs (no publication)
         type: boolean
         default: false
+      release_candidate_dry_run:
+        description: Build and qualify the complete candidate without publishing or changing versions
+        type: boolean
+        default: false
 
 concurrency:
   group: verify-${{ github.event.pull_request.number || github.sha }}
@@ -24,9 +28,40 @@ permissions:
   contents: read
 
 jobs:
+  release-context:
+    name: release candidate context
+    runs-on: ubuntu-24.04
+    outputs:
+      build: ${{ steps.context.outputs.build }}
+      version: ${{ steps.context.outputs.version }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 2
+      - name: Validate identity and detect candidate requirement
+        id: context
+        env:
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.release_candidate_dry_run }}
+        run: |
+          options=()
+          if [ "$DRY_RUN" = true ]; then options+=(--dry-run); fi
+          python3 tools/release_assets.py context . "${options[@]}" >> "$GITHUB_OUTPUT"
+
+  publication-validation:
+    name: publication validation tests
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - run: |
+          python3 -m unittest discover -s tests -p test_release_assets.py
+          python3 -m unittest discover -s tests -p test_binary_sdk.py
+
   binary-qualification:
-    if: github.event_name == 'workflow_dispatch' && inputs.binary_qualification
+    needs: release-context
+    if: needs.release-context.outputs.build == 'true' || (github.event_name == 'workflow_dispatch' && inputs.binary_qualification)
     uses: ./.github/workflows/binary-qualification.yml
+    with:
+      release_version: ${{ needs.release-context.outputs.build == 'true' && needs.release-context.outputs.version || '' }}
 
   build-and-test:
     name: ${{ matrix.cc }} / ${{ matrix.arch_label }}
@@ -763,37 +798,24 @@ jobs:
         # differ.  The classification, rank interval and rank must not.
         run: python tests/compare_builds.py .cfg/portable .cfg/native
 
-  release-candidate:
-    name: verified release candidate
+  source-candidate:
+    name: verified source and research candidate
+    needs: release-context
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 2
 
-      - name: Detect a release-version change
-        id: release
-        run: |
-          current=$(jq -r '."."' .release-please-manifest.json)
-          previous=$(git show HEAD^:.release-please-manifest.json 2>/dev/null \
-            | jq -r '."."' 2>/dev/null || true)
-          if [ -n "$previous" ] && [ "$current" != "$previous" ]; then
-            echo "build=true" >> "$GITHUB_OUTPUT"
-            echo "version=$current" >> "$GITHUB_OUTPUT"
-          else
-            echo "build=false" >> "$GITHUB_OUTPUT"
-            echo "ordinary commit; release packaging is not needed"
-          fi
-
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
-        if: steps.release.outputs.build == 'true'
+        if: needs.release-context.outputs.build == 'true'
         with:
           python-version: '3.12'
           cache: pip
           cache-dependency-path: requirements-ci.txt
 
       - name: Install release build dependencies
-        if: steps.release.outputs.build == 'true'
+        if: needs.release-context.outputs.build == 'true'
         run: |
           python -m pip install --disable-pip-version-check -r requirements-ci.txt
           sudo apt-get update
@@ -803,7 +825,7 @@ jobs:
             texlive-science lmodern
 
       - name: Build candidate inputs
-        if: steps.release.outputs.build == 'true'
+        if: needs.release-context.outputs.build == 'true'
         env:
           BIBTEX: bibtex
         run: |
@@ -813,15 +835,15 @@ jobs:
           python tests/check_paper_claims.py
 
       - name: Package exact release bytes
-        if: steps.release.outputs.build == 'true'
+        if: needs.release-context.outputs.build == 'true'
         env:
-          VERSION: ${{ steps.release.outputs.version }}
+          VERSION: ${{ needs.release-context.outputs.version }}
         run: tools/build_release_candidate.sh "$VERSION" "$GITHUB_SHA" dist
 
       - name: Verify both archives from clean extraction directories
-        if: steps.release.outputs.build == 'true'
+        if: needs.release-context.outputs.build == 'true'
         env:
-          VERSION: ${{ steps.release.outputs.version }}
+          VERSION: ${{ needs.release-context.outputs.version }}
         run: |
           (cd dist && sha256sum -c SHA256SUMS.txt)
           source_dir=$(mktemp -d)
@@ -839,8 +861,62 @@ jobs:
           )
 
       - name: Upload the verified candidate
-        if: steps.release.outputs.build == 'true'
+        if: needs.release-context.outputs.build == 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: source-release-candidate
+          path: dist/
+          retention-days: 7
+          if-no-files-found: error
+
+  release-candidate:
+    name: verified release candidate
+    needs: [release-context, source-candidate, binary-qualification]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require successful producers before aggregation
+        env:
+          CONTEXT: ${{ needs.release-context.result }}
+          BUILD: ${{ needs.release-context.outputs.build }}
+          SOURCE: ${{ needs.source-candidate.result }}
+          BINARY: ${{ needs.binary-qualification.result }}
+        run: |
+          test "$CONTEXT" = success
+          test "$SOURCE" = success
+          if [ "$BUILD" = true ]; then test "$BINARY" = success; fi
+          if [ "$BINARY" != success ] && [ "$BINARY" != skipped ]; then exit 1; fi
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        if: needs.release-context.outputs.build == 'true'
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        if: needs.release-context.outputs.build == 'true'
+        with:
+          name: source-release-candidate
+          path: source-candidate
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        if: needs.release-context.outputs.build == 'true'
+        with:
+          name: sdk-linux-x86_64
+          path: binary-candidates/sdk-linux-x86_64
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        if: needs.release-context.outputs.build == 'true'
+        with:
+          name: sdk-linux-arm64
+          path: binary-candidates/sdk-linux-arm64
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        if: needs.release-context.outputs.build == 'true'
+        with:
+          name: sdk-macos-arm64
+          path: binary-candidates/sdk-macos-arm64
+      - name: Aggregate already verified bytes and verify five checksums
+        if: needs.release-context.outputs.build == 'true'
+        env:
+          VERSION: ${{ needs.release-context.outputs.version }}
+        run: |
+          python3 tools/release_assets.py aggregate source-candidate binary-candidates dist "$VERSION" "$GITHUB_SHA"
+          (cd dist && sha256sum -c SHA256SUMS.txt)
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: needs.release-context.outputs.build == 'true'
         with:
           name: release-candidate
           path: dist/
@@ -858,6 +934,7 @@ jobs:
       - blas-independence
       - cross-config-consistency
       - release-candidate
+      - publication-validation
       - portability
       - toolchain-envelope
       - cross-platform-semantics
@@ -869,6 +946,7 @@ jobs:
           CMAKE_INSTALL: ${{ needs.cmake-install.result }}
           BLAS_INDEPENDENCE: ${{ needs.blas-independence.result }}
           CROSS_CONFIG: ${{ needs.cross-config-consistency.result }}
+          PUBLICATION_VALIDATION: ${{ needs.publication-validation.result }}
           RELEASE_CANDIDATE: ${{ needs.release-candidate.result }}
           PORTABILITY: ${{ needs.portability.result }}
           ENVELOPE: ${{ needs.toolchain-envelope.result }}
@@ -877,7 +955,7 @@ jobs:
           failed=0
           for result in "$BUILD_AND_TEST" "$SANITIZER_CTEST" "$CMAKE_INSTALL" \
                         "$BLAS_INDEPENDENCE" "$CROSS_CONFIG" "$RELEASE_CANDIDATE" \
-                        "$PORTABILITY" "$ENVELOPE" "$CROSS_PLATFORM"; do
+                        "$PORTABILITY" "$ENVELOPE" "$CROSS_PLATFORM" "$PUBLICATION_VALIDATION"; do
             if [ "$result" != success ]; then
               failed=1
             fi

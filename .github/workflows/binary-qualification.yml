@@ -3,6 +3,11 @@ name: binary-sdk-qualification
 on:
   workflow_dispatch:
   workflow_call:
+    inputs:
+      release_version:
+        description: Empty for qualification; validated project version for release candidates
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -109,7 +114,15 @@ jobs:
             -lcertified_solver -laffine_bundle_solver -lm -Wl,-rpath,"$PWD/build-sdk" -o "$RUNNER_TEMP/source-api"
           "$RUNNER_TEMP/source-api" > evidence/source-api.json
       - name: Install, audit and package exact committed SDK
-        run: python tools/package_binary_sdk.py package build-sdk "$PWD/sdk-output" '${{ matrix.target }}'
+        env:
+          RELEASE_VERSION: ${{ inputs.release_version }}
+          SDK_TARGET: ${{ matrix.target }}
+        run: |
+          options=()
+          if [ -n "$RELEASE_VERSION" ]; then
+            options+=(--mode release --version "$RELEASE_VERSION")
+          fi
+          python tools/package_binary_sdk.py package build-sdk "$PWD/sdk-output" "$SDK_TARGET" "${options[@]}"
       - name: Consume archive with original build and staging prefixes unavailable
         run: |
           mv build-sdk "$RUNNER_TEMP/unavailable-build-sdk"
@@ -127,7 +140,7 @@ jobs:
           for name in binary-semantic.json sdk-smoke.json inspection.json missing-dependencies.json; do
             test -f "$RUNNER_TEMP/builder-consumer/$name" && cp "$RUNNER_TEMP/builder-consumer/$name" evidence/consumer-artifacts/
           done
-      - name: Upload qualified archive bytes (not a release asset)
+      - name: Preserve exact qualified archive bytes
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: sdk-${{ matrix.target }}

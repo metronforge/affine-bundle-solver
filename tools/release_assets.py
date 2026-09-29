@@ -6,12 +6,31 @@ The checksum order is source, research, linux-x86_64, linux-arm64, macos-arm64.
 import argparse
 import hashlib
 import json
+import os
+import subprocess
 from pathlib import Path, PurePosixPath
 import re
 import shutil
 import tarfile
 
 TARGETS = ('linux-x86_64', 'linux-arm64', 'macos-arm64')
+
+
+def candidate_required(current, previous, dry_run=False):
+    return dry_run or bool(previous and current != previous)
+
+
+def context(root, dry_run=False):
+    root = Path(root)
+    current = json.loads((root / '.release-please-manifest.json').read_text())['.']
+    commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
+    validate_identity(root, current, commit, os.environ.get('GITHUB_SHA', ''))
+    previous_file = subprocess.run(['git', 'show', 'HEAD^:.release-please-manifest.json'],
+                                   cwd=root, text=True, capture_output=True)
+    previous = json.loads(previous_file.stdout)['.'] if previous_file.returncode == 0 else ''
+    build = candidate_required(current, previous, dry_run)
+    print(f"build={str(build).lower()}")
+    print(f"version={current}")
 
 
 def archive_names(version):
@@ -130,6 +149,7 @@ def aggregate(source, sdks, output, version, commit):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest='action', required=True)
+    p = sub.add_parser('context'); p.add_argument('root'); p.add_argument('--dry-run', action='store_true')
     p = sub.add_parser('names'); p.add_argument('version')
     p = sub.add_parser('identity')
     for name in ('root', 'version', 'commit', 'expected_sha'):
@@ -146,7 +166,7 @@ def main():
     if action == 'names':
         print('\n'.join(archive_names(args['version']) + ['SHA256SUMS.txt']))
     else:
-        {'identity': validate_identity, 'verify': verify_candidate,
+        {'context': context, 'identity': validate_identity, 'verify': verify_candidate,
          'aggregate': aggregate, 'identical': require_identical}[action](**args)
 
 

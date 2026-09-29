@@ -40,6 +40,12 @@ class ReleaseContract(unittest.TestCase):
             binary(self.candidate / name, target)
         release.write_checksums(self.candidate, self.names)
 
+    def test_ordinary_commit_and_dry_run_detection(self):
+        self.assertFalse(release.candidate_required('1.2.3', '1.2.3', False))
+        self.assertFalse(release.candidate_required('1.2.3', '', False))
+        self.assertTrue(release.candidate_required('1.2.3', '1.2.2', False))
+        self.assertTrue(release.candidate_required('1.2.3', '1.2.3', True))
+
     def test_names_and_five_entry_order(self):
         self.assertEqual(self.names, [f'affine-bundle-solver-v1.2.3{s}.tar.gz' for s in
                                      ('', '-research', '-linux-x86_64', '-linux-arm64', '-macos-arm64')])
