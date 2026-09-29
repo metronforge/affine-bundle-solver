@@ -1,0 +1,60 @@
+{
+  "repository": "metronforge/affine-bundle-solver",
+  "source_commit": "3b71f043726ee87bde88af1ad52b29004e71c3b9",
+  "source_tree": "0b3905f5ee66d5420fcdd7c97ee1fb7ceb9f416c",
+  "source_dirty": false,
+  "platform": "linux-x86_64",
+  "architecture": "x86_64",
+  "os": "PRETTY_NAME=\"Ubuntu 22.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"22.04\"\nVERSION=\"22.04.5 LTS (Jammy Jellyfish)\"\nVERSION_CODENAME=jammy\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=jammy\n",
+  "compiler": "gcc-11",
+  "compiler_version": "gcc-11 (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0\nCopyright (C) 2021 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+  "libc": "glibc 2.35",
+  "cpu_baseline": "x86-64 baseline",
+  "blas_provider": "reference BLAS/LAPACK LP64",
+  "blas_version": "libblas3 3.10.0-2ubuntu1\nliblapack3 3.10.0-2ubuntu1",
+  "openmp_runtime": "libgomp1 12.3.0-1ubuntu1~22.04.3",
+  "cmake_version": "cmake version 3.31.6\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).",
+  "build_options": {
+    "ABS_ARCH_FLAGS": "",
+    "ABS_BLAS": "system"
+  },
+  "deployment_target": null,
+  "tested_userspace_floor": "2.35",
+  "build_command": "cmake --build <build> --parallel 3; cmake --install <build> --prefix <SDK>",
+  "version": "0.4.4",
+  "release_tag": "v0.4.4",
+  "libraries": [
+    {
+      "path": "lib/libaffine_bundle_solver.so",
+      "sha256": "91272011795bafb38aba0e6103cc9de8664b74202773b12d002244fdebf8cb58",
+      "needed": [
+        "libm.so.6",
+        "libgomp.so.1",
+        "libblas.so.3",
+        "liblapack.so.3",
+        "libc.so.6",
+        "ld-linux-x86-64.so.2"
+      ]
+    },
+    {
+      "path": "lib/libcertified_solver.so",
+      "sha256": "f3fa5020b90f023b3a26189f3a3621498e793bfb61eb87a0ad8a6dcb22062d3f",
+      "needed": [
+        "libaffine_bundle_solver.so",
+        "libstatus_verifier.so",
+        "libm.so.6",
+        "liblapack.so.3",
+        "libc.so.6"
+      ]
+    },
+    {
+      "path": "lib/libstatus_verifier.so",
+      "sha256": "5fb83d95b4bded5319720d1fd681f9023458c90551ed19e94cf0678745dacc03",
+      "needed": [
+        "libm.so.6",
+        "libgomp.so.1",
+        "libc.so.6"
+      ]
+    }
+  ]
+}

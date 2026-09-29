@@ -14,8 +14,7 @@ consumption, and the packaged semantic qualification gate. Publication work
 started only after that checkpoint.
 
 Implementation branch: `release/binary-publication`. Final validation identity
-and run are recorded in the validation section below; the final documentation
-commit is identified by the branch's Git history (a commit cannot embed its own SHA).
+and run are recorded as described in the validation section below.
 
 ## Architecture before and after
 
@@ -85,10 +84,46 @@ The publisher's push/main guard excludes all dispatch runs.
 
 ## Validation
 
-In progress: full non-publishing run on implementation commit `5237be434af84c77ef0ccfafe0ee676b55d1a9b1`:
-[36638644221](https://github.com/metronforge/affine-bundle-solver/actions/runs/36638644221).
+Full non-publishing validation on implementation commit
+`3b71f043726ee87bde88af1ad52b29004e71c3b9` (tree
+`0b3905f5ee66d5420fcdd7c97ee1fb7ceb9f416c`): [36639115720](https://github.com/metronforge/affine-bundle-solver/actions/runs/36639115720),
+**27/27 jobs successful**. This exercised real source/research packaging and all
+three release-mode SDKs at the existing `0.4.4` version without creating a tag
+or release. The downloaded aggregate independently passed local validation;
+both source/research manifests were also rehashed directly from the downloaded
+archives. Compact run records, the aggregate checksum manifest and three
+BUILD-INFO records are retained in [publication-evidence/](publication-evidence/).
 
-Local deterministic validation covers names/order, five-entry checksums,
+The final report commit receives another complete CI run. Its exact SHA and
+result are recorded after completion in the Git note ref
+`refs/notes/binary-publication`, and in the task completion report. This avoids
+claiming a self-referential commit SHA inside its own content.
+
+The first dry-run [36638644221](https://github.com/metronforge/affine-bundle-solver/actions/runs/36638644221)
+on `5237be434af84c77ef0ccfafe0ee676b55d1a9b1` is retained as pre-fix evidence.
+All SDK qualifications passed, and both source manifests passed, but the clean
+source rebuild failed with `fatal: not a git repository` in build.sh's provenance
+block. Aggregation and the required gate correctly failed. The isolated fix
+`315b548` adds `SOURCE-PROVENANCE.json` to the existing source/research manifests
+and lets build.sh obtain commit/tree identity from that metadata when there is
+no Git checkout, marking changed/missing archived files dirty. Git checkout
+behavior, build commands, numerical semantics and paper assertions are unchanged.
+Three dedicated source-identity tests cover this boundary.
+
+Independent review found one tar-path aliasing defect in the new validator.
+A regression reproduced an aliased BUILD-INFO overwriting the validated identity;
+`3b71f04` rejects noncanonical paths. The regression failed before and passed
+after the fix. There are no deferred review findings.
+
+Ordinary-main evidence: publisher run
+[36637758377](https://github.com/metronforge/affine-bundle-solver/actions/runs/36637758377)
+classified the integrated qualification commit as ordinary and skipped download,
+draft creation, upload and publication. Dispatch-triggered publishers are
+skipped. The latest real release remains the pre-existing `v0.4.4` from September
+13, 2026.
+
+Local deterministic validation: 12 release-contract tests, four SDK-contract
+tests and three source-identity tests all pass. Coverage includes names/order, five-entry checksums,
 corruption, missing/extra assets, duplicate/traversal manifest entries,
 manifest/CMake/CITATION disagreement, wrong source SHA, incorrect internal
 BUILD-INFO identity, existing identical/different bytes, exact aggregation,

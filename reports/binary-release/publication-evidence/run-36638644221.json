@@ -1,0 +1,171 @@
+{
+  "conclusion": "failure",
+  "headSha": "5237be434af84c77ef0ccfafe0ee676b55d1a9b1",
+  "jobs": [
+    {
+      "name": "cmake, system BLAS, install and consume",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109645372302
+    },
+    {
+      "name": "clang / portable",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109645372607
+    },
+    {
+      "name": "portability / macos-arm64-appleclang",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109645372631
+    },
+    {
+      "name": "gcc / native",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109645372655
+    },
+    {
+      "name": "gcc / portable",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109645372661
+    },
+    {
+      "name": "release candidate context",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109645372665
+    },
+    {
+      "name": "portability / linux-arm64-clang",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109645372686
+    },
+    {
+      "name": "envelope / ubuntu22-gcc11-reference",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109645372687
+    },
+    {
+      "name": "publication validation tests",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109645372704
+    },
+    {
+      "name": "ASan + UBSan / python-semantics",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109645372711
+    },
+    {
+      "name": "portability / linux-arm64-gcc",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109645372717
+    },
+    {
+      "name": "envelope / ubuntu22-clang14-reference",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109645372738
+    },
+    {
+      "name": "envelope / ubuntu24-clang18-reference",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109645372761
+    },
+    {
+      "name": "ASan + UBSan / stream-enomem",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109645372785
+    },
+    {
+      "name": "envelope / ubuntu24-gcc13-openblas",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109645372807
+    },
+    {
+      "name": "ASan + UBSan / native-leaks",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109645372884
+    },
+    {
+      "name": "verified source and research candidate",
+      "conclusion": "failure",
+      "status": "completed",
+      "databaseId": 109645412250
+    },
+    {
+      "name": "binary-qualification / SDK / linux-arm64",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109645412565
+    },
+    {
+      "name": "binary-qualification / SDK / macos-arm64",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109645412630
+    },
+    {
+      "name": "binary-qualification / SDK / linux-x86_64",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109645412692
+    },
+    {
+      "name": "portable vs native agree",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109645770791
+    },
+    {
+      "name": "classification does not depend on the BLAS",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109645875788
+    },
+    {
+      "name": "binary-qualification / Exact x86 SDK / Ubuntu 24.04 forward consumption",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109646004576
+    },
+    {
+      "name": "cross-platform semantic agreement",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109646010690
+    },
+    {
+      "name": "binary-qualification / binary qualification gate",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 109646201837
+    },
+    {
+      "name": "verified release candidate",
+      "conclusion": "failure",
+      "status": "completed",
+      "databaseId": 109646348000
+    },
+    {
+      "name": "verification gate",
+      "conclusion": "failure",
+      "status": "completed",
+      "databaseId": 109646393629
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/metronforge/affine-bundle-solver/actions/runs/36638644221",
+  "job_count": 27
+}

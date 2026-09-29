@@ -1,0 +1,5 @@
+f3b600932105a8eaaa0346302fa900f8904f12691bcc1ad2a9faeb92a5b8379c  affine-bundle-solver-v0.4.4.tar.gz
+7d0cab477efd9fd6a1d8dd1b340b3bdd06b0bed74d1b3efa43a87c43ee0ab6ac  affine-bundle-solver-v0.4.4-research.tar.gz
+2ca03727278f43d4a51c8f30e03dbce62a976bc4f4ed3568900d8002faf21a18  affine-bundle-solver-v0.4.4-linux-x86_64.tar.gz
+d8c32d28c2bb54c7ee19b403533d474f80f95ac417dbbe4706b826a6223c66f5  affine-bundle-solver-v0.4.4-linux-arm64.tar.gz
+fd53ac4c023ce65bc3da6a3ebd70533f96a1d63075c16112449b2ad1d9c5a42f  affine-bundle-solver-v0.4.4-macos-arm64.tar.gz

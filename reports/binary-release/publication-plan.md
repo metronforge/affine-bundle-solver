@@ -17,11 +17,11 @@ Work in canonical /projects/affine-bundle-solver on release/binary-publication; 
 
 ## Tasks
 
-- [ ] 1. Add tests and tools/release_assets.py: expected archive names in source/research/x86/ARM/macOS order; strict version and commit identity; complete inventory and checksums; binary BUILD-INFO validation; exact existing-asset comparison; aggregation from verified producer inventories. Run unittest failures then passing suite.
-- [ ] 2. Extend tools/package_binary_sdk.py with explicit qualification/release modes using shared identity validation. Release requires manifest/CMake/CITATION agreement and HEAD == GITHUB_SHA; retain all existing packaging/auditing. Test mode/name/identity boundaries.
-- [ ] 3. Add CI release context and non-publishing dry-run input; feed version into reusable binary qualification; retain source/research producer; aggregate only after source verification and full binary gate including forward consumption. Add publication validation tests as required CI.
-- [ ] 4. Extend publisher with shared pure validation, six-asset no-overwrite handling, complete remote revalidation and candidate comparison. Keep workflow_run push/main guard, exact run ID, exact SHA target and immutable enforcement.
-- [ ] 5. Document installation dependencies and publication evidence. Run full candidate dry-run CI on branch, review, fix failures with regression tests, commit evidence, then validate final HEAD. Do not merge.
+- [x] 1. Add tests and tools/release_assets.py: expected archive names in source/research/x86/ARM/macOS order; strict version and commit identity; complete inventory and checksums; binary BUILD-INFO validation; exact existing-asset comparison; aggregation from verified producer inventories. Run unittest failures then passing suite.
+- [x] 2. Extend tools/package_binary_sdk.py with explicit qualification/release modes using shared identity validation. Release requires manifest/CMake/CITATION agreement and HEAD == GITHUB_SHA; retain all existing packaging/auditing. Test mode/name/identity boundaries.
+- [x] 3. Add CI release context and non-publishing dry-run input; feed version into reusable binary qualification; retain source/research producer; aggregate only after source verification and full binary gate including forward consumption. Add publication validation tests as required CI.
+- [x] 4. Extend publisher with shared pure validation, six-asset no-overwrite handling, complete remote revalidation and candidate comparison. Keep workflow_run push/main guard, exact run ID, exact SHA target and immutable enforcement.
+- [x] 5. Document installation dependencies and publication evidence. Run full candidate dry-run CI on branch, review, fix failures with regression tests, commit evidence, then validate final HEAD. Do not merge.
 
 ## Review focus
 
@@ -36,3 +36,10 @@ because build.sh's provenance block unconditionally required .git. Both original
 archive manifests had passed. Add manifest-covered SOURCE-PROVENANCE.json and
 source_identity.py; retain Git behavior in checkouts and detect modified archived
 files. No compiler commands, solver semantics or paper assertions change.
+
+Implementation milestones: 8ca6516 shared validation; ee9384e packaging modes;
+23f5ddb same-run CI aggregation; 5237be4 promotion-only publisher; 1345413 docs;
+315b548 extracted-source provenance fix; 3b71f04 tar-alias regression fix.
+Full dry-run 36639115720: 27/27 green. Independent downloaded candidate and both
+source/research manifests reverified. No uncommitted source or temporary source
+checkout used. Final report commit will receive a full run, recorded in Git notes.
