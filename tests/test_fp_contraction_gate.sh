@@ -6,7 +6,7 @@ cc=$2
 root=$3
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
-common=(-O2 -ffp-contract=off -I"$root/include" -I"$root/src")
+common=(-O2 -ffp-contract=off -I"$root/include" -I"$root/src" "${@:4}")
 
 cat >"$work/empty-relevant-objdump" <<'EOF'
 #!/usr/bin/env bash

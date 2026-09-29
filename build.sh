@@ -122,7 +122,7 @@ rm -f .mxcsr_probe
 # sources with exactly the flags used above, for an FMA-capable target, and
 # fail the build on any fused multiply-add.
 tools/check_fp_contraction.sh "${CC_ARGV[@]}" \
-  -- -O2 -fPIC "${STRICT_FP_ARGV[@]}" "${INCLUDE_ARGV[@]}" "${BLAS_DEF_ARGV[@]}" \
+  -- -O2 -fPIC -fopenmp "${STRICT_FP_ARGV[@]}" "${INCLUDE_ARGV[@]}" "${BLAS_DEF_ARGV[@]}" \
   -- src/formation_guard.c src/status_certificate.c src/certified_api.c
 
 # Publish provenance only after every build and runtime probe succeeds. The

@@ -525,7 +525,7 @@ if(ABS_BUILD_TESTING)
   target_compile_definitions(abs_unique_verifier_rows_test PRIVATE
     ABS_TEST_UNIQUE_ROW_HOOK)
   target_include_directories(abs_unique_verifier_rows_test PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    ${CMAKE_CURRENT_SOURCE_DIR}/include ${OpenMP_C_INCLUDE_DIRS})
   target_link_options(abs_unique_verifier_rows_test PRIVATE ${ABS_INSTRUMENTATION})
   target_link_libraries(abs_unique_verifier_rows_test PRIVATE m)
   add_test(NAME test_unique_verifier_rows COMMAND abs_unique_verifier_rows_test)
@@ -556,10 +556,14 @@ if(ABS_BUILD_TESTING)
   # multiply-add.  The portable baseline has no FMA, so checking the objects
   # built above would pass vacuously.
   list(TRANSFORM ABS_BLAS_DEFINES PREPEND "-D" OUTPUT_VARIABLE _abs_blas_define_flags)
+  separate_arguments(_abs_openmp_flags NATIVE_COMMAND "${OpenMP_C_FLAGS}")
+  foreach(_include IN LISTS OpenMP_C_INCLUDE_DIRS)
+    list(APPEND _abs_openmp_flags "-I${_include}")
+  endforeach()
   add_test(NAME strict_fp_contraction
            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/check_fp_contraction.sh
                    ${CMAKE_C_COMPILER}
-                   -- ${ABS_STRICT_FP_FLAGS} ${_abs_blas_define_flags}
+                   -- ${ABS_STRICT_FP_FLAGS} ${_abs_blas_define_flags} ${_abs_openmp_flags}
                       -I${CMAKE_CURRENT_SOURCE_DIR}/include
                       -I${CMAKE_CURRENT_SOURCE_DIR}/src
                    -- ${CMAKE_CURRENT_SOURCE_DIR}/src/formation_guard.c
@@ -569,7 +573,7 @@ if(ABS_BUILD_TESTING)
            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_fp_contraction_gate.sh
                    ${CMAKE_CURRENT_SOURCE_DIR}/tools/check_fp_contraction.sh
                    ${CMAKE_C_COMPILER}
-                   ${CMAKE_CURRENT_SOURCE_DIR})
+                   ${CMAKE_CURRENT_SOURCE_DIR} ${_abs_openmp_flags})
 
   find_package(Python3 COMPONENTS Interpreter)
   if(Python3_Interpreter_FOUND)
