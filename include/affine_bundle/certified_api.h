@@ -64,6 +64,24 @@ typedef struct {
 
 #define BS_CERTIFIED_DIAG_GREY_CAP 64
 
+#include "operational_policy.h"
+
+/* Additive ABI: initialize using bs_init_combined_semantic_result, or supply
+   struct_size >= sizeof(V1). Only the V1 prefix is written; suffix bytes survive.
+   certificate_profile is the frozen legacy nearby profile/projection, NOT exact
+   source evidence. Exact-source fields live in operational and remain UNKNOWN. */
+typedef struct {
+    size_t struct_size;
+    BSOperationalResultV1 operational;
+    int nearby_status_mask;
+    double eta_unique, eta_infinite, eta_inconsistent;
+    BSCertifiedResult certificate_profile;
+} BSCombinedSemanticResultV1;
+void bs_init_combined_semantic_result(BSCombinedSemanticResultV1 *out);
+int bsolve_certified_policy_api(const double *A,const double *b,const double *xt,
+    int m,int n,int sp,int qv,int alpha,unsigned long long seed,int full,
+    const BSOperationalPolicyV1 *policy,BSCombinedSemanticResultV1 *out);
+
 /* One router result plus its same-invocation diagnostics and the independent
    three-profile certificate audit.  Unused grey_rows entries are zero.
    formation_guard_counters are per-invocation deltas: checks, escalations,
@@ -87,7 +105,9 @@ int bs_generate_infinite_witness(const double *A, const double *b, int m, int n,
 int bs_generate_inconsistent_witness(const double *A, const double *b, int m, int n,
                                      BSInconsistentWitness *w);
 
-/* Runs the fast router and, independently of its choice, attempts all three
+/* Router status is operational. Neither it nor nearby proof acceptance establishes
+   exact source status; certified_status is a legacy projection, not a source proof.
+   Runs the fast router and, independently of its choice, attempts all three
    post-hoc proof-object types.  The eta_unique/eta_infinite/eta_inconsistent
    fields form the primary router-independent nearby-status profile.
    certified_status/eta_status remain a compatibility projection onto the

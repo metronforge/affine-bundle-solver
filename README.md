@@ -1,14 +1,14 @@
 # Affine-Bundle Solver
 
 A dense solver for general real linear equality systems `Ax = b` that does not
-assume consistency, full rank, or uniqueness — and that reports **which of
-those it can actually prove**.
+assume consistency, full rank, or uniqueness. It reports operational classifications
+under a numerical policy and independently verifies nearby-system certificates.
 
 Most solvers answer "here is a solution". This one answers a different
 question first: *is the system uniquely solvable, underdetermined,
 inconsistent, or too close to a rank transition to say?* The classification
-comes with independently checkable proof objects, and the router refuses to
-turn a numerical guess into an exact claim.
+comes with separately interpreted nearby proof objects. Exact status of the stored
+source requires independent evidence and remains UNKNOWN in ordinary solver calls.
 
 [![build-and-test](https://github.com/metronforge/affine-bundle-solver/actions/workflows/ci.yml/badge.svg)](https://github.com/metronforge/affine-bundle-solver/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
@@ -31,13 +31,13 @@ g = (I − P)a        the part of the row not yet explained
 row (`ρ = 0`) from a **contradictory** one (`ρ ≠ 0`). That is the whole exact
 calculus; everything else is about doing it safely in floating point.
 
-Outputs:
+Operational outputs under the selected policy (legacy APIs use DEFAULT):
 
 | Status | Meaning |
 |---|---|
-| `UNIQUE` | exactly one solution |
-| `INFINITE` | consistent, solution set positive-dimensional |
-| `INCONSISTENT` | no solution |
+| `UNIQUE` | full-column-rank compatibility under the policy |
+| `INFINITE` | rank-deficient compatibility under the policy |
+| `INCONSISTENT` | incompatibility under the policy |
 | `UNDECIDABLE` | data too close to a rank transition to decide; a **rank interval** `[r₋, r₊]` is returned instead of a point rank |
 | `FAIL` | resource failure (e.g. allocation); makes no claim about the data |
 
@@ -48,6 +48,9 @@ status verdict.
 Field-by-field semantics, the three decision thresholds, and what each
 guarantee does and does not cover are in [`docs/api.md`](docs/api.md), which
 is written to be read without the manuscript.
+
+The [versioned operational policy API](docs/operational-policy.md) exposes all four
+sensitivity values and separates exact-source evidence from nearby certificates.
 
 ### Certificates
 

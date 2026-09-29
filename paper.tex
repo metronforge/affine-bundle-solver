@@ -60,7 +60,7 @@ In finite precision the fast router separates numerical status, epistemic streng
 
 The principal certification result is path independent. Three compact proof-object types target exact uniqueness, exact consistency with nonuniqueness, and exact inconsistency. A separate strict arithmetic checker derives, rather than trusts, an outward upper bound \(\eta_S\) in a common rowwise augmented relative perturbation metric. Acceptance implies the existence of a nearby real system within \(\eta_S\) of the corresponding exact type. The audit API attempts all three types independently of the fast router and therefore returns a router-independent nearby-status profile \(\boldsymbol{\eta}=(\eta_{\rm uniq},\eta_{\rm inf},\eta_{\rm inc})\), with rejected coordinates reported as unavailable. These coordinates are existence upper bounds, not confidence scores: the exact status sets are not topologically separated, and at a compatible rank-deficient source point all three exact status-set distances can vanish simultaneously. The theorem therefore does not require a rounding-error proof for every internal routing branch, while the profile avoids letting that router decide which certified alternatives are visible.
 
-With formation-provenance certification and the strengthened certificate checker, the equivalence-orbit property battery contains 8,335 property checks exercising the C implementation and reports no hard failure. The remaining 154 explicitly labelled affine-translation diagnostics are traced to the declared contradiction-policy scaling and an explicit per-row dyadic threshold. A separate 2,271-check certificate-equivariance battery has zero failure and exercises independent signed dyadic row scalings through $2^{\pm1000}$, compatible and near-compatible tall systems through $2^{\pm500}$, and verifier scales from deep subnormal values through $2^{1020}$. High-precision shadow evaluation found no underestimated constructive inconsistency radius in that battery. A separate immutable laptop experiment supplies machine-scoped comparisons with DGELSY, DGESV, and LSMR. These experiments support practical viability for dense equality classification on the tested platform, not universal superiority over general-purpose numerical linear algebra.
+With formation-provenance certification and the strengthened certificate checker, the equivalence-orbit property battery contains 8,335 property checks exercising the C implementation and reports no hard failure. The remaining 155 explicitly labelled affine-translation diagnostics are traced to the declared contradiction-policy scaling and an explicit per-row dyadic threshold. A separate 2,271-check certificate-equivariance battery has zero failure and exercises independent signed dyadic row scalings through $2^{\pm1000}$, compatible and near-compatible tall systems through $2^{\pm500}$, and verifier scales from deep subnormal values through $2^{1020}$. High-precision shadow evaluation found no underestimated constructive inconsistency radius in that battery. A separate immutable laptop experiment supplies machine-scoped comparisons with DGELSY, DGESV, and LSMR. These experiments support practical viability for dense equality classification on the tested platform, not universal superiority over general-purpose numerical linear algebra.
 \end{abstract}
 
 \section{Introduction}
@@ -176,6 +176,25 @@ The two directions are orthogonal in the augmented geometry, giving the decompos
 \]
 The solver therefore separates rank evidence from compatibility evidence rather than mixing them into a single tolerance.
 
+\subsection{Operational policy and exact-source evidence}
+Operational classification under a researcher-selected numerical policy, exact
+status of the stored binary64 source, and verified nearby-system existence are
+separate semantic layers. The additive versioned API records all four policy
+values and returns exact-source UNKNOWN with verification NOT\_VERIFIED for
+ordinary floating-point calls. Exact rational, interval, analytic, or external
+proofs may be recorded independently by a reporting layer; this API implements
+no proof-import mechanism. A contract-policy oracle is not an exact-source proof.
+
+The default remains dependence $10^{-13}$, growth $10^{-9}$, compatibility
+$2\times10^{-10}$, and UNIQUE-witness quality $10^{-14}$. All supplied values
+must be finite, positive, at most one, with dependence strictly below growth.
+Default calls retain the existing fast router. Custom policies use normalized
+source QRCP with explicit rank bands, the existing rowwise compatibility gate,
+and a UNIQUE quality bound. This may change the route and witness as well as
+status. Policy values are immutable per-call inputs; none enters strict nearby
+certificate verification. Sensitivity changes operational interpretation, not the
+exact source mathematics or the nearby-certificate theorem.
+
 \subsection{Row decisions and system-level epistemic state}
 The implementation uses guarded bands around the rank transition. At the row level the local decision is one of
 \begin{enumerate}[label=(\alph*)]
@@ -202,7 +221,7 @@ For each row this is the minimal mixed rowwise $2$-norm backward error for fixed
 \]
 by Cauchy--Schwarz with equality attained by a coefficient correction parallel to $x$. This quantity is not a componentwise Oettli--Prager bound and is not identified with the exact-status radius introduced below. The public implementation exports a deterministic unique result only after the final source-level closure path satisfies the declared quality threshold $\eta_x\le10^{-14}$; otherwise it returns an unresolved status. For unresolved outputs no unique solution witness is asserted and the solution-quality diagnostics are NaN.  The same absence rule applies to \textsc{inconsistent}: an incompatibility verdict has no solution witness, so the public meta API exports the solution/reference-solution error field as NaN (while a residual-style incompatibility diagnostic may remain finite).
 
-The numerical labels \textsc{infinite} and \textsc{inconsistent} should therefore be read as underdetermined and incompatible under the declared finite-precision policy unless an independent exact-status proof object is also accepted. Randomized rank closure obeys the a-priori dimensional upper bound $r_+\le\min(m,n)$. A compatibility residual becomes contradiction evidence only after dependence has itself been resolved, and compressed or sketched residuals may reject a candidate or trigger escalation but are not promoted directly to source-level inconsistency.
+The numerical labels \textsc{infinite} and \textsc{inconsistent} should therefore be read as underdetermined and incompatible under the declared finite-precision policy. Exact-source status requires a separate proof about the original source; acceptance of a nearby-status object does not provide that proof. Randomized rank closure obeys the a-priori dimensional upper bound $r_+\le\min(m,n)$. A compatibility residual becomes operational contradiction evidence only after dependence has itself been resolved, and compressed or sketched residuals may reject a candidate or trigger escalation but are not promoted directly to source-level inconsistency.
 
 \begin{proposition}[Affine-translation threshold of the fast contradiction policy]\label{prop:translation-threshold}
 Let a nonzero source row be normalized as $\hat a=a/\|a\|_2$ and $\hat\beta=b/\|a\|_2$, and let $x$ be the current affine anchor.  Under the exact coordinate translation
@@ -249,7 +268,7 @@ for the sufficient-preservation statement and the reverse triangle inequalities
 for guaranteed gate failure.
 \end{proof}
 \begin{remark}
-This effect is distinct from the deterministic-unique quality quantity $\eta_x$.  The 154 large affine-translation diagnostics in the property battery are dominated by inconsistent systems, so their representation sensitivity is governed by the contradiction-policy scale above, not by the $\eta_x$ acceptance threshold.
+This effect is distinct from the deterministic-unique quality quantity $\eta_x$.  The 155 large affine-translation diagnostics in the property battery are dominated by inconsistent systems, so their representation sensitivity is governed by the contradiction-policy scale above, not by the $\eta_x$ acceptance threshold.
 \end{remark}
 
 \subsection{An a-posteriori distance envelope}
@@ -853,7 +872,7 @@ The equivalence-orbit battery contains 8,335 property checks exercising the C
 implementation with no hard failure. It includes row permutation, signed
 dyadic row scaling, dependent-row
 extension, coordinate transformations, status-profile transformations, and a
-minimal cancellation counterexample. Its 154 recorded diagnostics are
+minimal cancellation counterexample. Its 155 recorded diagnostics are
 explicitly classified as representation-sensitive affine translations and
 match the contradiction policy analyzed in
 Proposition~\ref{prop:translation-threshold}; they are not hidden hard
@@ -898,7 +917,7 @@ input, which is the intended division of trust rather than a coincidence.
 \item The three status sets are not topologically separated in the rowwise relative metric. Under Proposition~\ref{prop:status-closures}, an exactly infinite compatible system with nonzero augmented rows satisfies $d_{\rm uniq}=d_{\rm inf}=d_{\rm inc}=0$; even an exactly unique tall compatible system has both $d_{\rm uniq}=0$ and $d_{\rm inc}=0$. Thus no profile coordinate is a general confidence margin for the source status. Nonzero separation is local and stratum dependent, arising only when a compatibility or rank condition relevant to the target class cannot be repaired arbitrarily cheaply. In addition, the reported coordinates are generator-dependent upper bounds, so their ordering is comparative diagnostic information rather than a certified ordering of exact distances.
 \item Certificate generation is not cheap in the current post-hoc implementation. The all-status profile deliberately attempts up to three generators, and normalized augmented-row generation plus independent verification add proof work. No current timing claim is made for this optional audit path.
 \item The LAPACK comparison is contextual: DGELSY solves a more general least-squares and minimum-norm problem. Specialized sparse, graph, iterative, and structured methods can be much faster.
-\item Exact affine coordinate translations preserve the mathematical solution set, but the fast contradiction policy is intentionally representation-scaled and therefore not affine-translation invariant. Proposition~\ref{prop:translation-threshold} gives explicit per-row sufficient conditions for preservation and guaranteed loss of contradiction evidence along dyadic translation rays. The remaining 154 PBT diagnostics are retained as measurements of this declared policy boundary rather than as unexplained numerical exceptions.
+\item Exact affine coordinate translations preserve the mathematical solution set, but the fast contradiction policy is intentionally representation-scaled and therefore not affine-translation invariant. Proposition~\ref{prop:translation-threshold} gives explicit per-row sufficient conditions for preservation and guaranteed loss of contradiction evidence along dyadic translation rays. The remaining 155 PBT diagnostics are retained as measurements of this declared policy boundary rather than as unexplained numerical exceptions.
 \item Performance is platform dependent. The timing observations come from one named Intel Core Ultra 9 laptop, one software stack, single-thread OpenMP and BLAS, and fixed inputs. They are not portable speed guarantees. On that machine the square cases are at parity with DGESV, while the router is slower than DGELSY on the three moderate or large underdetermined cases. The argument in those regimes is the classification output and rank interval, not wall time.
 \end{enumerate}
 
@@ -907,7 +926,7 @@ The affine-bundle representation turns a general linear equality system into a s
 
 The central semantic distinction is the separation of fast numerical classification from exact nearby-status certification. The router may use deterministic or randomized mechanisms and may remain unresolved near a rank transition. Certified mode does not attempt to prove every routing branch backward stable. Instead, untrusted generators attempt three typed objects, and a small independent checker reconstructs nearby exact systems: a full-column-rank compatible system for uniqueness, a compatible system with an explicit nonzero null direction for infinitely many solutions, or an inconsistent system with an explicit left-null contradiction. The checker computes every accepted radius itself and exports the three-coordinate profile without asking the router which type should be visible. Consequently, replacement of an internal sketch, factorization, or route does not alter the soundness theorem as long as accepted proof objects obey the same contract.
 
-The regression and adversarial experiments support this separation. The equivalence-orbit battery reports 8,335 checks with no hard failure. Its 154 explicitly labelled affine-translation cases are quantitatively tied to the contradiction-policy threshold of Proposition~\ref{prop:translation-threshold}, rather than retained as unexplained exceptions. A separate focused battery has 2,271 checks and zero failure, including independent signed dyadic row scalings through $2^{\pm1000}$ and high-precision shadow checks of the constructive inconsistency radius. The immutable laptop package contributes 29 valid row-level classification records and deliberately mixed performance results across tall, square, wide, rank-deficient, inconsistent, and near-transition inputs. Reuse of already computed factors as untrusted certificate candidates has begun: the unique and infinite generators share one least-squares solve, and the tall inconsistency scan reuses one pivoted QR factorization. Because generators are untrusted, such sharing leaves the soundness theorem unchanged. The remaining engineering work is broader factor reuse and replacement of the strict-C interval prototype by a stronger validated arithmetic backend. The mathematical and empirical claims remain restricted to general linear equality classification in the tested dense regimes.
+The regression and adversarial experiments support this separation. The equivalence-orbit battery reports 8,335 checks with no hard failure. Its 155 explicitly labelled affine-translation cases are quantitatively tied to the contradiction-policy threshold of Proposition~\ref{prop:translation-threshold}, rather than retained as unexplained exceptions. A separate focused battery has 2,271 checks and zero failure, including independent signed dyadic row scalings through $2^{\pm1000}$ and high-precision shadow checks of the constructive inconsistency radius. The immutable laptop package contributes 29 valid row-level classification records and deliberately mixed performance results across tall, square, wide, rank-deficient, inconsistent, and near-transition inputs. Reuse of already computed factors as untrusted certificate candidates has begun: the unique and infinite generators share one least-squares solve, and the tall inconsistency scan reuses one pivoted QR factorization. Because generators are untrusted, such sharing leaves the soundness theorem unchanged. The remaining engineering work is broader factor reuse and replacement of the strict-C interval prototype by a stronger validated arithmetic backend. The mathematical and empirical claims remain restricted to general linear equality classification in the tested dense regimes.
 
 \appendix
 

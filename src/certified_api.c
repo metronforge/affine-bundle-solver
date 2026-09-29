@@ -671,6 +671,33 @@ static void certified_complete(const double *A,const double *b,int m,int n,
     }
 }
 
+void bs_init_combined_semantic_result(BSCombinedSemanticResultV1 *out){
+    if(!out)return;
+    memset(out,0,sizeof(*out));out->struct_size=sizeof(*out);
+    bs_init_operational_result(&out->operational);
+    certified_init(&out->certificate_profile);
+    out->eta_unique=out->eta_infinite=out->eta_inconsistent=INFINITY;
+}
+int bsolve_certified_policy_api(const double*A,const double*b,const double*xt,
+    int m,int n,int sp,int qv,int alpha,unsigned long long seed,int full,
+    const BSOperationalPolicyV1 *policy,BSCombinedSemanticResultV1 *out){
+    if(!out || out->struct_size<sizeof(*out))return BS_POLICY_INVALID_ARGUMENT;
+    size_t size=out->struct_size;
+    BSOperationalPolicyV1 p;int invalid=bs_validate_operational_policy(policy);
+    if(!invalid){p=*policy;p.struct_size=sizeof(p);}
+    bs_init_combined_semantic_result(out);out->struct_size=size;
+    if(invalid)return BS_POLICY_INVALID_ARGUMENT;
+    int rc=bsolve_router_policy_api(A,b,xt,m,n,sp,qv,alpha,seed,full,&p,&out->operational);
+    if(rc==BS_POLICY_INVALID_ARGUMENT)return rc;
+    /* No policy value enters witness generation or strict proof verification. */
+    certified_complete(A,b,m,n,out->operational.router_meta,&out->certificate_profile);
+    out->nearby_status_mask=out->certificate_profile.accepted_status_mask;
+    out->eta_unique=out->certificate_profile.eta_unique;
+    out->eta_infinite=out->certificate_profile.eta_infinite;
+    out->eta_inconsistent=out->certificate_profile.eta_inconsistent;
+    return rc;
+}
+
 int bsolve_certified_api(const double *A,const double *b,const double *xt,int m,int n,int sp,int qv,int alpha,
                          unsigned long long seed,int full,BSCertifiedResult *out) {
     double meta[ABS_OUT_LEN];

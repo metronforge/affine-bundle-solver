@@ -334,6 +334,10 @@ if(ABS_BUILD_TESTING)
   target_link_libraries(abs_certified_diag_test PRIVATE
     certified_solver affine_bundle_solver status_verifier m)
   add_test(NAME test_certified_diag COMMAND abs_certified_diag_test)
+  add_executable(abs_operational_policy_test tests/test_operational_policy.c)
+  target_link_libraries(abs_operational_policy_test PRIVATE certified_solver affine_bundle_solver m pthread)
+  target_include_directories(abs_operational_policy_test PRIVATE include)
+  add_test(NAME test_operational_policy COMMAND abs_operational_policy_test)
 
   # A separately compiled router makes the one-execution hook observable to
   # this test without adding a test counter to any installed public library.
