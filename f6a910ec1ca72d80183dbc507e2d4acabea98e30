@@ -1,0 +1,172 @@
+{
+  "repository": "/projects/affine-bundle-solver",
+  "branch": "release/binary-publication",
+  "base_sha": "8b7e0738a383746adec3f848eef5e544000fd8e5",
+  "final_head": "f6a910ec1ca72d80183dbc507e2d4acabea98e30",
+  "source_tree": "b5f3d5123efd7a69fe509c429872e67f7357044d",
+  "source_dirty": false,
+  "final_run": {
+    "conclusion": "success",
+    "headSha": "f6a910ec1ca72d80183dbc507e2d4acabea98e30",
+    "jobs": [
+      {
+        "name": "release candidate context",
+        "conclusion": "success",
+        "job_id": 109648494432
+      },
+      {
+        "name": "clang / portable",
+        "conclusion": "success",
+        "job_id": 109648494723
+      },
+      {
+        "name": "ASan + UBSan / native-leaks",
+        "conclusion": "success",
+        "job_id": 109648494748
+      },
+      {
+        "name": "portability / macos-arm64-appleclang",
+        "conclusion": "success",
+        "job_id": 109648494771
+      },
+      {
+        "name": "portability / linux-arm64-clang",
+        "conclusion": "success",
+        "job_id": 109648494797
+      },
+      {
+        "name": "portability / linux-arm64-gcc",
+        "conclusion": "success",
+        "job_id": 109648494801
+      },
+      {
+        "name": "envelope / ubuntu22-gcc11-reference",
+        "conclusion": "success",
+        "job_id": 109648494807
+      },
+      {
+        "name": "envelope / ubuntu24-clang18-reference",
+        "conclusion": "success",
+        "job_id": 109648494817
+      },
+      {
+        "name": "gcc / portable",
+        "conclusion": "success",
+        "job_id": 109648494845
+      },
+      {
+        "name": "cmake, system BLAS, install and consume",
+        "conclusion": "success",
+        "job_id": 109648494847
+      },
+      {
+        "name": "ASan + UBSan / stream-enomem",
+        "conclusion": "success",
+        "job_id": 109648494855
+      },
+      {
+        "name": "ASan + UBSan / python-semantics",
+        "conclusion": "success",
+        "job_id": 109648494870
+      },
+      {
+        "name": "envelope / ubuntu24-gcc13-openblas",
+        "conclusion": "success",
+        "job_id": 109648494935
+      },
+      {
+        "name": "envelope / ubuntu22-clang14-reference",
+        "conclusion": "success",
+        "job_id": 109648494940
+      },
+      {
+        "name": "gcc / native",
+        "conclusion": "success",
+        "job_id": 109648494945
+      },
+      {
+        "name": "publication validation tests",
+        "conclusion": "success",
+        "job_id": 109648495027
+      },
+      {
+        "name": "verified source and research candidate",
+        "conclusion": "success",
+        "job_id": 109648545441
+      },
+      {
+        "name": "binary-qualification / SDK / linux-x86_64",
+        "conclusion": "success",
+        "job_id": 109648545672
+      },
+      {
+        "name": "binary-qualification / SDK / linux-arm64",
+        "conclusion": "success",
+        "job_id": 109648545778
+      },
+      {
+        "name": "binary-qualification / SDK / macos-arm64",
+        "conclusion": "success",
+        "job_id": 109648545808
+      },
+      {
+        "name": "classification does not depend on the BLAS",
+        "conclusion": "success",
+        "job_id": 109648796830
+      },
+      {
+        "name": "portable vs native agree",
+        "conclusion": "success",
+        "job_id": 109648916315
+      },
+      {
+        "name": "cross-platform semantic agreement",
+        "conclusion": "success",
+        "job_id": 109649017616
+      },
+      {
+        "name": "binary-qualification / Exact x86 SDK / Ubuntu 24.04 forward consumption",
+        "conclusion": "success",
+        "job_id": 109649087753
+      },
+      {
+        "name": "binary-qualification / binary qualification gate",
+        "conclusion": "success",
+        "job_id": 109649315205
+      },
+      {
+        "name": "verified release candidate",
+        "conclusion": "success",
+        "job_id": 109649417172
+      },
+      {
+        "name": "verification gate",
+        "conclusion": "success",
+        "job_id": 109649491529
+      }
+    ],
+    "status": "completed",
+    "url": "https://github.com/metronforge/affine-bundle-solver/actions/runs/36639601743"
+  },
+  "candidate_sha256sums": "2a6ff4fb5542eb088de09f3389931eb261074928086811f682bb47e03657cef2  affine-bundle-solver-v0.4.4.tar.gz\n7165504a48f9c260e4bf214b1c105b1342a3b7de8cdfe1a7c96bea8fe2e2a87f  affine-bundle-solver-v0.4.4-research.tar.gz\n29ab51c54fc29dce7cad592e4ba0da89108c89035540dfced9e9d0b9eecce831  affine-bundle-solver-v0.4.4-linux-x86_64.tar.gz\nda693a2eccd25e2e2b8f8c4f0eb0ba41a299de001fadb2973a4d3da28479b07f  affine-bundle-solver-v0.4.4-linux-arm64.tar.gz\ne19404066e57d91bae1e2497a49455160058f2c9554403c5c2ed1ac5e82a267b  affine-bundle-solver-v0.4.4-macos-arm64.tar.gz\n",
+  "source_research_manifests": {
+    "affine-bundle-solver-v0.4.4-research.tar.gz": {
+      "entries_verified": 600,
+      "source_commit": "f6a910ec1ca72d80183dbc507e2d4acabea98e30",
+      "source_tree": "b5f3d5123efd7a69fe509c429872e67f7357044d"
+    },
+    "affine-bundle-solver-v0.4.4.tar.gz": {
+      "entries_verified": 590,
+      "source_commit": "f6a910ec1ca72d80183dbc507e2d4acabea98e30",
+      "source_tree": "b5f3d5123efd7a69fe509c429872e67f7357044d"
+    }
+  },
+  "candidate_version": "0.4.4",
+  "candidate_mode": "non-publishing workflow_dispatch; project version unchanged",
+  "actual_release_created": false,
+  "implementation_merged": false,
+  "report": "reports/binary-release/publication-report.md",
+  "local_artifacts": "/tmp/abs-publication-evidence/candidate-36639601743",
+  "source_worktrees_created": [],
+  "temporary_source_checkouts": []
+}
