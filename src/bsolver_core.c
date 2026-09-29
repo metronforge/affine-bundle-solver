@@ -49,7 +49,9 @@ static uint64_t sm64(uint64_t x){ x+=0x9e3779b97f4a7c15ULL; x=(x^(x>>30))*0xbf58
 static double uhash(uint64_t x){ uint64_t z=sm64(x); return ((z>>11)*(1.0/9007199254740992.0))*2.0-1.0; }
 static double gauss(uint64_t *s){ double u1=(uhash((*s)++)+1)*0.5; double u2=(uhash((*s)++)+1)*0.5; if(u1<1e-15)u1=1e-15; return sqrt(-2*log(u1))*cos(2*M_PI*u2); }
 static double dot(const double*a,const double*b,int n){ double s=0; for(int i=0;i<n;i++)s+=a[i]*b[i]; return s; }
-static int finite_bits(double x){union{double d;uint64_t u;}v={x};return ((v.u>>52)&0x7ffULL)!=0x7ffULL;}
+/* A volatile integer observation prevents Apple Clang from recognizing the
+   bit test as isfinite(x) and folding it under -ffinite-math-only. */
+static int finite_bits(double x){uint64_t u;memcpy(&u,&x,sizeof u);volatile uint64_t bits=u;return ((bits>>52)&0x7ffULL)!=0x7ffULL;}
 static double norm2(const double*a,int n){
     double ss=dot(a,a,n); if(ss>0.0 && finite_bits(ss)) return sqrt(ss);
     double scale=0.0,sumsq=1.0; for(int i=0;i<n;i++){double av=fabs(a[i]);if(av!=0.0){if(scale<av){double q=scale/av;sumsq=1.0+sumsq*q*q;scale=av;}else{double q=av/scale;sumsq+=q*q;}}} return scale==0.0?0.0:scale*sqrt(sumsq);

@@ -54,9 +54,9 @@
  * this file is dead code.  Clang reports the same situation as
  * -Wnan-infinity-disabled.
  *
- * Inspecting the bit pattern avoids the issue entirely because it performs no
- * floating-point comparison: an IEEE-754 binary64 value is non-finite exactly
- * when its 11 exponent bits are all set.
+ * Inspect the bit pattern through finite_bits' volatile integer observation.
+ * Apple Clang 17 recognizes a plain memcpy/shift test as isfinite and folds
+ * that too under fast math. The integer observation preserves the check.
  *
  * The consequence of the dead guards was concrete: on input containing NaN or
  * infinity the router returned UNIQUE rather than refusing.  The certified
@@ -65,9 +65,7 @@
  * risk, but the router's own output was wrong.
  */
 static inline int bs_nonfinite(double x) {
-    uint64_t u;
-    memcpy(&u, &x, sizeof u);
-    return (int)(((u >> 52) & 0x7FFu) == 0x7FFu);
+    return !finite_bits(x);
 }
 
 static int bs_any_nonfinite(const double *v, size_t k) {
