@@ -11,23 +11,15 @@ counterexamples are found.  Use --strict to make hard property violations exit 1
 import argparse, ctypes, json, math, os
 from collections import Counter, defaultdict
 from pathlib import Path
+from library_paths import library_path
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-FAST = ctypes.CDLL(str(ROOT / 'libaffine_bundle_solver.so'))
-CERT = ctypes.CDLL(str(ROOT / 'libcertified_solver.so'))
+FAST = ctypes.CDLL(str(library_path("affine_bundle_solver")))
+CERT = ctypes.CDLL(str(library_path("certified_solver")))
 DP = ctypes.POINTER(ctypes.c_double)
 
-class Certified(ctypes.Structure):
-    _fields_=[('fast_status',ctypes.c_int),('fast_certainty',ctypes.c_int),
-              ('rank_estimate',ctypes.c_int),('rank_lo',ctypes.c_int),('rank_hi',ctypes.c_int),
-              ('eta_x',ctypes.c_double),('certified_status',ctypes.c_int),
-              ('eta_status',ctypes.c_double),('generator_code',ctypes.c_int),('verifier_code',ctypes.c_int),
-              ('accepted_status_mask',ctypes.c_int),
-              ('eta_unique',ctypes.c_double),('eta_infinite',ctypes.c_double),('eta_inconsistent',ctypes.c_double),
-              ('unique_generator_code',ctypes.c_int),('unique_verifier_code',ctypes.c_int),
-              ('infinite_generator_code',ctypes.c_int),('infinite_verifier_code',ctypes.c_int),
-              ('inconsistent_generator_code',ctypes.c_int),('inconsistent_verifier_code',ctypes.c_int)]
+from certified_binding import Certified
 
 FAST.bsolve_router_meta_api.argtypes=[DP,DP,DP,ctypes.c_int,ctypes.c_int,
     ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.c_ulonglong,ctypes.c_int,DP]

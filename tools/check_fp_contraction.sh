@@ -43,20 +43,29 @@ if ((${#cc[@]} == 0 || ${#sources[@]} == 0 || part != 2)); then
   exit 2
 fi
 
+if [[ -z ${OBJDUMP:-} && $(uname -s) == Darwin ]]; then
+  OBJDUMP=$(xcrun --find llvm-objdump)
+fi
 OBJDUMP=${OBJDUMP:-objdump}
 if ! command -v "$OBJDUMP" >/dev/null 2>&1; then
   echo "fp-contraction check: FAILED -- '$OBJDUMP' not found; cannot inspect objects" >&2
   exit 1
+fi
+echo "fp-contraction inspection tool: $OBJDUMP"
+"$OBJDUMP" --version
+symbol_option=--disassemble
+if "$OBJDUMP" --version | grep -qi LLVM; then
+  symbol_option=--disassemble-symbols
 fi
 
 machine=${ABS_FP_CHECK_MACHINE:-$(uname -m)}
 case $machine in
   x86_64)
     target=(-march=x86-64-v3)
-    fused='\bvf(n?m(add|sub)|m(addsub|subadd))[0-9]*(p|s)[sd]\b' ;;
+    fused='[[:space:]]vf(n?m(add|sub)|m(addsub|subadd))[0-9]*(p|s)[sd]([[:space:]]|$)' ;;
   aarch64|arm64)
     target=()
-    fused='\b(fmadd|fmsub|fnmadd|fnmsub|fmla|fmls|fnmla|fnmls|fmad|fmsb|fnmad|fnmsb|fcmla|fmlal|fmlsl)\b' ;;
+    fused='[[:space:]](fmadd|fmsub|fnmadd|fnmsub|fmla|fmls|fnmla|fnmls|fmad|fmsb|fnmad|fnmsb|fcmla|fmlal2?|fmlsl2?)([[:space:]]|$)' ;;
   *)
     echo "fp-contraction check: FAILED -- no FMA target known for '$machine'" >&2
     exit 1 ;;
@@ -80,11 +89,15 @@ for src in "${sources[@]}"; do
     echo "fp-contraction check: FAILED -- could not inspect symbols in $src" >&2
     exit 1
   fi
-  if ! grep -Eq "[[:space:]]${expected_symbol}$" <<<"$symbols"; then
+  inspected_symbol=$expected_symbol
+  if grep -Eq "[[:space:]]_${expected_symbol}$" <<<"$symbols"; then
+    inspected_symbol=_$expected_symbol
+  fi
+  if ! grep -Eq "[[:space:]]${inspected_symbol}$" <<<"$symbols"; then
     echo "fp-contraction check: FAILED -- target symbol '$expected_symbol' absent from $src" >&2
     exit 1
   fi
-  if ! relevant=$("$OBJDUMP" -d --no-show-raw-insn --disassemble="$expected_symbol" "$obj"); then
+  if ! relevant=$("$OBJDUMP" -d --no-show-raw-insn "$symbol_option=$inspected_symbol" "$obj"); then
     echo "fp-contraction check: FAILED -- could not disassemble target symbol '$expected_symbol' in $src" >&2
     exit 1
   fi

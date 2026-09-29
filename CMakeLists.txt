@@ -106,6 +106,18 @@ if(ABS_BLAS STREQUAL "system")
   set(ABS_BLAS_DEFINES "")
   set(ABS_BLAS_RPATH "")
   set(ABS_BLAS_DESCRIPTION "system (${BLAS_LIBRARIES})")
+  # FindBLAS/FindLAPACK alone only test representative symbols. Require the
+  # actual LP64 Fortran entry points used by this solver, including Accelerate.
+  include(CheckFunctionExists)
+  set(CMAKE_REQUIRED_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+  foreach(_routine dgecon dgels dgelsy dgemm dgemv dgeqp3 dgeqrf dgesdd
+                   dgesvd dgetrf dgetrs dorgqr dormqr dtrcon dtrtri)
+    check_function_exists(${_routine}_ ABS_HAVE_${_routine})
+    if(NOT ABS_HAVE_${_routine})
+      message(FATAL_ERROR "System BLAS/LAPACK missing required LP64 symbol ${_routine}_")
+    endif()
+  endforeach()
+  unset(CMAKE_REQUIRED_LIBRARIES)
 
 elseif(ABS_BLAS STREQUAL "scipy-openblas")
   # The path build.sh takes.  Kept because CI images may carry no system BLAS,
@@ -188,8 +200,9 @@ target_include_directories(abs_formation_guard_obj PRIVATE
 add_library(abs_router_obj OBJECT src/bsolver.c)
 set_target_properties(abs_router_obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_compile_options(abs_router_obj PRIVATE
-  -O3 ${ABS_ARCH_FLAG_LIST} -fopenmp -ffast-math
+  -O3 ${ABS_ARCH_FLAG_LIST} -ffast-math
   ${ABS_ROUTER_AUTOVEC_CONTROL_FLAGS} ${ABS_INSTRUMENTATION})
+target_link_libraries(abs_router_obj PRIVATE OpenMP::OpenMP_C)
 target_compile_definitions(abs_router_obj PRIVATE ${ABS_BLAS_DEFINES})
 target_include_directories(abs_router_obj PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -235,6 +248,9 @@ target_include_directories(certified_solver PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/
 # exactly this; without it the installed library loads only when the prefix
 # happens to be on the default search path.
 set(ABS_RPATH "$ORIGIN")
+if(APPLE)
+  set(ABS_RPATH "@loader_path")
+endif()
 if(ABS_BLAS_RPATH)
   list(APPEND ABS_RPATH "${ABS_BLAS_RPATH}")
 endif()
@@ -355,8 +371,9 @@ if(ABS_BUILD_TESTING)
   # this test without adding a test counter to any installed public library.
   add_library(abs_router_once_obj OBJECT src/bsolver.c)
   target_compile_options(abs_router_once_obj PRIVATE
-    -O3 ${ABS_ARCH_FLAG_LIST} -fopenmp -ffast-math
+    -O3 ${ABS_ARCH_FLAG_LIST} -ffast-math
     ${ABS_ROUTER_AUTOVEC_CONTROL_FLAGS} ${ABS_INSTRUMENTATION})
+  target_link_libraries(abs_router_once_obj PRIVATE OpenMP::OpenMP_C)
   target_compile_definitions(abs_router_once_obj PRIVATE
     ${ABS_BLAS_DEFINES} ABS_TEST_ROUTER_EXECUTIONS)
   target_include_directories(abs_router_once_obj PRIVATE
@@ -410,12 +427,12 @@ if(ABS_BUILD_TESTING)
     status_verifier OpenMP::OpenMP_C ${ABS_BLAS_LIBRARIES} ${ABS_ATOMIC_LIBRARY} m)
   add_test(NAME test_infinite_fastpath COMMAND abs_infinite_fastpath_test)
 
-  # Linker wrapping counts every QRCP invocation made by the audit source and
+  # Test-local source interception counts QRCP invocations by the audit and
   # verifies that the compatible-tall fallback factors its invariant matrix
   # once (one workspace query plus one executing call).  The test also hashes
   # the exact factorization input before LAPACK mutates it in place.
   add_executable(abs_reusable_qrcp_test
-    tests/test_reusable_qrcp.c src/certified_api.c
+    tests/test_reusable_qrcp.c tests/reusable_qrcp_source.c
     $<TARGET_OBJECTS:abs_router_obj>
     $<TARGET_OBJECTS:abs_formation_guard_obj>)
   target_compile_options(abs_reusable_qrcp_test PRIVATE
@@ -424,11 +441,6 @@ if(ABS_BUILD_TESTING)
   target_include_directories(abs_reusable_qrcp_test PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src)
   target_link_options(abs_reusable_qrcp_test PRIVATE ${ABS_INSTRUMENTATION})
-  if(ABS_BLAS STREQUAL "scipy-openblas")
-    target_link_options(abs_reusable_qrcp_test PRIVATE -Wl,--wrap=scipy_dgeqp3_)
-  else()
-    target_link_options(abs_reusable_qrcp_test PRIVATE -Wl,--wrap=dgeqp3_)
-  endif()
   target_link_libraries(abs_reusable_qrcp_test PRIVATE
     status_verifier OpenMP::OpenMP_C ${ABS_BLAS_LIBRARIES} ${ABS_ATOMIC_LIBRARY} m)
   add_test(NAME test_reusable_qrcp COMMAND abs_reusable_qrcp_test)
@@ -460,7 +472,7 @@ if(ABS_BUILD_TESTING)
     tests/test_dgesdd_core_state.c
     $<TARGET_OBJECTS:abs_formation_guard_obj>)
   target_compile_options(abs_dgesdd_core_state_test PRIVATE
-    -O3 ${ABS_ARCH_FLAG_LIST} -fopenmp -ffast-math ${ABS_INSTRUMENTATION})
+    -O3 ${ABS_ARCH_FLAG_LIST} -ffast-math ${ABS_INSTRUMENTATION})
   target_compile_definitions(abs_dgesdd_core_state_test PRIVATE ${ABS_BLAS_DEFINES})
   target_include_directories(abs_dgesdd_core_state_test PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -477,6 +489,17 @@ if(ABS_BUILD_TESTING)
   target_link_libraries(abs_native_solver_lifecycle_test PRIVATE
     certified_solver affine_bundle_solver status_verifier m)
   add_test(NAME test_native_solver_lifecycle COMMAND abs_native_solver_lifecycle_test)
+
+  add_executable(abs_stream_alloc_failure_test tests/test_stream_alloc_failure.c
+    $<TARGET_OBJECTS:abs_formation_guard_obj>)
+  target_compile_options(abs_stream_alloc_failure_test PRIVATE
+    -O3 ${ABS_ARCH_FLAG_LIST} -ffast-math ${ABS_INSTRUMENTATION})
+  target_compile_definitions(abs_stream_alloc_failure_test PRIVATE ${ABS_BLAS_DEFINES})
+  target_include_directories(abs_stream_alloc_failure_test PRIVATE include src)
+  target_link_options(abs_stream_alloc_failure_test PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_libraries(abs_stream_alloc_failure_test PRIVATE
+    OpenMP::OpenMP_C ${ABS_BLAS_LIBRARIES} ${ABS_ATOMIC_LIBRARY} m)
+  add_test(NAME test_stream_alloc_failure COMMAND abs_stream_alloc_failure_test)
 
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     add_executable(abs_stream_storage_native_test tests/test_stream_storage_native.c)
@@ -553,6 +576,8 @@ if(ABS_BUILD_TESTING)
     add_test(NAME fp_environment_fail_closed
       COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_fp_environment.py
               $<TARGET_FILE:abs_mxcsr_probe> ${CMAKE_C_COMPILER})
+    add_test(NAME semantic_snapshot_contract
+      COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_semantic_snapshot.py)
     # The batteries locate the shared objects through ABS_LIB_DIR and fall
     # back to the repository root, so build.sh keeps working unchanged.
     foreach(_battery

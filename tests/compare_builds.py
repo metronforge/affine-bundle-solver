@@ -24,8 +24,12 @@ Exit status: 0 = semantic agreement, 1 = divergence.
 from __future__ import annotations
 
 import ctypes
+import argparse
+import hashlib
+import json
 import sys
 from pathlib import Path
+from library_paths import library_path
 
 import numpy as np
 
@@ -45,6 +49,7 @@ IDX_FALLBACK, IDX_CLS = 8, 9
 # divergence that would matter most was the one it could not see.  Keeping it
 # in the set costs nothing and makes the two fields required to stay in step.
 SEMANTIC = [IDX_STATUS, IDX_CERTAINTY, IDX_RANK, IDX_RANK_LO, IDX_RANK_HI, IDX_CLS]
+SEMANTIC_NAMES = ("status", "certainty", "rank", "rank_lo", "rank_hi", "classification")
 NUMERIC = [IDX_RELRES, IDX_RELX]
 
 STATUS = {0: "UNDETERMINED", 1: "UNIQUE", 2: "INFINITE",
@@ -52,7 +57,7 @@ STATUS = {0: "UNDETERMINED", 1: "UNIQUE", 2: "INFINITE",
 
 
 def load(directory: str):
-    path = Path(directory) / "libaffine_bundle_solver.so"
+    path = library_path("affine_bundle_solver", directory)
     if not path.is_file():
         raise SystemExit(f"not found: {path}")
     lib = ctypes.CDLL(str(path))
@@ -65,6 +70,124 @@ def load(directory: str):
 
 def ptr(a):
     return np.ascontiguousarray(a, dtype=np.float64).ctypes.data_as(DP)
+
+
+def semantic_key(out):
+    """The same contract is used for local builds and runner artifacts."""
+    values = tuple(out[i] for i in SEMANTIC)
+    if any(not np.isfinite(v) or v != int(v) for v in values):
+        raise ValueError(f"invalid semantic output: {values}")
+    return dict(zip(SEMANTIC_NAMES, map(int, values)))
+
+
+def snapshot_cases():
+    """Exact integer/dyadic inputs: no random distributions or BLAS generation."""
+    cases = []
+    for name, m, n, rank, inconsistent in [
+        ("unique-tall", 48, 8, 8, False),
+        ("unique-square", 8, 8, 8, False),
+        ("infinite-tall", 48, 8, 6, False),
+        ("infinite-wide", 6, 8, 6, False),
+        ("inconsistent", 48, 8, 6, True),
+        ("zero-compatible", 8, 4, 0, False),
+        ("zero-inconsistent", 8, 4, 0, True),
+    ]:
+        A = np.zeros((m, n), dtype=np.float64)
+        for i in range(m - int(inconsistent)):
+            for j in range(rank):
+                A[i, j] = int(i == j) if i < rank else ((i * 7 + j * 3) % 5 - 2)
+        x = np.arange(1, n + 1, dtype=np.float64) / 8
+        b = np.sum(A * x, axis=1)
+        if inconsistent:
+            b[-1] = 1
+        cases.append((name, A, b, x))
+    # Source-rank ambiguity is intentional; never tune thresholds for agreement.
+    for exponent in (-30, -40):
+        A = np.diag([1., 0.5, 2.**exponent])
+        x = np.ones(3)
+        cases.append((f"rank-boundary-{exponent}", A, np.sum(A, axis=1), x))
+    return cases
+
+
+SNAPSHOT_SEEDS = (12345, 777)
+
+
+def corpus_hash():
+    digest = hashlib.sha256()
+    for name, *arrays in snapshot_cases():
+        digest.update(name.encode())
+        for array in arrays:
+            digest.update(np.asarray(array, dtype="<f8").tobytes())
+    return digest.hexdigest()
+
+
+def snapshot(directory):
+    # Reuse the existing certified ABI binding rather than defining another.
+    from certified_binding import Certified
+    fast = load(directory)
+    cert = ctypes.CDLL(str(library_path("certified_solver", directory)))
+    cert.bsolve_certified_api.argtypes = [DP, DP, DP, ctypes.c_int, ctypes.c_int,
+        ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_ulonglong, ctypes.c_int,
+        ctypes.POINTER(Certified)]
+    cert.bsolve_certified_api.restype = ctypes.c_int
+    rows = []
+    for name, A, b, x in snapshot_cases():
+        for seed in SNAPSHOT_SEEDS:
+            out = run(fast, A, b, x, seed)
+            result = Certified()
+            rc = cert.bsolve_certified_api(ptr(A), ptr(b), ptr(x), *A.shape,
+                1, 2, 2, seed, 0, ctypes.byref(result))
+            if rc:
+                raise ValueError(f"{name}: certified API failed: {rc}")
+            rows.append({"case": name, "seed": seed, "router": semantic_key(out),
+                "certified_status": result.certified_status,
+                "certified_rank": result.rank_estimate,
+                "certified_rank_interval": [result.rank_lo, result.rank_hi],
+                "accepted_status_mask": result.accepted_status_mask,
+                "verification": [result.unique_verifier_code,
+                    result.infinite_verifier_code, result.inconsistent_verifier_code],
+                "generation": [result.unique_generator_code,
+                    result.infinite_generator_code, result.inconsistent_generator_code]})
+    return {"schema": 1, "corpus_sha256": corpus_hash(), "cases": rows}
+
+
+def validate_snapshot(value):
+    if set(value) != {"schema", "corpus_sha256", "cases"} or value["schema"] != 1:
+        raise ValueError("unsupported snapshot schema")
+    if value["corpus_sha256"] != corpus_hash():
+        raise ValueError("snapshot corpus mismatch")
+    expected = [(name, seed) for name, *_ in snapshot_cases() for seed in SNAPSHOT_SEEDS]
+    if [(r["case"], r["seed"]) for r in value["cases"]] != expected:
+        raise ValueError("snapshot cases missing, duplicated or reordered")
+    for row in value["cases"]:
+        if set(row) != {"case", "seed", "router", "certified_status", "certified_rank",
+                        "certified_rank_interval", "accepted_status_mask", "verification", "generation"}:
+            raise ValueError("snapshot fields mismatch")
+        if set(row["router"]) != set(SEMANTIC_NAMES):
+            raise ValueError("router contract fields missing")
+        scalars = [row["seed"], row["certified_status"], row["certified_rank"],
+                   row["accepted_status_mask"], *row["router"].values()]
+        for key, size in [("certified_rank_interval", 2), ("verification", 3), ("generation", 3)]:
+            if not isinstance(row[key], list) or len(row[key]) != size:
+                raise ValueError(f"invalid {key}")
+            scalars.extend(row[key])
+        if any(type(v) is not int for v in scalars):
+            raise ValueError("noninteger semantic field")
+    return value
+
+
+def compare_snapshots(paths):
+    if len(paths) < 2:
+        raise ValueError("at least two snapshots required")
+    snapshots = [validate_snapshot(json.loads(Path(p).read_text())) for p in paths]
+    for path, value in zip(paths[1:], snapshots[1:]):
+        if value != snapshots[0]:
+            for a, b in zip(snapshots[0]["cases"], value["cases"]):
+                if a != b:
+                    print(f"SEMANTIC DIVERGENCE {paths[0]} vs {path}:\n{a}\n{b}")
+            return 1
+    print(f"semantic snapshots: PASS ({len(paths)} platforms, {len(snapshots[0]['cases'])} case/seed pairs)")
+    return 0
 
 
 def run(lib, A, b, xt, seed):
@@ -125,6 +248,17 @@ def build_cases(seed=20260907):
 
 
 def main() -> int:
+    if len(sys.argv) > 1 and sys.argv[1] == "--snapshot":
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--snapshot", metavar="LIB_DIR", required=True)
+        parser.add_argument("--output", required=True)
+        args = parser.parse_args()
+        value = validate_snapshot(snapshot(args.snapshot))
+        Path(args.output).write_text(json.dumps(value, indent=2, sort_keys=True) + "\n")
+        print(f"semantic snapshot: {len(value['cases'])} case/seed pairs -> {args.output}")
+        return 0
+    if len(sys.argv) > 1 and sys.argv[1] == "--compare-snapshots":
+        return compare_snapshots(sys.argv[2:])
     if len(sys.argv) != 3:
         raise SystemExit(__doc__)
     a_dir, b_dir = sys.argv[1], sys.argv[2]
@@ -155,7 +289,7 @@ def main() -> int:
             oa = run(lib_a, A, b, x, seed)
             ob = run(lib_b, A, b, x, seed)
 
-            sem_ok = all(oa[i] == ob[i] for i in SEMANTIC)
+            sem_ok = semantic_key(oa) == semantic_key(ob)
             if not sem_ok:
                 divergences.append((name, seed, oa.copy(), ob.copy()))
 

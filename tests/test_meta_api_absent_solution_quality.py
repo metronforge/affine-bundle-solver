@@ -2,6 +2,7 @@
 import os
 import ctypes, math
 from pathlib import Path
+from library_paths import library_path
 import numpy as np
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -10,7 +11,7 @@ ROOT=Path(__file__).resolve().parents[1]
 # repository root.  Unset, it falls back to the root, which is where
 # build.sh leaves them.
 LIBDIR = Path(os.environ.get("ABS_LIB_DIR", str(ROOT)))
-L=ctypes.CDLL(str(LIBDIR / 'libaffine_bundle_solver.so'))
+L=ctypes.CDLL(str(library_path("affine_bundle_solver")))
 DP=ctypes.POINTER(ctypes.c_double)
 L.bsolve_router_meta_api.argtypes=[DP,DP,DP,ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.c_ulonglong,ctypes.c_int,DP]
 def p(x): return x.ctypes.data_as(DP)

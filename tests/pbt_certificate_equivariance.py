@@ -11,6 +11,7 @@ constructive formulas; numpy.linalg.matrix_rank is never used as an oracle.
 import argparse, ctypes, json, math, sys
 from collections import Counter
 from pathlib import Path
+from library_paths import library_path
 import numpy as np
 import mpmath as mp
 
@@ -18,8 +19,8 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'tests'))
 import pbt_equivalence_orbits as base
 
-CERT=ctypes.CDLL(str(ROOT/'libcertified_solver.so'))
-VER=ctypes.CDLL(str(ROOT/'libstatus_verifier.so'))
+CERT=ctypes.CDLL(str(library_path("certified_solver")))
+VER=ctypes.CDLL(str(library_path("status_verifier")))
 DP=ctypes.POINTER(ctypes.c_double)
 IP=ctypes.POINTER(ctypes.c_int)
 

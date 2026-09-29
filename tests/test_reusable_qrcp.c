@@ -4,15 +4,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef ABS_SCIPY_BLAS
-extern void __real_scipy_dgeqp3_(int*,int*,double*,int*,int*,double*,double*,int*,int*);
-#define REAL_DGEQP3 __real_scipy_dgeqp3_
-#define WRAP_DGEQP3 __wrap_scipy_dgeqp3_
-#else
-extern void __real_dgeqp3_(int*,int*,double*,int*,int*,double*,double*,int*,int*);
-#define REAL_DGEQP3 __real_dgeqp3_
-#define WRAP_DGEQP3 __wrap_dgeqp3_
-#endif
+#include "blas_symbols.h"
+extern void dgeqp3_(int*,int*,double*,int*,int*,double*,double*,int*,int*);
+#define REAL_DGEQP3 dgeqp3_
+#define WRAP_DGEQP3 abs_test_dgeqp3
 
 static unsigned long tall_calls, tall_queries, tall_executes;
 static uint64_t first_matrix_hash;

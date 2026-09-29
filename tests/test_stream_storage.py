@@ -8,6 +8,7 @@ import os
 import resource
 import sys
 from pathlib import Path
+from library_paths import library_path
 
 
 if not sys.platform.startswith("linux"):
@@ -27,7 +28,7 @@ def virtual_bytes() -> int:
     return pages * os.sysconf("SC_PAGE_SIZE")
 
 
-lib = ctypes.CDLL(str(LIBDIR / "libaffine_bundle_solver.so"))
+lib = ctypes.CDLL(str(library_path("affine_bundle_solver")))
 lib.abs_stream_create.argtypes = [ctypes.c_int]
 lib.abs_stream_create.restype = ctypes.c_void_p
 lib.abs_stream_destroy.argtypes = [ctypes.c_void_p]

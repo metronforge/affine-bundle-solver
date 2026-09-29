@@ -7,10 +7,11 @@ import ctypes
 import math
 import os
 from pathlib import Path
+from library_paths import library_path
 
 import numpy as np
 
-LIB = ctypes.CDLL(str(Path(os.environ["ABS_LIB_DIR"]) / "libcertified_solver.so"))
+LIB = ctypes.CDLL(str(library_path("certified_solver")))
 DP = ctypes.POINTER(ctypes.c_double)
 
 

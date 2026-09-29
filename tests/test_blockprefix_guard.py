@@ -29,12 +29,13 @@ import ctypes
 import os
 import sys
 from pathlib import Path
+from library_paths import library_path
 
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 LIBDIR = Path(os.environ.get("ABS_LIB_DIR", str(ROOT)))
-lib = ctypes.CDLL(str(LIBDIR / "libaffine_bundle_solver.so"))
+lib = ctypes.CDLL(str(library_path("affine_bundle_solver")))
 
 DP = ctypes.POINTER(ctypes.c_double)
 lib.bsolve_router_meta_api.argtypes = ([DP, DP, DP] + [ctypes.c_int] * 5

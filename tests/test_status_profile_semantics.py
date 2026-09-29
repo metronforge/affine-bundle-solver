@@ -2,6 +2,7 @@ import os
 import ctypes
 import math
 from pathlib import Path
+from library_paths import library_path
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -10,8 +11,8 @@ ROOT = Path(__file__).resolve().parents[1]
 # repository root.  Unset, it falls back to the root, which is where
 # build.sh leaves them.
 LIBDIR = Path(os.environ.get("ABS_LIB_DIR", str(ROOT)))
-cert = ctypes.CDLL(str(LIBDIR / 'libcertified_solver.so'))
-ver = ctypes.CDLL(str(LIBDIR / 'libstatus_verifier.so'))
+cert = ctypes.CDLL(str(library_path("certified_solver")))
+ver = ctypes.CDLL(str(library_path("status_verifier")))
 DP = ctypes.POINTER(ctypes.c_double)
 
 class Result(ctypes.Structure):
