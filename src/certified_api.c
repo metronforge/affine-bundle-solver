@@ -47,6 +47,27 @@ extern int abs_test_infinite_force_qrcp_reject(void);
 static double row_norm(const double *a, int n) {
     long double s = 0.0L;
     for (int j = 0; j < n; ++j) { long double v = a[j]; s += v*v; }
+    /* Apple ARM64 long double has binary64 range. Preserve the existing
+       arithmetic whenever normal, but avoid square overflow or
+       underflow on such platforms. Power-of-two scaling is exact and changes
+       no rank or acceptance threshold. */
+    if (!isfinite(s) || s < LDBL_MIN) {
+        long double largest = 0.0L;
+        for (int j = 0; j < n; ++j) {
+            long double v = fabsl((long double)a[j]);
+            if (v > largest) largest = v;
+        }
+        if (largest > 0.0L && isfinite(largest)) {
+            int exponent;
+            (void)frexpl(largest, &exponent);
+            s = 0.0L;
+            for (int j = 0; j < n; ++j) {
+                long double v = scalbnl((long double)a[j], -exponent);
+                s += v*v;
+            }
+            return (double)scalbnl(sqrtl(s), exponent);
+        }
+    }
     return (double)sqrtl(s);
 }
 

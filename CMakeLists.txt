@@ -585,6 +585,7 @@ if(ABS_BUILD_TESTING)
     # The batteries locate the shared objects through ABS_LIB_DIR and fall
     # back to the repository root, so build.sh keeps working unchanged.
     foreach(_battery
+            test_certificate_extreme_scaling
             test_nonfinite_boundary
             test_certified_api
             test_status_profile_semantics
