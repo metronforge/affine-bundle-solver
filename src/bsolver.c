@@ -672,28 +672,40 @@ static void secant_downdate(double*z,const double*q,int n,uint64_t salt,BState*s
    0 lets the caller try another route, which is right for a decline and
    wrong for a resource failure -- a smaller route that then succeeds would
    turn an allocation failure into a verdict about the data. */
+/* Test-only route capture and profiling; production has no telemetry. */
+#ifdef ABS_TAIL_DIAGNOSTICS
+#include "tail_scan_hooks.h"
+#else
+#define ABS_TAIL_ENTER(pre,p) ((void)0)
+#define ABS_TAIL_COUNT(k,v) ((void)0)
+#define ABS_TAIL_START() ((void)0)
+#define ABS_TAIL_STOP() ((void)0)
+#endif
 static int try_secant_tail(const double*A,const double*b,const double*xt,int m,int n,int p,const BState*pre,uint64_t seed,double tc,Result*R){
+    ABS_TAIL_ENTER(pre,p);
     enum{NS=2,NV=2,W=2048};uint64_t rseed=sm64(seed^0xA4093822299F31D0ULL),vseed=sm64(seed^0x082EFA98EC4E6C89ULL);BState s;if(bs_copy(&s,pre))return -1;double*Z=malloc((size_t)2*n*sizeof(double)),*E=calloc((size_t)2*n,sizeof(double));
     if(!Z||!E){free(Z);free(E);bs_free(&s);return -1;}
     double f[2]={0,0};for(int t=0;t<2;t++)secant_refresh(Z+(size_t)t*n,&s,rseed+(uint64_t)(t+1)*0xD1B54A32D192ED03ULL);
     int nt=omp_get_max_threads(),parallel_ok=(pre->r>=n/2 && nt>1),i=p,streak=0,covered=p,growths=0;double invm=1.0/sqrt((double)(m-p>0?m-p:1)),xn=norm2(s.x,n);unsigned char*hit=calloc(W,1);double*LE=calloc((size_t)nt*2*n,sizeof(double)),*Lf=calloc((size_t)nt*2,sizeof(double));
     if(!hit||!LE||!Lf){free(hit);free(LE);free(Lf);free(Z);free(E);bs_free(&s);return -1;}
+    ABS_TAIL_START();
     while(i<m && !s.inconsistent && s.r<n){
       int ishit=0;
       if(parallel_ok && streak>=32 && i>=covered && (long long)(m-i)*n>=1000000LL){
-        int lo=i,hi=i+W;if(hi>m)hi=m;int mb=hi-lo;memset(hit,0,(size_t)mb);memset(LE,0,(size_t)nt*2*n*sizeof(double));memset(Lf,0,(size_t)nt*2*sizeof(double));
+        int lo=i,hi=i+W;if(hi>m)hi=m;int mb=hi-lo;ABS_TAIL_COUNT(2,1);ABS_TAIL_COUNT(3,mb);memset(hit,0,(size_t)mb);memset(LE,0,(size_t)nt*2*n*sizeof(double));memset(Lf,0,(size_t)nt*2*sizeof(double));
         #pragma omp parallel
         {
           int tid=omp_get_thread_num();double*e0=LE+(size_t)tid*2*n,*e1=e0+n,*ff=Lf+(size_t)tid*2;
           #pragma omp for schedule(static)
-          for(int ii=0;ii<mb;ii++){int ri=lo+ii;const double*row=A+(size_t)ri*n;double an2=0,ax=0,az0=0,az1=0;for(int j=0;j<n;j++){double v=row[j];an2+=v*v;ax+=v*s.x[j];az0+=v*Z[j];az1+=v*Z[n+j];}double an=(an2>0.0 && finite_bits(an2))?sqrt(an2):norm2(row,n);if(an==0){if(fabs(b[ri])>tc)hit[ii]=1;continue;}double iv=1.0/an,beta=b[ri]*iv,w0=uhash(vseed+0x94D049BB133111EBULL*(uint64_t)(ri+1))*invm,w1=uhash(vseed+0xBF58476D1CE4E5B9ULL*(uint64_t)(ri+1))*invm,c0=w0*iv,c1=w1*iv;for(int j=0;j<n;j++){double v=row[j];e0[j]+=c0*v;e1[j]+=c1*v;}ff[0]+=w0*beta;ff[1]+=w1*beta;double rho=(b[ri]-ax)*iv,score=fmax(fabs(az0),fabs(az1))*iv,ct=tc*(1+fabs(beta)+xn);if(score>1e-12||fabs(rho)>ct)hit[ii]=1;}
+          for(int ii=0;ii<mb;ii++){int ri=lo+ii;const double*row=A+(size_t)ri*n;double an2=0,ax=0,az0=0,az1=0;for(int j=0;j<n;j++){double v=row[j];an2+=v*v;ax+=v*s.x[j];az0+=v*Z[j];az1+=v*Z[n+j];}double an=(an2>0.0 && finite_bits(an2))?sqrt(an2):norm2(row,n);if(an==0){if(fabs(b[ri])>tc)hit[ii]=1;continue;}double iv=1.0/an,beta=b[ri]*iv,w0=uhash(vseed+0x94D049BB133111EBULL*(uint64_t)(ri+1))*invm,w1=uhash(vseed+0xBF58476D1CE4E5B9ULL*(uint64_t)(ri+1))*invm,c0=w0*iv,c1=w1*iv;ABS_TAIL_COUNT(5,1);for(int j=0;j<n;j++){double v=row[j];e0[j]+=c0*v;e1[j]+=c1*v;}ff[0]+=w0*beta;ff[1]+=w1*beta;double rho=(b[ri]-ax)*iv,score=fmax(fabs(az0),fabs(az1))*iv,ct=tc*(1+fabs(beta)+xn);if(score>1e-12||fabs(rho)>ct)hit[ii]=1;}
         }
         for(int t=0;t<nt;t++){double*e=LE+(size_t)t*2*n,*ff=Lf+(size_t)t*2;for(int j=0;j<2*n;j++)E[j]+=e[j];f[0]+=ff[0];f[1]+=ff[1];}covered=hi;int first=-1;for(int ii=0;ii<mb;ii++)if(hit[ii]){first=ii;break;}if(first<0){i=hi;streak+=mb;continue;}i=lo+first;ishit=1;
       }else{
-        const double*row=A+(size_t)i*n;double an2=0,ax=0,az0=0,az1=0;for(int j=0;j<n;j++){double v=row[j];an2+=v*v;ax+=v*s.x[j];az0+=v*Z[j];az1+=v*Z[n+j];}double an=(an2>0.0 && finite_bits(an2))?sqrt(an2):norm2(row,n);if(an==0){if(fabs(b[i])>tc)ishit=1;else{if(i>=covered){covered=i+1;}i++;streak++;continue;}}else{double iv=1.0/an,beta=b[i]*iv;if(i>=covered){double w0=uhash(vseed+0x94D049BB133111EBULL*(uint64_t)(i+1))*invm,w1=uhash(vseed+0xBF58476D1CE4E5B9ULL*(uint64_t)(i+1))*invm,c0=w0*iv,c1=w1*iv;for(int j=0;j<n;j++){double v=row[j];E[j]+=c0*v;E[n+j]+=c1*v;}f[0]+=w0*beta;f[1]+=w1*beta;covered=i+1;}double rho=(b[i]-ax)*iv,score=fmax(fabs(az0),fabs(az1))*iv,ct=tc*(1+fabs(beta)+xn);ishit=(score>1e-12||fabs(rho)>ct);if(!ishit){i++;streak++;continue;}}
+        ABS_TAIL_COUNT(1,1);const double*row=A+(size_t)i*n;double an2=0,ax=0,az0=0,az1=0;for(int j=0;j<n;j++){double v=row[j];an2+=v*v;ax+=v*s.x[j];az0+=v*Z[j];az1+=v*Z[n+j];}double an=(an2>0.0 && finite_bits(an2))?sqrt(an2):norm2(row,n);if(an==0){if(fabs(b[i])>tc)ishit=1;else{if(i>=covered){covered=i+1;}i++;streak++;continue;}}else{double iv=1.0/an,beta=b[i]*iv;if(i>=covered){ABS_TAIL_COUNT(4,1);double w0=uhash(vseed+0x94D049BB133111EBULL*(uint64_t)(i+1))*invm,w1=uhash(vseed+0xBF58476D1CE4E5B9ULL*(uint64_t)(i+1))*invm,c0=w0*iv,c1=w1*iv;for(int j=0;j<n;j++){double v=row[j];E[j]+=c0*v;E[n+j]+=c1*v;}f[0]+=w0*beta;f[1]+=w1*beta;covered=i+1;}double rho=(b[i]-ax)*iv,score=fmax(fabs(az0),fabs(az1))*iv,ct=tc*(1+fabs(beta)+xn);ishit=(score>1e-12||fabs(rho)>ct);if(!ishit){i++;streak++;continue;}}
       }
-      if(ishit){const double*row=A+(size_t)i*n;int oldr=s.r,rc=bs_insert_tail_guarded(&s,row,b[i],tc,i);if(rc==2){bs_free(&s);free(Z);free(E);free(hit);free(LE);free(Lf);return 0;}if(s.inconsistent)break;if(rc>0){growths++;xn=norm2(s.x,n);streak=0;if(s.r==n)break;const double*q=s.Q+(size_t)oldr*n;for(int t=0;t<2;t++)secant_downdate(Z+(size_t)t*n,q,n,rseed+(uint64_t)(t+1+growths*7)*0xD1B54A32D192ED03ULL,&s);}else streak++;i++;}
+      if(ishit){ABS_TAIL_COUNT(6,1);const double*row=A+(size_t)i*n;int oldr=s.r,rc=bs_insert_tail_guarded(&s,row,b[i],tc,i);if(rc==2){ABS_TAIL_STOP();bs_free(&s);free(Z);free(E);free(hit);free(LE);free(Lf);return 0;}if(s.inconsistent)break;if(rc>0){ABS_TAIL_COUNT(7,1);growths++;xn=norm2(s.x,n);streak=0;if(s.r==n)break;const double*q=s.Q+(size_t)oldr*n;for(int t=0;t<2;t++)secant_downdate(Z+(size_t)t*n,q,n,rseed+(uint64_t)(t+1+growths*7)*0xD1B54A32D192ED03ULL,&s);}else streak++;i++;}
     }
+    ABS_TAIL_STOP();
     free(hit);free(LE);free(Lf);
     if(s.inconsistent){R->cls=CLS_INCONSISTENT;R->rank=s.r;R->relres=relres(A,b,s.x,m,n);R->relx=relxerr(s.x,xt,n);bs_free(&s);free(Z);free(E);return 1;}
     if(s.r==n){double rr=0;int bad=compat_scan_fused(A,b,s.x,m,n,tc,&rr);R->cls=bad?CLS_INCONSISTENT:CLS_UNIQUE;R->rank=n;R->relres=rr;R->relx=relxerr(s.x,xt,n);R->accepted_random=0;bs_free(&s);free(Z);free(E);return 1;}
