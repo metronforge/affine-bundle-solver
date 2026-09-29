@@ -63,6 +63,14 @@ int main(void) {
     op.struct_size=sizeof(size_t);
     assert(bsolve_router_policy_api(A,b,NULL,2,2,1,2,2,17,0,&p,&op)==1);
     assert(op.struct_size==sizeof(size_t));bs_init_operational_result(&op);
+    struct { BSOperationalResultV1 r; unsigned char tail[24]; } router_future;
+    memset(&router_future,0x3C,sizeof(router_future));
+    bs_init_operational_result(&router_future.r);
+    assert(router_future.r.struct_size==sizeof(BSOperationalResultV1));
+    router_future.r.struct_size=sizeof(router_future);
+    assert(!bsolve_router_policy_api(A,b,NULL,2,2,1,2,2,17,0,&future.p,&router_future.r));
+    assert(router_future.r.struct_size==sizeof(router_future));
+    for(int i=0;i<24;i++)assert(router_future.tail[i]==0x3C);
     double near[]={1,0,1,1e-8},rhs[]={1,1};
     p.growth_threshold=1e-7;
     assert(!bsolve_router_policy_api(near,rhs,NULL,2,2,1,2,2,17,0,&p,&op));
