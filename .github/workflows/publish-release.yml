@@ -42,16 +42,7 @@ jobs:
             echo "ordinary main commit; nothing to publish"
             exit 0
           fi
-          citation=$(sed -n 's/^version: \([^ ]*\).*/\1/p' CITATION.cff)
-          cmake=$(sed -n 's/^[[:space:]]*VERSION \([^ ]*\).*/\1/p' CMakeLists.txt)
-          if [ "$version" != "$citation" ] || [ "$version" != "$cmake" ]; then
-            echo "release versions disagree: manifest=$version citation=$citation cmake=$cmake" >&2
-            exit 1
-          fi
-          if [ "$(git rev-parse HEAD)" != "$VERIFIED_SHA" ]; then
-            echo "checkout is not the commit verified by CI" >&2
-            exit 1
-          fi
+          python3 tools/release_assets.py identity . "$version" "$(git rev-parse HEAD)" "$VERIFIED_SHA"
           echo "created=true" >> "$GITHUB_OUTPUT"
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "tag=v$version" >> "$GITHUB_OUTPUT"
@@ -66,17 +57,14 @@ jobs:
           repository: ${{ github.repository }}
           run-id: ${{ github.event.workflow_run.id }}
 
-      - name: Verify candidate checksums and names
+      - name: Verify complete candidate checksums, names and binary identity
         if: steps.release.outputs.created == 'true'
         env:
-          TAG: ${{ steps.release.outputs.tag }}
+          VERSION: ${{ steps.release.outputs.version }}
+          VERIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
-          cd dist
-          test -f "affine-bundle-solver-$TAG.tar.gz"
-          test -f "affine-bundle-solver-$TAG-research.tar.gz"
-          test -f SHA256SUMS.txt
-          test "$(wc -l < SHA256SUMS.txt)" -eq 2
-          sha256sum -c SHA256SUMS.txt
+          python3 tools/release_assets.py verify dist "$VERSION" "$VERIFIED_SHA"
+          (cd dist && sha256sum -c SHA256SUMS.txt)
 
       - name: Create or resume the exact draft
         if: steps.release.outputs.created == 'true'
@@ -114,27 +102,23 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.release.outputs.tag }}
+          VERSION: ${{ steps.release.outputs.version }}
         run: |
-          for path in dist/affine-bundle-solver-$TAG.tar.gz \
-                      dist/affine-bundle-solver-$TAG-research.tar.gz \
-                      dist/SHA256SUMS.txt; do
-            name=$(basename "$path")
+          python3 tools/release_assets.py names "$VERSION" > "$RUNNER_TEMP/expected-assets.txt"
+          while IFS= read -r name; do
+            path="dist/$name"
             asset_id=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" \
               --jq ".assets[] | select(.name == \"$name\") | .id")
             if [ -n "$asset_id" ]; then
               tmp=$(mktemp -d)
               gh api "repos/$GITHUB_REPOSITORY/releases/assets/$asset_id" \
                 -H 'Accept: application/octet-stream' > "$tmp/$name"
-              if ! cmp -s "$path" "$tmp/$name"; then
-                echo "existing asset $name has different bytes; refusing to overwrite" >&2
-                exit 1
-              fi
-              rm -rf "$tmp"
+              python3 tools/release_assets.py identical "$path" "$tmp/$name"
               echo "$name already attached with the expected bytes"
             else
               gh release upload "$TAG" "$path"
             fi
-          done
+          done < "$RUNNER_TEMP/expected-assets.txt"
 
       - name: Verify the attached bytes and publish
         if: steps.release.outputs.created == 'true'
@@ -142,10 +126,16 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.release.outputs.tag }}
           STATE: ${{ steps.draft.outputs.state }}
+          VERSION: ${{ steps.release.outputs.version }}
+          VERIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           remote=$(mktemp -d)
           gh release download "$TAG" --dir "$remote"
+          python3 tools/release_assets.py verify "$remote" "$VERSION" "$VERIFIED_SHA"
           (cd "$remote" && sha256sum -c SHA256SUMS.txt)
+          while IFS= read -r name; do
+            python3 tools/release_assets.py identical "dist/$name" "$remote/$name"
+          done < "$RUNNER_TEMP/expected-assets.txt"
           if [ "$STATE" = draft ]; then
             gh release edit "$TAG" --draft=false --latest
           fi
