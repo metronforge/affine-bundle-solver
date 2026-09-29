@@ -1,0 +1,60 @@
+{
+  "repository": "metronforge/affine-bundle-solver",
+  "source_commit": "ec2298606a8c5509741660b12c56cac47fe71ceb",
+  "source_tree": "136edebd3c36bbb8478abd690d32cfdc6213696c",
+  "source_dirty": false,
+  "platform": "linux-arm64",
+  "architecture": "aarch64",
+  "os": "PRETTY_NAME=\"Ubuntu 24.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"24.04\"\nVERSION=\"24.04.5 LTS (Noble Numbat)\"\nVERSION_CODENAME=noble\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=noble\nLOGO=ubuntu-logo\n",
+  "compiler": "gcc-13",
+  "compiler_version": "gcc-13 (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+  "libc": "glibc 2.39",
+  "cpu_baseline": "ARMv8-A",
+  "blas_provider": "reference BLAS/LAPACK LP64",
+  "blas_version": "libblas3 3.12.0-3build1.1\nliblapack3 3.12.0-3build1.1",
+  "openmp_runtime": "libgomp1 14.2.0-4ubuntu2~24.04.1",
+  "cmake_version": "cmake version 3.31.6\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).",
+  "build_options": {
+    "ABS_ARCH_FLAGS": "",
+    "ABS_BLAS": "system"
+  },
+  "deployment_target": null,
+  "tested_userspace_floor": "2.39",
+  "build_command": "cmake --build <build> --parallel 3; cmake --install <build> --prefix <SDK>",
+  "libraries": [
+    {
+      "path": "lib/libaffine_bundle_solver.so",
+      "sha256": "6009f068a01a253e69c19b756a383678e8d491901010aa8d1f8e68bc45225201",
+      "needed": [
+        "libm.so.6",
+        "libgomp.so.1",
+        "libblas.so.3",
+        "liblapack.so.3",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ]
+    },
+    {
+      "path": "lib/libcertified_solver.so",
+      "sha256": "691fa4262dfef96386e1de106b85626227d30d50e85c75557ae76c3cc8d8bc25",
+      "needed": [
+        "libaffine_bundle_solver.so",
+        "libstatus_verifier.so",
+        "libm.so.6",
+        "liblapack.so.3",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ]
+    },
+    {
+      "path": "lib/libstatus_verifier.so",
+      "sha256": "00467208c76c2f4a9ca3500204a9e9bf9a97191efc2500068d3121fb6bc02357",
+      "needed": [
+        "libm.so.6",
+        "libgomp.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ]
+    }
+  ]
+}

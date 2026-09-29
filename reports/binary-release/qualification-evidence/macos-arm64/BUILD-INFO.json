@@ -1,0 +1,53 @@
+{
+  "repository": "metronforge/affine-bundle-solver",
+  "source_commit": "ec2298606a8c5509741660b12c56cac47fe71ceb",
+  "source_tree": "136edebd3c36bbb8478abd690d32cfdc6213696c",
+  "source_dirty": false,
+  "platform": "macos-arm64",
+  "architecture": "arm64",
+  "os": "ProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830",
+  "compiler": "clang",
+  "compiler_version": "Apple clang version 17.0.0 (clang-1700.0.13.5)\nTarget: arm64-apple-darwin24.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+  "libc": null,
+  "cpu_baseline": "ARMv8-A",
+  "blas_provider": "OpenBLAS LP64",
+  "blas_version": "openblas 0.3.34",
+  "openmp_runtime": "libomp 23.1.0",
+  "cmake_version": "cmake version 4.4.3\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).",
+  "build_options": {
+    "ABS_ARCH_FLAGS": "",
+    "ABS_BLAS": "system"
+  },
+  "deployment_target": "15.0",
+  "tested_userspace_floor": "macOS 15",
+  "build_command": "cmake --build <build> --parallel 3; cmake --install <build> --prefix <SDK>",
+  "libraries": [
+    {
+      "path": "lib/libaffine_bundle_solver.dylib",
+      "sha256": "ebb584f1c024852066194fdce811afaf342aad6fa8027c6bdfa436f97c37e055",
+      "needed": [
+        "/usr/lib/libSystem.B.dylib",
+        "/opt/homebrew/opt/libomp/lib/libomp.dylib",
+        "/opt/homebrew/opt/openblas/lib/libopenblas.0.dylib"
+      ]
+    },
+    {
+      "path": "lib/libcertified_solver.dylib",
+      "sha256": "1f45780cf5baa966dd8a3aba8cfc06ceba11f6a458cdcd2effc43a44ea953445",
+      "needed": [
+        "@rpath/libaffine_bundle_solver.dylib",
+        "@rpath/libstatus_verifier.dylib",
+        "/usr/lib/libSystem.B.dylib",
+        "/opt/homebrew/opt/openblas/lib/libopenblas.0.dylib"
+      ]
+    },
+    {
+      "path": "lib/libstatus_verifier.dylib",
+      "sha256": "478b372a318410446faec1e748434db4d61ec19a5e9decdb47ce168942d172c7",
+      "needed": [
+        "/usr/lib/libSystem.B.dylib",
+        "/opt/homebrew/opt/libomp/lib/libomp.dylib"
+      ]
+    }
+  ]
+}
