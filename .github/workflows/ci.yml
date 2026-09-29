@@ -144,6 +144,13 @@ jobs:
             echo "::endgroup::"
           done
 
+      - name: Versioned operational policy ABI and concurrency
+        run: |
+          ${{ matrix.cc }} -Iinclude tests/test_operational_policy.c -L. \
+            -lcertified_solver -laffine_bundle_solver -lm -lpthread \
+            -Wl,-rpath,"$PWD" -o /tmp/test-operational-policy
+          OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 ABS_CERT_UNIQUE_THREADS=1 /tmp/test-operational-policy
+
       - name: Synthetic benchmark contract
         run: python tests/test_synthetic_bench_contract.py
 

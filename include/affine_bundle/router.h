@@ -26,7 +26,9 @@ extern "C" {
 #endif
 
 /* ------------------------------------------------------------------------
- * Status codes, reported in out[0] of the meta API.
+ * Operational status codes under the active finite-precision policy, reported
+ * in out[0]. They are not exact theorems about stored source data. Legacy calls
+ * use DEFAULT; operational_policy.h provides explicit per-call sensitivity.
  *
  * out[0] carries the class itself, all five of them.  Earlier releases
  * mapped both FAIL and UNDECIDABLE onto 4, which erased the distinction the
@@ -35,9 +37,9 @@ extern "C" {
  * only so that callers written against the old behaviour keep working.
  * ---------------------------------------------------------------------- */
 enum {
-    ABS_STATUS_UNIQUE       = 1, /* the solution set is a single point       */
-    ABS_STATUS_INFINITE     = 2, /* consistent, solution set has dimension>0 */
-    ABS_STATUS_INCONSISTENT = 3, /* no solution exists                       */
+    ABS_STATUS_UNIQUE       = 1, /* operational full-column-rank compatibility */
+    ABS_STATUS_INFINITE     = 2, /* operational rank-deficient compatibility */
+    ABS_STATUS_INCONSISTENT = 3, /* operational incompatibility             */
 
     /* A refusal on resource grounds.  This asserts NOTHING about the data:
        there may well be a unique solution.  The rank fields carry no
@@ -133,6 +135,8 @@ enum {
  * ---------------------------------------------------------------------- */
 #define ABS_DEPENDENCE_THRESHOLD 1e-13
 #define ABS_GROWTH_THRESHOLD     1e-9
+/* DEFAULT constants for legacy calls. Obtain all four default policy values
+   (including compatibility) with bs_default_operational_policy(). */
 
 void abs_thresholds(double *dependence, double *growth);
 

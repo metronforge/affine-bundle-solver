@@ -20,6 +20,7 @@
    compiler checks the public header against the definitions below: a
    header nobody compiles against is a header that drifts. */
 #include "affine_bundle/router.h"
+#include "affine_bundle/operational_policy.h"
 #include "affine_bundle/stream.h"
 #include "router_diag_snapshot.h"
 /* Allocation-failure policy.  On a large dense system an m*n request can
@@ -410,8 +411,9 @@ extern void dtrcon_(char*,char*,char*,int*,double*,int*,double*,double*,int*,int
    after the first representative and therefore do not gain rank by multiplicity.
    Return 1 if the source policy resolves rank/status, 0 if it remains unresolved,
    -1 on backend failure. */
-static int source_qrcp_trusted(const double*A,const double*b,const double*xt,
-                               int m,int n,double tc,Result*R){
+static int source_qrcp_policy(const double*A,const double*b,const double*xt,
+                               int m,int n,double tc,Result*R,
+                               double dependence,double growth,double quality){
     g_source_qrcp_calls++;
     double t0=now_sec();
     int M=n,N=m,LDA=n,minmn=M<N?M:N,info=0,lw=-1;
@@ -451,9 +453,9 @@ static int source_qrcp_trusted(const double*A,const double*b,const double*xt,
     int rlo=0,rhi=0;
     for(int i=0;i<minmn;i++){
         double d=fabs(AT[i+(size_t)i*n]);
-        if(d>BS_GROW_THR)rlo++;
-        if(d>=BS_DEP_THR)rhi++;
-        if(d>=BS_DEP_THR && d<=BS_GROW_THR && jpvt[i]>0)grey_record(jpvt[i]-1);
+        if(d>growth)rlo++;
+        if(d>=dependence)rhi++;
+        if(d>=dependence && d<=growth && jpvt[i]>0)grey_record(jpvt[i]-1);
     }
     g_source_rank_lo=rlo; g_source_rank_hi=rhi;
     if(rlo!=rhi){
@@ -511,11 +513,27 @@ static int source_qrcp_trusted(const double*A,const double*b,const double*xt,
     if(!x){free(work3);free(work2);free(Rt);free(coef);free(Ksel);free(Keps);free(Rw);free(ipivw);free(AT);free(yn);free(jpvt);free(tau);free(work);return -1;}
     for(int k=0;k<r;k++){double c=coef[k];for(int j=0;j<n;j++)x[j]+=AT[j+(size_t)k*n]*c;}
     double rr=0.0;int bad=compat_scan_fused(A,b,x,m,n,tc,&rr);
+    /* Custom quality uses the actual row 2-norm denominator even below the
+       default shortcut's conservative upper bound. No proof verifier sees it. */
+    if(quality!=BS_QUALITY_THR){
+        double xn=norm2(x,n),berr=0.0;
+        for(int i=0;i<m;i++){
+            double den=fabs(b[i])+norm2(A+(size_t)i*n,n)*xn+1e-300;
+            double be=fabs(dot(A+(size_t)i*n,x,n)-b[i])/den;
+            if(be>berr)berr=be;
+        }
+        g_last_berr=berr;g_last_berr_valid=1;
+    }
     R->cls=bad?CLS_INCONSISTENT:(r==n?CLS_UNIQUE:CLS_INFINITE);
     R->rank=r;R->fallback=1;R->accepted_random=0;R->relres=rr;
     R->relx=relxerr(x,xt,n);R->sec=now_sec()-t0;
     free(x);free(Rt);free(coef);free(work3);free(work2);free(Ksel);free(Keps);free(Rw);free(ipivw);free(AT);free(yn);free(jpvt);free(tau);free(work);
     return 1;
+}
+
+static int source_qrcp_trusted(const double*A,const double*b,const double*xt,
+                               int m,int n,double tc,Result*R){
+    return source_qrcp_policy(A,b,xt,m,n,tc,R,BS_DEP_THR,BS_GROW_THR,BS_QUALITY_THR);
 }
 
 /* Cheap source-level closure for a small already source-derived prefix.
@@ -1053,6 +1071,8 @@ void abs_router_snapshot_internal(const double *A,const double *b,const double *
     bsolve_router_meta_api(A,b,xt,m,n,sp,qv,alpha,seed,full,snapshot->meta);
     capture_router_diagnostics(snapshot,before);
 }
+
+#include "operational_policy.inc"
 
 #ifdef ABS_TEST_ROUTER_EXECUTIONS
 /* Test-only edge fixture, absent from installed libraries. */

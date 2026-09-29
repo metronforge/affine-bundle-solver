@@ -176,6 +176,25 @@ The two directions are orthogonal in the augmented geometry, giving the decompos
 \]
 The solver therefore separates rank evidence from compatibility evidence rather than mixing them into a single tolerance.
 
+\subsection{Operational policy and exact-source evidence}
+Operational classification under a researcher-selected numerical policy, exact
+status of the stored binary64 source, and verified nearby-system existence are
+separate semantic layers. The additive versioned API records all four policy
+values and returns exact-source UNKNOWN with verification NOT\_VERIFIED for
+ordinary floating-point calls. Exact rational, interval, analytic, or external
+proofs may be recorded independently by a reporting layer; this API implements
+no proof-import mechanism. A contract-policy oracle is not an exact-source proof.
+
+The default remains dependence $10^{-13}$, growth $10^{-9}$, compatibility
+$2\times10^{-10}$, and UNIQUE-witness quality $10^{-14}$. All supplied values
+must be finite, positive, at most one, with dependence strictly below growth.
+Default calls retain the existing fast router. Custom policies use normalized
+source QRCP with explicit rank bands, the existing rowwise compatibility gate,
+and a UNIQUE quality bound. This may change the route and witness as well as
+status. Policy values are immutable per-call inputs; none enters strict nearby
+certificate verification. Sensitivity changes operational interpretation, not the
+exact source mathematics or the nearby-certificate theorem.
+
 \subsection{Row decisions and system-level epistemic state}
 The implementation uses guarded bands around the rank transition. At the row level the local decision is one of
 \begin{enumerate}[label=(\alph*)]
@@ -202,7 +221,7 @@ For each row this is the minimal mixed rowwise $2$-norm backward error for fixed
 \]
 by Cauchy--Schwarz with equality attained by a coefficient correction parallel to $x$. This quantity is not a componentwise Oettli--Prager bound and is not identified with the exact-status radius introduced below. The public implementation exports a deterministic unique result only after the final source-level closure path satisfies the declared quality threshold $\eta_x\le10^{-14}$; otherwise it returns an unresolved status. For unresolved outputs no unique solution witness is asserted and the solution-quality diagnostics are NaN.  The same absence rule applies to \textsc{inconsistent}: an incompatibility verdict has no solution witness, so the public meta API exports the solution/reference-solution error field as NaN (while a residual-style incompatibility diagnostic may remain finite).
 
-The numerical labels \textsc{infinite} and \textsc{inconsistent} should therefore be read as underdetermined and incompatible under the declared finite-precision policy unless an independent exact-status proof object is also accepted. Randomized rank closure obeys the a-priori dimensional upper bound $r_+\le\min(m,n)$. A compatibility residual becomes contradiction evidence only after dependence has itself been resolved, and compressed or sketched residuals may reject a candidate or trigger escalation but are not promoted directly to source-level inconsistency.
+The numerical labels \textsc{infinite} and \textsc{inconsistent} should therefore be read as underdetermined and incompatible under the declared finite-precision policy. Exact-source status requires a separate proof about the original source; acceptance of a nearby-status object does not provide that proof. Randomized rank closure obeys the a-priori dimensional upper bound $r_+\le\min(m,n)$. A compatibility residual becomes operational contradiction evidence only after dependence has itself been resolved, and compressed or sketched residuals may reject a candidate or trigger escalation but are not promoted directly to source-level inconsistency.
 
 \begin{proposition}[Affine-translation threshold of the fast contradiction policy]\label{prop:translation-threshold}
 Let a nonzero source row be normalized as $\hat a=a/\|a\|_2$ and $\hat\beta=b/\|a\|_2$, and let $x$ be the current affine anchor.  Under the exact coordinate translation

@@ -50,6 +50,13 @@ invariant to preserve when modifying anything here.
 
 ## 3. The status model
 
+All router labels are operational under a finite-precision policy. The status
+table describes mathematical intuition within that policy, not exact-source
+theorems. Legacy calls use DEFAULT. The [policy API](operational-policy.md) exposes
+four per-call values and reports exact-source UNKNOWN / NOT_VERIFIED. The three
+thresholds below are DEFAULT rank/quality values; compatibility is separately
+2e-10. Nearby proof acceptance does not establish exact-source status.
+
 Five statuses, reported in `out[ABS_OUT_STATUS]`.
 
 | Status | Value | What it asserts |
