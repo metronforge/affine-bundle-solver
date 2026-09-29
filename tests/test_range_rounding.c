@@ -16,6 +16,16 @@ static int failures, checks;
     fprintf(stderr, "line %d: %s (round=%d)\n", __LINE__, #c, fegetround()); \
     ++failures; } } while (0)
 
+static void verify_rejection(double s, int mode) {
+    /* Nonzero products cancel: unlike all-zero input, this reaches the
+       rejection AFTER the verifier has changed rounding for dot intervals. */
+    double A[] = {0, 0}, b[] = {s, -s}, y[] = {1, 1}, lo, hi, eta;
+    BSInconsistentWitness w = {2, y, 0};
+    CHECK(bs_verify_inconsistent(A, b, 2, 1, &w, &lo, &hi, &eta) == 4);
+    CHECK(lo == 0 && hi == 0);
+    CHECK(fegetround() == mode);
+}
+
 static void verify_scale(double s, int mode) {
     double A[] = {s, 0, 0, 0}, b[] = {s, 0};
     double x[] = {1, 0}, z[] = {0, 1}, eta = -1;
@@ -23,8 +33,7 @@ static void verify_scale(double s, int mode) {
     CHECK(bs_verify_infinite(A, b, 2, 2, &w, &eta) == 0);
     CHECK(fegetround() == mode);
     CHECK(isfinite(eta) && eta == 0);
-    /* The zero-row contradiction and its rejected zero RHS exercise both
-       exits after directed interval evaluation. */
+    /* Exact zero-row contradiction and early rejected zero RHS. */
     double zero[] = {0}, rhs[] = {s}, y[] = {1}, lo, hi;
     BSInconsistentWitness iw = {1, y, 0};
     CHECK(bs_verify_inconsistent(zero, rhs, 1, 1, &iw, &lo, &hi, &eta) == 0);
@@ -36,6 +45,7 @@ static void verify_scale(double s, int mode) {
     z[1] = 0;
     CHECK(bs_verify_infinite(A, b, 2, 2, &w, &eta) != 0);
     CHECK(fegetround() == mode);
+    verify_rejection(s, mode);
 }
 
 static void threshold_neighborhoods(void) {
@@ -89,7 +99,7 @@ int main(void) {
     int original = fegetround();
     CHECK(!fesetround(FE_TONEAREST));
 #ifdef ABS_FENV_NEGATIVE_CONTROL
-    verify_scale(1, FE_TONEAREST);
+    verify_rejection(1, FE_TONEAREST);
     CHECK(!fesetround(original));
     return failures ? 1 : 0;
 #endif

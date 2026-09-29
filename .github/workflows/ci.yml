@@ -615,6 +615,9 @@ jobs:
   cmake-install:
     name: cmake, system BLAS, install and consume
     runs-on: ubuntu-24.04
+    env:
+      CC: gcc-13
+      CXX: g++-13
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
@@ -629,7 +632,11 @@ jobs:
         # The point of this job is that building the library needs no Python
         # and no SciPy wheel.  Python is installed here only to run the
         # existing batteries against the CMake build tree.
-        run: sudo apt-get update && sudo apt-get install -y libblas-dev liblapack-dev
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libblas-dev liblapack-dev gcc-13 g++-13
+          test "$("$CC" -dumpversion | cut -d. -f1)" = 13
+          "$CC" --version
 
       - name: Configure and build against the system BLAS
         # Portable arch flags: this job is about linkage and packaging, and a
