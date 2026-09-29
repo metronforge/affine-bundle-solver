@@ -1,6 +1,7 @@
 /* Diagnostic control for compilers folding bit-based finite checks under
  * fast math. Build fast and link without fast math. No solver code changes. */
 #include <stdint.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -20,7 +21,7 @@ static int volatile_bits(double x) {
 int main(int argc, char **argv) {
     if (argc != 2) return 2;
     uint64_t u;
-    if (sscanf(argv[1], "%llx", (unsigned long long *)&u) != 1) return 2;
+    if (sscanf(argv[1], "%" SCNx64, &u) != 1) return 2;
     double x; memcpy(&x, &u, sizeof x);
     printf("bits=%llx by_value=%d by_pointer=%d volatile_bits=%d sizeof(long double)=%zu\n",
            (unsigned long long)u, by_value(x), by_pointer(&x), volatile_bits(x), sizeof(long double));
