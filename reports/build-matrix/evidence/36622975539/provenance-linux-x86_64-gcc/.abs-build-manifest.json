@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "built_at_utc": "2026-09-29T19:58:47Z",
+  "source": {
+    "git_sha": "c32fa9d836c26fdd4487870d4d7674a2384056da",
+    "git_tree_sha": "f95c260531685a155d001368e214eecd87d125db",
+    "git_dirty": false
+  },
+  "build_script": {
+    "path": "build.sh",
+    "sha256": "04a93d0d26b205a410a4e6d2523bfac57c18f12334228ffd99713ae5862a2864"
+  },
+  "compiler": {
+    "command_argv": [
+      "gcc"
+    ],
+    "identity": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  },
+  "router": {
+    "compile_argv": [
+      "gcc",
+      "-O3",
+      "-fopenmp",
+      "-fPIC",
+      "-ffast-math",
+      "-Iinclude",
+      "-Isrc",
+      "-DABS_SCIPY_BLAS",
+      "-c",
+      "src/bsolver.c",
+      "-o",
+      "bsolver.o"
+    ],
+    "link_argv": [
+      "gcc",
+      "-shared",
+      "-fopenmp",
+      "bsolver.o",
+      "formation_guard.o",
+      "-o",
+      "libaffine_bundle_solver.so",
+      "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+      "-Wl,-rpath,/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/scipy.libs",
+      "-latomic",
+      "-lm"
+    ],
+    "arch_flags": "",
+    "library": {
+      "basename": "libaffine_bundle_solver.so",
+      "resolved_path": "/home/runner/work/affine-bundle-solver/affine-bundle-solver/libaffine_bundle_solver.so",
+      "sha256": "2d0027ec83f4dd1156b22807c2850266b5289caa5fd98bcdfc5c584abd6cd173"
+    }
+  },
+  "openblas": {
+    "basename": "libscipy_openblas-5f890258.so",
+    "resolved_path": "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+    "sha256": "2a5b4c1a6311873c59132b2ceaaf3c26258a17350b7cd27ea8782a47e3322981"
+  }
+}

@@ -14,24 +14,24 @@ Never change numerical policies, algorithms, public headers or release workflows
 
 ## Tasks
 
-- [ ] Runtime FP probe: preserve MXCSR checks, inspect AArch64 FPCR, check input
+- [x] Runtime FP probe: preserve MXCSR checks, inspect AArch64 FPCR, check input
   and output subnormals and directed rounding before/after each library load.
   Add constructor-based negative tests, including a missing certified library.
-- [ ] Structural FP gate: retain the ARM fused instruction coverage, support
+- [x] Structural FP gate: retain the ARM fused instruction coverage, support
   LLVM/Mach-O disassembly and symbol spelling, retain fail-closed regressions.
-- [ ] Portable CMake and test tooling: OpenMP usage requirements, install RPATH,
+- [x] Portable CMake and test tooling: OpenMP usage requirements, install RPATH,
   shared-library discovery; replace linker wrapping with test-only source
   interception and add portable stream allocation-failure coverage. Keep Linux
   RLIMIT_AS tests as additional OS-specific evidence.
-- [ ] Semantic snapshots in `tests/compare_builds.py`: share the existing
+- [x] Semantic snapshots in `tests/compare_builds.py`: share the existing
   semantic key, add deterministic exact dyadic corpus plus certified outcomes,
   reject missing/duplicate/schema-mismatched artifacts and any disagreement.
-- [ ] CI: build, full CTest, strict property batteries, install, external C/C++
+- [x] CI: build, full CTest, strict property batteries, install, external C/C++
   and pkg-config consumers; collect environment/provenance and semantic JSON.
   Compare x86 GCC portable against both ARM Linux compilers and Apple Clang.
-- [ ] Run local full CTest and property batteries, commit logical checkpoints,
+- [x] Run local full CTest and property batteries, commit logical checkpoints,
   push and dispatch actual Actions; diagnose failures without weakening gates.
-- [ ] Record run evidence and support status in `docs/build-matrix.md` and
+- [x] Record run evidence and support status in `docs/build-matrix.md` and
   `reports/build-matrix/phase1-report.md`; commit and leave a clean branch.
 
 ## Original audit

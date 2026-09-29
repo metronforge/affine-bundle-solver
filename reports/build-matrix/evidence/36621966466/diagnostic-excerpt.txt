@@ -1,0 +1,11 @@
+2026-09-29T19:50:17.4164600Z  2/40 Test  #2: test_operational_policy .................Subprocess aborted***Exception:   0.01 sec
+2026-09-29T19:50:23.1056170Z 23: AssertionError: (6, 6, 0, 0, 0, 0, 0)
+2026-09-29T19:50:23.1155870Z AssertionError: (6, 6, 0, 0, 0, 0, 0)
+2026-09-29T19:50:32.8306930Z 	  2 - test_operational_policy (Subprocess aborted)
+2026-09-29T19:50:34.6814240Z bits=7ff0000000000000 by_value=0 by_pointer=1 volatile_bits=1 sizeof(long double)=8
+2026-09-29T19:50:34.6836950Z bits=7ff8000000000000 by_value=0 by_pointer=1 volatile_bits=1 sizeof(long double)=8
+2026-09-29T19:50:34.6871650Z bits=3ff0000000000000 by_value=0 by_pointer=0 volatile_bits=0 sizeof(long double)=8
+2026-09-29T19:50:57.7902630Z 1/3 Test  #2: test_operational_policy ..........Subprocess aborted***Exception:   0.02 sec
+2026-09-29T19:50:58.1669860Z 2/3 Test #23: test_status_profile_semantics ....   Passed    0.38 sec
+2026-09-29T19:50:58.2623370Z 33% tests passed, 2 tests failed out of 3
+2026-09-29T19:50:58.2624110Z 	  2 - test_operational_policy (Subprocess aborted)

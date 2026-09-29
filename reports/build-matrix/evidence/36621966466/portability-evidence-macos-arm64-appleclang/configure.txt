@@ -1,0 +1,55 @@
+-- The C compiler identification is AppleClang 17.0.0.17000013
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/clang - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Looking for dgemm_
+-- Looking for dgemm_ - found
+-- Found BLAS: /Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Accelerate.framework
+-- Looking for cheev_
+-- Looking for cheev_ - found
+-- Found LAPACK: /Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Accelerate.framework;/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Accelerate.framework
+-- Looking for dgecon_
+-- Looking for dgecon_ - found
+-- Looking for dgels_
+-- Looking for dgels_ - found
+-- Looking for dgelsy_
+-- Looking for dgelsy_ - found
+-- Looking for dgemm_
+-- Looking for dgemm_ - found
+-- Looking for dgemv_
+-- Looking for dgemv_ - found
+-- Looking for dgeqp3_
+-- Looking for dgeqp3_ - found
+-- Looking for dgeqrf_
+-- Looking for dgeqrf_ - found
+-- Looking for dgesdd_
+-- Looking for dgesdd_ - found
+-- Looking for dgesvd_
+-- Looking for dgesvd_ - found
+-- Looking for dgetrf_
+-- Looking for dgetrf_ - found
+-- Looking for dgetrs_
+-- Looking for dgetrs_ - found
+-- Looking for dorgqr_
+-- Looking for dorgqr_ - found
+-- Looking for dormqr_
+-- Looking for dormqr_ - found
+-- Looking for dtrcon_
+-- Looking for dtrcon_ - found
+-- Looking for dtrtri_
+-- Looking for dtrtri_ - found
+-- Found OpenMP_C: -Xpreprocessor -fopenmp (found version "5.1")
+-- Found OpenMP: TRUE (found version "5.1") found components: C
+-- Found Python3: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/bin/python3.12 (found version "3.12.10") found components: Interpreter
+-- 
+-- affine-bundle-solver 0.4.4
+--   BLAS provider ....... system (/Applications/Xcode_16.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Accelerate.framework)
+--   Router arch flags ... 
+--   Strict kernels ...... -O2 -frounding-math -fno-fast-math -ffp-contract=off
+--   build.sh remains the canonical manuscript reproduction path.
+-- 
+-- Configuring done (5.0s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable

@@ -1,0 +1,528 @@
+{
+  "cases": [
+    {
+      "accepted_status_mask": 7,
+      "case": "unique-tall",
+      "certified_rank": 8,
+      "certified_rank_interval": [
+        8,
+        8
+      ],
+      "certified_status": 1,
+      "generation": [
+        0,
+        0,
+        0
+      ],
+      "router": {
+        "certainty": 1,
+        "classification": 1,
+        "rank": 8,
+        "rank_hi": 8,
+        "rank_lo": 8,
+        "status": 1
+      },
+      "seed": 12345,
+      "verification": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "accepted_status_mask": 7,
+      "case": "unique-tall",
+      "certified_rank": 8,
+      "certified_rank_interval": [
+        8,
+        8
+      ],
+      "certified_status": 1,
+      "generation": [
+        0,
+        0,
+        0
+      ],
+      "router": {
+        "certainty": 1,
+        "classification": 1,
+        "rank": 8,
+        "rank_hi": 8,
+        "rank_lo": 8,
+        "status": 1
+      },
+      "seed": 777,
+      "verification": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "accepted_status_mask": 7,
+      "case": "unique-square",
+      "certified_rank": 8,
+      "certified_rank_interval": [
+        8,
+        8
+      ],
+      "certified_status": 1,
+      "generation": [
+        0,
+        0,
+        0
+      ],
+      "router": {
+        "certainty": 1,
+        "classification": 1,
+        "rank": 8,
+        "rank_hi": 8,
+        "rank_lo": 8,
+        "status": 1
+      },
+      "seed": 12345,
+      "verification": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "accepted_status_mask": 7,
+      "case": "unique-square",
+      "certified_rank": 8,
+      "certified_rank_interval": [
+        8,
+        8
+      ],
+      "certified_status": 1,
+      "generation": [
+        0,
+        0,
+        0
+      ],
+      "router": {
+        "certainty": 1,
+        "classification": 1,
+        "rank": 8,
+        "rank_hi": 8,
+        "rank_lo": 8,
+        "status": 1
+      },
+      "seed": 777,
+      "verification": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "accepted_status_mask": 6,
+      "case": "infinite-tall",
+      "certified_rank": 6,
+      "certified_rank_interval": [
+        6,
+        8
+      ],
+      "certified_status": 2,
+      "generation": [
+        6,
+        0,
+        0
+      ],
+      "router": {
+        "certainty": 2,
+        "classification": 2,
+        "rank": 6,
+        "rank_hi": 8,
+        "rank_lo": 6,
+        "status": 2
+      },
+      "seed": 12345,
+      "verification": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "accepted_status_mask": 6,
+      "case": "infinite-tall",
+      "certified_rank": 6,
+      "certified_rank_interval": [
+        6,
+        8
+      ],
+      "certified_status": 2,
+      "generation": [
+        6,
+        0,
+        0
+      ],
+      "router": {
+        "certainty": 2,
+        "classification": 2,
+        "rank": 6,
+        "rank_hi": 8,
+        "rank_lo": 6,
+        "status": 2
+      },
+      "seed": 777,
+      "verification": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "accepted_status_mask": 6,
+      "case": "infinite-wide",
+      "certified_rank": 6,
+      "certified_rank_interval": [
+        6,
+        6
+      ],
+      "certified_status": 2,
+      "generation": [
+        1,
+        0,
+        0
+      ],
+      "router": {
+        "certainty": 2,
+        "classification": 2,
+        "rank": 6,
+        "rank_hi": 6,
+        "rank_lo": 6,
+        "status": 2
+      },
+      "seed": 12345,
+      "verification": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "accepted_status_mask": 6,
+      "case": "infinite-wide",
+      "certified_rank": 6,
+      "certified_rank_interval": [
+        6,
+        6
+      ],
+      "certified_status": 2,
+      "generation": [
+        1,
+        0,
+        0
+      ],
+      "router": {
+        "certainty": 2,
+        "classification": 2,
+        "rank": 6,
+        "rank_hi": 6,
+        "rank_lo": 6,
+        "status": 2
+      },
+      "seed": 777,
+      "verification": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "accepted_status_mask": 6,
+      "case": "inconsistent",
+      "certified_rank": 6,
+      "certified_rank_interval": [
+        6,
+        6
+      ],
+      "certified_status": 3,
+      "generation": [
+        6,
+        0,
+        0
+      ],
+      "router": {
+        "certainty": 1,
+        "classification": 3,
+        "rank": 6,
+        "rank_hi": 6,
+        "rank_lo": 6,
+        "status": 3
+      },
+      "seed": 12345,
+      "verification": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "accepted_status_mask": 6,
+      "case": "inconsistent",
+      "certified_rank": 6,
+      "certified_rank_interval": [
+        6,
+        6
+      ],
+      "certified_status": 3,
+      "generation": [
+        6,
+        0,
+        0
+      ],
+      "router": {
+        "certainty": 1,
+        "classification": 3,
+        "rank": 6,
+        "rank_hi": 6,
+        "rank_lo": 6,
+        "status": 3
+      },
+      "seed": 777,
+      "verification": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "accepted_status_mask": 2,
+      "case": "zero-compatible",
+      "certified_rank": 0,
+      "certified_rank_interval": [
+        0,
+        4
+      ],
+      "certified_status": 2,
+      "generation": [
+        5,
+        0,
+        6
+      ],
+      "router": {
+        "certainty": 2,
+        "classification": 2,
+        "rank": 0,
+        "rank_hi": 4,
+        "rank_lo": 0,
+        "status": 2
+      },
+      "seed": 12345,
+      "verification": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "accepted_status_mask": 2,
+      "case": "zero-compatible",
+      "certified_rank": 0,
+      "certified_rank_interval": [
+        0,
+        4
+      ],
+      "certified_status": 2,
+      "generation": [
+        5,
+        0,
+        6
+      ],
+      "router": {
+        "certainty": 2,
+        "classification": 2,
+        "rank": 0,
+        "rank_hi": 4,
+        "rank_lo": 0,
+        "status": 2
+      },
+      "seed": 777,
+      "verification": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "accepted_status_mask": 6,
+      "case": "zero-inconsistent",
+      "certified_rank": 0,
+      "certified_rank_interval": [
+        0,
+        0
+      ],
+      "certified_status": 3,
+      "generation": [
+        5,
+        0,
+        0
+      ],
+      "router": {
+        "certainty": 1,
+        "classification": 3,
+        "rank": 0,
+        "rank_hi": 0,
+        "rank_lo": 0,
+        "status": 3
+      },
+      "seed": 12345,
+      "verification": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "accepted_status_mask": 6,
+      "case": "zero-inconsistent",
+      "certified_rank": 0,
+      "certified_rank_interval": [
+        0,
+        0
+      ],
+      "certified_status": 3,
+      "generation": [
+        5,
+        0,
+        0
+      ],
+      "router": {
+        "certainty": 1,
+        "classification": 3,
+        "rank": 0,
+        "rank_hi": 0,
+        "rank_lo": 0,
+        "status": 3
+      },
+      "seed": 777,
+      "verification": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "accepted_status_mask": 7,
+      "case": "rank-boundary--30",
+      "certified_rank": 3,
+      "certified_rank_interval": [
+        3,
+        3
+      ],
+      "certified_status": 1,
+      "generation": [
+        0,
+        0,
+        0
+      ],
+      "router": {
+        "certainty": 1,
+        "classification": 1,
+        "rank": 3,
+        "rank_hi": 3,
+        "rank_lo": 3,
+        "status": 1
+      },
+      "seed": 12345,
+      "verification": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "accepted_status_mask": 7,
+      "case": "rank-boundary--30",
+      "certified_rank": 3,
+      "certified_rank_interval": [
+        3,
+        3
+      ],
+      "certified_status": 1,
+      "generation": [
+        0,
+        0,
+        0
+      ],
+      "router": {
+        "certainty": 1,
+        "classification": 1,
+        "rank": 3,
+        "rank_hi": 3,
+        "rank_lo": 3,
+        "status": 1
+      },
+      "seed": 777,
+      "verification": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "accepted_status_mask": 7,
+      "case": "rank-boundary--40",
+      "certified_rank": 3,
+      "certified_rank_interval": [
+        3,
+        3
+      ],
+      "certified_status": 1,
+      "generation": [
+        0,
+        0,
+        0
+      ],
+      "router": {
+        "certainty": 1,
+        "classification": 1,
+        "rank": 3,
+        "rank_hi": 3,
+        "rank_lo": 3,
+        "status": 1
+      },
+      "seed": 12345,
+      "verification": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "accepted_status_mask": 7,
+      "case": "rank-boundary--40",
+      "certified_rank": 3,
+      "certified_rank_interval": [
+        3,
+        3
+      ],
+      "certified_status": 1,
+      "generation": [
+        0,
+        0,
+        0
+      ],
+      "router": {
+        "certainty": 1,
+        "classification": 1,
+        "rank": 3,
+        "rank_hi": 3,
+        "rank_lo": 3,
+        "status": 1
+      },
+      "seed": 777,
+      "verification": [
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "corpus_sha256": "40f434dcf8fcac93d0fcc426ad7f3a8b8b1ce58c56a56ad2df1094de21467372",
+  "schema": 1
+}

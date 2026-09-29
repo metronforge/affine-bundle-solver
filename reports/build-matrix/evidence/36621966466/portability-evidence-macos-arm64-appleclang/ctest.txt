@@ -1,0 +1,1102 @@
+UpdateCTestConfiguration  from :/Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/DartConfiguration.tcl
+Test project /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+      Start  1: test_certified_diag
+
+1: Test command: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/abs_certified_diag_test
+1: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+1: Test timeout computed to be: 10000000
+1: unique-square: PASS status=1 grey=0/0
+1: unique-tall: PASS status=1 grey=0/0
+1: infinite-wide: PASS status=2 grey=0/0
+1: infinite-tall: PASS status=2 grey=0/0
+1: inconsistent: PASS status=3 grey=0/0
+1: near-threshold: PASS status=5 grey=1/2
+1: zero-compatible: PASS status=2 grey=0/0
+1: zero-incompatible: PASS status=3 grey=0/0
+1: thin-wide-48: PASS status=2 grey=0/0
+1: thin-wide-96: PASS status=2 grey=0/0
+ 1/40 Test  #1: test_certified_diag .....................   Passed    0.02 sec
+test 2
+      Start  2: test_operational_policy
+
+2: Test command: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/abs_operational_policy_test
+2: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+2: Test timeout computed to be: 10000000
+2: Assertion failed: (op.operational_status==ABS_STATUS_UNDECIDABLE), function main, file test_operational_policy.c, line 99.
+ 2/40 Test  #2: test_operational_policy .................Subprocess aborted***Exception:   0.01 sec
+Assertion failed: (op.operational_status==ABS_STATUS_UNDECIDABLE), function main, file test_operational_policy.c, line 99.
+
+test 3
+      Start  3: test_certified_diag_once
+
+3: Test command: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/abs_certified_diag_once_test
+3: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+3: Test timeout computed to be: 10000000
+3: one router execution and grey capacity: PASS
+ 3/40 Test  #3: test_certified_diag_once ................   Passed    0.01 sec
+test 4
+      Start  4: test_certified_reuse
+
+4: Test command: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/abs_certified_reuse_test
+4: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+4: Test timeout computed to be: 10000000
+4: combined audit least-squares reuse: PASS
+ 4/40 Test  #4: test_certified_reuse ....................   Passed    0.01 sec
+test 5
+      Start  5: test_infinite_fastpath
+
+5: Test command: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/abs_infinite_fastpath_test
+5: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+5: Test timeout computed to be: 10000000
+5: combined INFINITE QRCP -> strict verifier -> DGESDD fallback: PASS
+ 5/40 Test  #5: test_infinite_fastpath ..................   Passed    0.01 sec
+test 6
+      Start  6: test_reusable_qrcp
+
+6: Test command: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/abs_reusable_qrcp_test
+6: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+6: Test timeout computed to be: 10000000
+6: reusable QRCP: PASS calls=2 query=1 execute=1 repeated=2
+ 6/40 Test  #6: test_reusable_qrcp ......................   Passed    0.01 sec
+test 7
+      Start  7: test_reusable_qrcp_enomem
+
+7: Test command: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/abs_reusable_qrcp_enomem_test
+7: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+7: Test timeout computed to be: 10000000
+7: reusable QRCP ENOMEM: PASS failures=6
+ 7/40 Test  #7: test_reusable_qrcp_enomem ...............   Passed    0.01 sec
+test 8
+      Start  8: test_reusable_qrcp_reentrant
+
+8: Test command: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/abs_reusable_qrcp_reentrant_test
+8: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+8: Test timeout computed to be: 10000000
+8: reentrant reusable QRCP: PASS threads=4 calls=64
+ 8/40 Test  #8: test_reusable_qrcp_reentrant ............   Passed    0.02 sec
+test 9
+      Start  9: test_dgesdd_core_state
+
+9: Test command: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/abs_dgesdd_core_state_test
+9: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+9: Test timeout computed to be: 10000000
+9: PASS wide core=3x5 rank=3
+9: PASS square core=4x4 rank=4
+9: PASS tall core=5x3 rank=3
+9: PASS wide-rank-deficient core=3x5 rank=2
+9: PASS wide-rank-zero core=3x5 rank=0
+9: PASS wide-near-threshold core=3x5 rank=2
+ 9/40 Test  #9: test_dgesdd_core_state ..................   Passed    0.00 sec
+test 10
+      Start 10: test_native_solver_lifecycle
+
+10: Test command: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/abs_native_solver_lifecycle_test
+10: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+10: Test timeout computed to be: 10000000
+10: native stream/router/certified/witness lifecycle: PASS
+10/40 Test #10: test_native_solver_lifecycle ............   Passed    0.01 sec
+test 11
+      Start 11: test_stream_alloc_failure
+
+11: Test command: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/abs_stream_alloc_failure_test
+11: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+11: Test timeout computed to be: 10000000
+11: stream allocation failure/retry: PASS
+11/40 Test #11: test_stream_alloc_failure ...............   Passed    0.01 sec
+test 12
+      Start 12: rounding_probe
+
+12: Test command: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/abs_rounding_probe
+12: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+12: Test timeout computed to be: 10000000
+12: directed-rounding probe: PASS
+12/40 Test #12: rounding_probe ..........................   Passed    0.00 sec
+test 13
+      Start 13: mxcsr_probe
+
+13: Test command: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/abs_mxcsr_probe "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/libaffine_bundle_solver.dylib" "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/libcertified_solver.dylib"
+13: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+13: Test timeout computed to be: 10000000
+13: FP environment probe: PASS (FPCR control=0x0 unchanged; input/output subnormals and directed rounding preserved)
+13/40 Test #13: mxcsr_probe .............................   Passed    0.03 sec
+test 14
+      Start 14: link_contract
+
+14: Test command: /opt/homebrew/bin/cmake "-DLINK_RULE=/Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/CMakeFiles/affine_bundle_solver.dir/link.txt" "-P" "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/cmake/check_link_contract.cmake"
+14: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+14: Test timeout computed to be: 10000000
+14: -- link contract: no fast-math flag on the router link line
+14/40 Test #14: link_contract ...........................   Passed    0.01 sec
+test 15
+      Start 15: test_unique_verifier_rows
+
+15: Test command: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/abs_unique_verifier_rows_test
+15: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+15: Test timeout computed to be: 10000000
+15: unique verifier rows: 1968 calls, 31160 rows, 1502768 entries compared; 228 signed-zero-only endpoint differences; 0 failures
+15/40 Test #15: test_unique_verifier_rows ...............   Passed    1.96 sec
+test 16
+      Start 16: test_unique_verifier_parallel
+
+16: Test command: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/abs_unique_verifier_parallel_test
+16: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+16: Test timeout computed to be: 10000000
+16: parallel strict UNIQUE: deterministic workers, eta, and fenv restoration: PASS
+16/40 Test #16: test_unique_verifier_parallel ...........   Passed    0.01 sec
+test 17
+      Start 17: test_unique_thread_fenv
+
+17: Test command: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/abs_unique_thread_fenv_test
+17: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+17: Test timeout computed to be: 10000000
+17: parallel worker fenv/MXCSR isolation: PASS
+17/40 Test #17: test_unique_thread_fenv .................   Passed    0.00 sec
+test 18
+      Start 18: strict_fp_contraction
+
+18: Test command: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/tools/check_fp_contraction.sh "/usr/bin/clang" "--" "-O2" "-frounding-math" "-fno-fast-math" "-ffp-contract=off" "-Xpreprocessor" "-fopenmp" "-I/opt/homebrew/opt/libomp/include" "-I/Users/runner/work/affine-bundle-solver/affine-bundle-solver/include" "-I/Users/runner/work/affine-bundle-solver/affine-bundle-solver/src" "--" "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/src/formation_guard.c" "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/src/status_certificate.c" "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/src/certified_api.c"
+18: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+18: Test timeout computed to be: 10000000
+18: fp-contraction inspection tool: /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/llvm-objdump
+18: Apple LLVM version 17.0.0
+18:   Optimized build.
+18: 
+18: 
+18:   Registered Targets:
+18:     aarch64    - AArch64 (little endian)
+18:     aarch64_32 - AArch64 (little endian ILP32)
+18:     aarch64_be - AArch64 (big endian)
+18:     arm        - ARM
+18:     arm64      - ARM64 (little endian)
+18:     arm64_32   - ARM64 (little endian ILP32)
+18:     armeb      - ARM (big endian)
+18:     thumb      - Thumb
+18:     thumbeb    - Thumb (big endian)
+18:     x86        - 32-bit X86: Pentium-Pro and above
+18:     x86-64     - 64-bit X86: EM64T and AMD64
+18: fp-contraction check: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/src/formation_guard.c: 0 fused multiply-add(s) in 1934 instructions; target 'fg_sketch_formation_eps' has 114 instructions (default target)
+18: fp-contraction check: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/src/status_certificate.c: 0 fused multiply-add(s) in 1795 instructions; target 'bs_verify_unique' has 340 instructions (default target)
+18: fp-contraction check: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/src/certified_api.c: 0 fused multiply-add(s) in 4022 instructions; target 'bsolve_certified_diag_api' has 181 instructions (default target)
+18: fp-contraction check: PASSED (3 sources)
+18/40 Test #18: strict_fp_contraction ...................   Passed    1.12 sec
+test 19
+      Start 19: fp_contraction_fail_closed
+
+19: Test command: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/tests/test_fp_contraction_gate.sh "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/tools/check_fp_contraction.sh" "/usr/bin/clang" "/Users/runner/work/affine-bundle-solver/affine-bundle-solver" "-Xpreprocessor" "-fopenmp" "-I/opt/homebrew/opt/libomp/include"
+19: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+19: Test timeout computed to be: 10000000
+19: aarch64-vector-fused-operation: expected diagnostic not found: strict kernels contain fused multiply-adds
+19: fp-contraction inspection tool: /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.i2rhmlyXnO/fused-objdump
+19: 0000000000000000 <bs_verify_unique>:
+19:    0:	fmla
+19: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/tools/check_fp_contraction.sh: line 88: /bin/true: No such file or directory
+19/40 Test #19: fp_contraction_fail_closed ..............***Failed    0.56 sec
+aarch64-vector-fused-operation: expected diagnostic not found: strict kernels contain fused multiply-adds
+fp-contraction inspection tool: /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.i2rhmlyXnO/fused-objdump
+0000000000000000 <bs_verify_unique>:
+   0:	fmla
+/Users/runner/work/affine-bundle-solver/affine-bundle-solver/tools/check_fp_contraction.sh: line 88: /bin/true: No such file or directory
+
+test 20
+      Start 20: fp_environment_fail_closed
+
+20: Test command: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/bin/python3.12 "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/tests/test_fp_environment.py" "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/abs_mxcsr_probe" "/usr/bin/clang"
+20: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+20: Test timeout computed to be: 10000000
+20: FP environment negative control clean/clean: PASS
+20: FP environment negative control clean/missing: PASS
+20: FP environment negative control rounding/clean: PASS
+20: FP environment negative control clean/rounding: PASS
+20: FP environment negative control flush/clean: PASS
+20: FP environment negative control clean/flush: PASS
+20/40 Test #20: fp_environment_fail_closed ..............   Passed    0.34 sec
+test 21
+      Start 21: semantic_snapshot_contract
+
+21: Test command: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/bin/python3.12 "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/tests/test_semantic_snapshot.py"
+21: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+21: Test timeout computed to be: 10000000
+21: ...
+21: ----------------------------------------------------------------------
+21: Ran 3 tests in 0.014s
+21: 
+21: OK
+21: semantic snapshots: PASS (2 platforms, 18 case/seed pairs)
+21: SEMANTIC DIVERGENCE /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmpbqdbv31r/a.json vs /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmpbqdbv31r/b.json:
+21: {'case': 'unique-tall', 'seed': 12345, 'router': {'status': 1, 'certainty': 1, 'rank': 2, 'rank_lo': 2, 'rank_hi': 2, 'classification': 1}, 'certified_status': 1, 'certified_rank': 2, 'certified_rank_interval': [2, 2], 'accepted_status_mask': 1, 'verification': [0, 1, 1], 'generation': [0, 1, 1]}
+21: {'case': 'unique-tall', 'seed': 12345, 'router': {'status': 1, 'certainty': 1, 'rank': 2, 'rank_lo': 2, 'rank_hi': 2, 'classification': 1}, 'certified_status': 1, 'certified_rank': 2, 'certified_rank_interval': [2, 2], 'accepted_status_mask': 3, 'verification': [0, 1, 1], 'generation': [0, 1, 1]}
+21: SEMANTIC DIVERGENCE /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmpbqdbv31r/a.json vs /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmpbqdbv31r/b.json:
+21: {'case': 'unique-tall', 'seed': 12345, 'router': {'status': 1, 'certainty': 1, 'rank': 2, 'rank_lo': 2, 'rank_hi': 2, 'classification': 1}, 'certified_status': 1, 'certified_rank': 2, 'certified_rank_interval': [2, 2], 'accepted_status_mask': 1, 'verification': [0, 1, 1], 'generation': [0, 1, 1]}
+21: {'case': 'unique-tall', 'seed': 12345, 'router': {'status': 1, 'certainty': 1, 'rank': 2, 'rank_lo': 2, 'rank_hi': 2, 'classification': 1}, 'certified_status': 1, 'certified_rank': 2, 'certified_rank_interval': [1, 2], 'accepted_status_mask': 1, 'verification': [0, 1, 1], 'generation': [0, 1, 1]}
+21: SEMANTIC DIVERGENCE /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmpbqdbv31r/a.json vs /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmpbqdbv31r/b.json:
+21: {'case': 'unique-tall', 'seed': 12345, 'router': {'status': 1, 'certainty': 1, 'rank': 2, 'rank_lo': 2, 'rank_hi': 2, 'classification': 1}, 'certified_status': 1, 'certified_rank': 2, 'certified_rank_interval': [2, 2], 'accepted_status_mask': 1, 'verification': [0, 1, 1], 'generation': [0, 1, 1]}
+21: {'case': 'unique-tall', 'seed': 12345, 'router': {'status': 1, 'certainty': 1, 'rank': 2, 'rank_lo': 2, 'rank_hi': 2, 'classification': 1}, 'certified_status': 1, 'certified_rank': 2, 'certified_rank_interval': [2, 2], 'accepted_status_mask': 1, 'verification': [1, 1, 1], 'generation': [0, 1, 1]}
+21: SEMANTIC DIVERGENCE /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmpbqdbv31r/a.json vs /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmpbqdbv31r/b.json:
+21: {'case': 'unique-tall', 'seed': 12345, 'router': {'status': 1, 'certainty': 1, 'rank': 2, 'rank_lo': 2, 'rank_hi': 2, 'classification': 1}, 'certified_status': 1, 'certified_rank': 2, 'certified_rank_interval': [2, 2], 'accepted_status_mask': 1, 'verification': [0, 1, 1], 'generation': [0, 1, 1]}
+21: {'case': 'unique-tall', 'seed': 12345, 'router': {'status': 1, 'certainty': 1, 'rank': 2, 'rank_lo': 2, 'rank_hi': 2, 'classification': 1}, 'certified_status': 5, 'certified_rank': 2, 'certified_rank_interval': [2, 2], 'accepted_status_mask': 1, 'verification': [0, 1, 1], 'generation': [0, 1, 1]}
+21/40 Test #21: semantic_snapshot_contract ..............   Passed    0.98 sec
+test 22
+      Start 22: test_certified_api
+
+22: Test command: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/bin/python3.12 "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/tests/test_certified_api.py"
+22: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+22: Environment variables: 
+22:  ABS_LIB_DIR=/Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+22: Test timeout computed to be: 10000000
+22: unique 1.7913132974552315e-15 profile 1.7913132974552315e-15 1.3644038572546262 1.89735103841169e-15
+22: infinite 1.0827101476208014e-15 profile 2.820875866134887e-15 1.0827101476208014e-15 4.470877900205788e-15
+22: inconsistent 2.3421974910508504e-15 profile 0.0008588049968803304 0.0008588049968810434 2.3421974910508504e-15
+22: PASS
+22/40 Test #22: test_certified_api ......................   Passed    0.36 sec
+test 23
+      Start 23: test_status_profile_semantics
+
+23: Test command: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/bin/python3.12 "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/tests/test_status_profile_semantics.py"
+23: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+23: Environment variables: 
+23:  ABS_LIB_DIR=/Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+23: Test timeout computed to be: 10000000
+23: degenerate case: ||P_null b0|| = 4.986e-15, 1 of 41 candidates accepted, first interval [1.789e-16, 1.515e-15]
+23: controlled case: delta = 1.716e-07, rc=0, interval [4.290e-08, 4.290e-08], eta = 1.960e-15
+23: eps=1e-12 eta_unique=7.989e-13 eta_inconsistent=2.050e-15
+23: eps=1e-09 eta_unique=7.985e-10 eta_inconsistent=1.989e-15
+23: eps=1e-06 eta_unique=7.985e-07 eta_inconsistent=1.914e-15
+23: eps=1e-03 eta_unique=7.982e-04 eta_inconsistent=1.921e-15
+23: eps=1e-01 eta_unique=7.628e-02 eta_inconsistent=1.877e-15
+23: compatible-adversarial eta_inconsistent=3.048e-15 (1/41 candidates accepted, ||P_null b0||=4.99e-15)
+23: PRIMARY PASS
+23: Traceback (most recent call last):
+23:   File "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/tests/test_status_profile_semantics.py", line 243, in <module>
+23:     assert r2.accepted_status_mask == 7, (
+23:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+23: AssertionError: (6, 6, 0, 0, 0, 0, 0)
+23/40 Test #23: test_status_profile_semantics ...........***Failed    0.14 sec
+degenerate case: ||P_null b0|| = 4.986e-15, 1 of 41 candidates accepted, first interval [1.789e-16, 1.515e-15]
+controlled case: delta = 1.716e-07, rc=0, interval [4.290e-08, 4.290e-08], eta = 1.960e-15
+eps=1e-12 eta_unique=7.989e-13 eta_inconsistent=2.050e-15
+eps=1e-09 eta_unique=7.985e-10 eta_inconsistent=1.989e-15
+eps=1e-06 eta_unique=7.985e-07 eta_inconsistent=1.914e-15
+eps=1e-03 eta_unique=7.982e-04 eta_inconsistent=1.921e-15
+eps=1e-01 eta_unique=7.628e-02 eta_inconsistent=1.877e-15
+compatible-adversarial eta_inconsistent=3.048e-15 (1/41 candidates accepted, ||P_null b0||=4.99e-15)
+PRIMARY PASS
+Traceback (most recent call last):
+  File "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/tests/test_status_profile_semantics.py", line 243, in <module>
+    assert r2.accepted_status_mask == 7, (
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (6, 6, 0, 0, 0, 0, 0)
+
+test 24
+      Start 24: test_verifier_adversarial
+
+24: Test command: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/bin/python3.12 "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/tests/test_verifier_adversarial.py"
+24: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+24: Environment variables: 
+24:  ABS_LIB_DIR=/Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+24: Test timeout computed to be: 10000000
+24: adversarial verifier checks: PASS
+24/40 Test #24: test_verifier_adversarial ...............   Passed    0.10 sec
+test 25
+      Start 25: test_meta_api_absent_solution_quality
+
+25: Test command: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/bin/python3.12 "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/tests/test_meta_api_absent_solution_quality.py"
+25: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+25: Environment variables: 
+25:  ABS_LIB_DIR=/Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+25: Test timeout computed to be: 10000000
+25: PASS incompatible meta API exports no solution-quality field
+25/40 Test #25: test_meta_api_absent_solution_quality ...   Passed    0.09 sec
+test 26
+      Start 26: test_streaming_equivalence
+
+26: Test command: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/bin/python3.12 "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/tests/test_streaming_equivalence.py"
+26: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+26: Environment variables: 
+26:  ABS_LIB_DIR=/Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+26: Test timeout computed to be: 10000000
+26:   case                            stream        router     interval  deferred
+26:   ------------------------------------------------------------------------------
+26:   full_400x12                     UNIQUE        UNIQUE     [12, 12]         0
+26:   full_800x24                     UNIQUE        UNIQUE     [24, 24]         0
+26:   full_1500x32                    UNIQUE        UNIQUE     [32, 32]         0
+26:   rankdef_600x20r12             INFINITE      INFINITE     [12, 12]         0
+26:   rankdef_1200x32r20            INFINITE      INFINITE     [20, 20]         0
+26:   inconsistent_500x16       INCONSISTENT  INCONSISTENT     [16, 16]         0
+26:   inconsistent_900x24       INCONSISTENT  INCONSISTENT     [24, 24]         0
+26:   under_64x128                  INFINITE      INFINITE     [64, 64]         0
+26:   under_100x300                 INFINITE      INFINITE   [100, 100]         0
+26: 
+26:   cost of 1000 inserts, by position in the stream: 2.4 ms, 2.4 ms, 2.2 ms, 2.3 ms
+26: 
+26: ok: 9 systems, 0 with deferred rows, insert cost flat across the stream
+26/40 Test #26: test_streaming_equivalence ..............   Passed    0.21 sec
+test 27
+      Start 27: test_threshold_contract
+
+27: Test command: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/bin/python3.12 "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/tests/test_threshold_contract.py"
+27: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+27: Environment variables: 
+27:  ABS_LIB_DIR=/Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+27: Test timeout computed to be: 10000000
+27:   header : dependence 1e-13, growth 1e-09
+27:   library: dependence 1e-13, growth 1e-09
+27: 
+27:   Row = in-span row + eps * out-of-span direction
+27:        eps    verdict   expected
+27:   ----------------------------------------
+27:      1e-15     ABSORB   ABSORB
+27:      1e-14     ABSORB   ABSORB
+27:      1e-12      DEFER   DEFER
+27:      1e-11      DEFER   DEFER
+27:      1e-10      DEFER   DEFER
+27:      1e-07       GROW   GROW
+27:      1e-06       GROW   GROW
+27: 
+27:   Same systems, rescaled.  Scale must not change the verdict.
+27:        eps      1e-08      1e+00      1e+08
+27:   --------------------------------------------
+27:      1e-15     ABSORB     ABSORB     ABSORB
+27:      1e-14     ABSORB     ABSORB     ABSORB
+27:      1e-12      DEFER      DEFER      DEFER
+27:      1e-11      DEFER      DEFER      DEFER
+27:      1e-10      DEFER      DEFER      DEFER
+27:      1e-07       GROW       GROW       GROW
+27:      1e-06       GROW       GROW       GROW
+27: 
+27:   quality threshold: header 1e-14, library 1e-14
+27:   48 systems, 48 deterministic UNIQUE with a witness, largest backward error 9.297e-15
+27: 
+27: ok: thresholds match the header, separate the three verdicts, are scale-free, and every deterministic UNIQUE carries an acceptable witness
+27/40 Test #27: test_threshold_contract .................   Passed    0.87 sec
+test 28
+      Start 28: test_public_diagnostics
+
+28: Test command: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/bin/python3.12 "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/tests/test_public_diagnostics.py"
+28: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+28: Environment variables: 
+28:  ABS_LIB_DIR=/Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+28: Test timeout computed to be: 10000000
+28: bsolve_router_api agrees with bsolve_router_meta_api
+28:   [ok] same class, rank, fallback and randomised flag: overdetermined full rank
+28:   [ok] same class, rank, fallback and randomised flag: overdetermined rank deficient
+28:   [ok] same class, rank, fallback and randomised flag: inconsistent
+28:   [ok] same class, rank, fallback and randomised flag: square
+28:   [ok] same class, rank, fallback and randomised flag: underdetermined
+28:   [ok] same class, rank, fallback and randomised flag: near the band
+28: 
+28: non-finite input is rejected at both boundaries, in the right layout
+28:   [FAIL] both entry points return FAIL
+28:   [FAIL] meta FAIL fills out[1] and out[9] with valid codes
+28:   [FAIL] meta FAIL leaves no elapsed time in a rank field
+28:   [ok] meta FAIL exports no residual, error or backward error
+28: 
+28: bsolve_router_diag_api: same classification, plus the grey buffer
+28:   [ok] diag writes the meta vector unchanged: overdetermined full rank
+28:   [ok] grey count within the buffer: overdetermined full rank (0)
+28:   [ok] grey indices are distinct: overdetermined full rank
+28:   [ok] grey indices are source rows: overdetermined full rank
+28:   [ok] total grey events include the repeats: overdetermined full rank
+28:   [ok] diag writes the meta vector unchanged: overdetermined rank deficient
+28:   [ok] grey count within the buffer: overdetermined rank deficient (0)
+28:   [ok] grey indices are distinct: overdetermined rank deficient
+28:   [ok] grey indices are source rows: overdetermined rank deficient
+28:   [ok] total grey events include the repeats: overdetermined rank deficient
+28:   [ok] diag writes the meta vector unchanged: inconsistent
+28:   [ok] grey count within the buffer: inconsistent (0)
+28:   [ok] grey indices are distinct: inconsistent
+28:   [ok] grey indices are source rows: inconsistent
+28:   [ok] total grey events include the repeats: inconsistent
+28:   [ok] diag writes the meta vector unchanged: square
+28:   [ok] grey count within the buffer: square (0)
+28:   [ok] grey indices are distinct: square
+28:   [ok] grey indices are source rows: square
+28:   [ok] total grey events include the repeats: square
+28:   [ok] diag writes the meta vector unchanged: underdetermined
+28:   [ok] grey count within the buffer: underdetermined (0)
+28:   [ok] grey indices are distinct: underdetermined
+28:   [ok] grey indices are source rows: underdetermined
+28:   [ok] total grey events include the repeats: underdetermined
+28:   [ok] diag writes the meta vector unchanged: near the band
+28:   [ok] grey count within the buffer: near the band (1)
+28:   [ok] grey indices are distinct: near the band
+28:   [ok] grey indices are source rows: near the band
+28:   [ok] total grey events include the repeats: near the band
+28:   [ok] the count does not depend on the caller's buffer
+28:   [ok] at most grey_cap indices are copied
+28: 
+28: last-call diagnostics are in range
+28:   [ok] core rank interval ordered and bounded: overdetermined full rank (-1, -1)
+28:   [ok] core QR rank in range: overdetermined full rank (-1)
+28:   [ok] orthogonality eta finite and >= 0: overdetermined full rank
+28:   [ok] core rank interval ordered and bounded: overdetermined rank deficient (-1, -1)
+28:   [ok] core QR rank in range: overdetermined rank deficient (5)
+28:   [ok] orthogonality eta finite and >= 0: overdetermined rank deficient
+28:   [ok] core rank interval ordered and bounded: inconsistent (-1, -1)
+28:   [ok] core QR rank in range: inconsistent (-1)
+28:   [ok] orthogonality eta finite and >= 0: inconsistent
+28:   [ok] core rank interval ordered and bounded: square (-1, -1)
+28:   [ok] core QR rank in range: square (-1)
+28:   [ok] orthogonality eta finite and >= 0: square
+28:   [ok] core rank interval ordered and bounded: underdetermined (-1, -1)
+28:   [ok] core QR rank in range: underdetermined (6)
+28:   [ok] orthogonality eta finite and >= 0: underdetermined
+28:   [ok] core rank interval ordered and bounded: near the band (-1, -1)
+28:   [ok] core QR rank in range: near the band (8)
+28:   [ok] orthogonality eta finite and >= 0: near the band
+28: 
+28: formation-guard counters
+28:   [ok] reset zeroes all three
+28:   [ok] escalations do not exceed checks (1, 0, 0)
+28:   [ok] counters accumulate (1, 0, 0) -> (2, 0, 0)
+28:   [ok] reset works a second time
+28: 
+28: diagnostics describe the most recent router call
+28:   [ok] meta reports the quiet system the same way whatever preceded it (1 then 0, reference 0)
+28:   [ok] bsolve_router_api leaves the same grey total as meta on the same system (got 0, meta gives 0)
+28:   [ok] the core QR rank belongs to the system just classified (width-8 call gave 8, width-6 call gave -1)
+28: 
+28: abs_stream_solution
+28:   [ok] an open full-rank stream exports a solution
+28:   [ok] the exported solution satisfies the inserted rows (1.80e-16)
+28:   [ok] a consistent stream of rank < n still exports a point
+28:   [ok] that point satisfies the rows inserted so far (8.54e-17)
+28:   [ok] a contradictory row closes the stream
+28:   [ok] a closed stream exports no solution
+28:   [ok] and does not write into the caller's buffer
+28:   [ok] a deferred row makes the status UNDECIDABLE
+28:   [ok] a stream with a deferred row exports no solution
+28: 
+28: FAILED: 3
+28:   - both entry points return FAIL
+28:   - meta FAIL fills out[1] and out[9] with valid codes
+28:   - meta FAIL leaves no elapsed time in a rank field
+28/40 Test #28: test_public_diagnostics .................***Failed    0.11 sec
+bsolve_router_api agrees with bsolve_router_meta_api
+  [ok] same class, rank, fallback and randomised flag: overdetermined full rank
+  [ok] same class, rank, fallback and randomised flag: overdetermined rank deficient
+  [ok] same class, rank, fallback and randomised flag: inconsistent
+  [ok] same class, rank, fallback and randomised flag: square
+  [ok] same class, rank, fallback and randomised flag: underdetermined
+  [ok] same class, rank, fallback and randomised flag: near the band
+
+non-finite input is rejected at both boundaries, in the right layout
+  [FAIL] both entry points return FAIL
+  [FAIL] meta FAIL fills out[1] and out[9] with valid codes
+  [FAIL] meta FAIL leaves no elapsed time in a rank field
+  [ok] meta FAIL exports no residual, error or backward error
+
+bsolve_router_diag_api: same classification, plus the grey buffer
+  [ok] diag writes the meta vector unchanged: overdetermined full rank
+  [ok] grey count within the buffer: overdetermined full rank (0)
+  [ok] grey indices are distinct: overdetermined full rank
+  [ok] grey indices are source rows: overdetermined full rank
+  [ok] total grey events include the repeats: overdetermined full rank
+  [ok] diag writes the meta vector unchanged: overdetermined rank deficient
+  [ok] grey count within the buffer: overdetermined rank deficient (0)
+  [ok] grey indices are distinct: overdetermined rank deficient
+  [ok] grey indices are source rows: overdetermined rank deficient
+  [ok] total grey events include the repeats: overdetermined rank deficient
+  [ok] diag writes the meta vector unchanged: inconsistent
+  [ok] grey count within the buffer: inconsistent (0)
+  [ok] grey indices are distinct: inconsistent
+  [ok] grey indices are source rows: inconsistent
+  [ok] total grey events include the repeats: inconsistent
+  [ok] diag writes the meta vector unchanged: square
+  [ok] grey count within the buffer: square (0)
+  [ok] grey indices are distinct: square
+  [ok] grey indices are source rows: square
+  [ok] total grey events include the repeats: square
+  [ok] diag writes the meta vector unchanged: underdetermined
+  [ok] grey count within the buffer: underdetermined (0)
+  [ok] grey indices are distinct: underdetermined
+  [ok] grey indices are source rows: underdetermined
+  [ok] total grey events include the repeats: underdetermined
+  [ok] diag writes the meta vector unchanged: near the band
+  [ok] grey count within the buffer: near the band (1)
+  [ok] grey indices are distinct: near the band
+  [ok] grey indices are source rows: near the band
+  [ok] total grey events include the repeats: near the band
+  [ok] the count does not depend on the caller's buffer
+  [ok] at most grey_cap indices are copied
+
+last-call diagnostics are in range
+  [ok] core rank interval ordered and bounded: overdetermined full rank (-1, -1)
+  [ok] core QR rank in range: overdetermined full rank (-1)
+  [ok] orthogonality eta finite and >= 0: overdetermined full rank
+  [ok] core rank interval ordered and bounded: overdetermined rank deficient (-1, -1)
+  [ok] core QR rank in range: overdetermined rank deficient (5)
+  [ok] orthogonality eta finite and >= 0: overdetermined rank deficient
+  [ok] core rank interval ordered and bounded: inconsistent (-1, -1)
+  [ok] core QR rank in range: inconsistent (-1)
+  [ok] orthogonality eta finite and >= 0: inconsistent
+  [ok] core rank interval ordered and bounded: square (-1, -1)
+  [ok] core QR rank in range: square (-1)
+  [ok] orthogonality eta finite and >= 0: square
+  [ok] core rank interval ordered and bounded: underdetermined (-1, -1)
+  [ok] core QR rank in range: underdetermined (6)
+  [ok] orthogonality eta finite and >= 0: underdetermined
+  [ok] core rank interval ordered and bounded: near the band (-1, -1)
+  [ok] core QR rank in range: near the band (8)
+  [ok] orthogonality eta finite and >= 0: near the band
+
+formation-guard counters
+  [ok] reset zeroes all three
+  [ok] escalations do not exceed checks (1, 0, 0)
+  [ok] counters accumulate (1, 0, 0) -> (2, 0, 0)
+  [ok] reset works a second time
+
+diagnostics describe the most recent router call
+  [ok] meta reports the quiet system the same way whatever preceded it (1 then 0, reference 0)
+  [ok] bsolve_router_api leaves the same grey total as meta on the same system (got 0, meta gives 0)
+  [ok] the core QR rank belongs to the system just classified (width-8 call gave 8, width-6 call gave -1)
+
+abs_stream_solution
+  [ok] an open full-rank stream exports a solution
+  [ok] the exported solution satisfies the inserted rows (1.80e-16)
+  [ok] a consistent stream of rank < n still exports a point
+  [ok] that point satisfies the rows inserted so far (8.54e-17)
+  [ok] a contradictory row closes the stream
+  [ok] a closed stream exports no solution
+  [ok] and does not write into the caller's buffer
+  [ok] a deferred row makes the status UNDECIDABLE
+  [ok] a stream with a deferred row exports no solution
+
+FAILED: 3
+  - both entry points return FAIL
+  - meta FAIL fills out[1] and out[9] with valid codes
+  - meta FAIL leaves no elapsed time in a rank field
+
+test 29
+      Start 29: test_stream_storage
+
+29: Test command: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/bin/python3.12 "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/tests/test_stream_storage.py"
+29: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+29: Environment variables: 
+29:  ABS_LIB_DIR=/Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+29: Test timeout computed to be: 10000000
+29: rank-adaptive stream storage: SKIP (Linux RLIMIT_AS test)
+29/40 Test #29: test_stream_storage .....................   Passed    0.04 sec
+test 30
+      Start 30: test_core_rank_boundary
+
+30: Test command: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/bin/python3.12 "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/tests/test_core_rank_boundary.py"
+30: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+30: Environment variables: 
+30:  ABS_LIB_DIR=/Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+30: Test timeout computed to be: 10000000
+30: a singular value above the window leaves a point rank
+30:   [ok] 200x16 gap 1e-04: deterministic UNIQUE at rank 16 (got UNIQUE [16,16])
+30:   [ok] 200x16 gap 1e-06: deterministic UNIQUE at rank 16 (got UNIQUE [16,16])
+30:   [ok] 200x16 gap 1e-08: deterministic UNIQUE at rank 16 (got UNIQUE [16,16])
+30:   [ok] 400x32 gap 1e-04: deterministic UNIQUE at rank 32 (got UNIQUE [32,32])
+30:   [ok] 400x32 gap 1e-06: deterministic UNIQUE at rank 32 (got UNIQUE [32,32])
+30:   [ok] 400x32 gap 1e-08: deterministic UNIQUE at rank 32 (got UNIQUE [32,32])
+30:   [ok] 1000x64 gap 1e-04: deterministic UNIQUE at rank 64 (got UNIQUE [64,64])
+30:   [ok] 1000x64 gap 1e-06: deterministic UNIQUE at rank 64 (got UNIQUE [64,64])
+30:   [ok] 1000x64 gap 1e-08: deterministic UNIQUE at rank 64 (got UNIQUE [64,64])
+30:   [ok] 256x256 gap 1e-04: deterministic UNIQUE at rank 256 (got UNIQUE [256,256])
+30:   [ok] 256x256 gap 1e-06: deterministic UNIQUE at rank 256 (got UNIQUE [256,256])
+30:   [ok] 256x256 gap 1e-08: deterministic UNIQUE at rank 256 (got UNIQUE [256,256])
+30: 
+30: a singular value inside the window is refused, with an interval
+30:   [ok] 200x16 gap 1e-12: UNDECIDABLE (got UNDECIDABLE)
+30:   [ok] 200x16 gap 1e-12: interval [15,16] brackets both candidate ranks
+30:   [ok] 200x16 gap 1e-12: no point rank is claimed
+30:   [ok] 200x16 gap 1e-12: core interval reported and ordered (15, 15)
+30:   [ok] 200x16 gap 1e-11: UNDECIDABLE (got UNDECIDABLE)
+30:   [ok] 200x16 gap 1e-11: interval [15,16] brackets both candidate ranks
+30:   [ok] 200x16 gap 1e-11: no point rank is claimed
+30:   [ok] 200x16 gap 1e-11: core interval reported and ordered (15, 16)
+30:   [ok] 200x16 gap 1e-10: UNDECIDABLE (got UNDECIDABLE)
+30:   [ok] 200x16 gap 1e-10: interval [15,16] brackets both candidate ranks
+30:   [ok] 200x16 gap 1e-10: no point rank is claimed
+30:   [ok] 200x16 gap 1e-10: core interval reported and ordered (15, 16)
+30:   [ok] 400x32 gap 1e-12: UNDECIDABLE (got UNDECIDABLE)
+30:   [ok] 400x32 gap 1e-12: interval [31,32] brackets both candidate ranks
+30:   [ok] 400x32 gap 1e-12: no point rank is claimed
+30:   [ok] 400x32 gap 1e-12: core interval reported and ordered (31, 31)
+30:   [ok] 400x32 gap 1e-11: UNDECIDABLE (got UNDECIDABLE)
+30:   [ok] 400x32 gap 1e-11: interval [31,32] brackets both candidate ranks
+30:   [ok] 400x32 gap 1e-11: no point rank is claimed
+30:   [ok] 400x32 gap 1e-11: core interval reported and ordered (31, 32)
+30:   [ok] 400x32 gap 1e-10: UNDECIDABLE (got UNDECIDABLE)
+30:   [ok] 400x32 gap 1e-10: interval [31,32] brackets both candidate ranks
+30:   [ok] 400x32 gap 1e-10: no point rank is claimed
+30:   [ok] 400x32 gap 1e-10: core interval reported and ordered (31, 32)
+30:   [ok] 1000x64 gap 1e-12: UNDECIDABLE (got UNDECIDABLE)
+30:   [ok] 1000x64 gap 1e-12: interval [63,64] brackets both candidate ranks
+30:   [ok] 1000x64 gap 1e-12: no point rank is claimed
+30:   [ok] 1000x64 gap 1e-12: core interval reported and ordered (63, 63)
+30:   [ok] 1000x64 gap 1e-11: UNDECIDABLE (got UNDECIDABLE)
+30:   [ok] 1000x64 gap 1e-11: interval [63,64] brackets both candidate ranks
+30:   [ok] 1000x64 gap 1e-11: no point rank is claimed
+30:   [ok] 1000x64 gap 1e-11: core interval reported and ordered (63, 64)
+30:   [ok] 1000x64 gap 1e-10: UNDECIDABLE (got UNDECIDABLE)
+30:   [ok] 1000x64 gap 1e-10: interval [63,64] brackets both candidate ranks
+30:   [ok] 1000x64 gap 1e-10: no point rank is claimed
+30:   [ok] 1000x64 gap 1e-10: core interval reported and ordered (63, 64)
+30:   [ok] 256x256 gap 1e-12: UNDECIDABLE (got UNDECIDABLE)
+30:   [ok] 256x256 gap 1e-12: interval [255,256] brackets both candidate ranks
+30:   [ok] 256x256 gap 1e-12: no point rank is claimed
+30:   [ok] 256x256 gap 1e-12: core interval reported and ordered (255, 255)
+30:   [ok] 256x256 gap 1e-11: UNDECIDABLE (got UNDECIDABLE)
+30:   [ok] 256x256 gap 1e-11: interval [255,256] brackets both candidate ranks
+30:   [ok] 256x256 gap 1e-11: no point rank is claimed
+30:   [ok] 256x256 gap 1e-11: core interval reported and ordered (255, 256)
+30:   [ok] 256x256 gap 1e-10: UNDECIDABLE (got UNDECIDABLE)
+30:   [ok] 256x256 gap 1e-10: interval [255,256] brackets both candidate ranks
+30:   [ok] 256x256 gap 1e-10: no point rank is claimed
+30:   [ok] 256x256 gap 1e-10: core interval reported and ordered (255, 256)
+30: 
+30: a singular value below the window makes the direction absent
+30:   [ok] 200x16 gap 1e-14: INFINITE at rank 15 (got INFINITE rank 15)
+30:   [ok] 200x16 gap 1e-16: INFINITE at rank 15 (got INFINITE rank 15)
+30:   [ok] 200x16 gap 0e+00: INFINITE at rank 15 (got INFINITE rank 15)
+30:   [ok] 400x32 gap 1e-14: INFINITE at rank 31 (got INFINITE rank 31)
+30:   [ok] 400x32 gap 1e-16: INFINITE at rank 31 (got INFINITE rank 31)
+30:   [ok] 400x32 gap 0e+00: INFINITE at rank 31 (got INFINITE rank 31)
+30:   [ok] 1000x64 gap 1e-14: INFINITE at rank 63 (got INFINITE rank 63)
+30:   [ok] 1000x64 gap 1e-16: INFINITE at rank 63 (got INFINITE rank 63)
+30:   [ok] 1000x64 gap 0e+00: INFINITE at rank 63 (got INFINITE rank 63)
+30:   [ok] 256x256 gap 1e-14: INFINITE at rank 255 (got INFINITE rank 255)
+30:   [ok] 256x256 gap 1e-16: INFINITE at rank 255 (got INFINITE rank 255)
+30:   [ok] 256x256 gap 0e+00: INFINITE at rank 255 (got INFINITE rank 255)
+30: 
+30: the verdict does not depend on the scale of the system
+30:   [ok] gap 1e-04 scaled by 2^-40: UNIQUE unchanged (got UNIQUE)
+30:   [ok] gap 1e-04 scaled by 2^-12: UNIQUE unchanged (got UNIQUE)
+30:   [ok] gap 1e-04 scaled by 2^+12: UNIQUE unchanged (got UNIQUE)
+30:   [ok] gap 1e-04 scaled by 2^+40: UNIQUE unchanged (got UNIQUE)
+30:   [ok] gap 1e-12 scaled by 2^-40: UNDECIDABLE unchanged (got UNDECIDABLE)
+30:   [ok] gap 1e-12 scaled by 2^-12: UNDECIDABLE unchanged (got UNDECIDABLE)
+30:   [ok] gap 1e-12 scaled by 2^+12: UNDECIDABLE unchanged (got UNDECIDABLE)
+30:   [ok] gap 1e-12 scaled by 2^+40: UNDECIDABLE unchanged (got UNDECIDABLE)
+30:   [ok] gap 1e-11 scaled by 2^-40: UNDECIDABLE unchanged (got UNDECIDABLE)
+30:   [ok] gap 1e-11 scaled by 2^-12: UNDECIDABLE unchanged (got UNDECIDABLE)
+30:   [ok] gap 1e-11 scaled by 2^+12: UNDECIDABLE unchanged (got UNDECIDABLE)
+30:   [ok] gap 1e-11 scaled by 2^+40: UNDECIDABLE unchanged (got UNDECIDABLE)
+30:   [ok] gap 1e-10 scaled by 2^-40: UNDECIDABLE unchanged (got UNDECIDABLE)
+30:   [ok] gap 1e-10 scaled by 2^-12: UNDECIDABLE unchanged (got UNDECIDABLE)
+30:   [ok] gap 1e-10 scaled by 2^+12: UNDECIDABLE unchanged (got UNDECIDABLE)
+30:   [ok] gap 1e-10 scaled by 2^+40: UNDECIDABLE unchanged (got UNDECIDABLE)
+30:   [ok] gap 1e-14 scaled by 2^-40: INFINITE unchanged (got INFINITE)
+30:   [ok] gap 1e-14 scaled by 2^-12: INFINITE unchanged (got INFINITE)
+30:   [ok] gap 1e-14 scaled by 2^+12: INFINITE unchanged (got INFINITE)
+30:   [ok] gap 1e-14 scaled by 2^+40: INFINITE unchanged (got INFINITE)
+30: 
+30: the verdict does not depend on the sketch seed
+30:   [ok] gap 1e-12: five seeds agree (UNDECIDABLE)
+30:   [ok] gap 1e-11: five seeds agree (UNDECIDABLE)
+30:   [ok] gap 1e-10: five seeds agree (UNDECIDABLE)
+30: 
+30: an unresolved rank never yields a consistency verdict
+30:   [ok] 200x16 gap 1e-12 with a contradictory row: UNDECIDABLE is not a consistent verdict
+30:   [ok] 200x16 gap 1e-11 with a contradictory row: UNDECIDABLE is not a consistent verdict
+30:   [ok] 200x16 gap 1e-10 with a contradictory row: UNDECIDABLE is not a consistent verdict
+30:   [ok] 400x32 gap 1e-12 with a contradictory row: UNDECIDABLE is not a consistent verdict
+30:   [ok] 400x32 gap 1e-11 with a contradictory row: UNDECIDABLE is not a consistent verdict
+30:   [ok] 400x32 gap 1e-10 with a contradictory row: UNDECIDABLE is not a consistent verdict
+30:   [ok] 1000x64 gap 1e-12 with a contradictory row: UNDECIDABLE is not a consistent verdict
+30:   [ok] 1000x64 gap 1e-11 with a contradictory row: UNDECIDABLE is not a consistent verdict
+30:   [ok] 1000x64 gap 1e-10 with a contradictory row: UNDECIDABLE is not a consistent verdict
+30:   [ok] 256x256 gap 1e-12 with a contradictory row: UNDECIDABLE is not a consistent verdict
+30:   [ok] 256x256 gap 1e-11 with a contradictory row: UNDECIDABLE is not a consistent verdict
+30:   [ok] 256x256 gap 1e-10 with a contradictory row: UNDECIDABLE is not a consistent verdict
+30: 
+30: the boundary is a property of the data, not of a row ordering
+30:   [ok] gap 1e-12: UNDECIDABLE survives a row permutation (got UNDECIDABLE)
+30:   [ok] gap 1e-11: UNDECIDABLE survives a row permutation (got UNDECIDABLE)
+30:   [ok] gap 1e-10: UNDECIDABLE survives a row permutation (got UNDECIDABLE)
+30: 
+30: ok: the compressed-core rank boundary separates decide, refuse and discard, and the refusal is stable under scale, seed and ordering
+30/40 Test #30: test_core_rank_boundary .................   Passed    0.48 sec
+test 31
+      Start 31: test_blockprefix_guard
+
+31: Test command: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/bin/python3.12 "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/tests/test_blockprefix_guard.py"
+31: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+31: Environment variables: 
+31:  ABS_LIB_DIR=/Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+31: Test timeout computed to be: 10000000
+31: above the window the guard certifies the full rank
+31:   [ok] 800x192 gap 1e-06: deterministic UNIQUE at [192,192] (got UNIQUE c1 [192,192])
+31:   [ok] 800x192 gap 1e-06 contradictory: deterministic INCONSISTENT (got INCONSISTENT c1)
+31:   [ok] 800x192 gap 1e-08: deterministic UNIQUE at [192,192] (got UNIQUE c1 [192,192])
+31:   [ok] 800x192 gap 1e-08 contradictory: deterministic INCONSISTENT (got INCONSISTENT c1)
+31:   [ok] 2000x256 gap 1e-06: deterministic UNIQUE at [256,256] (got UNIQUE c1 [256,256])
+31:   [ok] 2000x256 gap 1e-06 contradictory: deterministic INCONSISTENT (got INCONSISTENT c1)
+31:   [ok] 2000x256 gap 1e-08: deterministic UNIQUE at [256,256] (got UNIQUE c1 [256,256])
+31:   [ok] 2000x256 gap 1e-08 contradictory: deterministic INCONSISTENT (got INCONSISTENT c1)
+31: 
+31: inside the window the guard declines and no rank is claimed
+31:   [ok] 800x192 gap 1e-10: UNDECIDABLE with no certainty (got UNDECIDABLE c3)
+31:   [ok] 800x192 gap 1e-10: interval [191,192] brackets both candidate ranks and is not a point
+31:   [ok] 800x192 gap 1e-11: UNDECIDABLE with no certainty (got UNDECIDABLE c3)
+31:   [ok] 800x192 gap 1e-11: interval [191,192] brackets both candidate ranks and is not a point
+31:   [ok] 800x192 gap 1e-12: UNDECIDABLE with no certainty (got UNDECIDABLE c3)
+31:   [ok] 800x192 gap 1e-12: interval [191,192] brackets both candidate ranks and is not a point
+31:   [ok] 2000x256 gap 1e-10: UNDECIDABLE with no certainty (got UNDECIDABLE c3)
+31:   [ok] 2000x256 gap 1e-10: interval [255,256] brackets both candidate ranks and is not a point
+31:   [ok] 2000x256 gap 1e-11: UNDECIDABLE with no certainty (got UNDECIDABLE c3)
+31:   [ok] 2000x256 gap 1e-11: interval [255,256] brackets both candidate ranks and is not a point
+31:   [ok] 2000x256 gap 1e-12: UNDECIDABLE with no certainty (got UNDECIDABLE c3)
+31:   [ok] 2000x256 gap 1e-12: interval [255,256] brackets both candidate ranks and is not a point
+31: 
+31: an unresolved rank blocks a consistency verdict in both directions
+31:   [ok] 800x192 gap 1e-10 contradictory: still UNDECIDABLE, compressed evidence does not certify a source contradiction (got UNDECIDABLE)
+31:   [ok] 800x192 gap 1e-11 contradictory: still UNDECIDABLE, compressed evidence does not certify a source contradiction (got UNDECIDABLE)
+31:   [ok] 800x192 gap 1e-12 contradictory: still UNDECIDABLE, compressed evidence does not certify a source contradiction (got UNDECIDABLE)
+31:   [ok] 2000x256 gap 1e-10 contradictory: still UNDECIDABLE, compressed evidence does not certify a source contradiction (got UNDECIDABLE)
+31:   [ok] 2000x256 gap 1e-11 contradictory: still UNDECIDABLE, compressed evidence does not certify a source contradiction (got UNDECIDABLE)
+31:   [ok] 2000x256 gap 1e-12 contradictory: still UNDECIDABLE, compressed evidence does not certify a source contradiction (got UNDECIDABLE)
+31: 
+31: below the window the direction is absent and the verdict is decided
+31:   [ok] 800x192 gap 1e-14: INFINITE at rank 191 (got INFINITE rank 191)
+31:   [ok] 800x192 gap 1e-14 contradictory: deterministic INCONSISTENT at a point rank (got INCONSISTENT c1 [191,191])
+31:   [ok] 800x192 gap 0e+00: INFINITE at rank 191 (got INFINITE rank 191)
+31:   [ok] 800x192 gap 0e+00 contradictory: deterministic INCONSISTENT at a point rank (got INCONSISTENT c1 [191,191])
+31:   [ok] 2000x256 gap 1e-14: INFINITE at rank 255 (got INFINITE rank 255)
+31:   [ok] 2000x256 gap 1e-14 contradictory: deterministic INCONSISTENT at a point rank (got INCONSISTENT c1 [255,255])
+31:   [ok] 2000x256 gap 0e+00: INFINITE at rank 255 (got INFINITE rank 255)
+31:   [ok] 2000x256 gap 0e+00 contradictory: deterministic INCONSISTENT at a point rank (got INCONSISTENT c1 [255,255])
+31: 
+31: the refusal is a property of the data
+31:   [ok] gap 1e-10: three sketch seeds agree (UNDECIDABLE)
+31:   [ok] gap 1e-10: UNDECIDABLE survives a row permutation
+31:   [ok] gap 1e-10 scaled by 2^-30: UNDECIDABLE unchanged
+31:   [ok] gap 1e-10 scaled by 2^+30: UNDECIDABLE unchanged
+31:   [ok] gap 1e-11: three sketch seeds agree (UNDECIDABLE)
+31:   [ok] gap 1e-11: UNDECIDABLE survives a row permutation
+31:   [ok] gap 1e-11 scaled by 2^-30: UNDECIDABLE unchanged
+31:   [ok] gap 1e-11 scaled by 2^+30: UNDECIDABLE unchanged
+31:   [ok] gap 1e-12: three sketch seeds agree (UNDECIDABLE)
+31:   [ok] gap 1e-12: UNDECIDABLE survives a row permutation
+31:   [ok] gap 1e-12 scaled by 2^-30: UNDECIDABLE unchanged
+31:   [ok] gap 1e-12 scaled by 2^+30: UNDECIDABLE unchanged
+31: 
+31: ok: the formation-guard gate refuses an uncertifiable rank and keeps an unresolved rank out of every consistency verdict
+31/40 Test #31: test_blockprefix_guard ..................   Passed    2.21 sec
+test 32
+      Start 32: test_route_agreement
+
+32: Test command: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/bin/python3.12 "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/tests/test_route_agreement.py"
+32: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+32: Environment variables: 
+32:  ABS_LIB_DIR=/Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+32: Test timeout computed to be: 10000000
+32:   [ok] cond 1e+01 300x64 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+01 300x64 d1 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/64  global_qr=UNDECIDABLE/64  block=INCONSISTENT/64  fast=INCONSISTENT/64  auto_qr=INCONSISTENT/64]
+32:   [ok] cond 1e+03 300x64 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+03 300x64 d1 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/64  global_qr=UNDECIDABLE/64  block=INCONSISTENT/64  fast=INCONSISTENT/64  auto_qr=INCONSISTENT/64]
+32:   [ok] cond 1e+06 300x64 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+06 300x64 d1 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/64  global_qr=UNDECIDABLE/64  block=UNDECIDABLE/64  fast=INCONSISTENT/64  auto_qr=INCONSISTENT/64]
+32:   [ok] gap 1e-10 300x64 d1 consistent: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+32:   [ok] gap 1e-10 300x64 d1 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+32:   [ok] gap 1e-13 300x64 d1 consistent: 5 decided verdicts agree  [router=INFINITE/63  global_qr=INFINITE/63  block=INFINITE/63  fast=INFINITE/63  auto_qr=INFINITE/63]
+32:   [ok] gap 1e-13 300x64 d1 contradictory: 1 decided verdicts agree  [router=INCONSISTENT/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+32:   [ok] gap 0e+00 300x64 d1 consistent: 5 decided verdicts agree  [router=INFINITE/63  global_qr=INFINITE/63  block=INFINITE/63  fast=INFINITE/63  auto_qr=INFINITE/63]
+32:   [ok] gap 0e+00 300x64 d1 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=INCONSISTENT/63  auto_qr=INCONSISTENT/63]
+32:   [ok] cond 1e+01 200x200 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+32:   [ok] cond 1e+01 200x200 d1 contradictory: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+32:   [ok] cond 1e+03 200x200 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+32:   [ok] cond 1e+03 200x200 d1 contradictory: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+32:   [ok] cond 1e+06 200x200 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+32:   [ok] cond 1e+06 200x200 d1 contradictory: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+32:   [ok] gap 1e-10 200x200 d1 consistent: 3 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNIQUE/200  block=UNDECIDABLE/199  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+32:   [ok] gap 1e-10 200x200 d1 contradictory: 3 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNIQUE/200  block=UNDECIDABLE/199  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+32:   [ok] gap 1e-13 200x200 d1 consistent: 2 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNDECIDABLE/199  block=UNDECIDABLE/199  fast=INFINITE/199  auto_qr=INFINITE/199]
+32:   [ok] gap 1e-13 200x200 d1 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNDECIDABLE/199  block=UNDECIDABLE/199  fast=UNDECIDABLE/199  auto_qr=UNDECIDABLE/199]
+32:   [ok] gap 0e+00 200x200 d1 consistent: 5 decided verdicts agree  [router=INFINITE/199  global_qr=INFINITE/199  block=INFINITE/199  fast=INFINITE/199  auto_qr=INFINITE/199]
+32:   [ok] gap 0e+00 200x200 d1 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/199  global_qr=INCONSISTENT/199  block=UNDECIDABLE/199  fast=INCONSISTENT/199  auto_qr=INCONSISTENT/199]
+32:   [ok] cond 1e+01 64x64 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+01 64x64 d1 contradictory: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+03 64x64 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+03 64x64 d1 contradictory: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+06 64x64 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+06 64x64 d1 contradictory: 4 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNDECIDABLE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] gap 1e-10 64x64 d1 consistent: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+32:   [ok] gap 1e-10 64x64 d1 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+32:   [ok] gap 1e-13 64x64 d1 consistent: 2 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=INFINITE/63  auto_qr=INFINITE/63]
+32:   [ok] gap 1e-13 64x64 d1 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+32:   [ok] gap 0e+00 64x64 d1 consistent: 5 decided verdicts agree  [router=INFINITE/63  global_qr=INFINITE/63  block=INFINITE/63  fast=INFINITE/63  auto_qr=INFINITE/63]
+32:   [ok] gap 0e+00 64x64 d1 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/63  global_qr=INCONSISTENT/63  block=UNDECIDABLE/63  fast=INCONSISTENT/63  auto_qr=INCONSISTENT/63]
+32:   [ok] cond 1e+01 800x192 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/192  global_qr=UNIQUE/192  block=UNIQUE/192  fast=UNIQUE/192  auto_qr=UNIQUE/192]
+32:   [ok] cond 1e+01 800x192 d1 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/192  global_qr=UNDECIDABLE/192  block=INCONSISTENT/192  fast=INCONSISTENT/192  auto_qr=INCONSISTENT/192]
+32:   [ok] cond 1e+03 800x192 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/192  global_qr=UNIQUE/192  block=UNIQUE/192  fast=UNIQUE/192  auto_qr=UNIQUE/192]
+32:   [ok] cond 1e+03 800x192 d1 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/192  global_qr=UNDECIDABLE/192  block=UNDECIDABLE/192  fast=INCONSISTENT/192  auto_qr=INCONSISTENT/192]
+32:   [ok] cond 1e+06 800x192 d1 consistent: 5 decided verdicts agree  [router=UNIQUE/192  global_qr=UNIQUE/192  block=UNIQUE/192  fast=UNIQUE/192  auto_qr=UNIQUE/192]
+32:   [ok] cond 1e+06 800x192 d1 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/192  global_qr=UNDECIDABLE/192  block=UNDECIDABLE/192  fast=INCONSISTENT/192  auto_qr=INCONSISTENT/192]
+32:   [ok] gap 1e-10 800x192 d1 consistent: 0 decided verdicts agree  [router=UNDECIDABLE/191  global_qr=UNDECIDABLE/191  block=UNDECIDABLE/191  fast=UNDECIDABLE/191  auto_qr=UNDECIDABLE/191]
+32:   [ok] gap 1e-10 800x192 d1 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/191  global_qr=UNDECIDABLE/191  block=UNDECIDABLE/191  fast=UNDECIDABLE/191  auto_qr=UNDECIDABLE/191]
+32:   [ok] gap 1e-13 800x192 d1 consistent: 5 decided verdicts agree  [router=INFINITE/191  global_qr=INFINITE/191  block=INFINITE/191  fast=INFINITE/191  auto_qr=INFINITE/191]
+32:   [ok] gap 1e-13 800x192 d1 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/191  global_qr=INCONSISTENT/191  block=UNDECIDABLE/191  fast=INCONSISTENT/191  auto_qr=INCONSISTENT/191]
+32:   [ok] gap 0e+00 800x192 d1 consistent: 5 decided verdicts agree  [router=INFINITE/191  global_qr=INFINITE/191  block=INFINITE/191  fast=INFINITE/191  auto_qr=INFINITE/191]
+32:   [ok] gap 0e+00 800x192 d1 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/191  global_qr=UNDECIDABLE/191  block=UNDECIDABLE/191  fast=INCONSISTENT/191  auto_qr=INCONSISTENT/191]
+32:   [ok] cond 1e+01 300x64 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+01 300x64 d2 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/64  global_qr=UNDECIDABLE/64  block=INCONSISTENT/64  fast=INCONSISTENT/64  auto_qr=INCONSISTENT/64]
+32:   [ok] cond 1e+03 300x64 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+03 300x64 d2 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/64  global_qr=UNDECIDABLE/64  block=INCONSISTENT/64  fast=INCONSISTENT/64  auto_qr=INCONSISTENT/64]
+32:   [ok] cond 1e+06 300x64 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+06 300x64 d2 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/64  global_qr=UNDECIDABLE/64  block=UNDECIDABLE/64  fast=INCONSISTENT/64  auto_qr=INCONSISTENT/64]
+32:   [ok] gap 1e-10 300x64 d2 consistent: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+32:   [ok] gap 1e-10 300x64 d2 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+32:   [ok] gap 1e-13 300x64 d2 consistent: 3 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=INFINITE/63  block=UNDECIDABLE/63  fast=INFINITE/63  auto_qr=INFINITE/63]
+32:   [ok] gap 1e-13 300x64 d2 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+32:   [ok] gap 0e+00 300x64 d2 consistent: 5 decided verdicts agree  [router=INFINITE/63  global_qr=INFINITE/63  block=INFINITE/63  fast=INFINITE/63  auto_qr=INFINITE/63]
+32:   [ok] gap 0e+00 300x64 d2 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=INCONSISTENT/63  auto_qr=INCONSISTENT/63]
+32:   [ok] cond 1e+01 200x200 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+32:   [ok] cond 1e+01 200x200 d2 contradictory: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+32:   [ok] cond 1e+03 200x200 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+32:   [ok] cond 1e+03 200x200 d2 contradictory: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+32:   [ok] cond 1e+06 200x200 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+32:   [ok] cond 1e+06 200x200 d2 contradictory: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+32:   [ok] gap 1e-10 200x200 d2 consistent: 0 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNDECIDABLE/199  block=UNDECIDABLE/199  fast=UNDECIDABLE/199  auto_qr=UNDECIDABLE/199]
+32:   [ok] gap 1e-10 200x200 d2 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNDECIDABLE/199  block=UNDECIDABLE/199  fast=UNDECIDABLE/199  auto_qr=UNDECIDABLE/199]
+32:   [ok] gap 1e-13 200x200 d2 consistent: 2 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNDECIDABLE/199  block=UNDECIDABLE/199  fast=INFINITE/199  auto_qr=INFINITE/199]
+32:   [ok] gap 1e-13 200x200 d2 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNDECIDABLE/199  block=UNDECIDABLE/199  fast=UNDECIDABLE/199  auto_qr=UNDECIDABLE/199]
+32:   [ok] gap 0e+00 200x200 d2 consistent: 5 decided verdicts agree  [router=INFINITE/199  global_qr=INFINITE/199  block=INFINITE/199  fast=INFINITE/199  auto_qr=INFINITE/199]
+32:   [ok] gap 0e+00 200x200 d2 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/199  global_qr=INCONSISTENT/199  block=UNDECIDABLE/199  fast=INCONSISTENT/199  auto_qr=INCONSISTENT/199]
+32:   [ok] cond 1e+01 64x64 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+01 64x64 d2 contradictory: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+03 64x64 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+03 64x64 d2 contradictory: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+06 64x64 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+06 64x64 d2 contradictory: 4 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNDECIDABLE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] gap 1e-10 64x64 d2 consistent: 4 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNDECIDABLE/63  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] gap 1e-10 64x64 d2 contradictory: 4 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNDECIDABLE/63  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] gap 1e-13 64x64 d2 consistent: 2 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=INFINITE/63  auto_qr=INFINITE/63]
+32:   [ok] gap 1e-13 64x64 d2 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+32:   [ok] gap 0e+00 64x64 d2 consistent: 5 decided verdicts agree  [router=INFINITE/63  global_qr=INFINITE/63  block=INFINITE/63  fast=INFINITE/63  auto_qr=INFINITE/63]
+32:   [ok] gap 0e+00 64x64 d2 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/63  global_qr=INCONSISTENT/63  block=UNDECIDABLE/63  fast=INCONSISTENT/63  auto_qr=INCONSISTENT/63]
+32:   [ok] cond 1e+01 800x192 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/192  global_qr=UNIQUE/192  block=UNIQUE/192  fast=UNIQUE/192  auto_qr=UNIQUE/192]
+32:   [ok] cond 1e+01 800x192 d2 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/192  global_qr=UNDECIDABLE/192  block=INCONSISTENT/192  fast=INCONSISTENT/192  auto_qr=INCONSISTENT/192]
+32:   [ok] cond 1e+03 800x192 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/192  global_qr=UNIQUE/192  block=UNIQUE/192  fast=UNIQUE/192  auto_qr=UNIQUE/192]
+32:   [ok] cond 1e+03 800x192 d2 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/192  global_qr=UNDECIDABLE/192  block=INCONSISTENT/192  fast=INCONSISTENT/192  auto_qr=INCONSISTENT/192]
+32:   [ok] cond 1e+06 800x192 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/192  global_qr=UNIQUE/192  block=UNIQUE/192  fast=UNIQUE/192  auto_qr=UNIQUE/192]
+32:   [ok] cond 1e+06 800x192 d2 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/192  global_qr=UNDECIDABLE/192  block=UNDECIDABLE/192  fast=INCONSISTENT/192  auto_qr=INCONSISTENT/192]
+32:   [ok] gap 1e-10 800x192 d2 consistent: 0 decided verdicts agree  [router=UNDECIDABLE/191  global_qr=UNDECIDABLE/191  block=UNDECIDABLE/191  fast=UNDECIDABLE/191  auto_qr=UNDECIDABLE/191]
+32:   [ok] gap 1e-10 800x192 d2 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/191  global_qr=UNDECIDABLE/191  block=UNDECIDABLE/191  fast=UNDECIDABLE/191  auto_qr=UNDECIDABLE/191]
+32:   [ok] gap 1e-13 800x192 d2 consistent: 5 decided verdicts agree  [router=INFINITE/191  global_qr=INFINITE/191  block=INFINITE/191  fast=INFINITE/191  auto_qr=INFINITE/191]
+32:   [ok] gap 1e-13 800x192 d2 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/191  global_qr=UNDECIDABLE/191  block=UNDECIDABLE/191  fast=INCONSISTENT/191  auto_qr=INCONSISTENT/191]
+32:   [ok] gap 0e+00 800x192 d2 consistent: 5 decided verdicts agree  [router=INFINITE/191  global_qr=INFINITE/191  block=INFINITE/191  fast=INFINITE/191  auto_qr=INFINITE/191]
+32:   [ok] gap 0e+00 800x192 d2 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/191  global_qr=UNDECIDABLE/191  block=UNDECIDABLE/191  fast=INCONSISTENT/191  auto_qr=INCONSISTENT/191]
+32:   [ok] cond 1e+01 300x64 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+01 300x64 d3 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/64  global_qr=UNDECIDABLE/64  block=INCONSISTENT/64  fast=INCONSISTENT/64  auto_qr=INCONSISTENT/64]
+32:   [ok] cond 1e+03 300x64 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+03 300x64 d3 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/64  global_qr=UNDECIDABLE/64  block=INCONSISTENT/64  fast=INCONSISTENT/64  auto_qr=INCONSISTENT/64]
+32:   [ok] cond 1e+06 300x64 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+06 300x64 d3 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/64  global_qr=UNDECIDABLE/64  block=UNDECIDABLE/64  fast=INCONSISTENT/64  auto_qr=INCONSISTENT/64]
+32:   [ok] gap 1e-10 300x64 d3 consistent: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+32:   [ok] gap 1e-10 300x64 d3 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+32:   [ok] gap 1e-13 300x64 d3 consistent: 1 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=INFINITE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+32:   [ok] gap 1e-13 300x64 d3 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+32:   [ok] gap 0e+00 300x64 d3 consistent: 5 decided verdicts agree  [router=INFINITE/63  global_qr=INFINITE/63  block=INFINITE/63  fast=INFINITE/63  auto_qr=INFINITE/63]
+32:   [ok] gap 0e+00 300x64 d3 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=INCONSISTENT/63  auto_qr=INCONSISTENT/63]
+32:   [ok] cond 1e+01 200x200 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+32:   [ok] cond 1e+01 200x200 d3 contradictory: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+32:   [ok] cond 1e+03 200x200 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+32:   [ok] cond 1e+03 200x200 d3 contradictory: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+32:   [ok] cond 1e+06 200x200 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+32:   [ok] cond 1e+06 200x200 d3 contradictory: 5 decided verdicts agree  [router=UNIQUE/200  global_qr=UNIQUE/200  block=UNIQUE/200  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+32:   [ok] gap 1e-10 200x200 d3 consistent: 3 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNIQUE/200  block=UNDECIDABLE/199  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+32:   [ok] gap 1e-10 200x200 d3 contradictory: 3 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNIQUE/200  block=UNDECIDABLE/199  fast=UNIQUE/200  auto_qr=UNIQUE/200]
+32:   [ok] gap 1e-13 200x200 d3 consistent: 2 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNDECIDABLE/199  block=UNDECIDABLE/199  fast=INFINITE/199  auto_qr=INFINITE/199]
+32:   [ok] gap 1e-13 200x200 d3 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/199  global_qr=UNDECIDABLE/199  block=UNDECIDABLE/199  fast=UNDECIDABLE/199  auto_qr=UNDECIDABLE/199]
+32:   [ok] gap 0e+00 200x200 d3 consistent: 5 decided verdicts agree  [router=INFINITE/199  global_qr=INFINITE/199  block=INFINITE/199  fast=INFINITE/199  auto_qr=INFINITE/199]
+32:   [ok] gap 0e+00 200x200 d3 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/199  global_qr=INCONSISTENT/199  block=UNDECIDABLE/199  fast=INCONSISTENT/199  auto_qr=INCONSISTENT/199]
+32:   [ok] cond 1e+01 64x64 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+01 64x64 d3 contradictory: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+03 64x64 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+03 64x64 d3 contradictory: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+06 64x64 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] cond 1e+06 64x64 d3 contradictory: 5 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNIQUE/64  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] gap 1e-10 64x64 d3 consistent: 4 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNDECIDABLE/63  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] gap 1e-10 64x64 d3 contradictory: 4 decided verdicts agree  [router=UNIQUE/64  global_qr=UNIQUE/64  block=UNDECIDABLE/63  fast=UNIQUE/64  auto_qr=UNIQUE/64]
+32:   [ok] gap 1e-13 64x64 d3 consistent: 2 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=INFINITE/63  auto_qr=INFINITE/63]
+32:   [ok] gap 1e-13 64x64 d3 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/63  global_qr=UNDECIDABLE/63  block=UNDECIDABLE/63  fast=UNDECIDABLE/63  auto_qr=UNDECIDABLE/63]
+32:   [ok] gap 0e+00 64x64 d3 consistent: 5 decided verdicts agree  [router=INFINITE/63  global_qr=INFINITE/63  block=INFINITE/63  fast=INFINITE/63  auto_qr=INFINITE/63]
+32:   [ok] gap 0e+00 64x64 d3 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/63  global_qr=INCONSISTENT/63  block=UNDECIDABLE/63  fast=INCONSISTENT/63  auto_qr=INCONSISTENT/63]
+32:   [ok] cond 1e+01 800x192 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/192  global_qr=UNIQUE/192  block=UNIQUE/192  fast=UNIQUE/192  auto_qr=UNIQUE/192]
+32:   [ok] cond 1e+01 800x192 d3 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/192  global_qr=UNDECIDABLE/192  block=INCONSISTENT/192  fast=INCONSISTENT/192  auto_qr=INCONSISTENT/192]
+32:   [ok] cond 1e+03 800x192 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/192  global_qr=UNIQUE/192  block=UNIQUE/192  fast=UNIQUE/192  auto_qr=UNIQUE/192]
+32:   [ok] cond 1e+03 800x192 d3 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/192  global_qr=UNDECIDABLE/192  block=INCONSISTENT/192  fast=INCONSISTENT/192  auto_qr=INCONSISTENT/192]
+32:   [ok] cond 1e+06 800x192 d3 consistent: 5 decided verdicts agree  [router=UNIQUE/192  global_qr=UNIQUE/192  block=UNIQUE/192  fast=UNIQUE/192  auto_qr=UNIQUE/192]
+32:   [ok] cond 1e+06 800x192 d3 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/192  global_qr=UNDECIDABLE/192  block=UNDECIDABLE/192  fast=INCONSISTENT/192  auto_qr=INCONSISTENT/192]
+32:   [ok] gap 1e-10 800x192 d3 consistent: 0 decided verdicts agree  [router=UNDECIDABLE/191  global_qr=UNDECIDABLE/191  block=UNDECIDABLE/191  fast=UNDECIDABLE/191  auto_qr=UNDECIDABLE/191]
+32:   [ok] gap 1e-10 800x192 d3 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/191  global_qr=UNDECIDABLE/191  block=UNDECIDABLE/191  fast=UNDECIDABLE/191  auto_qr=UNDECIDABLE/191]
+32:   [ok] gap 1e-13 800x192 d3 consistent: 1 decided verdicts agree  [router=UNDECIDABLE/191  global_qr=INFINITE/191  block=UNDECIDABLE/191  fast=UNDECIDABLE/191  auto_qr=UNDECIDABLE/191]
+32:   [ok] gap 1e-13 800x192 d3 contradictory: 0 decided verdicts agree  [router=UNDECIDABLE/191  global_qr=UNDECIDABLE/191  block=UNDECIDABLE/191  fast=UNDECIDABLE/191  auto_qr=UNDECIDABLE/191]
+32:   [ok] gap 0e+00 800x192 d3 consistent: 5 decided verdicts agree  [router=INFINITE/191  global_qr=INFINITE/191  block=INFINITE/191  fast=INFINITE/191  auto_qr=INFINITE/191]
+32:   [ok] gap 0e+00 800x192 d3 contradictory: 3 decided verdicts agree  [router=INCONSISTENT/191  global_qr=UNDECIDABLE/191  block=UNDECIDABLE/191  fast=INCONSISTENT/191  auto_qr=INCONSISTENT/191]
+32:   [ok] cond 1e+03 1024x512 d2 consistent: 5 decided verdicts agree  [router=UNIQUE/512  global_qr=UNIQUE/512  block=UNIQUE/512  fast=UNIQUE/512  auto_qr=UNIQUE/512]
+32:   [ok] cond 1e+03 1024x512 d2 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/512  global_qr=UNDECIDABLE/512  block=INCONSISTENT/512  fast=INCONSISTENT/512  auto_qr=INCONSISTENT/512]
+32:   [ok] cond 1e+03 1024x512 d9 consistent: 5 decided verdicts agree  [router=UNIQUE/512  global_qr=UNIQUE/512  block=UNIQUE/512  fast=UNIQUE/512  auto_qr=UNIQUE/512]
+32:   [ok] cond 1e+03 1024x512 d9 contradictory: 4 decided verdicts agree  [router=INCONSISTENT/512  global_qr=UNDECIDABLE/512  block=INCONSISTENT/512  fast=INCONSISTENT/512  auto_qr=INCONSISTENT/512]
+32: 
+32: 148 systems x 5 routes
+32: ok: no two routes return contradictory decided verdicts, so the measurement that selects a route cannot select a classification
+32/40 Test #32: test_route_agreement ....................   Passed    5.06 sec
+test 33
+      Start 33: test_transition_contract_regression
+
+33: Test command: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/bin/python3.12 "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/tests/test_transition_contract_regression.py"
+33: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+33: Environment variables: 
+33:  ABS_LIB_DIR=/Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+33: Test timeout computed to be: 10000000
+33: PASS: graph-03 remains UNDECIDABLE at rank interval [3,4]
+33/40 Test #33: test_transition_contract_regression .....   Passed    0.10 sec
+test 34
+      Start 34: test_exact_compatibility_row_order
+
+34: Test command: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/bin/python3.12 "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/tests/test_exact_compatibility_row_order.py"
+34: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+34: Environment variables: 
+34:  ABS_LIB_DIR=/Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+34: Test timeout computed to be: 10000000
+34: PASS: exactly compatible N049 is never a contradiction under row reorderings
+34/40 Test #34: test_exact_compatibility_row_order ......   Passed    0.15 sec
+test 35
+      Start 35: test_row_order_contradiction_control
+
+35: Test command: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/bin/python3.12 "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/tests/test_row_order_contradiction_control.py"
+35: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+35: Environment variables: 
+35:  ABS_LIB_DIR=/Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+35: Test timeout computed to be: 10000000
+35: PASS: a genuine duplicate-row contradiction remains detectable
+35/40 Test #35: test_row_order_contradiction_control ....   Passed    0.07 sec
+test 36
+      Start 36: test_dgesdd_compact_vt
+
+36: Test command: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/bin/python3.12 "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/tests/test_dgesdd_compact_vt.py"
+36: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+36: Environment variables: 
+36:  ABS_LIB_DIR=/Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+36: Test timeout computed to be: 10000000
+36: PASS: compact DGESDD private state contract
+36/40 Test #36: test_dgesdd_compact_vt ..................   Passed    0.03 sec
+test 37
+      Start 37: test_dgesdd_candidate_semantics
+
+37: Test command: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/bin/python3.12 "/Users/runner/work/affine-bundle-solver/affine-bundle-solver/tests/test_dgesdd_candidate_semantics.py"
+37: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+37: Environment variables: 
+37:  ABS_LIB_DIR=/Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable
+37: Test timeout computed to be: 10000000
+37: wide status 2 rank 32 mask 6
+37: square status 1 rank 48 mask 7
+37: tall status 1 rank 32 mask 7
+37: zero status 2 rank 0 mask 2
+37: rank-deficient status 2 rank 12 mask 7
+37: inconsistent status 3 rank 32 mask 7
+37: gapped-full status 1 rank 32 mask 7
+37: near-threshold status 5 rank 31 mask 7
+37: PASS: compact DGESDD focused public semantics
+37/40 Test #37: test_dgesdd_candidate_semantics .........   Passed    0.11 sec
+test 38
+      Start 38: example_classify
+
+38: Test command: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/examples/example_classify
+38: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/examples
+38: Test timeout computed to be: 10000000
+38: affine-bundle-solver: 200 x 8 systems
+38: 
+38:   full rank, consistent      UNIQUE        rank 8 in [8, 8]   deterministic
+38:   rank deficient, consistent INFINITE      rank 6 in [6, 8]   randomised
+38:   inconsistent               INCONSISTENT  rank 6 in [6, 6]   deterministic
+38: 
+38: FAIL and UNDECIDABLE are different answers, not degrees of the
+38: same one: the first asserts nothing about the system, the second
+38: asserts that a point rank is not available and returns an
+38: interval instead.
+38/40 Test #38: example_classify ........................   Passed    0.01 sec
+test 39
+      Start 39: example_certify
+
+39: Test command: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/examples/example_certify
+39: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/examples
+39: Test timeout computed to be: 10000000
+39: affine-bundle-solver: nearby-status profile, 300 x 6
+39: 
+39:   well separated, consistent
+39:     router proposed status 1, rank 6 in [6, 6]
+39:     eta_unique        4.540153e-15
+39:     eta_infinite      7.763914e+00
+39:     eta_inconsistent  3.391347e-15
+39:     3 proof objects accepted at once: each bound is a true
+39:     statement about a DIFFERENT nearby exact system.  The
+39:     smallest of them is not the answer.
+39: 
+39:   exactly rank deficient
+39:     router proposed status 2, rank 5 in [5, 6]
+39:     eta_unique        2.189239e-15
+39:     eta_infinite      4.681634e-15
+39:     eta_inconsistent  7.987626e-15
+39:     3 proof objects accepted at once: each bound is a true
+39:     statement about a DIFFERENT nearby exact system.  The
+39:     smallest of them is not the answer.
+39: 
+39:   close to a rank transition
+39:     router proposed status 5, rank 5 in [5, 6]
+39:     eta_unique        1.235935e-12
+39:     eta_infinite      4.345471e-12
+39:     eta_inconsistent  6.706970e-12
+39:     3 proof objects accepted at once: each bound is a true
+39:     statement about a DIFFERENT nearby exact system.  The
+39:     smallest of them is not the answer.
+39: 
+39: A finite eta bounds the distance to a nearby exact system of that
+39: type.  It is not a score, and argmin over the profile is not a
+39: classification rule.
+39/40 Test #39: example_certify .........................   Passed    0.01 sec
+test 40
+      Start 40: example_streaming
+
+40: Test command: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/examples/example_streaming
+40: Working Directory: /Users/runner/work/affine-bundle-solver/affine-bundle-solver/build-portable/examples
+40: Test timeout computed to be: 10000000
+40: affine-bundle-solver: incremental classification
+40: 
+40: 1. Rows arrive one at a time, 6 columns
+40:     after row 3            INFINITE     rank 3 in [3, 3]   seen 3, deferred 0
+40:     after row 6            UNIQUE       rank 6 in [6, 6]   seen 6, deferred 0
+40:     after row 40           UNIQUE       rank 6 in [6, 6]   seen 40, deferred 0
+40:     6 rows enlarged the row space, 34 were absorbed
+40: 
+40: 2. A deferred row, then a contradiction
+40:     3 ordinary rows        INFINITE     rank 3 in [3, 3]   seen 3, deferred 0
+40:     insert returned 2 (DEFER)
+40:     after the odd row      UNDECIDABLE  rank 3 in [3, 4]   seen 4, deferred 1
+40:     insert returned -1 (CONTRA)
+40:     after the bad row      INCONSISTENT rank 3 in [3, 4]   seen 5, deferred 1
+40:     a further insert returns -1; the stream stays closed
+40: 
+40: 3. Cost of following a growing system, 24 columns
+40:     stream :   0.0009 s   final UNIQUE, rank 24
+40:     batch  :   0.0280 s   final UNIQUE, rank 24
+40:     ratio  : 30x   and it grows with the number of rows,
+40:              because the batch side repeats work the stream keeps.
+40: 
+40: A deferred row is a normal outcome.  It leaves the rank as an
+40: interval and the status UNDECIDABLE, which is the honest answer
+40: when neither independence nor dependence could be established.
+40/40 Test #40: example_streaming .......................   Passed    0.03 sec
+
+90% tests passed, 4 tests failed out of 40
+
+Total Test time (real) =  15.44 sec
+
+The following tests FAILED:
+	  2 - test_operational_policy (Subprocess aborted)
+	 19 - fp_contraction_fail_closed (Failed)
+	 23 - test_status_profile_semantics (Failed)
+	 28 - test_public_diagnostics (Failed)
+Errors while running CTest
