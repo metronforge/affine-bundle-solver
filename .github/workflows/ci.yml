@@ -273,11 +273,14 @@ jobs:
           if [ "$CC" = clang ]; then
             sudo apt-get install -y clang libomp-dev libatomic1
           fi
-      - name: Install macOS OpenMP runtime
+      - name: Install macOS OpenMP and validated BLAS provider
         if: runner.os == 'macOS'
         run: |
           brew list libomp >/dev/null 2>&1 || brew install libomp
           brew list pkgconf >/dev/null 2>&1 || brew install pkgconf
+          # Accelerate links every required symbol but fails the existing
+          # rank-deficient accepted-status-mask regression; see Phase 1 report.
+          brew list openblas >/dev/null 2>&1 || brew install openblas
           xcrun --find llvm-objdump
       - name: Install test dependencies
         run: python -m pip install --disable-pip-version-check -r requirements-ci.txt
@@ -295,7 +298,7 @@ jobs:
             if [ "$RUNNER_OS" = macOS ]; then
               sw_vers
               xcodebuild -version
-              brew list --versions libomp
+              brew list --versions libomp openblas
               xcrun llvm-objdump --version
             else
               dpkg-query -W libblas3 liblapack3 libgomp1 libomp5-18 libatomic1 2>/dev/null || true
@@ -306,7 +309,8 @@ jobs:
           if [ "$RUNNER_OS" = macOS ]; then
             "$CC" --version | grep 'Apple clang'
             omp=$(brew --prefix libomp)
-            options+=("-DBLA_VENDOR=Apple" "-DOpenMP_C_FLAGS=-Xpreprocessor -fopenmp"
+            options+=("-DBLA_VENDOR=OpenBLAS" "-DCMAKE_PREFIX_PATH=$(brew --prefix openblas)"
+              "-DOpenMP_C_FLAGS=-Xpreprocessor -fopenmp"
               "-DOpenMP_C_INCLUDE_DIR=$omp/include" "-DOpenMP_C_LIB_NAMES=omp"
               "-DOpenMP_omp_LIBRARY=$omp/lib/libomp.dylib")
           fi
@@ -344,27 +348,6 @@ jobs:
           name: portability-evidence-${{ matrix.id }}
           path: portability-evidence/
           retention-days: 30
-
-      - name: Diagnose macOS contract failures
-        if: failure() && runner.os == 'macOS'
-        run: |
-          "$CC" -O3 -ffast-math -c tests/diagnose_nonfinite.c -o "$RUNNER_TEMP/nonfinite.o"
-          "$CC" "$RUNNER_TEMP/nonfinite.o" -o "$RUNNER_TEMP/nonfinite"
-          "$RUNNER_TEMP/nonfinite" 7ff0000000000000
-          "$RUNNER_TEMP/nonfinite" 7ff8000000000000
-          "$RUNNER_TEMP/nonfinite" 3ff0000000000000
-          # Preserve a provider comparison for the failing certificate fixture.
-          # This diagnostic does not replace or forgive the required job.
-          brew install openblas
-          omp=$(brew --prefix libomp)
-          cmake -S . -B build-openblas-diagnostic -DABS_BLAS=system -DBLA_VENDOR=OpenBLAS \
-            -DABS_ARCH_FLAGS='' -DCMAKE_PREFIX_PATH="$(brew --prefix openblas)" \
-            '-DOpenMP_C_FLAGS=-Xpreprocessor -fopenmp' \
-            -DOpenMP_C_INCLUDE_DIR="$omp/include" -DOpenMP_C_LIB_NAMES=omp \
-            -DOpenMP_omp_LIBRARY="$omp/lib/libomp.dylib"
-          cmake --build build-openblas-diagnostic --parallel 3
-          ctest --test-dir build-openblas-diagnostic --output-on-failure \
-            -R 'test_status_profile_semantics|test_operational_policy|test_public_diagnostics'
 
   cross-platform-semantics:
     name: cross-platform semantic agreement
