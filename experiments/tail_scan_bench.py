@@ -17,6 +17,9 @@ STATS=('entries','serial_rows','blocks','block_rows','serial_updates','block_upd
        'insertions','growths','scan_seconds','prefix_rank','prefix_rows','reserved')
 
 def build(args):
+    source=(ROOT/'src/bsolver.c').read_text()
+    body=next(l for l in source.splitlines() if 'ABS_TAIL_COUNT(1,1);const double*row=' in l)
+    assert (ROOT/'experiments/tail_scan_row.inc').read_text().splitlines()[1]==body
     common.build(args)
     dest=Path(args.directory).resolve()
     freeze=json.loads((dest/'freeze.json').read_text())
@@ -73,6 +76,8 @@ def load(path):
     trace.abs_tail_state.argtypes=[ct.POINTER(ct.c_int)];trace.abs_tail_state.restype=ct.c_void_p
     replay.abs_tail_replay.argtypes=[dp,dp,ct.c_int,ct.c_int,ct.c_int,ct.c_void_p,ct.c_ulonglong,dp]
     replay.abs_tail_replay.restype=None
+    replay.abs_tail_rows.argtypes=[dp,dp,dp,dp,ct.c_int,ct.c_int,ct.c_int,ct.c_ulonglong,dp]
+    replay.abs_tail_rows.restype=None
     return prod,trace,replay,freeze
 
 def make_case(m,n,kind,seed=20260929):
@@ -106,6 +111,9 @@ def bench(args):
     for spec in args.cases.split(','):
         kind,shape=spec.split(':');m,n=map(int,shape.split('x'))
         a,b=make_case(m,n,kind)
+        rng_data=np.random.default_rng(765+n)
+        x=np.ascontiguousarray(rng_data.standard_normal(n))
+        z=np.ascontiguousarray(rng_data.standard_normal(2*n))
         case={'case':spec,'input_sha256':hashlib.sha256(a.tobytes()+b.tobytes()).hexdigest(),'trace':{},'results':{}}
         states={}
         for label,(prod,trace,replay,_) in libs.items():
@@ -119,8 +127,8 @@ def bench(args):
             states[label]=(p.value,state) if stats[0] else None
             case['trace'][label]=dict(zip(STATS,stats.tolist()))
             case['trace'][label]['output']=out.tolist()
-        for mode in ['tail','router']:
-            labels=[k for k in libs if mode=='router' or states[k]]
+        for mode in ['four_dot','with_updates','tail','router']:
+            labels=[k for k in libs if mode!='tail' or states[k]]
             times={k:[] for k in labels};outs={k:np.zeros(8) for k in labels};decisions={k:set() for k in labels}
             rng=random.Random(1234)
             for rep in range(args.repeats+3):
@@ -128,11 +136,13 @@ def bench(args):
                 for k in order:
                     prod,trace,replay,_=libs[k]
                     t=time.perf_counter()
-                    if mode=='router':invoke(prod,a,b,outs[k])
+                    if mode in ('four_dot','with_updates'):
+                        replay.abs_tail_rows(a,b,x,z,m,n,int(mode=='with_updates'),20260909,outs[k])
+                    elif mode=='router':invoke(prod,a,b,outs[k])
                     else:
                         p,state=states[k];replay.abs_tail_replay(a,b,m,n,p,state,20260909,outs[k])
                     elapsed=time.perf_counter()-t
-                    decisions[k].add(tuple(semantic(outs[k])))
+                    decisions[k].add(tuple(outs[k][:1] if mode in ('four_dot','with_updates') else semantic(outs[k])))
                     if rep>=3:times[k].append(elapsed)
             case['results'][mode]={k:{**common.summary(times[k]),'output':outs[k].tolist(),'decisions':[list(v) for v in sorted(decisions[k])]} for k in labels}
         # Profiling invocations are separate from ALL benchmark intervals above.
