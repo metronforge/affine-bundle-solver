@@ -260,28 +260,14 @@ static int compat_scan_fused(const double*A,const double*b,const double*x,int m,
     if(n>=192){
       #pragma omp parallel for if(((long long)m*n)>=1000000LL && n<384) reduction(+:nr,nb) reduction(|:bad) reduction(max:berr) schedule(static)
       for(int i=0;i<m;i++){const double*row=A+(size_t)i*n;double ax=0,an2=0;
-        int block=n/4;
-        double ax0=0,ax1=0,ax2=0,ax3=0,s0=0,s1=0,s2=0,s3=0;
-        for(int j=0;j<block;j++){
-          double v0=row[j],v1=row[j+block],v2=row[j+2*block],v3=row[j+3*block];
-          ax0+=v0*x[j];ax1+=v1*x[j+block];ax2+=v2*x[j+2*block];ax3+=v3*x[j+3*block];
-          s0+=v0*v0;s1+=v1*v1;s2+=v2*v2;s3+=v3*v3;
-        }
-        ax=(ax0+ax1)+(ax2+ax3);an2=(s0+s1)+(s2+s3);
-        for(int j=4*block;j<n;j++){double v=row[j];ax+=v*x[j];an2+=v*v;}
+        #pragma GCC unroll 4
+        for(int j=0;j<n;j++){double v=row[j];ax+=v*x[j];an2+=v*v;}
         double r=ax-b[i];nr+=(long double)r*(long double)r;{long double bi=(long double)b[i];nb+=bi*bi;}double an=(an2>0.0 && finite_bits(an2))?sqrt(an2):norm2(row,n);if(an==0){if(fabs(b[i])>tc)bad=1;double den=fabs(b[i])+1e-300,be=fabs(r)/den;if(be>berr)berr=be;}else{double den=fabs(b[i])+an*xn+1e-300,be=fabs(r)/den;if(be>berr)berr=be;if(fabs(r)>tc*(fabs(b[i])+an*(1+xn)))bad=1;}}
     }else{
       #pragma omp parallel for if(((long long)m*n)>=1000000LL && n<384) reduction(+:nr,nb) reduction(|:bad) reduction(max:berr) schedule(static)
       for(int i=0;i<m;i++){const double*row=A+(size_t)i*n;double ax=0,amax=0;
-        int block=n/4;
-        double ax0=0,ax1=0,ax2=0,ax3=0,m0=0,m1=0,m2=0,m3=0;
-        for(int j=0;j<block;j++){
-          double v0=row[j],v1=row[j+block],v2=row[j+2*block],v3=row[j+3*block];
-          ax0+=v0*x[j];ax1+=v1*x[j+block];ax2+=v2*x[j+2*block];ax3+=v3*x[j+3*block];
-          m0=fmax(m0,fabs(v0));m1=fmax(m1,fabs(v1));m2=fmax(m2,fabs(v2));m3=fmax(m3,fabs(v3));
-        }
-        ax=(ax0+ax1)+(ax2+ax3);amax=fmax(fmax(m0,m1),fmax(m2,m3));
-        for(int j=4*block;j<n;j++){double v=row[j];ax+=v*x[j];double av=fabs(v);if(av>amax)amax=av;}
+        #pragma GCC unroll 4
+        for(int j=0;j<n;j++){double v=row[j];ax+=v*x[j];double av=fabs(v);if(av>amax)amax=av;}
         double r=ax-b[i];nr+=(long double)r*(long double)r;{long double bi=(long double)b[i];nb+=bi*bi;}double cheap=tc*(fabs(b[i])+amax*(1+xn));double an=-1.0;if(fabs(r)>cheap){an=norm2(row,n);if(an==0){if(fabs(b[i])>tc)bad=1;}else if(fabs(r)>tc*(fabs(b[i])+an*(1+xn)))bad=1;}/* Quality needs a scale-invariant denominator.  Avoid DNRM2 on easy rows using ||a||_inf <= ||a||_2 <= sqrt(n)||a||_inf: if the conservative upper bound is already tiny, it cannot trigger quality repair. */
         double den_lo=fabs(b[i])+amax*xn+1e-300;double be_hi=fabs(r)/den_lo;if(be_hi>BS_QUALITY_THR){if(an<0)an=norm2(row,n);double den=fabs(b[i])+an*xn+1e-300,be=fabs(r)/den;if(be>berr)berr=be;}else if(be_hi>berr)berr=be_hi;}
     }
