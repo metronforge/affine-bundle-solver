@@ -77,6 +77,8 @@ option(ABS_BUILD_EXAMPLES "Build the C examples in examples/" ON)
 option(ABS_BUILD_TESTING  "Register the probes, examples and Python batteries with CTest" ON)
 option(ABS_SANITIZE "Build with AddressSanitizer and UndefinedBehaviorSanitizer" OFF)
 option(ABS_COVERAGE "Build with coverage instrumentation" OFF)
+option(ABS_DISABLE_ROUTER_AUTOVECTORIZATION
+       "Diagnostic only: disable GCC auto-vectorization for fast router objects" OFF)
 
 if(ABS_SANITIZE AND ABS_COVERAGE)
   message(FATAL_ERROR "ABS_SANITIZE and ABS_COVERAGE do not compose; configure separate build trees")
@@ -152,6 +154,15 @@ separate_arguments(ABS_ARCH_FLAG_LIST UNIX_COMMAND "${ABS_ARCH_FLAGS}")
 # One definition of the strict floating-point flags; see the contract above.
 set(ABS_STRICT_FP_FLAGS -O2 -frounding-math -fno-fast-math -ffp-contract=off)
 
+# This is intentionally limited to the untrusted fast router.  It provides a
+# scalar control for SIMD measurements without changing BLAS, OpenMP, or the
+# strict verifier/proof compilation contract.
+set(ABS_ROUTER_AUTOVEC_CONTROL_FLAGS "")
+if(ABS_DISABLE_ROUTER_AUTOVECTORIZATION)
+  list(APPEND ABS_ROUTER_AUTOVEC_CONTROL_FLAGS
+       -fno-tree-vectorize -fno-tree-slp-vectorize)
+endif()
+
 set(ABS_INSTRUMENTATION "")
 if(ABS_SANITIZE)
   set(ABS_INSTRUMENTATION -fsanitize=address,undefined -fno-omit-frame-pointer -g)
@@ -177,7 +188,8 @@ target_include_directories(abs_formation_guard_obj PRIVATE
 add_library(abs_router_obj OBJECT src/bsolver.c)
 set_target_properties(abs_router_obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_compile_options(abs_router_obj PRIVATE
-  -O3 ${ABS_ARCH_FLAG_LIST} -fopenmp -ffast-math ${ABS_INSTRUMENTATION})
+  -O3 ${ABS_ARCH_FLAG_LIST} -fopenmp -ffast-math
+  ${ABS_ROUTER_AUTOVEC_CONTROL_FLAGS} ${ABS_INSTRUMENTATION})
 target_compile_definitions(abs_router_obj PRIVATE ${ABS_BLAS_DEFINES})
 target_include_directories(abs_router_obj PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -343,7 +355,8 @@ if(ABS_BUILD_TESTING)
   # this test without adding a test counter to any installed public library.
   add_library(abs_router_once_obj OBJECT src/bsolver.c)
   target_compile_options(abs_router_once_obj PRIVATE
-    -O3 ${ABS_ARCH_FLAG_LIST} -fopenmp -ffast-math ${ABS_INSTRUMENTATION})
+    -O3 ${ABS_ARCH_FLAG_LIST} -fopenmp -ffast-math
+    ${ABS_ROUTER_AUTOVEC_CONTROL_FLAGS} ${ABS_INSTRUMENTATION})
   target_compile_definitions(abs_router_once_obj PRIVATE
     ${ABS_BLAS_DEFINES} ABS_TEST_ROUTER_EXECUTIONS)
   target_include_directories(abs_router_once_obj PRIVATE
