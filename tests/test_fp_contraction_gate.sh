@@ -69,19 +69,19 @@ expect_failure unsupported-architecture "no FMA target known" \
 expect_failure aarch64-vector-fused-operation \
   "strict kernels contain fused multiply-adds" \
   env ABS_FP_CHECK_MACHINE=aarch64 OBJDUMP="$work/fused-objdump" FAKE_FUSED=fmla \
-  "$gate" /bin/true -- "${common[@]}" -- "$root/src/status_certificate.c"
+  "$gate" true -- "${common[@]}" -- "$root/src/status_certificate.c"
 expect_failure x86-alternating-fused-operation \
   "strict kernels contain fused multiply-adds" \
   env ABS_FP_CHECK_MACHINE=x86_64 OBJDUMP="$work/fused-objdump" \
       FAKE_FUSED=vfmaddsub132pd \
-  "$gate" /bin/true -- "${common[@]}" -- "$root/src/status_certificate.c"
+  "$gate" true -- "${common[@]}" -- "$root/src/status_certificate.c"
 
 # Apple/LLVM disassemblers may place the vector arrangement on the mnemonic.
 for instruction in fmadd fmsub fnmadd fnmsub fmla fmls fmla.2d fmls.4s \
                    fmad fmsb fnmad fnmsb fcmla fmlal fmlal2 fmlsl fmlsl2; do
   expect_failure "arm-fused-$instruction" "strict kernels contain fused multiply-adds" \
     env ABS_FP_CHECK_MACHINE=aarch64 OBJDUMP="$work/fused-objdump" FAKE_FUSED="$instruction" \
-    "$gate" /bin/true -- "${common[@]}" -- "$root/src/status_certificate.c"
+    "$gate" true -- "${common[@]}" -- "$root/src/status_certificate.c"
 done
 
 cat >"$work/status_certificate.c" <<'EOF'
