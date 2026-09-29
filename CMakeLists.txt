@@ -614,6 +614,8 @@ if(ABS_BUILD_TESTING)
       COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_semantic_snapshot.py)
     add_test(NAME blas_provider_identity_contract
       COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_blas_provider.py)
+    add_test(NAME binary_sdk_archive_contract
+      COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_binary_sdk.py)
     # The batteries locate the shared objects through ABS_LIB_DIR and fall
     # back to the repository root, so build.sh keeps working unchanged.
     foreach(_battery
