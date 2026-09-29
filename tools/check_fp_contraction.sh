@@ -65,7 +65,7 @@ case $machine in
     fused='[[:space:]]vf(n?m(add|sub)|m(addsub|subadd))[0-9]*(p|s)[sd]([[:space:]]|$)' ;;
   aarch64|arm64)
     target=()
-    fused='[[:space:]](fmadd|fmsub|fnmadd|fnmsub|fmla|fmls|fnmla|fnmls|fmad|fmsb|fnmad|fnmsb|fcmla|fmlal2?|fmlsl2?)([[:space:]]|$)' ;;
+    fused='[[:space:]](fmadd|fmsub|fnmadd|fnmsub|fmla|fmls|fnmla|fnmls|fmad|fmsb|fnmad|fnmsb|fcmla|fmlal2?|fmlsl2?)(\.[0-9]*[bhsdq])?([[:space:]]|$)' ;;
   *)
     echo "fp-contraction check: FAILED -- no FMA target known for '$machine'" >&2
     exit 1 ;;

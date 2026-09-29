@@ -76,6 +76,14 @@ expect_failure x86-alternating-fused-operation \
       FAKE_FUSED=vfmaddsub132pd \
   "$gate" /bin/true -- "${common[@]}" -- "$root/src/status_certificate.c"
 
+# Apple/LLVM disassemblers may place the vector arrangement on the mnemonic.
+for instruction in fmadd fmsub fnmadd fnmsub fmla fmls fmla.2d fmls.4s \
+                   fmad fmsb fnmad fnmsb fcmla fmlal fmlal2 fmlsl fmlsl2; do
+  expect_failure "arm-fused-$instruction" "strict kernels contain fused multiply-adds" \
+    env ABS_FP_CHECK_MACHINE=aarch64 OBJDUMP="$work/fused-objdump" FAKE_FUSED="$instruction" \
+    "$gate" /bin/true -- "${common[@]}" -- "$root/src/status_certificate.c"
+done
+
 cat >"$work/status_certificate.c" <<'EOF'
 double unrelated(double x) { return x + 1.0; }
 EOF
