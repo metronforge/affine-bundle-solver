@@ -259,16 +259,10 @@ static int compat_scan_fused(const double*A,const double*b,const double*x,int m,
     long double nr=0.0L,nb=0.0L;int bad=0;double xn=norm2(x,n),berr=0.0;
     if(n>=192){
       #pragma omp parallel for if(((long long)m*n)>=1000000LL && n<384) reduction(+:nr,nb) reduction(|:bad) reduction(max:berr) schedule(static)
-      for(int i=0;i<m;i++){const double*row=A+(size_t)i*n;double ax=0,an2=0;
-        #pragma GCC unroll 4
-        for(int j=0;j<n;j++){double v=row[j];ax+=v*x[j];an2+=v*v;}
-        double r=ax-b[i];nr+=(long double)r*(long double)r;{long double bi=(long double)b[i];nb+=bi*bi;}double an=(an2>0.0 && finite_bits(an2))?sqrt(an2):norm2(row,n);if(an==0){if(fabs(b[i])>tc)bad=1;double den=fabs(b[i])+1e-300,be=fabs(r)/den;if(be>berr)berr=be;}else{double den=fabs(b[i])+an*xn+1e-300,be=fabs(r)/den;if(be>berr)berr=be;if(fabs(r)>tc*(fabs(b[i])+an*(1+xn)))bad=1;}}
+      for(int i=0;i<m;i++){const double*row=A+(size_t)i*n;double ax=0,an2=0;for(int j=0;j<n;j++){double v=row[j];ax+=v*x[j];an2+=v*v;}double r=ax-b[i];nr+=(long double)r*(long double)r;{long double bi=(long double)b[i];nb+=bi*bi;}double an=(an2>0.0 && finite_bits(an2))?sqrt(an2):norm2(row,n);if(an==0){if(fabs(b[i])>tc)bad=1;double den=fabs(b[i])+1e-300,be=fabs(r)/den;if(be>berr)berr=be;}else{double den=fabs(b[i])+an*xn+1e-300,be=fabs(r)/den;if(be>berr)berr=be;if(fabs(r)>tc*(fabs(b[i])+an*(1+xn)))bad=1;}}
     }else{
       #pragma omp parallel for if(((long long)m*n)>=1000000LL && n<384) reduction(+:nr,nb) reduction(|:bad) reduction(max:berr) schedule(static)
-      for(int i=0;i<m;i++){const double*row=A+(size_t)i*n;double ax=0,amax=0;
-        #pragma GCC unroll 4
-        for(int j=0;j<n;j++){double v=row[j];ax+=v*x[j];double av=fabs(v);if(av>amax)amax=av;}
-        double r=ax-b[i];nr+=(long double)r*(long double)r;{long double bi=(long double)b[i];nb+=bi*bi;}double cheap=tc*(fabs(b[i])+amax*(1+xn));double an=-1.0;if(fabs(r)>cheap){an=norm2(row,n);if(an==0){if(fabs(b[i])>tc)bad=1;}else if(fabs(r)>tc*(fabs(b[i])+an*(1+xn)))bad=1;}/* Quality needs a scale-invariant denominator.  Avoid DNRM2 on easy rows using ||a||_inf <= ||a||_2 <= sqrt(n)||a||_inf: if the conservative upper bound is already tiny, it cannot trigger quality repair. */
+      for(int i=0;i<m;i++){const double*row=A+(size_t)i*n;double ax=0,amax=0;for(int j=0;j<n;j++){double v=row[j];ax+=v*x[j];double av=fabs(v);if(av>amax)amax=av;}double r=ax-b[i];nr+=(long double)r*(long double)r;{long double bi=(long double)b[i];nb+=bi*bi;}double cheap=tc*(fabs(b[i])+amax*(1+xn));double an=-1.0;if(fabs(r)>cheap){an=norm2(row,n);if(an==0){if(fabs(b[i])>tc)bad=1;}else if(fabs(r)>tc*(fabs(b[i])+an*(1+xn)))bad=1;}/* Quality needs a scale-invariant denominator.  Avoid DNRM2 on easy rows using ||a||_inf <= ||a||_2 <= sqrt(n)||a||_inf: if the conservative upper bound is already tiny, it cannot trigger quality repair. */
         double den_lo=fabs(b[i])+amax*xn+1e-300;double be_hi=fabs(r)/den_lo;if(be_hi>BS_QUALITY_THR){if(an<0)an=norm2(row,n);double den=fabs(b[i])+an*xn+1e-300,be=fabs(r)/den;if(be>berr)berr=be;}else if(be_hi>berr)berr=be_hi;}
     }
     g_last_berr=berr;g_last_berr_valid=1;*rr_out=(double)(sqrtl(nr)/(sqrtl(nb)+1e-300L));return bad;

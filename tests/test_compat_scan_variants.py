@@ -19,6 +19,8 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--variant", action="append", required=True)
     p.add_argument("--output", required=True)
+    p.add_argument("--require-equal", action="append", default=[],
+                   help="fail if this variant differs in any decision or diagnostic")
     args = p.parse_args()
     libs = {k: load(v) for k, v in (s.split("=", 1) for s in args.variant)}
     assert "baseline" in libs
@@ -77,6 +79,9 @@ def main():
     counts = {k:sum(d["variant"]==k for d in report["disagreements"]) for k in libs}
     print("Decision disagreements:",counts)
     print("Away from exact boundary:",{k:sum(d["variant"]==k and not d["boundary"] for d in report["disagreements"]) for k in libs})
+    for k in args.require_equal:
+        assert k in libs, k
+        assert counts[k] == 0 and report["diagnostic_differences"][k] == 0, k
 
 
 if __name__ == "__main__":
