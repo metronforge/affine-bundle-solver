@@ -1,6 +1,10 @@
 /* Exercise the private SVD state on actual wide, square, and tall cores.
  * bsolver_core.c is included by the production router, so this harness uses
  * the same implementation and build-time BLAS symbol mapping. */
+#if defined(__APPLE__)
+/* POSIX mode otherwise hides the extended rusage fields on Darwin. */
+#define _DARWIN_C_SOURCE
+#endif
 #define BS_FAIL_RESULT(res,tzero) do{ (res).cls=CLS_FAIL; (res).rank=0; \
     (res).relres=NAN; (res).relx=NAN; (res).sec=now_sec()-(tzero); }while(0)
 #define main bsolver_core_example_main
@@ -67,12 +71,16 @@ static int measure_case(int rows, int n) {
     double elapsed = now_sec() - start;
     struct rusage use;
     getrusage(RUSAGE_SELF, &use);
+    long peak_rss_kib = use.ru_maxrss;
+#if defined(__APPLE__)
+    peak_rss_kib /= 1024; /* Darwin reports bytes; Linux reports KiB. */
+#endif
     if (rc || !isfinite(rr) || !state.x || !state.Q) {
         fprintf(stderr, "measured core failed: %dx%d\n", rows, n);
         bs_free(&state); free(core); free(y); return 1;
     }
     printf("{\"rows\":%d,\"n\":%d,\"rank\":%d,\"seconds\":%.9g,"
-           "\"peak_rss_kib\":%ld}\n", rows, n, state.r, elapsed, use.ru_maxrss);
+           "\"peak_rss_kib\":%ld}\n", rows, n, state.r, elapsed, peak_rss_kib);
     bs_free(&state); free(core); free(y); return 0;
 }
 

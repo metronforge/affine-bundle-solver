@@ -235,6 +235,9 @@ jobs:
     name: portability / ${{ matrix.id }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 40
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
