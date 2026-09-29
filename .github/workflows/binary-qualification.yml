@@ -120,6 +120,13 @@ jobs:
             "$PWD/evidence/source-semantic.json" "$PWD/evidence/source-api.json" 2>&1 | tee evidence/consumer.txt
           cp "$RUNNER_TEMP/builder-consumer/"{binary-semantic.json,sdk-smoke.json,inspection.json,missing-dependencies.json} evidence/
           cp sdk-output/BUILD-INFO.json sdk-output/*.sha256 evidence/
+      - name: Preserve consumer evidence even on a failing qualification
+        if: always()
+        run: |
+          mkdir -p evidence/consumer-artifacts
+          for name in binary-semantic.json sdk-smoke.json inspection.json missing-dependencies.json; do
+            test -f "$RUNNER_TEMP/builder-consumer/$name" && cp "$RUNNER_TEMP/builder-consumer/$name" evidence/consumer-artifacts/
+          done
       - name: Upload qualified archive bytes (not a release asset)
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
@@ -180,6 +187,13 @@ jobs:
             "$PWD/builder-evidence/evidence/source-api.json" 2>&1 | tee forward-evidence/consumer.txt
           cp "$RUNNER_TEMP/forward-consumer/"{binary-semantic.json,sdk-smoke.json,inspection.json,missing-dependencies.json} forward-evidence/
           cp sdk-download/*.sha256 forward-evidence/
+      - name: Preserve forward-consumer evidence even on failure
+        if: always()
+        run: |
+          mkdir -p forward-evidence/consumer-artifacts
+          for name in binary-semantic.json sdk-smoke.json inspection.json missing-dependencies.json; do
+            test -f "$RUNNER_TEMP/forward-consumer/$name" && cp "$RUNNER_TEMP/forward-consumer/$name" forward-evidence/consumer-artifacts/
+          done
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:

@@ -103,9 +103,23 @@ def audit(prefix, target, forbidden=()):
                 fields["x86_vex_avx_instruction_count"] = 0
         records.append(dict(path="lib/" + name, sha256=hashlib.sha256(p.read_bytes()).hexdigest(),
                             **fields, inspection=raw))
-    router = next(r for r in records if "libaffine_bundle_solver" in r["path"])
-    if not any("blas" in n for n in router["needed"]) or not any("omp" in n for n in router["needed"]):
-        raise ValueError("BLAS and OpenMP must remain external dynamic dependencies")
+    needed = {n for r in records for n in r["needed"]}
+    if target.startswith("linux-"):
+        # The qualification workflow deliberately selects Ubuntu's generic
+        # reference LP64 BLAS/LAPACK, not whichever alternative happens to
+        # own libblas on the runner.  Accepting OpenBLAS here would make the
+        # declared apt dependency contract false.
+        if any("openblas" in n.lower() for n in needed):
+            raise ValueError("Linux qualification requires reference BLAS/LAPACK, not OpenBLAS")
+        if not any("blas" in n for n in needed) or not any("lapack" in n for n in needed):
+            raise ValueError("reference BLAS and LAPACK must remain external dynamic dependencies")
+        if not any("gomp" in n for n in needed):
+            raise ValueError("libgomp must remain an external dynamic dependency")
+    else:
+        if "/opt/homebrew/opt/openblas/lib/libopenblas.0.dylib" not in needed:
+            raise ValueError("macOS qualification requires the validated external OpenBLAS install name")
+        if "/opt/homebrew/opt/libomp/lib/libomp.dylib" not in needed:
+            raise ValueError("macOS qualification requires the external libomp install name")
     return {"platform": target, "libraries": records}
 
 
