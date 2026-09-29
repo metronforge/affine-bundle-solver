@@ -141,8 +141,9 @@ def bench(args):
                     'orth_frob2':float(pre.orth_frob2)}
             case['trace'][label]=dict(zip(STATS,stats.tolist()))
             case['trace'][label]['output']=out.tolist()
-        for mode in ['four_dot','with_updates','tail','router']:
-            labels=[k for k in libs if mode!='tail' or states[k]]
+        for mode in args.modes.split(','):
+            labels=[k for k in libs if not mode.startswith('tail') or states[k]]
+            if mode=='tail_shared' and not states.get('normal'):labels=[]
             times={k:[] for k in labels};outs={k:np.zeros(8) for k in labels};decisions={k:set() for k in labels}
             rng=random.Random(1234)
             for rep in range(args.repeats+3):
@@ -154,13 +155,13 @@ def bench(args):
                         replay.abs_tail_rows(a,b,x,z,m,n,int(mode=='with_updates'),20260909,outs[k])
                     elif mode=='router':invoke(prod,a,b,outs[k])
                     else:
-                        p,state=states[k];replay.abs_tail_replay(a,b,m,n,p,state,20260909,outs[k])
+                        p,state=states['normal' if mode=='tail_shared' else k];replay.abs_tail_replay(a,b,m,n,p,state,20260909,outs[k])
                     elapsed=time.perf_counter()-t
-                    if mode=='tail':
+                    if mode.startswith('tail'):
                         if outs[k][7]==-1:raise RuntimeError('tail replay allocation failed')
                         assert outs[k][7] in (0,1)
                     signature=outs[k][:1] if mode in ('four_dot','with_updates') else semantic(outs[k])
-                    if mode=='tail':signature=signature+[float(outs[k][7])]
+                    if mode.startswith('tail'):signature=signature+[float(outs[k][7])]
                     decisions[k].add(tuple(signature))
                     if rep>=3:times[k].append(elapsed)
             case['results'][mode]={k:{**common.summary(times[k]),'output':outs[k].tolist(),'decisions':[list(v) for v in sorted(decisions[k])]} for k in labels}
@@ -182,6 +183,6 @@ def bench(args):
 def main():
     p=argparse.ArgumentParser(description=__doc__);sub=p.add_subparsers(dest='command',required=True)
     b=sub.add_parser('build');b.add_argument('directory');b.add_argument('--scalar',action='store_true');b.set_defaults(func=build)
-    b=sub.add_parser('bench');b.add_argument('--variant',action='append',required=True);b.add_argument('--cases',default='rankdef:8192x192,rankdef:8192x193,rankdef:8192x256,rankdef:8192x512,half:16384x256,full:8192x192');b.add_argument('--repeats',type=int,default=21);b.add_argument('--threads',type=int,default=1);b.add_argument('--cpus',default='0');b.add_argument('--output',required=True);b.set_defaults(func=bench)
+    b=sub.add_parser('bench');b.add_argument('--variant',action='append',required=True);b.add_argument('--cases',default='rankdef:8192x192,rankdef:8192x193,rankdef:8192x256,rankdef:8192x512,half:16384x256,full:8192x192');b.add_argument('--repeats',type=int,default=21);b.add_argument('--modes',default='four_dot,with_updates,tail,router');b.add_argument('--threads',type=int,default=1);b.add_argument('--cpus',default='0');b.add_argument('--output',required=True);b.set_defaults(func=bench)
     args=p.parse_args();args.func(args)
 if __name__=='__main__':main()
