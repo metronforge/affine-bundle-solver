@@ -232,7 +232,10 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
-          paths = sorted(Path('evidence').rglob('sdk-smoke.json'))
+          # `consumer-artifacts/` deliberately retains a diagnostic copy on
+          # failure; only the canonical result participates in the gate.
+          paths = sorted(p for p in Path('evidence').rglob('sdk-smoke.json')
+                         if 'consumer-artifacts' not in p.parts)
           assert len(paths) == 4, paths
           rows = [json.loads(p.read_text()) for p in paths]
           assert all(x == rows[0] for x in rows), rows
