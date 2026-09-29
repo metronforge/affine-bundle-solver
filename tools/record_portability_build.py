@@ -33,6 +33,10 @@ record = {
     "runner": {k: os.environ.get(k) for k in
                ("RUNNER_OS", "RUNNER_ARCH", "RUNNER_NAME", "ImageOS", "ImageVersion", "GITHUB_RUN_ID")},
     "platform": platform.platform(), "machine": platform.machine(),
+    "libc": {"name": platform.libc_ver()[0], "version": platform.libc_ver()[1]},
+    "os_release": Path("/etc/os-release").read_text() if sys.platform == "linux" else None,
+    "packages": command("dpkg-query", "-W", "-f=${Package} ${Version}\\n")
+        if sys.platform == "linux" else command("brew", "list", "--versions", "libomp", "openblas"),
     "compiler": command(os.environ.get("CC", "cc"), "--version"),
     "cmake": command("cmake", "--version"),
     "cache": (build / "CMakeCache.txt").read_text(),
