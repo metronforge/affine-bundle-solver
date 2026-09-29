@@ -710,6 +710,16 @@ jobs:
         # classification claims are implementation dependent and have to say
         # so.
         run: python tests/compare_builds.py .cfg/openblas .cfg/refblas
+      - name: Compare fixed-corpus certificate profiles including extreme ranges
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+          OMP_NUM_THREADS: '1'
+        run: |
+          python tools/check_blas_provider.py .cfg/openblas openblas
+          python tools/check_blas_provider.py .cfg/refblas reference
+          python tests/compare_builds.py --snapshot .cfg/openblas --output blas-openblas.json
+          python tests/compare_builds.py --snapshot .cfg/refblas --output blas-reference.json
+          python tests/compare_builds.py --compare-snapshots blas-openblas.json blas-reference.json
 
   cross-config-consistency:
     name: portable vs native agree

@@ -115,6 +115,8 @@ def snapshot_cases():
                      0, 200, 400, 500, 600, 800, 1000):
         cases.append((f"extreme-scaling-{exponent}", np.ldexp(A, exponent),
                       np.ldexp(b, exponent), x))
+        cases.append((f"negative-extreme-scaling-{exponent}", -np.ldexp(A, exponent),
+                      -np.ldexp(b, exponent), x))
     return cases
 
 

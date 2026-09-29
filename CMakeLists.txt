@@ -459,6 +459,22 @@ if(ABS_BUILD_TESTING)
     status_verifier OpenMP::OpenMP_C ${ABS_BLAS_LIBRARIES} ${ABS_ATOMIC_LIBRARY} m)
   add_test(NAME test_row_norm_range COMMAND abs_row_norm_range_test)
 
+  add_executable(abs_range_rounding_test tests/test_range_rounding.c)
+  target_compile_options(abs_range_rounding_test PRIVATE ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
+  target_link_options(abs_range_rounding_test PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_libraries(abs_range_rounding_test PRIVATE affine_bundle_solver status_verifier m)
+  add_test(NAME test_range_rounding COMMAND abs_range_rounding_test)
+
+  # Test-only mutation of the real verifier: intentionally leak FE_UPWARD on
+  # restoration. The same assertions must reject it, not pass vacuously.
+  add_executable(abs_range_rounding_negative tests/test_range_rounding.c tests/verifier_fenv_leak_control.c)
+  target_compile_options(abs_range_rounding_negative PRIVATE ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
+  target_compile_definitions(abs_range_rounding_negative PRIVATE ABS_FENV_NEGATIVE_CONTROL)
+  target_link_options(abs_range_rounding_negative PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_libraries(abs_range_rounding_negative PRIVATE affine_bundle_solver OpenMP::OpenMP_C m)
+  add_test(NAME range_rounding_rejects_leak COMMAND abs_range_rounding_negative)
+  set_tests_properties(range_rounding_rejects_leak PROPERTIES WILL_FAIL TRUE)
+
   add_executable(abs_reusable_qrcp_enomem_test
     tests/test_reusable_qrcp_enomem.c src/certified_api.c
     $<TARGET_OBJECTS:abs_router_obj>
