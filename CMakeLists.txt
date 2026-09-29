@@ -156,7 +156,10 @@ find_package(OpenMP REQUIRED COMPONENTS C)
 # a double, where GCC routes the same construct through libgomp.  Without the
 # library the clang build links but the shared object fails to load.  Under
 # GCC --as-needed drops the unused dependency.
-find_library(ABS_ATOMIC_LIBRARY atomic)
+# Ubuntu's runtime package exposes libatomic.so.1 outside GCC's private
+# development directory. Clang's CMake search need not include that directory.
+find_library(ABS_ATOMIC_LIBRARY NAMES atomic libatomic.so.1
+  HINTS ${CMAKE_C_IMPLICIT_LINK_DIRECTORIES})
 if(NOT ABS_ATOMIC_LIBRARY)
   set(ABS_ATOMIC_LIBRARY "")
 endif()
