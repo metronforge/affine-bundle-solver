@@ -591,8 +591,8 @@ EXACT_CLAIMS = [
     ("pbt_equivalence_orbits", ["checks"], 8335,
      "Abstract; sec:results 'executes 8,335 checks'"),
     ("pbt_equivalence_orbits",
-     ["failure_counts_by_severity", "known-representation"], 154,
-     "Abstract; sec:results '154 explicitly labelled ... affine-translation cases'"),
+     ["failure_counts_by_severity", "known-representation"], 155,
+     "Abstract; sec:results '155 explicitly labelled ... affine-translation cases'"),
     ("pbt_certificate_equivariance", ["checks"], 2271,
      "Abstract; sec:results 'A second focused battery contains 2,271 ... checks'"),
 ]
