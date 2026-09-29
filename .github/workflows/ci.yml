@@ -207,6 +207,164 @@ jobs:
           retention-days: 14
           if-no-files-found: error
 
+      - name: Cross-platform semantic snapshot (x86 reference)
+        if: matrix.cc == 'gcc' && matrix.arch_label == 'portable'
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+          OMP_NUM_THREADS: '1'
+        run: |
+          test "$(uname -m)" = x86_64
+          python tests/compare_builds.py --snapshot . --output semantic-linux-x86_64-gcc.json
+      - name: Upload x86 semantic reference
+        if: matrix.cc == 'gcc' && matrix.arch_label == 'portable'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: semantic-linux-x86_64-gcc
+          path: semantic-linux-x86_64-gcc.json
+          if-no-files-found: error
+      - name: Upload x86 source and binary provenance
+        if: matrix.cc == 'gcc' && matrix.arch_label == 'portable'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: provenance-linux-x86_64-gcc
+          path: .abs-build-manifest.json
+          include-hidden-files: true
+          if-no-files-found: error
+
+  portability:
+    name: portability / ${{ matrix.id }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: linux-arm64-gcc
+            runner: ubuntu-24.04-arm
+            cc: gcc
+          - id: linux-arm64-clang
+            runner: ubuntu-24.04-arm
+            cc: clang
+          - id: macos-arm64-appleclang
+            runner: macos-15
+            cc: clang
+    env:
+      CC: ${{ matrix.cc }}
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      BLIS_NUM_THREADS: '1'
+      VECLIB_MAXIMUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-ci.txt
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libblas-dev liblapack-dev pkg-config
+          if [ "$CC" = clang ]; then
+            sudo apt-get install -y clang libomp-dev libatomic1
+          fi
+      - name: Install macOS OpenMP runtime
+        if: runner.os == 'macOS'
+        run: |
+          brew list libomp >/dev/null 2>&1 || brew install libomp
+          brew list pkgconf >/dev/null 2>&1 || brew install pkgconf
+          xcrun --find llvm-objdump
+      - name: Install test dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements-ci.txt
+      - name: Verify runner identity and configure portable system BLAS build
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p portability-evidence
+          test "$RUNNER_ARCH" = ARM64
+          case "$(uname -m)" in aarch64|arm64) ;; *) exit 1 ;; esac
+          {
+            uname -a
+            "$CC" --version
+            cmake --version
+            if [ "$RUNNER_OS" = macOS ]; then
+              sw_vers
+              xcodebuild -version
+              brew list --versions libomp
+              xcrun llvm-objdump --version
+            else
+              dpkg-query -W libblas3 liblapack3 libgomp1 libomp5-18 libatomic1 2>/dev/null || true
+              objdump --version
+            fi
+          } | tee portability-evidence/environment.txt
+          options=()
+          if [ "$RUNNER_OS" = macOS ]; then
+            "$CC" --version | grep 'Apple clang'
+            omp=$(brew --prefix libomp)
+            options+=("-DBLA_VENDOR=Apple" "-DOpenMP_C_FLAGS=-Xpreprocessor -fopenmp"
+              "-DOpenMP_C_INCLUDE_DIR=$omp/include" "-DOpenMP_C_LIB_NAMES=omp"
+              "-DOpenMP_omp_LIBRARY=$omp/lib/libomp.dylib")
+          fi
+          cmake -S . -B build-portable -DABS_BLAS=system -DABS_ARCH_FLAGS='' \
+            -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            "${options[@]}" 2>&1 | tee portability-evidence/configure.txt
+      - name: Build and runtime FP gates
+        run: cmake --build build-portable --parallel 3 2>&1 | tee portability-evidence/build.txt
+      - name: Record tested source and binary identity
+        run: python tools/record_portability_build.py build-portable portability-evidence/provenance.json
+      - name: Full applicable CTest suite (including strict FP gates)
+        run: ctest --test-dir build-portable --output-on-failure -V 2>&1 | tee portability-evidence/ctest.txt
+      - name: Full property batteries
+        env:
+          ABS_LIB_DIR: ${{ github.workspace }}/build-portable
+        run: |
+          python tests/pbt_equivalence_orbits.py --strict --output portability-evidence/property-equivalence.json
+          python tests/pbt_certificate_equivariance.py --strict --output portability-evidence/property-certificates.json
+      - name: Generate semantic snapshot
+        run: python tests/compare_builds.py --snapshot build-portable --output semantic-${{ matrix.id }}.json
+      - name: Install, relocate and consume outside source and build trees
+        run: |
+          tools/test_installed_consumer.sh "$PWD/build-portable" "$RUNNER_TEMP/abs-consumer" \
+            2>&1 | tee portability-evidence/consumer.txt
+      - name: Upload semantic snapshot
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: semantic-${{ matrix.id }}
+          path: semantic-${{ matrix.id }}.json
+          if-no-files-found: error
+      - name: Retain portability evidence (no binary artifacts)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: portability-evidence-${{ matrix.id }}
+          path: portability-evidence/
+          retention-days: 30
+
+  cross-platform-semantics:
+    name: cross-platform semantic agreement
+    runs-on: ubuntu-24.04
+    needs: [build-and-test, portability]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --disable-pip-version-check -r requirements-ci.txt
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: semantic-*
+          path: snapshots
+          merge-multiple: true
+      - name: Require all four platform contracts to agree
+        run: |
+          python tests/compare_builds.py --compare-snapshots \
+            snapshots/semantic-linux-x86_64-gcc.json \
+            snapshots/semantic-linux-arm64-gcc.json \
+            snapshots/semantic-linux-arm64-clang.json \
+            snapshots/semantic-macos-arm64-appleclang.json
+
   sanitizer-ctest:
     name: ASan + UBSan / ${{ matrix.partition }}
     runs-on: ubuntu-24.04
@@ -522,6 +680,8 @@ jobs:
       - blas-independence
       - cross-config-consistency
       - release-candidate
+      - portability
+      - cross-platform-semantics
     steps:
       - name: Require every verification job
         env:
@@ -531,10 +691,13 @@ jobs:
           BLAS_INDEPENDENCE: ${{ needs.blas-independence.result }}
           CROSS_CONFIG: ${{ needs.cross-config-consistency.result }}
           RELEASE_CANDIDATE: ${{ needs.release-candidate.result }}
+          PORTABILITY: ${{ needs.portability.result }}
+          CROSS_PLATFORM: ${{ needs.cross-platform-semantics.result }}
         run: |
           failed=0
           for result in "$BUILD_AND_TEST" "$SANITIZER_CTEST" "$CMAKE_INSTALL" \
-                        "$BLAS_INDEPENDENCE" "$CROSS_CONFIG" "$RELEASE_CANDIDATE"; do
+                        "$BLAS_INDEPENDENCE" "$CROSS_CONFIG" "$RELEASE_CANDIDATE" \
+                        "$PORTABILITY" "$CROSS_PLATFORM"; do
             if [ "$result" != success ]; then
               failed=1
             fi
@@ -547,6 +710,8 @@ jobs:
               "cmake-install=$CMAKE_INSTALL" \
               "blas-independence=$BLAS_INDEPENDENCE" \
               "cross-config-consistency=$CROSS_CONFIG" \
-              "release-candidate=$RELEASE_CANDIDATE"
+              "release-candidate=$RELEASE_CANDIDATE" \
+              "portability=$PORTABILITY" \
+              "cross-platform-semantics=$CROSS_PLATFORM"
             exit 1
           fi
