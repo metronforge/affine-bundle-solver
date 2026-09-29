@@ -96,6 +96,12 @@ number.
 
 This is a **dense** solver. Sparse problems need a different implementation.
 
+## Binary SDKs
+
+For the three qualified platforms, see [binary SDK installation and external
+dependencies](docs/binary-sdk.md). The next release after pipeline integration
+will include Linux x86_64, Linux ARM64, and macOS ARM64 shared-library archives.
+
 ## Build
 
 Requires a C11 compiler, OpenMP, and Python with SciPy (the build links
