@@ -106,6 +106,15 @@ def snapshot_cases():
         A = np.diag([1., 0.5, 2.**exponent])
         x = np.ones(3)
         cases.append((f"rank-boundary-{exponent}", A, np.sum(A, axis=1), x))
+    # Include the range discrepancy discovered during the macOS audit so a
+    # later platform cannot silently lose the same certificate availability.
+    A = np.array([[1., 0.], [0., 1.], [1., 1.], [2., -1.]])
+    x = np.array([2., -3.])
+    b = np.sum(A * x, axis=1)
+    for exponent in (-1000, -800, -600, -537, -530, -500, -400, -200,
+                     0, 200, 400, 500, 600, 800, 1000):
+        cases.append((f"extreme-scaling-{exponent}", np.ldexp(A, exponent),
+                      np.ldexp(b, exponent), x))
     return cases
 
 
