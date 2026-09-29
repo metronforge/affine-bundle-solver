@@ -180,9 +180,29 @@ def bench(args):
         Path(args.output).write_text(json.dumps(result,indent=2)+'\n')
         print(spec,{k:case['trace'][k]['serial_rows']+case['trace'][k]['block_rows'] for k in libs},{mode:{k:round(v['median']*1e3,3) for k,v in rows.items()} for mode,rows in case['results'].items()},flush=True)
 
+def trace_only(args):
+    import numpy as np
+    result={'harness_commit':common.run(['git','rev-parse','HEAD'],cwd=ROOT),
+            'threads':{k:os.environ.get(k) for k in common.THREADS},'cases':[]}
+    for item in args.variant:
+        label,path=item.split('=',1);prod,trace,replay,freeze,profile=load(path)
+        for spec in args.cases.split(','):
+            kind,shape=spec.split(':');m,n=map(int,shape.split('x'))
+            a,b=make_case(m,n,kind);out=np.zeros(8);plain=np.zeros(8);stats=np.zeros(12)
+            trace.abs_tail_reset();invoke(trace,a,b,out);trace.abs_tail_stats(stats)
+            invoke(prod,a,b,plain)
+            assert np.array_equal(out[[0,1,2,3,5,6]],plain[[0,1,2,3,5,6]],equal_nan=True)
+            result['cases'].append({'case':spec,'variant':label,'build_commit':freeze['commit'],
+                'input_sha256':hashlib.sha256(a.tobytes()+b.tobytes()).hexdigest(),
+                'counters':dict(zip(STATS,stats.tolist())),'output':out.tolist()})
+            trace.abs_tail_release()
+    Path(args.output).write_text(json.dumps(result,indent=2)+'\n')
+    print(json.dumps(result,indent=2))
+
 def main():
     p=argparse.ArgumentParser(description=__doc__);sub=p.add_subparsers(dest='command',required=True)
     b=sub.add_parser('build');b.add_argument('directory');b.add_argument('--scalar',action='store_true');b.set_defaults(func=build)
     b=sub.add_parser('bench');b.add_argument('--variant',action='append',required=True);b.add_argument('--cases',default='rankdef:8192x192,rankdef:8192x193,rankdef:8192x256,rankdef:8192x512,half:16384x256,full:8192x192');b.add_argument('--repeats',type=int,default=21);b.add_argument('--modes',default='four_dot,with_updates,tail,router');b.add_argument('--threads',type=int,default=1);b.add_argument('--cpus',default='0');b.add_argument('--output',required=True);b.set_defaults(func=bench)
+    b=sub.add_parser('trace');b.add_argument('--variant',action='append',required=True);b.add_argument('--cases',required=True);b.add_argument('--output',required=True);b.set_defaults(func=trace_only)
     args=p.parse_args();args.func(args)
 if __name__=='__main__':main()
