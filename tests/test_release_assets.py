@@ -86,6 +86,23 @@ class ReleaseContract(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'BUILD-INFO'):
                 release.verify_candidate(self.candidate, VERSION, SHA)
 
+    def test_binary_path_alias_cannot_override_identity(self):
+        path = self.candidate / self.names[2]
+        root = path.name.removesuffix('.tar.gz')
+        for alias in ('./', '/'):
+            with tarfile.open(path, 'w:gz') as archive:
+                for name, commit in [(root + '/BUILD-INFO.json', SHA),
+                                     (root + '/' + alias + 'BUILD-INFO.json', 'b' * 40)]:
+                    data = json.dumps(dict(repository='metronforge/affine-bundle-solver',
+                        version=VERSION, release_tag='v' + VERSION,
+                        source_commit=commit, platform='linux-x86_64')).encode()
+                    member = tarfile.TarInfo(name)
+                    member.size = len(data)
+                    archive.addfile(member, io.BytesIO(data))
+            release.write_checksums(self.candidate, self.names)
+            with self.assertRaisesRegex(ValueError, 'unsafe|duplicate'):
+                release.verify_candidate(self.candidate, VERSION, SHA)
+
     def test_existing_identical_asset(self):
         release.require_identical(self.candidate / self.names[0], self.candidate / self.names[1])
 

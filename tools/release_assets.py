@@ -89,7 +89,7 @@ def verify_binary(path, version, commit, target):
         for member in archive:
             name = PurePosixPath(member.name)
             if (name.is_absolute() or '..' in name.parts or not name.parts
-                    or name.parts[0] != root or member.name in seen
+                    or str(name) != member.name or name.parts[0] != root or member.name in seen
                     or not (member.isfile() or member.isdir())):
                 raise ValueError('unsafe or duplicate binary archive member')
             seen.add(member.name)
