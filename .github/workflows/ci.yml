@@ -353,6 +353,18 @@ jobs:
           "$RUNNER_TEMP/nonfinite" 7ff0000000000000
           "$RUNNER_TEMP/nonfinite" 7ff8000000000000
           "$RUNNER_TEMP/nonfinite" 3ff0000000000000
+          # Preserve a provider comparison for the failing certificate fixture.
+          # This diagnostic does not replace or forgive the required job.
+          brew install openblas
+          omp=$(brew --prefix libomp)
+          cmake -S . -B build-openblas-diagnostic -DABS_BLAS=system -DBLA_VENDOR=OpenBLAS \
+            -DABS_ARCH_FLAGS='' -DCMAKE_PREFIX_PATH="$(brew --prefix openblas)" \
+            '-DOpenMP_C_FLAGS=-Xpreprocessor -fopenmp' \
+            -DOpenMP_C_INCLUDE_DIR="$omp/include" -DOpenMP_C_LIB_NAMES=omp \
+            -DOpenMP_omp_LIBRARY="$omp/lib/libomp.dylib"
+          cmake --build build-openblas-diagnostic --parallel 3
+          ctest --test-dir build-openblas-diagnostic --output-on-failure \
+            -R 'test_status_profile_semantics|test_operational_policy|test_public_diagnostics'
 
   cross-platform-semantics:
     name: cross-platform semantic agreement
