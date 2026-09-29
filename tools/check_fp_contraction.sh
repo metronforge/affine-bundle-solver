@@ -84,7 +84,8 @@ for src in "${sources[@]}"; do
       echo "fp-contraction check: FAILED -- no expected target symbol registered for $src" >&2
       exit 1 ;;
   esac
-  "${cc[@]}" "${flags[@]}" "${target[@]}" -c "$src" -o "$obj"
+  # Bash 3.2 (system macOS) treats an empty array as unset under nounset.
+  "${cc[@]}" ${flags[@]+"${flags[@]}"} ${target[@]+"${target[@]}"} -c "$src" -o "$obj"
   if ! symbols=$("$OBJDUMP" -t "$obj"); then
     echo "fp-contraction check: FAILED -- could not inspect symbols in $src" >&2
     exit 1

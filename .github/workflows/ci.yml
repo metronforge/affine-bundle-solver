@@ -345,6 +345,15 @@ jobs:
           path: portability-evidence/
           retention-days: 30
 
+      - name: Diagnose macOS contract failures
+        if: failure() && runner.os == 'macOS'
+        run: |
+          "$CC" -O3 -ffast-math -c tests/diagnose_nonfinite.c -o "$RUNNER_TEMP/nonfinite.o"
+          "$CC" "$RUNNER_TEMP/nonfinite.o" -o "$RUNNER_TEMP/nonfinite"
+          "$RUNNER_TEMP/nonfinite" 7ff0000000000000
+          "$RUNNER_TEMP/nonfinite" 7ff8000000000000
+          "$RUNNER_TEMP/nonfinite" 3ff0000000000000
+
   cross-platform-semantics:
     name: cross-platform semantic agreement
     runs-on: ubuntu-24.04
