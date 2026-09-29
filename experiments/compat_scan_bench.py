@@ -84,6 +84,12 @@ def load(directory):
     router = ct.CDLL(str(directory / "libaffine_bundle_solver.so"))
     router.bsolve_router_meta_api.argtypes = [dp, dp, ct.c_void_p] + [ct.c_int]*5 + [ct.c_ulonglong, ct.c_int, dp]
     router.bsolve_router_meta_api.restype = None
+    router.bsolve_router_api.argtypes = router.bsolve_router_meta_api.argtypes
+    router.bsolve_router_api.restype = None
+    router.bsolve_fg_counters_reset_api.argtypes = []
+    router.bsolve_fg_counters_reset_api.restype = None
+    router.bsolve_fg_counters_api.argtypes = [ct.POINTER(ct.c_ulonglong)]
+    router.bsolve_fg_counters_api.restype = None
     return probe, router, freeze
 
 
@@ -137,6 +143,20 @@ def bench(args):
             case[mode] = {k: dict(**summary(times[k]), output=outs[k].tolist(),
                                    decisions=[list(d) for d in sorted(decisions[k])]) for k in libs}
         result["cases"].append(case)
+        # Untimed existing diagnostics: the public fallback field alone does
+        # not expose all quality-repair/source-QRCP work.
+        case["route_trace"] = {}
+        for label, (_, router, _) in libs.items():
+            out = np.zeros(11)
+            counters = (ct.c_ulonglong*3)()
+            router.bsolve_fg_counters_reset_api()
+            router.bsolve_router_meta_api(a,b,None,m,n,1,2,2,20260909,0,out)
+            router.bsolve_fg_counters_api(counters)
+            raw = np.zeros(7)
+            router.bsolve_router_api(a,b,None,m,n,1,2,2,20260909,0,raw)
+            case["route_trace"][label] = dict(formation_checks=counters[0],
+                formation_escalations=counters[1], source_qrcp_calls=counters[2],
+                raw_class=raw[0], raw_rank=raw[1], fallback=raw[2], accepted_random=raw[3])
         Path(args.output).write_text(json.dumps(result, indent=2) + "\n")
         print(m,n,{mode:{k:round(case[mode][k]["median"]*1000,3) for k in libs} for mode in ("scan","router")},flush=True)
 
