@@ -135,13 +135,10 @@ ROUTER_COMPILE_JSON=$(argv_json "${ROUTER_COMPILE_ARGV[@]}")
 ROUTER_LINK_JSON=$(argv_json "${ROUTER_LINK_ARGV[@]}")
 COMPILER_OUTPUT=$("${CC_ARGV[@]}" --version)
 COMPILER_IDENTITY=${COMPILER_OUTPUT%%$'\n'*}
-BUILD_SHA=$(git rev-parse HEAD)
-BUILD_TREE_SHA=$(git rev-parse 'HEAD^{tree}')
-if [[ -n $(git status --porcelain) ]]; then
-  BUILD_DIRTY=true
-else
-  BUILD_DIRTY=false
-fi
+# Release archives have no .git; their manifest-covered provenance preserves
+# the exact source identity and marks modifications to archived files as dirty.
+SOURCE_IDENTITY=$("$PYTHON" tools/source_identity.py)
+read -r BUILD_SHA BUILD_TREE_SHA BUILD_DIRTY <<< "$SOURCE_IDENTITY"
 BUILD_SCRIPT_SHA=$(sha256sum build.sh | awk '{print $1}')
 ROUTER_SHA=$(sha256sum libaffine_bundle_solver.so | awk '{print $1}')
 OPENBLAS_SHA=$(sha256sum "$OPENBLAS" | awk '{print $1}')

@@ -30,3 +30,9 @@ Reject malformed/duplicate/traversal checksum entries; reject extra remote asset
 ## Execution ledger
 
 Planning: user supplied detailed architecture and explicitly requested autonomous execution; proceed without additional design approvals. Existing canonical named branch is used per repository safety preference.
+
+Diagnostic milestone: first dry-run 36638644221 failed source extraction rebuild
+because build.sh's provenance block unconditionally required .git. Both original
+archive manifests had passed. Add manifest-covered SOURCE-PROVENANCE.json and
+source_identity.py; retain Git behavior in checkouts and detect modified archived
+files. No compiler commands, solver semantics or paper assertions change.

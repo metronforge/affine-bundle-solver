@@ -67,6 +67,13 @@ make_archive() {
       -C "$parent" -cf - "$basename" | gzip -n > "$destination"
 }
 
+# Cover archive provenance with the same authoritative manifest as the sources.
+python3 - "$source_dir" "$commit" "$(git -C "$repo_root" rev-parse "$commit^{tree}")" <<'PYTHON'
+import json, pathlib, sys
+root, commit, tree = sys.argv[1:]
+(pathlib.Path(root) / "SOURCE-PROVENANCE.json").write_text(json.dumps(
+    {"source_commit": commit, "source_tree": tree}, indent=2) + "\n")
+PYTHON
 make_manifest "$source_dir"
 make_archive "$work_dir" "$source_name" \
   "$output_dir/$source_name.tar.gz"
