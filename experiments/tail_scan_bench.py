@@ -129,7 +129,16 @@ def bench(args):
             assert np.array_equal(out[[5,6]],normal[[5,6]],equal_nan=True),(spec,label,'instrumentation diagnostic change',out,normal)
             p=ct.c_int();state=trace.abs_tail_state(ct.byref(p))
             # Only a current entry authorizes replay; a prior case may have saved state.
+            if stats[0] and not state:raise RuntimeError('diagnostic prefix capture allocation failed')
             states[label]=(p.value,state) if stats[0] else None
+            if state and stats[0]:
+                class PrivateState(ct.Structure):
+                    _fields_=[('n',ct.c_int),('r',ct.c_int),('qcap',ct.c_int),('inconsistent',ct.c_int),('Q',ct.c_void_p),('x',ct.c_void_p),('scratch',ct.c_void_p),('orth_frob2',ct.c_longdouble)]
+                pre=PrivateState.from_address(state)
+                assert pre.n==n and pre.r==stats[9]
+                case.setdefault('prefix_identity',{})[label]={'rank':pre.r,'p':p.value,
+                    'Q_x_sha256':hashlib.sha256(ct.string_at(pre.Q,pre.r*n*8)+ct.string_at(pre.x,n*8)).hexdigest(),
+                    'orth_frob2':float(pre.orth_frob2)}
             case['trace'][label]=dict(zip(STATS,stats.tolist()))
             case['trace'][label]['output']=out.tolist()
         for mode in ['four_dot','with_updates','tail','router']:
@@ -147,7 +156,12 @@ def bench(args):
                     else:
                         p,state=states[k];replay.abs_tail_replay(a,b,m,n,p,state,20260909,outs[k])
                     elapsed=time.perf_counter()-t
-                    decisions[k].add(tuple(outs[k][:1] if mode in ('four_dot','with_updates') else semantic(outs[k])))
+                    if mode=='tail':
+                        if outs[k][7]==-1:raise RuntimeError('tail replay allocation failed')
+                        assert outs[k][7] in (0,1)
+                    signature=outs[k][:1] if mode in ('four_dot','with_updates') else semantic(outs[k])
+                    if mode=='tail':signature=signature+[float(outs[k][7])]
+                    decisions[k].add(tuple(signature))
                     if rep>=3:times[k].append(elapsed)
             case['results'][mode]={k:{**common.summary(times[k]),'output':outs[k].tolist(),'decisions':[list(v) for v in sorted(decisions[k])]} for k in labels}
         # Profiling invocations are separate from ALL benchmark intervals above.
