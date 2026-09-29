@@ -5,6 +5,11 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+    inputs:
+      binary_qualification:
+        description: Also qualify installed binary SDKs (no publication)
+        type: boolean
+        default: false
 
 concurrency:
   group: verify-${{ github.event.pull_request.number || github.sha }}
@@ -19,6 +24,10 @@ permissions:
   contents: read
 
 jobs:
+  binary-qualification:
+    if: github.event_name == 'workflow_dispatch' && inputs.binary_qualification
+    uses: ./.github/workflows/binary-qualification.yml
+
   build-and-test:
     name: ${{ matrix.cc }} / ${{ matrix.arch_label }}
     runs-on: ubuntu-24.04
