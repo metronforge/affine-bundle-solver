@@ -41,83 +41,82 @@
 
 #include <stdio.h>
 #include <dlfcn.h>
+#include <fenv.h>
+#include <float.h>
+#include <stdint.h>
+#include <inttypes.h>
+#pragma STDC FENV_ACCESS ON
 
 #if defined(__x86_64__) || defined(__i386__)
 #include <xmmintrin.h>
-#define BS_HAVE_MXCSR 1
-static unsigned bs_csr(void) { return _mm_getcsr(); }
-#define BS_FTZ(m) (((m) >> 15) & 1u)
-#define BS_DAZ(m) (((m) >> 6) & 1u)
+#define BS_REGISTER "MXCSR"
+/* Status flags [5:0] may legitimately change; all control bits must stay. */
+static uint64_t bs_control(void) { return _mm_getcsr() & ~UINT64_C(63); }
+#elif defined(__aarch64__)
+#define BS_REGISTER "FPCR"
+/* FPCR is user-readable. FPSR holds exception status separately. Comparing
+ * all FPCR bits includes FZ, rounding, DN, FZ16 and implemented AH/FIZ bits.
+ * Unlike x86 DAZ, baseline Arm FZ controls both input and output flushing. */
+static uint64_t bs_control(void) {
+    uint64_t value;
+    __asm__ volatile("mrs %0, fpcr" : "=r"(value));
+    return value;
+}
 #else
-#define BS_HAVE_MXCSR 0
+#error Cannot inspect floating-point control state on this architecture
 #endif
 
 /* volatile so the compiler cannot fold the subnormal arithmetic away */
 static volatile double bs_tiny = 5e-324; /* smallest positive binary64 subnormal */
+static volatile double bs_two = 2.0;
+static volatile double bs_normal = DBL_MIN;
+static volatile double bs_half = 0.5;
 
 static int subnormal_survives(void) {
-    volatile double r = bs_tiny * 1.0;
-    return r != 0.0;
+    volatile double input = bs_tiny * bs_two;
+    volatile double output = bs_normal * bs_half;
+    return input == 0x0.0000000000002p-1022 && output == 0x0.8p-1022;
+}
+
+static int rounding_survives(void) {
+    int old = fegetround();
+    volatile double one = 1.0, half_ulp = 0x1p-53;
+    volatile double down, up;
+    if (old < 0 || fesetround(FE_DOWNWARD)) return 0;
+    down = one + half_ulp;
+    if (fesetround(FE_UPWARD)) return 0;
+    up = one + half_ulp;
+    if (fesetround(old)) return 0;
+    return down == 1.0 && up == 0x1.0000000000001p0;
 }
 
 int main(int argc, char **argv) {
-    const char *fast = (argc > 1) ? argv[1] : "./libaffine_bundle_solver.so";
-    const char *cert = (argc > 2) ? argv[2] : "./libcertified_solver.so";
-    int failed = 0;
-
-#if BS_HAVE_MXCSR
-    unsigned before = bs_csr();
-    unsigned ftz0 = BS_FTZ(before), daz0 = BS_DAZ(before);
-#endif
-    int sub0 = subnormal_survives();
-
-    void *h1 = dlopen(fast, RTLD_NOW);
-    if (!h1) {
-        fprintf(stderr, "mxcsr probe: cannot load %s: %s\n", fast, dlerror());
+    if (argc != 3) {
+        fprintf(stderr, "usage: %s FAST_LIBRARY CERTIFIED_LIBRARY\n", argv[0]);
         return 2;
     }
-    int sub1 = subnormal_survives();
-
-    void *h2 = dlopen(cert, RTLD_NOW);
-    /* the certified library is optional for this probe */
-    int sub2 = subnormal_survives();
-
-#if BS_HAVE_MXCSR
-    unsigned after = bs_csr();
-    unsigned ftz1 = BS_FTZ(after), daz1 = BS_DAZ(after);
-    if (ftz1 != ftz0 || daz1 != daz0) {
-        fprintf(stderr,
-                "mxcsr probe: FAIL -- loading the fast library changed the "
-                "FP mode (FTZ %u->%u, DAZ %u->%u).  Subnormal-range "
-                "certificate tests would be vacuous.\n",
-                ftz0, ftz1, daz0, daz1);
-        failed = 1;
+    uint64_t before = bs_control();
+    for (int stage = 0; stage < 3; ++stage) {
+        if (stage && !dlopen(argv[stage], RTLD_NOW)) {
+            fprintf(stderr, "FP environment probe: cannot load %s: %s\n",
+                    argv[stage], dlerror());
+            return 2;
+        }
+        uint64_t after = bs_control();
+        if (before != after || !subnormal_survives() || !rounding_survives()
+            || bs_control() != before) {
+            fprintf(stderr, "FP environment probe: FAIL stage=%d " BS_REGISTER
+                    " control=0x%" PRIx64 " -> 0x%" PRIx64
+                    " (control state, subnormals or rounding violated)\n",
+                    stage, before, after);
+            return 1;
+        }
     }
-#endif
-
-    if (!(sub0 && sub1 && sub2)) {
-        fprintf(stderr,
-                "mxcsr probe: FAIL -- a subnormal was flushed to zero "
-                "(before=%d, after fast=%d, after certified=%d).\n",
-                sub0, sub1, sub2);
-        failed = 1;
-    }
-
-    if (!failed) {
-#if BS_HAVE_MXCSR
-        printf("mxcsr probe: PASS (FTZ=%u DAZ=%u unchanged, subnormals "
-               "preserved)\n", ftz1, daz1);
-#else
-        printf("mxcsr probe: PASS (subnormals preserved; MXCSR check "
-               "skipped on this architecture)\n");
-#endif
-    }
-
+    printf("FP environment probe: PASS (" BS_REGISTER " control=0x%" PRIx64
+           " unchanged; input/output subnormals and directed rounding preserved)\n", before);
     /* Keep both DSOs loaded until process exit. This probe checks load-time
        FP mode, not unload behavior; dlclose can leave the dynamic loader's
        own TLS bookkeeping unreachable to LSan on hosted CI runners. The
        native solver lifecycle tests check library allocations separately. */
-    (void)h2;
-    (void)h1;
-    return failed;
+    return 0;
 }

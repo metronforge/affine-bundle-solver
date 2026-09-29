@@ -114,7 +114,7 @@ rm -f .rounding_probe
 # them process-wide at load time, which would make the subnormal-range
 # certificate checks vacuous.  Verify that it does not happen here.
 "${CC_ARGV[@]}" -O2 "${STRICT_FP_ARGV[@]}" src/mxcsr_probe.c \
-  -o .mxcsr_probe -ldl
+  -o .mxcsr_probe -ldl -lm
 ./.mxcsr_probe ./libaffine_bundle_solver.so ./libcertified_solver.so
 rm -f .mxcsr_probe
 

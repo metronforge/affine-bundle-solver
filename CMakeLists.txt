@@ -262,7 +262,7 @@ add_executable(abs_mxcsr_probe src/mxcsr_probe.c)
 target_compile_options(abs_mxcsr_probe PRIVATE
   ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
 target_link_options(abs_mxcsr_probe PRIVATE ${ABS_INSTRUMENTATION})
-target_link_libraries(abs_mxcsr_probe PRIVATE ${CMAKE_DL_LIBS})
+target_link_libraries(abs_mxcsr_probe PRIVATE ${CMAKE_DL_LIBS} m)
 
 # The strict libraries must not be built before the rounding probe has had a
 # chance to fail.
@@ -550,6 +550,9 @@ if(ABS_BUILD_TESTING)
 
   find_package(Python3 COMPONENTS Interpreter)
   if(Python3_Interpreter_FOUND)
+    add_test(NAME fp_environment_fail_closed
+      COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_fp_environment.py
+              $<TARGET_FILE:abs_mxcsr_probe> ${CMAKE_C_COMPILER})
     # The batteries locate the shared objects through ABS_LIB_DIR and fall
     # back to the repository root, so build.sh keeps working unchanged.
     foreach(_battery
