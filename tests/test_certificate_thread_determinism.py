@@ -68,8 +68,9 @@ class CertificateThreadDeterminismTests(unittest.TestCase):
 
     def test_t8_038_inconsistent_radius_is_thread_invariant(self):
         single = self.run_probe(1)
-        threaded = self.run_probe(2)
-        self.assertEqual(single, threaded)
+        for threads in (2, 4):
+            with self.subTest(threads=threads):
+                self.assertEqual(single, self.run_probe(threads))
 
     def assert_contract_equal(self, single, threaded, path="corpus"):
         if isinstance(single, dict):
