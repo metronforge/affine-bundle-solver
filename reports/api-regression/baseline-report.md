@@ -145,4 +145,4 @@ OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 ABS_CERT_UNIQUE_THREADS=1 python tests/
 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 ABS_CERT_UNIQUE_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python tests/api_regression_qualification.py --expect-unique-cases 36 --output reports/api-regression/qualification.json
 ```
 
-Local qualification completed 180/180 invocations over 36 cases with zero skips in 0.228289 s and peak RSS 62584 KiB. These are measurements of this host, not pass/fail thresholds or estimates for CI/other hosts.
+Local qualification completed 180/180 invocations over 36 cases with zero skips in 0.221270 s and peak RSS 62780 KiB. These are measurements of this host, not pass/fail thresholds or estimates for CI/other hosts.

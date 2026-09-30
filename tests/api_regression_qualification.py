@@ -103,8 +103,13 @@ def _blas_identity() -> list[dict[str, Any]]:
         from threadpoolctl import threadpool_info
     except ImportError:
         return [{"status": "threadpoolctl unavailable"}]
-    keep = ("user_api", "internal_api", "prefix", "filepath", "version", "num_threads")
-    return [{key: item.get(key) for key in keep} for item in threadpool_info()]
+    keep = ("user_api", "internal_api", "prefix", "version", "num_threads")
+    identities = []
+    for item in threadpool_info():
+        identity = {key: item.get(key) for key in keep}
+        identity["library"] = Path(item["filepath"]).name if item.get("filepath") else None
+        identities.append(identity)
+    return identities
 
 
 def qualify(fixture_root: Path, repository: Path) -> QualificationSummary:

@@ -41,6 +41,9 @@ class QualificationTests(unittest.TestCase):
             set(self.summary.binary_sha256),
         )
         self.assertIn("OPENBLAS_NUM_THREADS", self.summary.thread_configuration)
+        self.assertTrue(
+            all("/" not in (item.get("library") or "") for item in self.summary.blas)
+        )
 
     def test_zero_or_missing_mode_summary_is_rejected(self):
         payload = self.summary.to_dict()

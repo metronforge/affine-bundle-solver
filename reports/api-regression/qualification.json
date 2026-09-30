@@ -8,32 +8,32 @@
   },
   "blas": [
     {
-      "filepath": "/home/viktor/miniconda3/lib/libmkl_rt.so.2",
       "internal_api": "mkl",
+      "library": "libmkl_rt.so.2",
       "num_threads": 1,
       "prefix": "libmkl_rt",
       "user_api": "blas",
       "version": "2023.1-Product"
     },
     {
-      "filepath": "/home/viktor/miniconda3/lib/libiomp5.so",
       "internal_api": "openmp",
+      "library": "libiomp5.so",
       "num_threads": 1,
       "prefix": "libiomp",
       "user_api": "openmp",
       "version": null
     },
     {
-      "filepath": "/home/viktor/miniconda3/lib/python3.13/site-packages/scipy.libs/libscipy_openblas-68440149.so",
       "internal_api": "openblas",
+      "library": "libscipy_openblas-68440149.so",
       "num_threads": 1,
       "prefix": "libscipy_openblas",
       "user_api": "blas",
       "version": "0.3.28"
     },
     {
-      "filepath": "/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0",
       "internal_api": "openmp",
+      "library": "libgomp.so.1.0.0",
       "num_threads": 1,
       "prefix": "libgomp",
       "user_api": "openmp",
@@ -81,10 +81,10 @@
       "5": 4
     }
   },
-  "peak_rss_kib": 62584,
+  "peak_rss_kib": 62780,
   "schema": "affine-bundle-solver-api-regression-qualification-v1",
   "skipped_invocations": 0,
-  "solver_commit": "97bffa1a5da3936348f46bc408ddb325a6f176bc",
+  "solver_commit": "8e66db03364371186f0b95349707c43efd23ad4a",
   "solver_source_commit": "49ec7e34377818c2fc149466879f088ecd834c1b",
   "thread_configuration": {
     "ABS_CERT_UNIQUE_THREADS": "1",
@@ -132,5 +132,5 @@
     "T8-038",
     "T8-039"
   ],
-  "wall_seconds": 0.22828859400033252
+  "wall_seconds": 0.2212700199961546
 }
