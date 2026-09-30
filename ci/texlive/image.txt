@@ -1,0 +1,1 @@
+ghcr.io/metronforge/affine-bundle-solver-texlive@sha256:a0e7a52816065017954a0b3df24f5d8dade299f2ddf452d9e766c07863e1834b
