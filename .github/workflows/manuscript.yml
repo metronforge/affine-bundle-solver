@@ -14,46 +14,68 @@ on:
       - '**.tex'
       - '**.bib'
       - 'build_paper.sh'
+      - 'scripts/build_manuscript_container.sh'
+      - 'ci/texlive/image.txt'
+      - 'tests/test_manuscript_launcher.py'
+      - 'tests/manuscript_container_contract.py'
       - '.github/workflows/manuscript.yml'
   pull_request:
     paths:
       - '**.tex'
       - '**.bib'
       - 'build_paper.sh'
+      - 'scripts/build_manuscript_container.sh'
+      - 'ci/texlive/image.txt'
+      - 'tests/test_manuscript_launcher.py'
+      - 'tests/manuscript_container_contract.py'
       - '.github/workflows/manuscript.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
+  packages: read
+
+concurrency:
+  group: manuscript-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   manuscript:
     name: manuscript builds
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
-      - name: Install TeX Live
-        run: |
-          sudo apt-get update
-          # Minimal set for this preamble: lmodern, mathtools/bm/mathrsfs,
-          # booktabs/longtable/multirow, enumitem, microtype, natbib,
-          # hyperref/cleveref, listings, fancyvrb.
-          sudo apt-get install -y --no-install-recommends \
-            texlive-latex-base \
-            texlive-latex-recommended \
-            texlive-latex-extra \
-            texlive-fonts-recommended \
-            texlive-science \
-            lmodern
+      - name: Validate host launcher
+        run: python3 -m unittest discover -s tests -p test_manuscript_launcher.py -v
 
-      - name: Build the manuscript
+      - name: Pull the pinned prebuilt toolchain
         env:
-          # build_paper.sh defaults to bibtex8, which the runner does not ship.
-          BIBTEX: bibtex
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          chmod +x build_paper.sh
-          ./build_paper.sh
+          # Repository-linked private packages need read authentication.
+          # The token stays on the runner and is never passed into TeX.
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          trap 'docker logout ghcr.io' EXIT
+          image=$(< ci/texlive/image.txt)
+          start=$SECONDS
+          docker pull "$image"
+          echo "Cold-runner image pull: $((SECONDS-start)) seconds" >> "$GITHUB_STEP_SUMMARY"
+          echo "Toolchain: $image" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Build host manuscript offline with the pinned toolchain
+        run: |
+          start=$SECONDS
+          bash scripts/build_manuscript_container.sh
+          echo "Manuscript build: $((SECONDS-start)) seconds" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Container positive and controlled-negative checks
+        run: |
+          export MANUSCRIPT_IMAGE=$(< ci/texlive/image.txt)
+          python3 tests/manuscript_container_contract.py
 
       - name: Check for unresolved references
         # A broken \cref or \cite is a silent warning in LaTeX, not an error.

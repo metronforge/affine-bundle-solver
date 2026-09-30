@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! bash ./build_paper.sh; then
+    echo '::error::manuscript compilation failed' >&2
+    exit 1
+fi
+if [[ ! -s paper.pdf ]]; then
+    echo '::error::manuscript produced no nonempty paper.pdf' >&2
+    exit 1
+fi
+if grep -E 'Reference .* undefined|Citation .* undefined' paper.log; then
+    echo '::error::manuscript has unresolved references or citations' >&2
+    exit 1
+fi
+echo 'no unresolved references'
