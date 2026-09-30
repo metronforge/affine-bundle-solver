@@ -133,4 +133,16 @@ Before the baseline, T8-038 `eta_inconsistent` changed from 2.0261372389521175 t
 - Empty, partial, skipped, duplicated, hash-mismatched, or wrong-result runs must fail.
 - Any intended semantic change requires review and an explicit rebaseline; snapshot regeneration alone is not acceptance.
 
-CI job names and measured qualification resources are finalized by the CI/qualification milestone.
+## CI and qualification evidence
+
+Required PR/main job: `build-and-test` step `API regression baseline (36 cases)` plus `API regression controlled negative`. Separate job: `API regression qualification` / `36 cases / 180 invocations / portable GCC`, triggered on `main`, weekly, and manually.
+
+Exact local commands:
+
+```sh
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 ABS_CERT_UNIQUE_THREADS=1 python tests/api_regression_runner.py --expect-count 36 --expect-ids-from manifest
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 ABS_CERT_UNIQUE_THREADS=1 python tests/api_regression_runner.py --expect-count 36 --expect-ids-from manifest --inject-wrong-expected T8-001:operational_status
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 ABS_CERT_UNIQUE_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python tests/api_regression_qualification.py --expect-unique-cases 36 --output reports/api-regression/qualification.json
+```
+
+Local qualification completed 180/180 invocations over 36 cases with zero skips in 0.228289 s and peak RSS 62584 KiB. These are measurements of this host, not pass/fail thresholds or estimates for CI/other hosts.

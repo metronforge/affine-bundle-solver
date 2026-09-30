@@ -84,6 +84,20 @@ class CombinedResult(ctypes.Structure):
     ]
 
 
+class LegacyCombinedResult(ctypes.Structure):
+    _fields_ = [
+        ("certified", CertificateResult),
+        ("router_meta", ctypes.c_double * 11),
+        ("grey_distinct_count", ctypes.c_int),
+        ("grey_total_events", ctypes.c_int),
+        ("grey_rows", ctypes.c_int * 64),
+        ("last_orth_eta", ctypes.c_double),
+        ("core_rank_interval", ctypes.c_int * 2),
+        ("core_qr_rank", ctypes.c_int),
+        ("formation_guard_counters", ctypes.c_ulonglong * 3),
+    ]
+
+
 DP = ctypes.POINTER(ctypes.c_double)
 
 
@@ -108,6 +122,20 @@ def load_library(directory: Path | None = None):
         ctypes.POINTER(CombinedResult),
     ]
     library.bsolve_certified_policy_api.restype = ctypes.c_int
+    library.bsolve_certified_diag_api.argtypes = [
+        DP,
+        DP,
+        DP,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_ulonglong,
+        ctypes.c_int,
+        ctypes.POINTER(LegacyCombinedResult),
+    ]
+    library.bsolve_certified_diag_api.restype = ctypes.c_int
     return library
 
 
@@ -134,6 +162,26 @@ def invoke(library, A: np.ndarray, b: np.ndarray, policy: PolicyValues) -> tuple
         17,
         0,
         ctypes.byref(policy),
+        ctypes.byref(result),
+    )
+    return code, result
+
+
+def invoke_legacy(library, A: np.ndarray, b: np.ndarray) -> tuple[int, LegacyCombinedResult]:
+    matrix = np.ascontiguousarray(A, dtype=np.float64)
+    rhs = np.ascontiguousarray(b, dtype=np.float64)
+    result = LegacyCombinedResult()
+    code = library.bsolve_certified_diag_api(
+        matrix.ctypes.data_as(DP),
+        rhs.ctypes.data_as(DP),
+        None,
+        matrix.shape[0],
+        matrix.shape[1],
+        1,
+        2,
+        2,
+        17,
+        0,
         ctypes.byref(result),
     )
     return code, result

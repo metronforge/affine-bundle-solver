@@ -1,0 +1,136 @@
+{
+  "abs_apps_source_commit": "ae9b662d7f5755418aa80f31ade1fffcbefebafd",
+  "attempted_invocations": 180,
+  "binary_sha256": {
+    "libaffine_bundle_solver.so": "26937c15c30346c25d9cbeb6a156cb35147eeab8f93b85607a8a54b8f9a4ecf7",
+    "libcertified_solver.so": "c2c8274f88a145bdddea857c7159ae90aac64a261a22d830696ab92b2ac90ad3",
+    "libstatus_verifier.so": "f412bf7383f153ae4060c659075d1fec186d74d970319436020032d0693d5dfe"
+  },
+  "blas": [
+    {
+      "filepath": "/home/viktor/miniconda3/lib/libmkl_rt.so.2",
+      "internal_api": "mkl",
+      "num_threads": 1,
+      "prefix": "libmkl_rt",
+      "user_api": "blas",
+      "version": "2023.1-Product"
+    },
+    {
+      "filepath": "/home/viktor/miniconda3/lib/libiomp5.so",
+      "internal_api": "openmp",
+      "num_threads": 1,
+      "prefix": "libiomp",
+      "user_api": "openmp",
+      "version": null
+    },
+    {
+      "filepath": "/home/viktor/miniconda3/lib/python3.13/site-packages/scipy.libs/libscipy_openblas-68440149.so",
+      "internal_api": "openblas",
+      "num_threads": 1,
+      "prefix": "libscipy_openblas",
+      "user_api": "blas",
+      "version": "0.3.28"
+    },
+    {
+      "filepath": "/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0",
+      "internal_api": "openmp",
+      "num_threads": 1,
+      "prefix": "libgomp",
+      "user_api": "openmp",
+      "version": null
+    }
+  ],
+  "compiler": "cc (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+  "completed_invocations": 180,
+  "expected_invocations": 180,
+  "mode_counts": {
+    "combined_default": 36,
+    "combined_tight_compatibility": 36,
+    "combined_tight_quality": 36,
+    "combined_wide_rank_band": 36,
+    "legacy_diagnostic": 36
+  },
+  "mode_status_counts": {
+    "combined_default": {
+      "INCONSISTENT": 3,
+      "INFINITE": 19,
+      "UNDECIDABLE": 4,
+      "UNIQUE": 10
+    },
+    "combined_tight_compatibility": {
+      "INCONSISTENT": 19,
+      "INFINITE": 3,
+      "UNDECIDABLE": 5,
+      "UNIQUE": 9
+    },
+    "combined_tight_quality": {
+      "INCONSISTENT": 3,
+      "INFINITE": 19,
+      "UNDECIDABLE": 9,
+      "UNIQUE": 5
+    },
+    "combined_wide_rank_band": {
+      "INCONSISTENT": 3,
+      "INFINITE": 27,
+      "UNIQUE": 6
+    },
+    "legacy_diagnostic": {
+      "1": 10,
+      "2": 19,
+      "3": 3,
+      "5": 4
+    }
+  },
+  "peak_rss_kib": 62584,
+  "schema": "affine-bundle-solver-api-regression-qualification-v1",
+  "skipped_invocations": 0,
+  "solver_commit": "97bffa1a5da3936348f46bc408ddb325a6f176bc",
+  "solver_source_commit": "49ec7e34377818c2fc149466879f088ecd834c1b",
+  "thread_configuration": {
+    "ABS_CERT_UNIQUE_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "unique_case_count": 36,
+  "unique_case_ids": [
+    "T8-001",
+    "T8-002",
+    "T8-003",
+    "T8-004",
+    "T8-005",
+    "T8-006",
+    "T8-007",
+    "T8-008",
+    "T8-009",
+    "T8-010",
+    "T8-011",
+    "T8-012",
+    "T8-013",
+    "T8-014",
+    "T8-015",
+    "T8-016",
+    "T8-017",
+    "T8-018",
+    "T8-019",
+    "T8-020",
+    "T8-021",
+    "T8-022",
+    "T8-023",
+    "T8-024",
+    "T8-025",
+    "T8-026",
+    "T8-027",
+    "T8-028",
+    "T8-029",
+    "T8-030",
+    "T8-031",
+    "T8-032",
+    "T8-036",
+    "T8-037",
+    "T8-038",
+    "T8-039"
+  ],
+  "wall_seconds": 0.22828859400033252
+}

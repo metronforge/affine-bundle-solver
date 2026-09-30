@@ -286,6 +286,10 @@ def generate_artifacts(fixture_root: Path, report_root: Path, library) -> None:
         case.case_id: call_combined(case, variants["default"], library=library)
         for case in cases
     }
+    qualification_path = report_root / "qualification.json"
+    qualification = (
+        json.loads(qualification_path.read_text()) if qualification_path.exists() else None
+    )
     lines = [
         "# Combined API regression baseline",
         "",
@@ -438,7 +442,31 @@ def generate_artifacts(fixture_root: Path, report_root: Path, library) -> None:
             "- Any intended semantic change requires review and an explicit rebaseline; snapshot "
             "regeneration alone is not acceptance.",
             "",
-            "CI job names and measured qualification resources are finalized by the CI/qualification milestone.",
+            "## CI and qualification evidence",
+            "",
+            "Required PR/main job: `build-and-test` step `API regression baseline (36 cases)` "
+            "plus `API regression controlled negative`. Separate job: "
+            "`API regression qualification` / `36 cases / 180 invocations / portable GCC`, "
+            "triggered on `main`, weekly, and manually.",
+            "",
+            "Exact local commands:",
+            "",
+            "```sh",
+            "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 ABS_CERT_UNIQUE_THREADS=1 python tests/api_regression_runner.py --expect-count 36 --expect-ids-from manifest",
+            "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 ABS_CERT_UNIQUE_THREADS=1 python tests/api_regression_runner.py --expect-count 36 --expect-ids-from manifest --inject-wrong-expected T8-001:operational_status",
+            "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 ABS_CERT_UNIQUE_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python tests/api_regression_qualification.py --expect-unique-cases 36 --output reports/api-regression/qualification.json",
+            "```",
+            "",
+            (
+                f"Local qualification completed {qualification['completed_invocations']}/"
+                f"{qualification['expected_invocations']} invocations over "
+                f"{qualification['unique_case_count']} cases with zero skips in "
+                f"{qualification['wall_seconds']:.6f} s and peak RSS "
+                f"{qualification['peak_rss_kib']} KiB. These are measurements of this host, "
+                "not pass/fail thresholds or estimates for CI/other hosts."
+                if qualification
+                else "Qualification measurements are pending; no resource claim is made."
+            ),
         ]
     )
     (report_root / "baseline-report.md").write_text("\n".join(lines) + "\n")
