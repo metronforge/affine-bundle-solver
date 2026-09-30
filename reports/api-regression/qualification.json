@@ -2,8 +2,8 @@
   "abs_apps_source_commit": "ae9b662d7f5755418aa80f31ade1fffcbefebafd",
   "attempted_invocations": 180,
   "binary_sha256": {
-    "libaffine_bundle_solver.so": "26937c15c30346c25d9cbeb6a156cb35147eeab8f93b85607a8a54b8f9a4ecf7",
-    "libcertified_solver.so": "c2c8274f88a145bdddea857c7159ae90aac64a261a22d830696ab92b2ac90ad3",
+    "libaffine_bundle_solver.so": "9436d48ecdd78aa7ebb8a3aae882bf7121c929a944a39f02a2477fab99d1d5ea",
+    "libcertified_solver.so": "849613cb42d485d84217a1e7185b737c43875fc9da9a15bdc5f7d116569fe624",
     "libstatus_verifier.so": "f412bf7383f153ae4060c659075d1fec186d74d970319436020032d0693d5dfe"
   },
   "blas": [
@@ -81,11 +81,11 @@
       "5": 4
     }
   },
-  "peak_rss_kib": 62780,
+  "peak_rss_kib": 62576,
   "schema": "affine-bundle-solver-api-regression-qualification-v1",
   "skipped_invocations": 0,
-  "solver_commit": "8e66db03364371186f0b95349707c43efd23ad4a",
-  "solver_source_commit": "49ec7e34377818c2fc149466879f088ecd834c1b",
+  "solver_commit": "1933be70ff5105d7b211af97297967b3457a701c",
+  "solver_source_commit": "1933be70ff5105d7b211af97297967b3457a701c",
   "thread_configuration": {
     "ABS_CERT_UNIQUE_THREADS": "1",
     "MKL_NUM_THREADS": "1",
@@ -132,5 +132,5 @@
     "T8-038",
     "T8-039"
   ],
-  "wall_seconds": 0.2212700199961546
+  "wall_seconds": 0.6772545199928572
 }

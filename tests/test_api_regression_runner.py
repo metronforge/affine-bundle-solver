@@ -12,7 +12,6 @@ from api_regression_binding import default_policy, load_library
 from api_regression_runner import (
     DEFAULT_FLOAT_ABS_TOL,
     DEFAULT_FLOAT_REL_TOL,
-    ETA_INFINITE_REL_TOL,
     _assert_snapshot,
     call_combined,
     compare_value,
@@ -82,23 +81,21 @@ class ApiRegressionRunnerTests(unittest.TestCase):
         self.assertFalse(compare_value(math.nan, 0.0))
         self.assertFalse(compare_value(0.0, math.nan))
 
-    def test_nearby_infinite_radius_uses_its_measured_cross_runner_tolerance(self):
+    def test_nearby_infinite_radius_has_no_relaxed_tolerance(self):
         contract = load_manifest(CORPUS)["behavior_contract"]
         self.assertEqual(DEFAULT_FLOAT_REL_TOL, contract["float_tolerance"]["relative"])
         self.assertEqual(DEFAULT_FLOAT_ABS_TOL, contract["float_tolerance"]["absolute"])
-        field_tolerance = contract["field_float_tolerance"]["certificate.eta_infinite"]
-        self.assertEqual(ETA_INFINITE_REL_TOL, field_tolerance["relative"])
-        self.assertEqual(DEFAULT_FLOAT_ABS_TOL, field_tolerance["absolute"])
+        self.assertNotIn("field_float_tolerance", contract)
         expected = {"certificate": {"eta_infinite": 0.0023273682262441543}}
         portable = {"certificate": {"eta_infinite": 0.0023350514905808558}}
-        _assert_snapshot(portable, expected, "T8-030")
-        outside_bound = {
-            "certificate": {
-                "eta_infinite": expected["certificate"]["eta_infinite"] * 1.006
-            }
-        }
         with self.assertRaisesRegex(AssertionError, "T8-030.certificate.eta_infinite"):
-            _assert_snapshot(outside_bound, expected, "T8-030")
+            _assert_snapshot(portable, expected, "T8-030")
+        with self.assertRaisesRegex(AssertionError, "T8-031.certificate.eta_infinite"):
+            _assert_snapshot(
+                {"certificate": {"eta_infinite": 3.560395566857552e-05}},
+                {"certificate": {"eta_infinite": 3.653795636191648e-05}},
+                "T8-031",
+            )
 
     def test_controlled_wrong_status_fails_and_names_case_and_field(self):
         manifest_path = CORPUS / "manifest.json"

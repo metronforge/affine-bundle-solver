@@ -15,14 +15,7 @@
       "absolute": 1e-12,
       "relative": 1e-10
     },
-    "field_float_tolerance": {
-      "certificate.eta_infinite": {
-        "absolute": 1e-12,
-        "basis": "noncanonical verifier-accepted BLAS witness; measured cross-runner candidate relative shift 0.003301267178120985",
-        "relative": 0.005
-      }
-    },
-    "solver_source_commit": "49ec7e34377818c2fc149466879f088ecd834c1b"
+    "solver_source_commit": "1933be70ff5105d7b211af97297967b3457a701c"
   },
   "cases": [
     {
@@ -3068,7 +3061,7 @@
         "certificate": {
           "certified_status": 3,
           "eta_inconsistent": 5.1224192702203504e-15,
-          "eta_infinite": 0.0023273682262441543,
+          "eta_infinite": 0.002385151554148033,
           "eta_status": 5.1224192702203504e-15,
           "eta_unique": 0.0022776355175526727,
           "generator_code": 0,
@@ -3155,7 +3148,7 @@
         "certificate": {
           "certified_status": 1,
           "eta_inconsistent": "no_finite_bound:+Infinity",
-          "eta_infinite": 3.653795636191648e-05,
+          "eta_infinite": 3.258493314625692e-05,
           "eta_status": 2.132355691502328e-15,
           "eta_unique": 2.132355691502328e-15,
           "generator_code": 0,
@@ -3242,7 +3235,7 @@
         "certificate": {
           "certified_status": 1,
           "eta_inconsistent": "no_finite_bound:+Infinity",
-          "eta_infinite": 3.584719872213168e-05,
+          "eta_infinite": 3.242796753255567e-05,
           "eta_status": 2.0533360285852922e-15,
           "eta_unique": 2.0533360285852922e-15,
           "generator_code": 0,

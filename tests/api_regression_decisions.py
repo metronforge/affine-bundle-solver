@@ -330,9 +330,7 @@ def generate_artifacts(fixture_root: Path, report_root: Path, library) -> None:
         "Invocation: `combined_policy_v1`, `xt=NULL`, `sp=1`, `qv=2`, `alpha=2`, "
         "`seed=17`, `full=0`; default policy `(D=1e-13, G=1e-9, compatibility=2e-10, "
         "quality=1e-14)`. Floats use default `rtol=1e-10`, `atol=1e-12` in the "
-        "behavior gate. The noncanonical nearby-INFINITE radius alone uses "
-        "`rtol=5e-3`, justified by a measured 0.3301267% cross-runner BLAS-candidate "
-        "shift; elapsed time is excluded.",
+        "behavior gate, including the nearby-INFINITE radius; elapsed time is excluded.",
         "",
         "| slot | shape/type | source | A SHA-256 | b SHA-256 | observed API output | independent oracle |",
         "|---|---:|---|---|---|---|---|",
@@ -430,12 +428,12 @@ def generate_artifacts(fixture_root: Path, report_root: Path, library) -> None:
             "normalized-row witness; the unchanged strict verifier accepts it. T8-038 now "
             "returns 0.9999999890199766 at 1, 2, and 4 threads. The 36-case cross-thread AC "
             "requires exact discrete fields and `atol=1e-12` or `rtol=1e-10` for floating diagnostics.",
-            "The separate behavior snapshot permits `rtol=5e-3` only for "
-            "`certificate.eta_infinite`: it is a strict-verifier-accepted upper bound "
-            "from a noncanonical BLAS-generated witness, and GCC/Clang portable CI on "
-            "the same runner class both measured 0.0023350514905808558 versus the "
-            "recorded 0.0023273682262441543 (0.3301267%). This does not change the "
-            "exact-source oracle, acceptance mask, verifier code, or cross-thread AC.",
+            "The former field-specific radius tolerance has been removed. A projector-based "
+            "proposal replaces an arbitrary vector in a clustered smallest singular subspace. "
+            "Only T8-030/031/032 eta_infinite baselines were explicitly updated, checked "
+            "against independent 80/120-digit calculations. See `svd-cluster-review.md` "
+            "for measured changes, limitations, and the distinction from a rowwise optimum. "
+            "Exact-source oracles, masks, verifier codes, and all tolerances are unchanged.",
             "",
             "## Post-separation rerun criteria",
             "",
