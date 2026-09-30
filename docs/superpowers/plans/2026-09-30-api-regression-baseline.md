@@ -28,6 +28,10 @@
 - A valid manifest with an omitted NPZ must fail before execution, with the missing ID named (Task 1).
 - A same-shape replacement NPZ must fail the file and canonical-array hashes (Task 1).
 - Wide and tall arrays must pass correct row-major dimensions to `ctypes`, not be transposed (Task 2).
+- The 36-case discrete contract must be identical at one and two BLAS threads;
+  floating diagnostics must satisfy `atol=1e-12` or `rtol=1e-10`. T8-038
+  `eta_inconsistent` must be bit-for-bit invariant and verifier-accepted after
+  replacing the unstable full-row-rank residual witness (Task 2).
 - An operational status that differs from the exact class must remain a passing, explicitly separated observation when policy semantics justify it (Task 3).
 - A controlled wrong expected field must make the runner fail while preserving all on-disk fixtures and expectations (Task 5).
 
@@ -128,6 +132,11 @@ Run: `OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 ABS_CERT_UNIQUE_THREADS=1 python 
 Expected: tests pass and runner reports `discovered=36 attempted=36 completed=36` with the exact ID set.
 
 - [ ] **Step 8: Commit API execution milestone**
+
+Before committing, run `tests/test_certificate_thread_determinism.py`. The
+pre-fix T8-038 result (`2.026...` at one thread versus `2.106...` at two)
+must fail; the generator fix and full 36-case cross-thread AC must pass without
+changing verifier rules or thresholds.
 
 ```bash
 git add tests/api_regression_binding.py tests/api_regression_runner.py tests/test_api_regression_runner.py tests/fixtures/api-regression/manifest.json

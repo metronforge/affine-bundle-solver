@@ -129,6 +129,16 @@ from the fresh reference executions and cross-build observations. NaN presence
 is compared semantically, never by ordinary floating equality. Elapsed time is
 always `dont_care`.
 
+The same binary64 inputs are also executed in fresh processes with one and two
+BLAS threads. Status, rank, certificate mask, and generator/verifier codes must
+match exactly. Finite floating diagnostics must agree within `atol=1e-12` or
+`rtol=1e-10`. This bound admits only rounding-scale reduction differences in
+the selected corpus: it deliberately rejects the pre-baseline T8-038 defect,
+where `eta_inconsistent` changed by about `8e-2` solely with thread count. In
+addition, T8-038's repaired deterministic full-row-rank construction is checked
+bit-for-bit across thread counts and must be accepted by the unchanged strict
+verifier in both processes.
+
 ## Mathematical oracle and semantic separation
 
 Every fixture receives an independent mathematical classification. Analytic

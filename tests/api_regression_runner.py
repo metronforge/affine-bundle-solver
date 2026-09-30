@@ -14,9 +14,6 @@ from api_regression_binding import PolicyValues, default_policy, invoke, load_li
 from api_regression_corpus import EXPECTED_IDS, FixtureCase, discover_cases, load_manifest
 
 
-SOLVER_SOURCE_COMMIT = "2741af01f0c0116347dbc81b21998f538690dcea"
-
-
 STATUS = {1: "UNIQUE", 2: "INFINITE", 3: "INCONSISTENT", 4: "FAIL", 5: "UNDECIDABLE"}
 CERTAINTY = {1: "DETERMINISTIC", 2: "RANDOMISED", 3: "NONE"}
 EXACT_STATUS = {0: "UNKNOWN", 1: "UNIQUE", 2: "INFINITE", 3: "INCONSISTENT"}
@@ -237,7 +234,7 @@ def run_corpus(
     return RunSummary(discovered, tuple(attempted), tuple(completed), tuple(observations))
 
 
-def record_expectations(root: Path, *, library=None) -> None:
+def record_expectations(root: Path, solver_source_commit: str, *, library=None) -> None:
     manifest = load_manifest(root)
     if manifest["source"]["commit"] != "ae9b662d7f5755418aa80f31ade1fffcbefebafd":
         raise RuntimeError("refusing to record against an unexpected abs-apps revision")
@@ -246,18 +243,24 @@ def record_expectations(root: Path, *, library=None) -> None:
         ["git", "status", "--porcelain"], cwd=repository, text=True, capture_output=True, check=True
     ).stdout:
         raise RuntimeError("refusing to record from a dirty worktree")
-    source_diff = subprocess.run(
-        ["git", "diff", "--quiet", SOLVER_SOURCE_COMMIT, "--", "src", "include"],
+    actual_source_commit = subprocess.run(
+        ["git", "log", "-1", "--format=%H", "--", "src", "include"],
         cwd=repository,
-    )
-    if source_diff.returncode:
-        raise RuntimeError("refusing to record after solver source/API changes")
+        text=True,
+        capture_output=True,
+        check=True,
+    ).stdout.strip()
+    if actual_source_commit != solver_source_commit:
+        raise RuntimeError(
+            "refusing to record against solver source commit "
+            f"{actual_source_commit}; expected {solver_source_commit}"
+        )
     summary = run_corpus(root, library=library)
     snapshots = {item.case_id: snapshot_observation(item) for item in summary.observations}
     for entry in manifest["cases"]:
         entry["current_api_behavior"] = snapshots[entry["case_id"]]
     manifest["behavior_contract"] = {
-        "solver_source_commit": SOLVER_SOURCE_COMMIT,
+        "solver_source_commit": solver_source_commit,
         "classification": {
             "input_shape": "invariant",
             "invocation_mode": "invariant",
@@ -293,9 +296,12 @@ def main() -> None:
     parser.add_argument("--fixture-root", type=Path, default=Path(__file__).parent / "fixtures/api-regression")
     parser.add_argument("--expect-count", type=int, required=True)
     parser.add_argument("--record", action="store_true")
+    parser.add_argument("--solver-source-commit")
     args = parser.parse_args()
     if args.record:
-        record_expectations(args.fixture_root)
+        if not args.solver_source_commit:
+            parser.error("--record requires --solver-source-commit")
+        record_expectations(args.fixture_root, args.solver_source_commit)
         print(f"recorded={args.expect_count}")
         return
     summary = run_corpus(args.fixture_root, verify_behavior=True)

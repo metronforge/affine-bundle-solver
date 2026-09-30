@@ -525,6 +525,26 @@ int bs_generate_inconsistent_witness(const double *A,const double *b,int m,int n
             else if(left_null_qrcp_column(&qrcp,rank,ybar)==0)have_y=1;
         }
     }
+    /* A full-row-rank system has no nonzero left-null vector.  In that case
+       the least-squares residual is only roundoff, so its direction (and the
+       resulting nearby-INCONSISTENT radius) can change materially with a
+       threaded BLAS reduction.  Use a canonical normalized source row
+       instead.  Its nonzero normalized RHS proves y^T b has a sign, while
+       the strict verifier still owns acceptance and the radius.  Selecting
+       max |bn_i| is invariant under nonzero row scaling; first-index tie
+       breaking makes the proposal deterministic. */
+    if(!have_y && rank>=m){
+        int pivot=-1;double best=0.0;
+        for(int i=0;i<m;i++){
+            double q=fabs(bn[i]);
+            if(q>best){best=q;pivot=i;}
+        }
+        if(pivot>=0){
+            memset(ybar,0,(size_t)m*sizeof(double));
+            ybar[pivot]=copysign(1.0,bn[pivot]);
+            have_y=1;
+        }
+    }
     if(!have_y){
         long double yn2=0.0L,btb=0.0L;
         for(int i=0;i<m;i++){
