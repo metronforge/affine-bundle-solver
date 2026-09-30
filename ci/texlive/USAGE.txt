@@ -1,6 +1,12 @@
 Reusable manuscript toolchain
 
-Run from the repository:
+On a host that already has LaTeX, keep using the existing native command:
+  bash build_paper.sh
+
+The container is the CI toolchain. Local use is optional, for checking the
+CI environment or for hosts without LaTeX; it is not a new prerequisite.
+
+To use the container from the repository:
   bash scripts/build_manuscript_container.sh
 
 Or process another host checkout (including a path containing spaces):
