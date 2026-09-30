@@ -96,9 +96,10 @@ class CertificateThreadDeterminismTests(unittest.TestCase):
             self.assertEqual(single, threaded, path)
 
     def test_full_corpus_contract_is_thread_stable(self):
-        self.assert_contract_equal(
-            self.run_probe(1, corpus_mode=True), self.run_probe(2, corpus_mode=True)
-        )
+        single = self.run_probe(1, corpus_mode=True)
+        for threads in (2, 4):
+            with self.subTest(threads=threads):
+                self.assert_contract_equal(single, self.run_probe(threads, corpus_mode=True))
 
 
 if __name__ == "__main__":

@@ -207,6 +207,7 @@ jobs:
             tests/test_api_regression_runner.py \
             tests/test_api_regression_oracle.py \
             tests/test_api_regression_decisions.py \
+            tests/test_api_regression_svd_reference.py \
             tests/test_certificate_thread_determinism.py -v
           python tests/api_regression_runner.py \
             --expect-count 36 --expect-ids-from manifest

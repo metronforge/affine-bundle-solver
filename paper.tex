@@ -450,6 +450,37 @@ Thus $x+t z$ is an affine family of distinct exact solutions. For fixed $z$,
 \]
 so the proof object contains only $(x,z)$ and the checker computes the rowwise status radius directly from source inner products, norms, and residuals.
 
+The SVD proposal requires care at repeated singular values. The classical
+Eckart--Young result concerns normwise low-rank approximation
+\citep{EckartYoung1936}; it does not minimize the rowwise relative metric
+defined here. At a repeated smallest singular value, the individual right
+singular vector is not unique, and different bases can give different
+rowwise radii. The current generator groups trailing singular values within
+$64\epsilon\max(m,n)\sigma_1$ of the smallest value, including implicit
+zeros for wide matrices. For a cluster of dimension greater than one it
+forms a coordinate projection $z=P_c e_j/\|P_c e_j\|_2$, where
+$P_c=V_cV_c^T$ and $j$ is the first coordinate whose projector diagonal is
+at least half the largest diagonal. This removes basis-rotation freedom
+in exact arithmetic. The grouping window and coordinate selection are
+generator heuristics, not certified multiplicity or rank tests; their
+threshold boundaries can still change the proposal. Neither global
+rowwise optimality nor universal bitwise reproducibility is claimed.
+The nearby-status theorem is unaffected because the checker accepts only
+the supplied finite nonzero witness and derives its bound independently.
+
+In the frozen $64\times32$ realified Fourier example T8-031, the stored
+matrix has exactly the block form $[X,-Y;Y,X]$ and $b=0$. Its Gram matrix
+commutes with the orthogonal complex structure $J$ with $J^2=-I$, so each
+real eigenspace has even dimension. Independent 80- and 120-decimal-digit
+Gram eigendecompositions agree on the isolated bottom pair and the chosen
+projector candidate. The observed rowwise radius changes from
+$3.6537956362\times10^{-5}$ (an arbitrary old basis direction) to
+$3.2584933146\times10^{-5}$ for the coordinate projection. This comparison
+concerns candidate quality and reproducibility; the exact source remains
+unique, and no equality between the reported radius and the status-set
+distance is asserted. The fixture-bound reference and tests accompany
+the source distribution.
+
 \subsection{Inconsistent-status object}
 Let $y\in\R^m$ and choose $k$ with $y_k\ne0$. Put $h=A^Ty$ and modify only source row $k$:
 \[
