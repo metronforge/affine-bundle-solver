@@ -1,0 +1,470 @@
+{
+  "cnf": {
+    "clauses": [
+      [
+        "status_unique",
+        "status_infinite",
+        "status_inconsistent",
+        "status_fail",
+        "status_undecidable"
+      ],
+      [
+        "!backend_success",
+        "valid_input"
+      ],
+      [
+        "!status_unique",
+        "!status_infinite"
+      ],
+      [
+        "!status_unique",
+        "!status_inconsistent"
+      ],
+      [
+        "!status_unique",
+        "!status_fail"
+      ],
+      [
+        "!status_unique",
+        "!status_undecidable"
+      ],
+      [
+        "!status_infinite",
+        "!status_inconsistent"
+      ],
+      [
+        "!status_infinite",
+        "!status_fail"
+      ],
+      [
+        "!status_infinite",
+        "!status_undecidable"
+      ],
+      [
+        "!status_inconsistent",
+        "!status_fail"
+      ],
+      [
+        "!status_inconsistent",
+        "!status_undecidable"
+      ],
+      [
+        "!status_fail",
+        "!status_undecidable"
+      ],
+      [
+        "!backend_success",
+        "!status_fail"
+      ],
+      [
+        "!status_fail",
+        "!backend_success"
+      ],
+      [
+        "!unique_profile_accepted",
+        "unique_generator_success"
+      ],
+      [
+        "!unique_profile_accepted",
+        "unique_verifier_success"
+      ],
+      [
+        "!unique_profile_accepted",
+        "unique_eta_finite"
+      ],
+      [
+        "!unique_generator_success",
+        "!unique_verifier_success",
+        "!unique_eta_finite",
+        "unique_profile_accepted"
+      ],
+      [
+        "!legacy_projection_unique",
+        "status_unique"
+      ],
+      [
+        "!legacy_projection_unique",
+        "unique_profile_accepted"
+      ],
+      [
+        "!status_unique",
+        "!unique_profile_accepted",
+        "legacy_projection_unique"
+      ],
+      [
+        "!infinite_profile_accepted",
+        "infinite_generator_success"
+      ],
+      [
+        "!infinite_profile_accepted",
+        "infinite_verifier_success"
+      ],
+      [
+        "!infinite_profile_accepted",
+        "infinite_eta_finite"
+      ],
+      [
+        "!infinite_generator_success",
+        "!infinite_verifier_success",
+        "!infinite_eta_finite",
+        "infinite_profile_accepted"
+      ],
+      [
+        "!legacy_projection_infinite",
+        "status_infinite"
+      ],
+      [
+        "!legacy_projection_infinite",
+        "infinite_profile_accepted"
+      ],
+      [
+        "!status_infinite",
+        "!infinite_profile_accepted",
+        "legacy_projection_infinite"
+      ],
+      [
+        "!inconsistent_profile_accepted",
+        "inconsistent_generator_success"
+      ],
+      [
+        "!inconsistent_profile_accepted",
+        "inconsistent_verifier_success"
+      ],
+      [
+        "!inconsistent_profile_accepted",
+        "inconsistent_eta_finite"
+      ],
+      [
+        "!inconsistent_generator_success",
+        "!inconsistent_verifier_success",
+        "!inconsistent_eta_finite",
+        "inconsistent_profile_accepted"
+      ],
+      [
+        "!legacy_projection_inconsistent",
+        "status_inconsistent"
+      ],
+      [
+        "!legacy_projection_inconsistent",
+        "inconsistent_profile_accepted"
+      ],
+      [
+        "!status_inconsistent",
+        "!inconsistent_profile_accepted",
+        "legacy_projection_inconsistent"
+      ]
+    ],
+    "notes": [
+      "operational statuses are exactly one-hot",
+      "backend success implies valid input and excludes FAIL",
+      "each nearby mask bit is equivalent to generator success, verifier success, and finite eta",
+      "each legacy projection is equivalent to selected operational status and accepted profile",
+      "no converse rank/compatibility implication is claimed beyond inspected source"
+    ]
+  },
+  "decision_conditions": {
+    "api_completed": [
+      "valid_input",
+      "backend_success"
+    ],
+    "compatibility_decision": [
+      "backend_success",
+      "operational_compatible"
+    ],
+    "inconsistent_profile_decision": [
+      "inconsistent_generator_success",
+      "inconsistent_verifier_success",
+      "inconsistent_eta_finite"
+    ],
+    "infinite_profile_decision": [
+      "infinite_generator_success",
+      "infinite_verifier_success",
+      "infinite_eta_finite"
+    ],
+    "rank_decision": [
+      "backend_success",
+      "rank_resolved"
+    ],
+    "unique_acceptance": [
+      "backend_success",
+      "full_column_rank",
+      "unique_quality"
+    ],
+    "unique_profile_decision": [
+      "unique_generator_success",
+      "unique_verifier_success",
+      "unique_eta_finite"
+    ]
+  },
+  "pairs": {
+    "operational_compatible": {
+      "decision": "compatibility_decision",
+      "left": {
+        "case_id": "T8-001",
+        "conditions": {
+          "backend_success": true,
+          "full_column_rank": false,
+          "inconsistent_eta_finite": true,
+          "inconsistent_generator_success": true,
+          "inconsistent_profile_accepted": true,
+          "inconsistent_verifier_success": true,
+          "infinite_eta_finite": true,
+          "infinite_generator_success": true,
+          "infinite_profile_accepted": true,
+          "infinite_verifier_success": true,
+          "operational_compatible": true,
+          "rank_resolved": true,
+          "unique_eta_finite": true,
+          "unique_generator_success": true,
+          "unique_profile_accepted": true,
+          "unique_quality": false,
+          "unique_verifier_success": true,
+          "valid_input": true
+        },
+        "decisions": {
+          "api_completed": true,
+          "compatibility_decision": true,
+          "inconsistent_profile_decision": true,
+          "infinite_profile_decision": true,
+          "rank_decision": true,
+          "unique_acceptance": false,
+          "unique_profile_decision": true
+        },
+        "operational_status": "INFINITE",
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "policy_name": "default"
+      },
+      "right": {
+        "case_id": "T8-001",
+        "conditions": {
+          "backend_success": true,
+          "full_column_rank": false,
+          "inconsistent_eta_finite": true,
+          "inconsistent_generator_success": true,
+          "inconsistent_profile_accepted": true,
+          "inconsistent_verifier_success": true,
+          "infinite_eta_finite": true,
+          "infinite_generator_success": true,
+          "infinite_profile_accepted": true,
+          "infinite_verifier_success": true,
+          "operational_compatible": false,
+          "rank_resolved": true,
+          "unique_eta_finite": true,
+          "unique_generator_success": true,
+          "unique_profile_accepted": true,
+          "unique_quality": false,
+          "unique_verifier_success": true,
+          "valid_input": true
+        },
+        "decisions": {
+          "api_completed": true,
+          "compatibility_decision": false,
+          "inconsistent_profile_decision": true,
+          "infinite_profile_decision": true,
+          "rank_decision": true,
+          "unique_acceptance": false,
+          "unique_profile_decision": true
+        },
+        "operational_status": "INCONSISTENT",
+        "policy": [
+          1e-13,
+          1e-09,
+          1e-16,
+          1e-14
+        ],
+        "policy_name": "tight_compatibility"
+      },
+      "target": "operational_compatible"
+    },
+    "rank_resolved": {
+      "decision": "rank_decision",
+      "left": {
+        "case_id": "T8-022",
+        "conditions": {
+          "backend_success": true,
+          "full_column_rank": false,
+          "inconsistent_eta_finite": true,
+          "inconsistent_generator_success": true,
+          "inconsistent_profile_accepted": true,
+          "inconsistent_verifier_success": true,
+          "infinite_eta_finite": true,
+          "infinite_generator_success": true,
+          "infinite_profile_accepted": true,
+          "infinite_verifier_success": true,
+          "operational_compatible": false,
+          "rank_resolved": false,
+          "unique_eta_finite": true,
+          "unique_generator_success": true,
+          "unique_profile_accepted": true,
+          "unique_quality": false,
+          "unique_verifier_success": true,
+          "valid_input": true
+        },
+        "decisions": {
+          "api_completed": true,
+          "compatibility_decision": false,
+          "inconsistent_profile_decision": true,
+          "infinite_profile_decision": true,
+          "rank_decision": false,
+          "unique_acceptance": false,
+          "unique_profile_decision": true
+        },
+        "operational_status": "UNDECIDABLE",
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "policy_name": "default"
+      },
+      "right": {
+        "case_id": "T8-022",
+        "conditions": {
+          "backend_success": true,
+          "full_column_rank": false,
+          "inconsistent_eta_finite": true,
+          "inconsistent_generator_success": true,
+          "inconsistent_profile_accepted": true,
+          "inconsistent_verifier_success": true,
+          "infinite_eta_finite": true,
+          "infinite_generator_success": true,
+          "infinite_profile_accepted": true,
+          "infinite_verifier_success": true,
+          "operational_compatible": true,
+          "rank_resolved": true,
+          "unique_eta_finite": true,
+          "unique_generator_success": true,
+          "unique_profile_accepted": true,
+          "unique_quality": false,
+          "unique_verifier_success": true,
+          "valid_input": true
+        },
+        "decisions": {
+          "api_completed": true,
+          "compatibility_decision": true,
+          "inconsistent_profile_decision": true,
+          "infinite_profile_decision": true,
+          "rank_decision": true,
+          "unique_acceptance": false,
+          "unique_profile_decision": true
+        },
+        "operational_status": "INFINITE",
+        "policy": [
+          1e-07,
+          1e-06,
+          2e-10,
+          1e-14
+        ],
+        "policy_name": "wide_rank_band"
+      },
+      "target": "rank_resolved"
+    },
+    "unique_quality": {
+      "decision": "unique_acceptance",
+      "left": {
+        "case_id": "T8-036",
+        "conditions": {
+          "backend_success": true,
+          "full_column_rank": true,
+          "inconsistent_eta_finite": true,
+          "inconsistent_generator_success": true,
+          "inconsistent_profile_accepted": true,
+          "inconsistent_verifier_success": true,
+          "infinite_eta_finite": true,
+          "infinite_generator_success": true,
+          "infinite_profile_accepted": true,
+          "infinite_verifier_success": true,
+          "operational_compatible": true,
+          "rank_resolved": true,
+          "unique_eta_finite": true,
+          "unique_generator_success": true,
+          "unique_profile_accepted": true,
+          "unique_quality": true,
+          "unique_verifier_success": true,
+          "valid_input": true
+        },
+        "decisions": {
+          "api_completed": true,
+          "compatibility_decision": true,
+          "inconsistent_profile_decision": true,
+          "infinite_profile_decision": true,
+          "rank_decision": true,
+          "unique_acceptance": true,
+          "unique_profile_decision": true
+        },
+        "operational_status": "UNIQUE",
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "policy_name": "default"
+      },
+      "right": {
+        "case_id": "T8-036",
+        "conditions": {
+          "backend_success": true,
+          "full_column_rank": true,
+          "inconsistent_eta_finite": true,
+          "inconsistent_generator_success": true,
+          "inconsistent_profile_accepted": true,
+          "inconsistent_verifier_success": true,
+          "infinite_eta_finite": true,
+          "infinite_generator_success": true,
+          "infinite_profile_accepted": true,
+          "infinite_verifier_success": true,
+          "operational_compatible": false,
+          "rank_resolved": true,
+          "unique_eta_finite": true,
+          "unique_generator_success": true,
+          "unique_profile_accepted": true,
+          "unique_quality": false,
+          "unique_verifier_success": true,
+          "valid_input": true
+        },
+        "decisions": {
+          "api_completed": true,
+          "compatibility_decision": false,
+          "inconsistent_profile_decision": true,
+          "infinite_profile_decision": true,
+          "rank_decision": true,
+          "unique_acceptance": false,
+          "unique_profile_decision": true
+        },
+        "operational_status": "UNDECIDABLE",
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-16
+        ],
+        "policy_name": "tight_quality"
+      },
+      "target": "unique_quality"
+    }
+  },
+  "schema": "affine-bundle-solver-mcdc-v1",
+  "source": "real abs-apps Task8 fixtures only",
+  "synthetic_gap_fixtures": [],
+  "uncovered": [
+    "backend_success",
+    "full_column_rank",
+    "inconsistent_eta_finite",
+    "inconsistent_generator_success",
+    "inconsistent_verifier_success",
+    "infinite_eta_finite",
+    "infinite_generator_success",
+    "infinite_verifier_success",
+    "unique_eta_finite",
+    "unique_generator_success",
+    "unique_verifier_success",
+    "valid_input"
+  ]
+}

@@ -251,6 +251,61 @@ int bs_generate_unique_witness(const double *A,const double *b,int m,int n,BSUni
     return 0;
 }
 
+static int smallest_subspace_vector(const double *s,const double *VT,int m,int n,double *z) {
+    /* A repeated smallest singular value determines a subspace, not a
+       distinguished last row of VT. Project a coordinate axis through that
+       subspace: P e_j = sum_k v_k v_k[j], invariant under basis rotations.
+       The cluster window is a conservative generator heuristic on the SVD
+       backward-error scale, NOT a rank decision or a certified multiplicity.
+       For a wide matrix include the implicit zero singular values as well.
+       Choose the first axis with at least half the largest projector diagonal
+       to avoid normalizing tiny projections and roundoff-sensitive max ties.
+       Threshold boundaries can still change the proposal; only the strict
+       verifier supplies a mathematical guarantee. */
+    int k=m<n?m:n,first=n-1;
+    double smallest=m<n?0.0:s[k-1];
+    long double window=64.0L*DBL_EPSILON*(m>n?m:n)*(long double)s[0];
+    while(first>0){
+        double previous=first-1<k?s[first-1]:0.0;
+        if((long double)previous-smallest>window)break;
+        first--;
+    }
+    if(first==n-1){
+        for(int j=0;j<n;j++)z[j]=VT[(n-1)+(size_t)j*n];
+        return 0;
+    }
+    long double largest=0.0L;
+    for(int j=0;j<n;j++){
+        long double d=0.0L;
+        for(int r=first;r<n;r++){long double v=VT[r+(size_t)j*n];d+=v*v;}
+        if(d>largest)largest=d;
+    }
+    if(!(largest>0.0L)||!isfinite(largest))return 1;
+    int pivot=0;
+    for(;pivot<n;pivot++){
+        long double d=0.0L;
+        for(int r=first;r<n;r++){long double v=VT[r+(size_t)pivot*n];d+=v*v;}
+        if(d>=0.5L*largest)break;
+    }
+    if(pivot==n)return 1;
+    long double zn2=0.0L;
+    for(int j=0;j<n;j++){
+        long double v=0.0L;
+        for(int r=first;r<n;r++)v+=(long double)VT[r+(size_t)j*n]*VT[r+(size_t)pivot*n];
+        z[j]=(double)v;zn2+=v*v;
+    }
+    if(!(zn2>0.0L)||!isfinite(zn2))return 1;
+    long double inv=1.0L/sqrtl(zn2);
+    for(int j=0;j<n;j++)z[j]=(double)((long double)z[j]*inv);
+    return 0;
+}
+
+#ifdef ABS_TEST_INFINITE_FASTPATH_HOOK
+int abs_test_smallest_subspace_vector(const double *s,const double *VT,int m,int n,double *z) {
+    return smallest_subspace_vector(s,VT,m,n,z);
+}
+#endif
+
 static int smallest_right_vector(const double *A,int m,int n,double *z) {
     if(n<=0)return 1;
     if(m==0){for(int j=0;j<n;j++)z[j]=(j==0?1.0:0.0);return 0;}
@@ -266,7 +321,7 @@ static int smallest_right_vector(const double *A,int m,int n,double *z) {
     if(!work){free(Ac);free(s);free(VT);return 4;}
     for(int j=0;j<n;j++)for(int i=0;i<m;i++)Ac[i+(size_t)j*m]=A[(size_t)i*n+j];
     dgesvd_(&ju,&jv,&M,&N,Ac,&LDA,s,&udummy,&LDU,VT,&LDVT,work,&lwork,&info);
-    if(!info){int r=n-1;for(int j=0;j<n;j++)z[j]=VT[r+(size_t)j*n];}
+    if(!info)info=smallest_subspace_vector(s,VT,m,n,z);
     free(Ac);free(s);free(VT);free(work);return info?5:0;
 }
 
@@ -296,7 +351,7 @@ static int smallest_right_vector_dgesdd(const double *A,int m,int n,double *z) {
     if(!work){free(Ac);free(s);free(U);free(VT);free(iwork);return 4;}
     for(int j=0;j<n;j++)for(int i=0;i<m;i++)Ac[i+(size_t)j*m]=A[(size_t)i*n+j];
     dgesdd_(&job,&M,&N,Ac,&LDA,s,(U?U:&udummy),&LDU,VT,&LDVT,work,&lwork,iwork,&info);
-    if(!info)for(int j=0;j<n;j++)z[j]=VT[(n-1)+(size_t)j*LDVT];
+    if(!info)info=smallest_subspace_vector(s,VT,m,n,z);
     free(Ac);free(s);free(U);free(VT);free(iwork);free(work);return info?5:0;
 }
 
@@ -523,6 +578,26 @@ int bs_generate_inconsistent_witness(const double *A,const double *b,int m,int n
             if(left_null_qrcp_projection(&qrcp,bn,rank,ybar,&tail_rel)==0 &&
                tail_rel>256.0L*(long double)DBL_EPSILON)have_y=1;
             else if(left_null_qrcp_column(&qrcp,rank,ybar)==0)have_y=1;
+        }
+    }
+    /* A full-row-rank system has no nonzero left-null vector.  In that case
+       the least-squares residual is only roundoff, so its direction (and the
+       resulting nearby-INCONSISTENT radius) can change materially with a
+       threaded BLAS reduction.  Use a canonical normalized source row
+       instead.  Its nonzero normalized RHS proves y^T b has a sign, while
+       the strict verifier still owns acceptance and the radius.  Selecting
+       max |bn_i| is invariant under nonzero row scaling; first-index tie
+       breaking makes the proposal deterministic. */
+    if(!have_y && rank>=m){
+        int pivot=-1;double best=0.0;
+        for(int i=0;i<m;i++){
+            double q=fabs(bn[i]);
+            if(q>best){best=q;pivot=i;}
+        }
+        if(pivot>=0){
+            memset(ybar,0,(size_t)m*sizeof(double));
+            ybar[pivot]=copysign(1.0,bn[pivot]);
+            have_y=1;
         }
     }
     if(!have_y){

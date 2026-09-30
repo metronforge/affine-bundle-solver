@@ -1,0 +1,3669 @@
+{
+  "behavior_contract": {
+    "classification": {
+      "certificate": "behavior_nearby_system_guarantees_only",
+      "elapsed_time": "dont_care_not_recorded",
+      "exact_source": "behavior_not_mathematical_oracle",
+      "input_shape": "invariant",
+      "invocation_mode": "invariant",
+      "operational": "behavior",
+      "policy": "invariant",
+      "return_code": "behavior",
+      "solution_vector": "invariant_not_exposed"
+    },
+    "float_tolerance": {
+      "absolute": 1e-12,
+      "relative": 1e-10
+    },
+    "solver_source_commit": "1933be70ff5105d7b211af97297967b3457a701c"
+  },
+  "cases": [
+    {
+      "A_bytes_sha256": "9a45be709cd5db7673e00a2feec677cb87c0f9993e582e9f4b5a9e020b6bef90",
+      "abs_apps_A_sha256": "e67084733f1e1a9d664db7d6b9c07f0e936e29d898db9d0d69936f3c64801348",
+      "abs_apps_b_sha256": "17105d472465eaa6e4f0653a01ab437a152b543f5208cb518845c9d40016dd9e",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "6c15dc9f9b22ba5c13609522990274fbb536cb54fdea237119fca3914bfd60df",
+      "case_id": "T8-001",
+      "current_api_behavior": {
+        "case_id": "T8-001",
+        "certificate": {
+          "certified_status": 2,
+          "eta_inconsistent": 4.644397635487156e-16,
+          "eta_infinite": 1.4633920296235709e-15,
+          "eta_status": 1.4633920296235709e-15,
+          "eta_unique": 2.5574447984228433e-15,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 7,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          16,
+          16
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "DETERMINISTIC",
+          "core_qr_rank": 12,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 1,
+          "formation_guard_counters": [
+            2,
+            0,
+            1
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 1.7053025658242404e-13,
+          "rank": 14,
+          "rank_interval": [
+            14,
+            14
+          ],
+          "raw_class": "INFINITE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 5.763716486565576e-16,
+          "status": "INFINITE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "d9b3a68d7e7f1756cdd3ac875ad1822668583ddc42bf2d2ccc30029cfb3e6fa9",
+      "path": "inputs/T8-001.npz",
+      "shape": [
+        16,
+        16
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-001.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "analytic_nullity": 2,
+          "analytic_rank": 14,
+          "components": 2,
+          "kind": "square",
+          "proof": "k disjoint connected paths with8 vertices; each incidence block rank7; L=B.T B has same nullspace"
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "k": 2,
+          "shape": "square"
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "f075dae8502ed9e59c963c817c1779b5c3b865275e4ea9be728f3d0b2f245eb3",
+      "abs_apps_A_sha256": "d53e74a99c883974c14afee9bdb361455c910d9689fbb09ac0b903bea4b87a5e",
+      "abs_apps_b_sha256": "c9f04543a6e42bf5ad29791bc9cc30f4dd74dabd7a8959a1f0d1db5ed4150580",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "f7934ec38bd8fd687925622dc10904dca88723edab0cdd5dd437b7629cc73e7a",
+      "case_id": "T8-002",
+      "current_api_behavior": {
+        "case_id": "T8-002",
+        "certificate": {
+          "certified_status": 2,
+          "eta_inconsistent": 3.057798962859019e-16,
+          "eta_infinite": 1.8998487463133115e-15,
+          "eta_status": 1.8998487463133115e-15,
+          "eta_unique": 2.9120872342188645e-15,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 7,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          24,
+          24
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "DETERMINISTIC",
+          "core_qr_rank": 16,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 1,
+          "formation_guard_counters": [
+            2,
+            0,
+            1
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 2.2737367544323206e-13,
+          "rank": 21,
+          "rank_interval": [
+            21,
+            21
+          ],
+          "raw_class": "INFINITE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 7.6544998557968e-16,
+          "status": "INFINITE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "88ec64d4d3f1125a2d2a32f45ffc06ce19b22480fbdf92b033f0db94c9e19280",
+      "path": "inputs/T8-002.npz",
+      "shape": [
+        24,
+        24
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-002.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "analytic_nullity": 3,
+          "analytic_rank": 21,
+          "components": 3,
+          "kind": "square",
+          "proof": "k disjoint connected paths with8 vertices; each incidence block rank7; L=B.T B has same nullspace"
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "k": 3,
+          "shape": "square"
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "4b497638cf65d0c8518ea54f0a8a86e659599bbd45c77af39b6453bb3e2773b8",
+      "abs_apps_A_sha256": "152f35866718c45ac4c40568327dbd954c877d8b2dea1a9392b46952ec593eb9",
+      "abs_apps_b_sha256": "019eb68c8b7a9118cc5bad89e84c41228c7550dba41c27407d22c6a21bda3a02",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "b2f1153bd40e2af3b91b53f3fe87a162403797d9d4767777abac97eb900882a0",
+      "case_id": "T8-003",
+      "current_api_behavior": {
+        "case_id": "T8-003",
+        "certificate": {
+          "certified_status": 2,
+          "eta_inconsistent": 4.0288346963654493e-16,
+          "eta_infinite": 2.8681162813517633e-15,
+          "eta_status": 2.8681162813517633e-15,
+          "eta_unique": 3.931739612523464e-15,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 7,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          32,
+          32
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "DETERMINISTIC",
+          "core_qr_rank": 21,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 1,
+          "formation_guard_counters": [
+            1,
+            0,
+            0
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 2.984279490192421e-13,
+          "rank": 28,
+          "rank_interval": [
+            28,
+            28
+          ],
+          "raw_class": "INFINITE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 2.258101916247486e-16,
+          "status": "INFINITE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "05ffa7e917635e3b3e225f71e65f07bc1ceaee2cbd5b06e8410807ceba34208c",
+      "path": "inputs/T8-003.npz",
+      "shape": [
+        32,
+        32
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-003.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "analytic_nullity": 4,
+          "analytic_rank": 28,
+          "components": 4,
+          "kind": "square",
+          "proof": "k disjoint connected paths with8 vertices; each incidence block rank7; L=B.T B has same nullspace"
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "k": 4,
+          "shape": "square"
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "19a789bc75e9ec5f3812c4b4594d92146bbc87a514cfbfeca39ff800714c6baa",
+      "abs_apps_A_sha256": "d99cde42487cc4138ea618f5e519c23eb098fdec8b6c3f221a0194ff849ef839",
+      "abs_apps_b_sha256": "59854a53b1aa078c7a1a1ad399ba58e2d84bb53465c00a4b1ce4439072205d0a",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "53ec8d9606a7877db2192ba914b16acf321a056733fae8b4e8522ea3a478e33b",
+      "case_id": "T8-004",
+      "current_api_behavior": {
+        "case_id": "T8-004",
+        "certificate": {
+          "certified_status": 2,
+          "eta_inconsistent": 5.19340221227943e-16,
+          "eta_infinite": 2.1178142744371963e-15,
+          "eta_status": 2.1178142744371963e-15,
+          "eta_unique": 3.84187576662448e-15,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 7,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          40,
+          40
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "DETERMINISTIC",
+          "core_qr_rank": 28,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 1,
+          "formation_guard_counters": [
+            1,
+            0,
+            0
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 3.979039320256561e-13,
+          "rank": 35,
+          "rank_interval": [
+            35,
+            35
+          ],
+          "raw_class": "INFINITE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 2.1229679920741577e-16,
+          "status": "INFINITE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "590eb75ce681d424e9fec9500cf133886841414072e9cb3b74628f7e40d0cf29",
+      "path": "inputs/T8-004.npz",
+      "shape": [
+        40,
+        40
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-004.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "analytic_nullity": 5,
+          "analytic_rank": 35,
+          "components": 5,
+          "kind": "square",
+          "proof": "k disjoint connected paths with8 vertices; each incidence block rank7; L=B.T B has same nullspace"
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "k": 5,
+          "shape": "square"
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "4f39857d277d3db98cd9eb951a66db2143cae92373be958172f233976ab7e220",
+      "abs_apps_A_sha256": "25754099a35ad339c46d1a34cc8faf26b2512d18ce378fede317066c11da0559",
+      "abs_apps_b_sha256": "de2f48c6a4bd9d55bc89f5da7e3d58e13697566897cc1a4a0ddd0a29345fd049",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "df8b3ffffaa85f7a831f0f0094e98dea493022380e9883e298ad432341b44e5e",
+      "case_id": "T8-005",
+      "current_api_behavior": {
+        "case_id": "T8-005",
+        "certificate": {
+          "certified_status": 2,
+          "eta_inconsistent": 6.09806661632425e-16,
+          "eta_infinite": 2.4487587669047423e-15,
+          "eta_status": 2.4487587669047423e-15,
+          "eta_unique": 3.929841966519029e-15,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 7,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          48,
+          48
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "DETERMINISTIC",
+          "core_qr_rank": 30,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 1,
+          "formation_guard_counters": [
+            1,
+            0,
+            0
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 4.263256414560601e-13,
+          "rank": 42,
+          "rank_interval": [
+            42,
+            42
+          ],
+          "raw_class": "INFINITE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 2.402034679740604e-16,
+          "status": "INFINITE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "7517fcfd1279e4694831e6daf486e9fae9b9543529fb18faa9b28906eb70ef53",
+      "path": "inputs/T8-005.npz",
+      "shape": [
+        48,
+        48
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-005.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "analytic_nullity": 6,
+          "analytic_rank": 42,
+          "components": 6,
+          "kind": "square",
+          "proof": "k disjoint connected paths with8 vertices; each incidence block rank7; L=B.T B has same nullspace"
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "k": 6,
+          "shape": "square"
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "02cf620998c9cbaf8bfea556c39c93f5940d9067cfc76975e7cded11d9153b7e",
+      "abs_apps_A_sha256": "ac53825e3b713b29d965f4db5e7affc1c63e24b631b95011c5564cc6cdb3cc89",
+      "abs_apps_b_sha256": "08f5c5eea715ccf418d5f8b2d5a9b8f30f97f7f99537abab710320b1475547da",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "eef2dffc4679301636f9aaed3d4a2a81f7f0d8ec66fc4a1fbbde08f08ce84cec",
+      "case_id": "T8-006",
+      "current_api_behavior": {
+        "case_id": "T8-006",
+        "certificate": {
+          "certified_status": 2,
+          "eta_inconsistent": 9.326202782117883e-16,
+          "eta_infinite": 1.8719590537135074e-15,
+          "eta_status": 1.8719590537135074e-15,
+          "eta_unique": 4.7527731286982095e-15,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 7,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          56,
+          56
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "DETERMINISTIC",
+          "core_qr_rank": 39,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 1,
+          "formation_guard_counters": [
+            1,
+            0,
+            0
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 5.542233338928781e-13,
+          "rank": 49,
+          "rank_interval": [
+            49,
+            49
+          ],
+          "raw_class": "INFINITE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 2.2936117185252395e-16,
+          "status": "INFINITE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "faabe0091cb4c88899d0bc4ff8d15a20f4c8410bf8c2ad6e086ade72d93dcf23",
+      "path": "inputs/T8-006.npz",
+      "shape": [
+        56,
+        56
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-006.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "analytic_nullity": 7,
+          "analytic_rank": 49,
+          "components": 7,
+          "kind": "square",
+          "proof": "k disjoint connected paths with8 vertices; each incidence block rank7; L=B.T B has same nullspace"
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "k": 7,
+          "shape": "square"
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "ceb7365cd315d31431d11d3f1e8d1ca1159ff74c17fc46ac517bbc8289f5828f",
+      "abs_apps_A_sha256": "a17877bd20e558751cc3521673ce6cc37b62cd08cfc63a4455496b15967d8e6a",
+      "abs_apps_b_sha256": "f0ad12bf85dd575785008385bf7663e3854d9ce212af52d2d624b25fbcbc04ba",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "30a7251c67b5d562599838ba8718f764f2e71847aaff67b9a8c60dbb502f1af0",
+      "case_id": "T8-007",
+      "current_api_behavior": {
+        "case_id": "T8-007",
+        "certificate": {
+          "certified_status": 2,
+          "eta_inconsistent": 7.709971121631375e-16,
+          "eta_infinite": 3.199682447460645e-15,
+          "eta_status": 3.199682447460645e-15,
+          "eta_unique": 4.4673297914839965e-15,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 7,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          64,
+          64
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "DETERMINISTIC",
+          "core_qr_rank": 45,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 1,
+          "formation_guard_counters": [
+            1,
+            0,
+            0
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 6.394884621840902e-13,
+          "rank": 56,
+          "rank_interval": [
+            56,
+            56
+          ],
+          "raw_class": "INFINITE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 2.355850611139748e-16,
+          "status": "INFINITE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "5df365e004868d6f6e9ddc084004d77980991cbf407376039b1bb6896a0ddad5",
+      "path": "inputs/T8-007.npz",
+      "shape": [
+        64,
+        64
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-007.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "analytic_nullity": 8,
+          "analytic_rank": 56,
+          "components": 8,
+          "kind": "square",
+          "proof": "k disjoint connected paths with8 vertices; each incidence block rank7; L=B.T B has same nullspace"
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "k": 8,
+          "shape": "square"
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "8238a8b28d3ea188028768314e0775af10c1708f20a661709d57cc88661ae994",
+      "abs_apps_A_sha256": "81e555a63581ac2f643a00ff3b179d3f53e182635bd21627638dc9615870f65f",
+      "abs_apps_b_sha256": "8f4d29872cf2069c4696bdff61a78dbba91c9399f7607149e3797e5b7c201175",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "c2a7e427b175f626c47eac47aa989c431e9362895700ed2b798e52072c4f005a",
+      "case_id": "T8-008",
+      "current_api_behavior": {
+        "case_id": "T8-008",
+        "certificate": {
+          "certified_status": 2,
+          "eta_inconsistent": 0.22941573387056183,
+          "eta_infinite": 1.3918224908672401e-15,
+          "eta_status": 1.3918224908672401e-15,
+          "eta_unique": "no_finite_bound:+Infinity",
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 6,
+          "unique_generator_code": 1,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          21,
+          24
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "RANDOMISED",
+          "core_qr_rank": 21,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 0,
+          "formation_guard_counters": [
+            1,
+            0,
+            0
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 5.222180388738334e-16,
+          "rank": 21,
+          "rank_interval": [
+            21,
+            21
+          ],
+          "raw_class": "INFINITE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 6.784295736419306e-16,
+          "status": "INFINITE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "8720f73f3cce742cedb57ecc17eae87dceafae271bbf07c5f3143b76292b2a32",
+      "path": "inputs/T8-008.npz",
+      "shape": [
+        21,
+        24
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-008.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "analytic_nullity": 3,
+          "analytic_rank": 21,
+          "components": 3,
+          "kind": "wide",
+          "proof": "k disjoint connected paths with8 vertices; each incidence block rank7; L=B.T B has same nullspace"
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "k": 3,
+          "shape": "wide"
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "fc8f88cfcb485ddb74c527a74d25090d6db31e0a6bd5b7b5d4ab762bda3fa47e",
+      "abs_apps_A_sha256": "5d3f829efcc73d69313901b63a80e38b6000a62249440fb9ce545fbce74f8b05",
+      "abs_apps_b_sha256": "b782c0a530376e3667b57bb649ae0c3e54b9247b5a3a0eb8c9c96812c2f49845",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "f2e4aeca109799adc3d328a38ce9449cf44a6c5e9e7dc4572a0c4b6fa2a887a7",
+      "case_id": "T8-009",
+      "current_api_behavior": {
+        "case_id": "T8-009",
+        "certificate": {
+          "certified_status": 2,
+          "eta_inconsistent": 0.22941573387056183,
+          "eta_infinite": 3.082785234729003e-15,
+          "eta_status": 3.082785234729003e-15,
+          "eta_unique": "no_finite_bound:+Infinity",
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 6,
+          "unique_generator_code": 1,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          56,
+          64
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "RANDOMISED",
+          "core_qr_rank": 56,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 0,
+          "formation_guard_counters": [
+            1,
+            0,
+            0
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 8.578448762744712e-16,
+          "rank": 56,
+          "rank_interval": [
+            56,
+            56
+          ],
+          "raw_class": "INFINITE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 5.580774008077516e-16,
+          "status": "INFINITE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "85acc539516032a80e6888cbb226589ef9a388b7932ed53707967e2f0a284667",
+      "path": "inputs/T8-009.npz",
+      "shape": [
+        56,
+        64
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-009.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "analytic_nullity": 8,
+          "analytic_rank": 56,
+          "components": 8,
+          "kind": "wide",
+          "proof": "k disjoint connected paths with8 vertices; each incidence block rank7; L=B.T B has same nullspace"
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "k": 8,
+          "shape": "wide"
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "a26378aa1424fdefa66281452ae371d8b5e7af1b9539dd4e4e1d4dcefb63ec1d",
+      "abs_apps_A_sha256": "4e578624dd2d843dd536bb36ab8b661a77300a2edc3f553c11597443b979b031",
+      "abs_apps_b_sha256": "d338e58d342feb3dcd78e4accac563ed806980e91f4adbe5691deb10727884c4",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "0e2ed4264d32afc43e48e60c4bfc69409296daa3a3fbfb8d567acd84b9535b32",
+      "case_id": "T8-010",
+      "current_api_behavior": {
+        "case_id": "T8-010",
+        "certificate": {
+          "certified_status": 2,
+          "eta_inconsistent": 1.5795658783885152e-15,
+          "eta_infinite": 2.4739184907880283e-15,
+          "eta_status": 2.4739184907880283e-15,
+          "eta_unique": "no_finite_bound:+Infinity",
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 6,
+          "unique_generator_code": 6,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          75,
+          40
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "RANDOMISED",
+          "core_qr_rank": 35,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 0,
+          "formation_guard_counters": [
+            1,
+            0,
+            0
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 4.973799150320701e-13,
+          "rank": 35,
+          "rank_interval": [
+            35,
+            40
+          ],
+          "raw_class": "INFINITE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 1.0653447193644493e-15,
+          "status": "INFINITE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "bacc7af01c263010860bea4beec5323e6a1f3ec77fa7e7753d54cb71a122eb26",
+      "path": "inputs/T8-010.npz",
+      "shape": [
+        75,
+        40
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-010.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "analytic_nullity": 5,
+          "analytic_rank": 35,
+          "components": 5,
+          "kind": "tall",
+          "proof": "k disjoint connected paths with8 vertices; each incidence block rank7; L=B.T B has same nullspace"
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "k": 5,
+          "shape": "tall"
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "36a7c0b74e80fffd138c904745861400e80263feefa64b6fdc2461530e5b6512",
+      "abs_apps_A_sha256": "877ef87939062e13c9ddd6fa246195bb04e979512739439ee3c525598abb55c5",
+      "abs_apps_b_sha256": "1d8900930849576ebca2fd641c9e264020bcd70c04b48fa801cf9bc36d62c42b",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "f85a3cbc3c21118f33369d892ac5e37fa71a25f81ecde2ddcfe49561d22be1bf",
+      "case_id": "T8-011",
+      "current_api_behavior": {
+        "case_id": "T8-011",
+        "certificate": {
+          "certified_status": 2,
+          "eta_inconsistent": 6.29069090962685e-16,
+          "eta_infinite": 2.716998652508708e-15,
+          "eta_status": 2.716998652508708e-15,
+          "eta_unique": "no_finite_bound:+Infinity",
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 6,
+          "unique_generator_code": 6,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          32,
+          32
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "RANDOMISED",
+          "core_qr_rank": 31,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 0,
+          "formation_guard_counters": [
+            1,
+            0,
+            0
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 1.0103479874953961e-15,
+          "rank": 31,
+          "rank_interval": [
+            31,
+            32
+          ],
+          "raw_class": "INFINITE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 6.516356605792057e-16,
+          "status": "INFINITE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "2727a9d9b183bea6cff9625a06074a19279cf18ee18baa6325cc822204bafee4",
+      "path": "inputs/T8-011.npz",
+      "shape": [
+        32,
+        32
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-011.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "actual_left_null_projection": 3.3306690738754696e-14,
+          "analytic_nullity": 1,
+          "analytic_rank": 31,
+          "analytic_residual_direction": "z in null(A.T), perturbation delta*z; no zero source rows",
+          "delta": 1e-15,
+          "delta_hex": "0x1.203af9ee75616p-50",
+          "kind": "cycle",
+          "left_null_vector": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "delta": 1e-15
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "36a7c0b74e80fffd138c904745861400e80263feefa64b6fdc2461530e5b6512",
+      "abs_apps_A_sha256": "877ef87939062e13c9ddd6fa246195bb04e979512739439ee3c525598abb55c5",
+      "abs_apps_b_sha256": "e1df67a6fc7a0b5116be4eb6387390da5c889f91295ca36c34cbaf48e331463d",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "c6b2b8b0eeca092dab3c5e605d76611ba0740a190c635e60e26ee21fd1b3f688",
+      "case_id": "T8-012",
+      "current_api_behavior": {
+        "case_id": "T8-012",
+        "certificate": {
+          "certified_status": 2,
+          "eta_inconsistent": 8.141524845001445e-16,
+          "eta_infinite": 5.950809073545981e-14,
+          "eta_status": 5.950809073545981e-14,
+          "eta_unique": "no_finite_bound:+Infinity",
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 6,
+          "unique_generator_code": 6,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          32,
+          32
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "RANDOMISED",
+          "core_qr_rank": 31,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 0,
+          "formation_guard_counters": [
+            1,
+            0,
+            0
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 1.0103479874953961e-15,
+          "rank": 31,
+          "rank_interval": [
+            31,
+            32
+          ],
+          "raw_class": "INFINITE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 4.21486528606721e-14,
+          "status": "INFINITE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "9a0b49b11b53ce35c27e8c6cc82bec4a3f550db679c82ebd7fbe87beaf0f69c9",
+      "path": "inputs/T8-012.npz",
+      "shape": [
+        32,
+        32
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-012.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "actual_left_null_projection": 3.2009950245992513e-12,
+          "analytic_nullity": 1,
+          "analytic_rank": 31,
+          "analytic_residual_direction": "z in null(A.T), perturbation delta*z; no zero source rows",
+          "delta": 1e-13,
+          "delta_hex": "0x1.c25c268497682p-44",
+          "kind": "cycle",
+          "left_null_vector": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "delta": 1e-13
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "36a7c0b74e80fffd138c904745861400e80263feefa64b6fdc2461530e5b6512",
+      "abs_apps_A_sha256": "877ef87939062e13c9ddd6fa246195bb04e979512739439ee3c525598abb55c5",
+      "abs_apps_b_sha256": "8f440b6242b2bfdcd7ef88b5722f85d6e3f097994919d4f858579ab258189992",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "926147a2e52d4b16e17b69e2d874513d89d2c028a26a66faf2401cc8eb4297a9",
+      "case_id": "T8-013",
+      "current_api_behavior": {
+        "case_id": "T8-013",
+        "certificate": {
+          "certified_status": 2,
+          "eta_inconsistent": 7.050767341324427e-16,
+          "eta_infinite": 5.775065965479458e-12,
+          "eta_status": 5.775065965479458e-12,
+          "eta_unique": "no_finite_bound:+Infinity",
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 6,
+          "unique_generator_code": 6,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          32,
+          32
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "RANDOMISED",
+          "core_qr_rank": 31,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 0,
+          "formation_guard_counters": [
+            1,
+            0,
+            0
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 1.0103479874953961e-15,
+          "rank": 31,
+          "rank_interval": [
+            31,
+            32
+          ],
+          "raw_class": "INFINITE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 4.216366203996473e-12,
+          "status": "INFINITE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "6aa280139e015314fd0f7c11aea1d16362aad8b07133701c8b8f2a5aebed2f5d",
+      "path": "inputs/T8-013.npz",
+      "shape": [
+        32,
+        32
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-013.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "actual_left_null_projection": 3.200000264769187e-10,
+          "analytic_nullity": 1,
+          "analytic_rank": 31,
+          "analytic_residual_direction": "z in null(A.T), perturbation delta*z; no zero source rows",
+          "delta": 1e-11,
+          "delta_hex": "0x1.5fd7fe1796495p-37",
+          "kind": "cycle",
+          "left_null_vector": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "delta": 1e-11
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "36a7c0b74e80fffd138c904745861400e80263feefa64b6fdc2461530e5b6512",
+      "abs_apps_A_sha256": "877ef87939062e13c9ddd6fa246195bb04e979512739439ee3c525598abb55c5",
+      "abs_apps_b_sha256": "d32ab59b04ff5dbb582c42ec9122d7ff9f6e260ab3a32f24b20e32e3a00dc485",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "3467ba4bfbfd74e769bea4eb3a5dfb076437abf2e8bc721acba1d6bd0b263831",
+      "case_id": "T8-014",
+      "current_api_behavior": {
+        "case_id": "T8-014",
+        "certificate": {
+          "certified_status": 3,
+          "eta_inconsistent": 7.81604118241048e-16,
+          "eta_infinite": 5.773502684736195e-08,
+          "eta_status": 7.81604118241048e-16,
+          "eta_unique": "no_finite_bound:+Infinity",
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 6,
+          "unique_generator_code": 6,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          32,
+          32
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "DETERMINISTIC",
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 1,
+          "formation_guard_counters": [
+            1,
+            0,
+            1
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 1.0103479874953961e-15,
+          "rank": 31,
+          "rank_interval": [
+            31,
+            31
+          ],
+          "raw_class": "INCONSISTENT",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 2.38513917606836e-07,
+          "status": "INCONSISTENT"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "f8f53d11eaba74bf6a610db6165e1e31d90032a958fb4acf46c252d54cca9b69",
+      "path": "inputs/T8-014.npz",
+      "shape": [
+        32,
+        32
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-014.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "actual_left_null_projection": 3.2000000032006426e-06,
+          "analytic_nullity": 1,
+          "analytic_rank": 31,
+          "analytic_residual_direction": "z in null(A.T), perturbation delta*z; no zero source rows",
+          "delta": 1e-07,
+          "delta_hex": "0x1.ad7f29abcaf48p-24",
+          "kind": "cycle",
+          "left_null_vector": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "delta": 1e-07
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "a112d4db5f5f66a0e4b4000df33c3432f29bb222a112598622b65bc672b1d637",
+      "abs_apps_A_sha256": "2d6f783ebc926d96979b262266e4697bcb9165852ecd7c9dc8d46e5030c28daa",
+      "abs_apps_b_sha256": "992744d9230abdda1242478bb8605e65d142c2598fd692abc23e73029bac98fc",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "a5445dd24c28865ab32e1945dc5a0cae24d270c27358334b97f84e6ea1cecc06",
+      "case_id": "T8-015",
+      "current_api_behavior": {
+        "case_id": "T8-015",
+        "certificate": {
+          "certified_status": 2,
+          "eta_inconsistent": 1.0091380124911928e-15,
+          "eta_infinite": 1.3460738804684955e-15,
+          "eta_status": 1.3460738804684955e-15,
+          "eta_unique": "no_finite_bound:+Infinity",
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 6,
+          "unique_generator_code": 6,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          30,
+          16
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "RANDOMISED",
+          "core_qr_rank": 15,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 0,
+          "formation_guard_counters": [
+            1,
+            0,
+            0
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 2.1316282072803006e-13,
+          "rank": 15,
+          "rank_interval": [
+            15,
+            16
+          ],
+          "raw_class": "INFINITE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 7.808326150939382e-16,
+          "status": "INFINITE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "c5638a5615734ed0f5acf272e28b1ae8fa75cf47ad119a828f3f4f2e2728c9ef",
+      "path": "inputs/T8-015.npz",
+      "shape": [
+        30,
+        16
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-015.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "actual_left_null_projection": 3.019806626980426e-14,
+          "analytic_nullity": 1,
+          "analytic_rank": 15,
+          "analytic_residual_direction": "z in null(A.T), perturbation delta*z; no zero source rows",
+          "delta": 1e-15,
+          "delta_hex": "0x1.203af9ee75616p-50",
+          "kind": "repeated_path",
+          "left_null_vector": [
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0
+          ]
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "delta": 1e-15
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "a112d4db5f5f66a0e4b4000df33c3432f29bb222a112598622b65bc672b1d637",
+      "abs_apps_A_sha256": "2d6f783ebc926d96979b262266e4697bcb9165852ecd7c9dc8d46e5030c28daa",
+      "abs_apps_b_sha256": "d7ad16c16a6c031fddc1d2f880325c943a2574ca23caac97a3efbbf6b473d5b4",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "b409f19071eb93252b588198fabef7967070f6484c98c40a72cb085f2d1d4604",
+      "case_id": "T8-016",
+      "current_api_behavior": {
+        "case_id": "T8-016",
+        "certificate": {
+          "certified_status": 2,
+          "eta_inconsistent": 9.415985315214338e-16,
+          "eta_infinite": 5.865036193470066e-14,
+          "eta_status": 5.865036193470066e-14,
+          "eta_unique": "no_finite_bound:+Infinity",
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 6,
+          "unique_generator_code": 6,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          30,
+          16
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "RANDOMISED",
+          "core_qr_rank": 15,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 0,
+          "formation_guard_counters": [
+            1,
+            0,
+            0
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 2.1316282072803006e-13,
+          "rank": 15,
+          "rank_interval": [
+            15,
+            16
+          ],
+          "raw_class": "INFINITE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 5.5989711137389964e-14,
+          "status": "INFINITE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "c08fc134b1fd54cd788f4566db9fceb197d970f178dbb3bb91007ba81121b068",
+      "path": "inputs/T8-016.npz",
+      "shape": [
+        30,
+        16
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-016.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "actual_left_null_projection": 3.000266701747023e-12,
+          "analytic_nullity": 1,
+          "analytic_rank": 15,
+          "analytic_residual_direction": "z in null(A.T), perturbation delta*z; no zero source rows",
+          "delta": 1e-13,
+          "delta_hex": "0x1.c25c268497682p-44",
+          "kind": "repeated_path",
+          "left_null_vector": [
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0
+          ]
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "delta": 1e-13
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "a112d4db5f5f66a0e4b4000df33c3432f29bb222a112598622b65bc672b1d637",
+      "abs_apps_A_sha256": "2d6f783ebc926d96979b262266e4697bcb9165852ecd7c9dc8d46e5030c28daa",
+      "abs_apps_b_sha256": "80fc8a0f77e56c6df05ffa3457d8cfeecda469b7a609fe04ea6ac30602f821c9",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "57a93ff6d7b5182f9dde7ab77483edeb1bb7b55b188e74396c86cdab3bf327a7",
+      "case_id": "T8-017",
+      "current_api_behavior": {
+        "case_id": "T8-017",
+        "certificate": {
+          "certified_status": 2,
+          "eta_inconsistent": 1.2442801616531846e-15,
+          "eta_infinite": 5.774343249051596e-12,
+          "eta_status": 5.774343249051596e-12,
+          "eta_unique": "no_finite_bound:+Infinity",
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 6,
+          "unique_generator_code": 6,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          30,
+          16
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "RANDOMISED",
+          "core_qr_rank": 15,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 0,
+          "formation_guard_counters": [
+            1,
+            0,
+            0
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 2.1316282072803006e-13,
+          "rank": 15,
+          "rank_interval": [
+            15,
+            16
+          ],
+          "raw_class": "INFINITE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 5.5838987768716175e-12,
+          "status": "INFINITE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "425cedf80896a1fd753c442e6b5b9a31649d83196b49b448003e3b1c7fe0ae1f",
+      "path": "inputs/T8-017.npz",
+      "shape": [
+        30,
+        16
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-017.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "actual_left_null_projection": 3.000000248221113e-10,
+          "analytic_nullity": 1,
+          "analytic_rank": 15,
+          "analytic_residual_direction": "z in null(A.T), perturbation delta*z; no zero source rows",
+          "delta": 1e-11,
+          "delta_hex": "0x1.5fd7fe1796495p-37",
+          "kind": "repeated_path",
+          "left_null_vector": [
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0
+          ]
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "delta": 1e-11
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "a112d4db5f5f66a0e4b4000df33c3432f29bb222a112598622b65bc672b1d637",
+      "abs_apps_A_sha256": "2d6f783ebc926d96979b262266e4697bcb9165852ecd7c9dc8d46e5030c28daa",
+      "abs_apps_b_sha256": "32f5308352bcb2a6f1986f1d485e9bd923b7874d0606637a2f98e5b42ff2dc3a",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "d7fd6e8ed9a656621860e50aef50e49a78a19c2edc192d7a28ba6ea689b01164",
+      "case_id": "T8-018",
+      "current_api_behavior": {
+        "case_id": "T8-018",
+        "certificate": {
+          "certified_status": 3,
+          "eta_inconsistent": 8.755854760251701e-16,
+          "eta_infinite": 5.773502932586439e-08,
+          "eta_status": 8.755854760251701e-16,
+          "eta_unique": "no_finite_bound:+Infinity",
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 6,
+          "unique_generator_code": 6,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          30,
+          16
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "DETERMINISTIC",
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 1,
+          "formation_guard_counters": [
+            1,
+            0,
+            1
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 5.199773938044452e-16,
+          "rank": 15,
+          "rank_interval": [
+            15,
+            15
+          ],
+          "raw_class": "INCONSISTENT",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 5.940885245718887e-08,
+          "status": "INCONSISTENT"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "47713fa7a5580bb3f1e74686915e24b6cf05f8d90b2bdf4c12a41a1700c610d6",
+      "path": "inputs/T8-018.npz",
+      "shape": [
+        30,
+        16
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-018.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "actual_left_null_projection": 3.0000000013075123e-06,
+          "analytic_nullity": 1,
+          "analytic_rank": 15,
+          "analytic_residual_direction": "z in null(A.T), perturbation delta*z; no zero source rows",
+          "delta": 1e-07,
+          "delta_hex": "0x1.ad7f29abcaf48p-24",
+          "kind": "repeated_path",
+          "left_null_vector": [
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0
+          ]
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "delta": 1e-07
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "e688a37f6141d966e77b80a8d0f6e7dcd05954dbc7ca8318caccd3b7c742ef20",
+      "abs_apps_A_sha256": "c650c1e263c9d6494129b3bdeaed310d51d60967aa90118dcba8ba2291045ddd",
+      "abs_apps_b_sha256": "2a872e05bfe01bad95c88a49249450cd7a2fc2e52687eed3ff4da7a6d9ed440c",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "dbd8ebb4d364765882694170cedf5afc7702dd5338a7198705c45b613f6e1c9d",
+      "case_id": "T8-019",
+      "current_api_behavior": {
+        "case_id": "T8-019",
+        "certificate": {
+          "certified_status": 2,
+          "eta_inconsistent": 1.7677843844084104e-14,
+          "eta_infinite": 3.5507384304052346e-14,
+          "eta_status": 3.5507384304052346e-14,
+          "eta_unique": 1.5700924586837754e-16,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 7,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          16,
+          16
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "RANDOMISED",
+          "core_qr_rank": 15,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 0,
+          "formation_guard_counters": [
+            1,
+            0,
+            0
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 0.0,
+          "rank": 15,
+          "rank_interval": [
+            15,
+            16
+          ],
+          "raw_class": "INFINITE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 3.925231146709438e-17,
+          "status": "INFINITE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "4d83dfccc802b92af3cb14df87e130e3ec31178649b1b787e51f07bb5db62b92",
+      "path": "inputs/T8-019.npz",
+      "shape": [
+        16,
+        16
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-019.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "actual_float64_last_row_norm": 1.0,
+          "analytic_exact_rank": 16,
+          "analytic_nullity": 0,
+          "mapping": "I16 with last row e0+t*e15, b=ones; x=(1,...,1,0) is compatible",
+          "normalized_new_direction_formula": "t/sqrt(1+t*t)",
+          "parameter": 2.5e-14,
+          "parameter_hex": "0x1.c25c268497682p-46"
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "label": "0.25D",
+          "t": 2.5e-14,
+          "t_hex": "0x1.c25c268497682p-46"
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "4767fed67ab26a08d071a3af6e71e1cf4041e930e7f5ed42f324f3e04b6c10bf",
+      "abs_apps_A_sha256": "d96a0f18139abffadd326beed2c5d6c7a1d273118d46ca9acd1ecb335269f81c",
+      "abs_apps_b_sha256": "2a872e05bfe01bad95c88a49249450cd7a2fc2e52687eed3ff4da7a6d9ed440c",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "dbd8ebb4d364765882694170cedf5afc7702dd5338a7198705c45b613f6e1c9d",
+      "case_id": "T8-020",
+      "current_api_behavior": {
+        "case_id": "T8-020",
+        "certificate": {
+          "certified_status": 2,
+          "eta_inconsistent": 5.303306669405253e-14,
+          "eta_infinite": 1.062180479793355e-13,
+          "eta_status": 1.062180479793355e-13,
+          "eta_unique": 1.5700924586837754e-16,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 7,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          16,
+          16
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "RANDOMISED",
+          "core_qr_rank": 15,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 0,
+          "formation_guard_counters": [
+            1,
+            0,
+            0
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 0.0,
+          "rank": 15,
+          "rank_interval": [
+            15,
+            16
+          ],
+          "raw_class": "INFINITE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 3.925231146709438e-17,
+          "status": "INFINITE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "5aaef50f371c8e2288c19268091ff2d0facc7b931b0996f9db6e65e0e7aec624",
+      "path": "inputs/T8-020.npz",
+      "shape": [
+        16,
+        16
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-020.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "actual_float64_last_row_norm": 1.0,
+          "analytic_exact_rank": 16,
+          "analytic_nullity": 0,
+          "mapping": "I16 with last row e0+t*e15, b=ones; x=(1,...,1,0) is compatible",
+          "normalized_new_direction_formula": "t/sqrt(1+t*t)",
+          "parameter": 7.5e-14,
+          "parameter_hex": "0x1.51c51ce3718e1p-44"
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "label": "0.75D",
+          "t": 7.5e-14,
+          "t_hex": "0x1.51c51ce3718e1p-44"
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "6395ce29e65c47cbe19b624c95fad9d4767c66656d1caec10228d65fcef1a9ab",
+      "abs_apps_A_sha256": "fa23dd6f605d3bfecac6c6ae5e8d4921f18f0ec3ee84a5fcf7a66f21d8285a52",
+      "abs_apps_b_sha256": "2a872e05bfe01bad95c88a49249450cd7a2fc2e52687eed3ff4da7a6d9ed440c",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "dbd8ebb4d364765882694170cedf5afc7702dd5338a7198705c45b613f6e1c9d",
+      "case_id": "T8-021",
+      "current_api_behavior": {
+        "case_id": "T8-021",
+        "certificate": {
+          "certified_status": 2,
+          "eta_inconsistent": 7.000361535646446e-14,
+          "eta_infinite": 1.401591717199567e-13,
+          "eta_status": 1.401591717199567e-13,
+          "eta_unique": 1.5700924586837754e-16,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 7,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          16,
+          16
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "DETERMINISTIC",
+          "core_qr_rank": 15,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 1,
+          "formation_guard_counters": [
+            2,
+            0,
+            1
+          ],
+          "grey_distinct_count": 1,
+          "grey_total_events": 1,
+          "last_orth_eta": 0.0,
+          "rank": 15,
+          "rank_interval": [
+            15,
+            15
+          ],
+          "raw_class": "INFINITE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 0.0,
+          "status": "INFINITE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "875a61171374bc74133359b96fa13cb3d5d80e6014bcaed74ac60c47b49324e0",
+      "path": "inputs/T8-021.npz",
+      "shape": [
+        16,
+        16
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-021.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "actual_float64_last_row_norm": 1.0,
+          "analytic_exact_rank": 16,
+          "analytic_nullity": 0,
+          "mapping": "I16 with last row e0+t*e15, b=ones; x=(1,...,1,0) is compatible",
+          "normalized_new_direction_formula": "t/sqrt(1+t*t)",
+          "parameter": 9.900000000000001e-14,
+          "parameter_hex": "0x1.bddb3a9cdd92ap-44"
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "label": "0.99D",
+          "t": 9.900000000000001e-14,
+          "t_hex": "0x1.bddb3a9cdd92ap-44"
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "50bfbb7cbef4ae30666ea7030298490ff3b95e92a1442319492e5cf403593a5a",
+      "abs_apps_A_sha256": "0dd4f2b08ff47e5c9328d1cf3b9ce438efc19668773c1c3dede849cc7a838d75",
+      "abs_apps_b_sha256": "2a872e05bfe01bad95c88a49249450cd7a2fc2e52687eed3ff4da7a6d9ed440c",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "dbd8ebb4d364765882694170cedf5afc7702dd5338a7198705c45b613f6e1c9d",
+      "case_id": "T8-022",
+      "current_api_behavior": {
+        "case_id": "T8-022",
+        "certificate": {
+          "certified_status": 0,
+          "eta_inconsistent": 7.071072169746131e-14,
+          "eta_infinite": 1.4157338522742475e-13,
+          "eta_status": "no_finite_bound:+Infinity",
+          "eta_unique": 1.5700924586837754e-16,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 7,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          16,
+          16
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "NONE",
+          "core_qr_rank": 15,
+          "core_rank_interval": [
+            15,
+            15
+          ],
+          "fallback": 1,
+          "formation_guard_counters": [
+            1,
+            0,
+            1
+          ],
+          "grey_distinct_count": 1,
+          "grey_total_events": 2,
+          "last_orth_eta": 0.0,
+          "rank": 15,
+          "rank_interval": [
+            15,
+            16
+          ],
+          "raw_class": "UNDECIDABLE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": "semantic_absence:NaN",
+          "status": "UNDECIDABLE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "1e310af651f7d7d8f3495d1eea4c9a52251c8183ea145b63f4571842b0a97588",
+      "path": "inputs/T8-022.npz",
+      "shape": [
+        16,
+        16
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-022.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "actual_float64_last_row_norm": 1.0,
+          "analytic_exact_rank": 16,
+          "analytic_nullity": 0,
+          "mapping": "I16 with last row e0+t*e15, b=ones; x=(1,...,1,0) is compatible",
+          "normalized_new_direction_formula": "t/sqrt(1+t*t)",
+          "parameter": 1e-13,
+          "parameter_hex": "0x1.c25c268497682p-44"
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "label": "D",
+          "t": 1e-13,
+          "t_hex": "0x1.c25c268497682p-44"
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "5c8df98d6051cff4234d5146bb7b399213ba31ed07cb53e984893700aba4c8d8",
+      "abs_apps_A_sha256": "8c743109bb341626aaa89292e307636247f29b8edb38196cea0b9a560626bfc7",
+      "abs_apps_b_sha256": "2a872e05bfe01bad95c88a49249450cd7a2fc2e52687eed3ff4da7a6d9ed440c",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "dbd8ebb4d364765882694170cedf5afc7702dd5338a7198705c45b613f6e1c9d",
+      "case_id": "T8-023",
+      "current_api_behavior": {
+        "case_id": "T8-023",
+        "certificate": {
+          "certified_status": 0,
+          "eta_inconsistent": 7.141782804717478e-14,
+          "eta_infinite": 1.4298759873597885e-13,
+          "eta_status": "no_finite_bound:+Infinity",
+          "eta_unique": 1.5700924586837754e-16,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 7,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          16,
+          16
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "NONE",
+          "core_qr_rank": 15,
+          "core_rank_interval": [
+            15,
+            15
+          ],
+          "fallback": 1,
+          "formation_guard_counters": [
+            1,
+            0,
+            1
+          ],
+          "grey_distinct_count": 1,
+          "grey_total_events": 2,
+          "last_orth_eta": 0.0,
+          "rank": 15,
+          "rank_interval": [
+            15,
+            16
+          ],
+          "raw_class": "UNDECIDABLE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": "semantic_absence:NaN",
+          "status": "UNDECIDABLE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "739e5aadf0976e49d83bd002cf08e8470d91c7aade6d62476ff43621c8a9f93e",
+      "path": "inputs/T8-023.npz",
+      "shape": [
+        16,
+        16
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-023.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "actual_float64_last_row_norm": 1.0,
+          "analytic_exact_rank": 16,
+          "analytic_nullity": 0,
+          "mapping": "I16 with last row e0+t*e15, b=ones; x=(1,...,1,0) is compatible",
+          "normalized_new_direction_formula": "t/sqrt(1+t*t)",
+          "parameter": 1.01e-13,
+          "parameter_hex": "0x1.c6dd126c513dap-44"
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "label": "1.01D",
+          "t": 1.01e-13,
+          "t_hex": "0x1.c6dd126c513dap-44"
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "57d9d29a338b79d6641101146eb8c409b702b5defa9edf639928fa32d3cab7eb",
+      "abs_apps_A_sha256": "3a2a3aa6df60ae68807f9bc97d1ef57f03ab09f360e3bdbd428e680409406f57",
+      "abs_apps_b_sha256": "2a872e05bfe01bad95c88a49249450cd7a2fc2e52687eed3ff4da7a6d9ed440c",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "dbd8ebb4d364765882694170cedf5afc7702dd5338a7198705c45b613f6e1c9d",
+      "case_id": "T8-024",
+      "current_api_behavior": {
+        "case_id": "T8-024",
+        "certificate": {
+          "certified_status": 0,
+          "eta_inconsistent": 0.7071067811865478,
+          "eta_infinite": 1.4142363659196337e-11,
+          "eta_status": "no_finite_bound:+Infinity",
+          "eta_unique": 2.355138688025663e-16,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 7,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          16,
+          16
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "NONE",
+          "core_qr_rank": 16,
+          "core_rank_interval": [
+            15,
+            16
+          ],
+          "fallback": 1,
+          "formation_guard_counters": [
+            1,
+            0,
+            1
+          ],
+          "grey_distinct_count": 1,
+          "grey_total_events": 2,
+          "last_orth_eta": 0.0,
+          "rank": 15,
+          "rank_interval": [
+            15,
+            16
+          ],
+          "raw_class": "UNDECIDABLE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": "semantic_absence:NaN",
+          "status": "UNDECIDABLE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "72854c83f0f5ce8be824b04a3e2da02995de65fdee124d6e75a4967608b77075",
+      "path": "inputs/T8-024.npz",
+      "shape": [
+        16,
+        16
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-024.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "actual_float64_last_row_norm": 1.0,
+          "analytic_exact_rank": 16,
+          "analytic_nullity": 0,
+          "mapping": "I16 with last row e0+t*e15, b=ones; x=(1,...,1,0) is compatible",
+          "normalized_new_direction_formula": "t/sqrt(1+t*t)",
+          "parameter": 1.0000000000000001e-11,
+          "parameter_hex": "0x1.5fd7fe1796496p-37"
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "label": "sqrt(DG)",
+          "t": 1.0000000000000001e-11,
+          "t_hex": "0x1.5fd7fe1796496p-37"
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "82f50fed5d62abe8ec76c47ced61c7041c7efadcf25b9af40aa81c18ba09dabc",
+      "abs_apps_A_sha256": "a9e81c27d9d7affade4bd1caf59de8be32f04b2baf34ea74844237054cad675e",
+      "abs_apps_b_sha256": "2a872e05bfe01bad95c88a49249450cd7a2fc2e52687eed3ff4da7a6d9ed440c",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "dbd8ebb4d364765882694170cedf5afc7702dd5338a7198705c45b613f6e1c9d",
+      "case_id": "T8-025",
+      "current_api_behavior": {
+        "case_id": "T8-025",
+        "certificate": {
+          "certified_status": 0,
+          "eta_inconsistent": 0.7071067811865478,
+          "eta_infinite": 1.40007165478469e-09,
+          "eta_status": "no_finite_bound:+Infinity",
+          "eta_unique": 2.355138688025663e-16,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 7,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          16,
+          16
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "NONE",
+          "core_qr_rank": 16,
+          "core_rank_interval": [
+            15,
+            16
+          ],
+          "fallback": 1,
+          "formation_guard_counters": [
+            1,
+            1,
+            2
+          ],
+          "grey_distinct_count": 1,
+          "grey_total_events": 3,
+          "last_orth_eta": 0.0,
+          "rank": 15,
+          "rank_interval": [
+            15,
+            16
+          ],
+          "raw_class": "UNDECIDABLE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": "semantic_absence:NaN",
+          "status": "UNDECIDABLE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "b0d1f98ffb39fa38b60495aa3350f09b782e3b690e0abda20609f1956a069fcf",
+      "path": "inputs/T8-025.npz",
+      "shape": [
+        16,
+        16
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-025.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "actual_float64_last_row_norm": 1.0,
+          "analytic_exact_rank": 16,
+          "analytic_nullity": 0,
+          "mapping": "I16 with last row e0+t*e15, b=ones; x=(1,...,1,0) is compatible",
+          "normalized_new_direction_formula": "t/sqrt(1+t*t)",
+          "parameter": 9.9e-10,
+          "parameter_hex": "0x1.10210e863e3ccp-30"
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "label": "0.99G",
+          "t": 9.9e-10,
+          "t_hex": "0x1.10210e863e3ccp-30"
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "0e249f54d27cdf2048574411196228fe4db119867ceb3305ad46d0e926bd42d1",
+      "abs_apps_A_sha256": "0d1e07dd6b5265787539f6cc9d86eaecda34ea606fda1453c1be62d982877fd0",
+      "abs_apps_b_sha256": "2a872e05bfe01bad95c88a49249450cd7a2fc2e52687eed3ff4da7a6d9ed440c",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "dbd8ebb4d364765882694170cedf5afc7702dd5338a7198705c45b613f6e1c9d",
+      "case_id": "T8-026",
+      "current_api_behavior": {
+        "case_id": "T8-026",
+        "certificate": {
+          "certified_status": 1,
+          "eta_inconsistent": 0.7071067811865478,
+          "eta_infinite": 1.4142137904084206e-09,
+          "eta_status": 2.355138688025663e-16,
+          "eta_unique": 2.355138688025663e-16,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 7,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          16,
+          16
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": 4.556646086177287e-17,
+          "certainty": "DETERMINISTIC",
+          "core_qr_rank": 16,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 0,
+          "formation_guard_counters": [
+            1,
+            0,
+            0
+          ],
+          "grey_distinct_count": 1,
+          "grey_total_events": 1,
+          "last_orth_eta": 0.0,
+          "rank": 16,
+          "rank_interval": [
+            16,
+            16
+          ],
+          "raw_class": "UNIQUE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 6.206335383118183e-17,
+          "status": "UNIQUE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "8bfaeee525b4d482d8c612aa6d819a3136931a85f4c9338c310f0a4eb7d46be7",
+      "path": "inputs/T8-026.npz",
+      "shape": [
+        16,
+        16
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-026.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "actual_float64_last_row_norm": 1.0,
+          "analytic_exact_rank": 16,
+          "analytic_nullity": 0,
+          "mapping": "I16 with last row e0+t*e15, b=ones; x=(1,...,1,0) is compatible",
+          "normalized_new_direction_formula": "t/sqrt(1+t*t)",
+          "parameter": 1e-09,
+          "parameter_hex": "0x1.12e0be826d695p-30"
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "label": "G",
+          "t": 1e-09,
+          "t_hex": "0x1.12e0be826d695p-30"
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "83df0fc3e5ca5d1eadce0a92eedd4f7126614228af856aa5a9a474a17d527c01",
+      "abs_apps_A_sha256": "d7b31f6a3910d45f411bc8682fd8084fcbc048d4748e60373092442fa509a952",
+      "abs_apps_b_sha256": "2a872e05bfe01bad95c88a49249450cd7a2fc2e52687eed3ff4da7a6d9ed440c",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "dbd8ebb4d364765882694170cedf5afc7702dd5338a7198705c45b613f6e1c9d",
+      "case_id": "T8-027",
+      "current_api_behavior": {
+        "case_id": "T8-027",
+        "certificate": {
+          "certified_status": 1,
+          "eta_inconsistent": 0.7071067811865478,
+          "eta_infinite": 1.4283559260321516e-09,
+          "eta_status": 2.355138688025663e-16,
+          "eta_unique": 2.355138688025663e-16,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 7,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          16,
+          16
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": 0.0,
+          "certainty": "DETERMINISTIC",
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 0,
+          "formation_guard_counters": [
+            0,
+            0,
+            0
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 0.0,
+          "rank": 16,
+          "rank_interval": [
+            16,
+            16
+          ],
+          "raw_class": "UNIQUE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 0.0,
+          "status": "UNIQUE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "03e037fa6963355b8a54e8ac46c359f45f80b0a7802edb9ae581c30a308ea8fe",
+      "path": "inputs/T8-027.npz",
+      "shape": [
+        16,
+        16
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-027.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "actual_float64_last_row_norm": 1.0,
+          "analytic_exact_rank": 16,
+          "analytic_nullity": 0,
+          "mapping": "I16 with last row e0+t*e15, b=ones; x=(1,...,1,0) is compatible",
+          "normalized_new_direction_formula": "t/sqrt(1+t*t)",
+          "parameter": 1.01e-09,
+          "parameter_hex": "0x1.15a06e7e9c95ep-30"
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "label": "1.01G",
+          "t": 1.01e-09,
+          "t_hex": "0x1.15a06e7e9c95ep-30"
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "27bba074df906e0b95af463d85e60090de8d5f64bb49b70ed40abfb019468c95",
+      "abs_apps_A_sha256": "ca57d26ebc3763a15b26f9199755841ae3085fb0be6cfc640950d25eecc437be",
+      "abs_apps_b_sha256": "2a872e05bfe01bad95c88a49249450cd7a2fc2e52687eed3ff4da7a6d9ed440c",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "dbd8ebb4d364765882694170cedf5afc7702dd5338a7198705c45b613f6e1c9d",
+      "case_id": "T8-028",
+      "current_api_behavior": {
+        "case_id": "T8-028",
+        "certificate": {
+          "certified_status": 1,
+          "eta_inconsistent": 0.7071067811865478,
+          "eta_infinite": 1.7677671810016947e-09,
+          "eta_status": 2.355138688025663e-16,
+          "eta_unique": 2.355138688025663e-16,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 7,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          16,
+          16
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": 0.0,
+          "certainty": "DETERMINISTIC",
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 0,
+          "formation_guard_counters": [
+            0,
+            0,
+            0
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 0.0,
+          "rank": 16,
+          "rank_interval": [
+            16,
+            16
+          ],
+          "raw_class": "UNIQUE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 0.0,
+          "status": "UNIQUE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "d21df51c3a833cfce8aa63e86bc49a753df3147582ef3f9aa18c601de2578939",
+      "path": "inputs/T8-028.npz",
+      "shape": [
+        16,
+        16
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-028.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "actual_float64_last_row_norm": 1.0,
+          "analytic_exact_rank": 16,
+          "analytic_nullity": 0,
+          "mapping": "I16 with last row e0+t*e15, b=ones; x=(1,...,1,0) is compatible",
+          "normalized_new_direction_formula": "t/sqrt(1+t*t)",
+          "parameter": 1.25e-09,
+          "parameter_hex": "0x1.5798ee2308c3ap-30"
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "label": "1.25G",
+          "t": 1.25e-09,
+          "t_hex": "0x1.5798ee2308c3ap-30"
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "0a6d287b9bb399d67236f03c06b41728e7cbc049e5732dd784462ff7a3a159d2",
+      "abs_apps_A_sha256": "8442ce365c1c8c342471e50127d35f0566e4f944aeddd3604de63962f1d930a8",
+      "abs_apps_b_sha256": "2a872e05bfe01bad95c88a49249450cd7a2fc2e52687eed3ff4da7a6d9ed440c",
+      "attribution": "abs_apps",
+      "b_bytes_sha256": "dbd8ebb4d364765882694170cedf5afc7702dd5338a7198705c45b613f6e1c9d",
+      "case_id": "T8-029",
+      "current_api_behavior": {
+        "case_id": "T8-029",
+        "certificate": {
+          "certified_status": 1,
+          "eta_inconsistent": 0.7071067811865478,
+          "eta_infinite": 5.656854477527709e-09,
+          "eta_status": 2.355138688025663e-16,
+          "eta_unique": 2.355138688025663e-16,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 7,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          16,
+          16
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": 0.0,
+          "certainty": "DETERMINISTIC",
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 0,
+          "formation_guard_counters": [
+            0,
+            0,
+            0
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 0.0,
+          "rank": 16,
+          "rank_interval": [
+            16,
+            16
+          ],
+          "raw_class": "UNIQUE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 0.0,
+          "status": "UNIQUE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "92e2137e6106af61048ac1f3c5404874ee29a5ab5a408c3d1eb8ffc535d4d623",
+      "path": "inputs/T8-029.npz",
+      "shape": [
+        16,
+        16
+      ],
+      "source_category": "abs_apps_generated",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-029.npz",
+      "transformation": "deterministic construction stored as dense binary64 A,b",
+      "upstream": {
+        "construction": {
+          "actual_float64_last_row_norm": 1.0,
+          "analytic_exact_rank": 16,
+          "analytic_nullity": 0,
+          "mapping": "I16 with last row e0+t*e15, b=ones; x=(1,...,1,0) is compatible",
+          "normalized_new_direction_formula": "t/sqrt(1+t*t)",
+          "parameter": 4e-09,
+          "parameter_hex": "0x1.12e0be826d695p-28"
+        },
+        "generator": "task8_cases.py",
+        "parameters": {
+          "label": "4G",
+          "t": 4e-09,
+          "t_hex": "0x1.12e0be826d695p-28"
+        }
+      }
+    },
+    {
+      "A_bytes_sha256": "e8bf379efc4a44ea4a2afe9139a10cdd98706cfe56a78b1bd7c9d29a96bd1255",
+      "abs_apps_A_sha256": "1eb631e809ad8630d63c5f038f48e7f275aa3e452a59f5b93418e86c34bf01ab",
+      "abs_apps_b_sha256": "692f5a9830b7705e6a6ad28c22d3dc5cd8bd9b8f6bb33d20b7affd8da1749644",
+      "attribution": "rasg_bsd_2",
+      "b_bytes_sha256": "6ed0899f55cd10683483d20205133c5c60573add8f1c9630cdb5e2a19bcc52c6",
+      "case_id": "T8-030",
+      "current_api_behavior": {
+        "case_id": "T8-030",
+        "certificate": {
+          "certified_status": 3,
+          "eta_inconsistent": 5.1224192702203504e-15,
+          "eta_infinite": 0.002385151554148033,
+          "eta_status": 5.1224192702203504e-15,
+          "eta_unique": 0.0022776355175526727,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 7,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          64,
+          32
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": "semantic_absence:NaN",
+          "certainty": "DETERMINISTIC",
+          "core_qr_rank": 32,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 1,
+          "formation_guard_counters": [
+            1,
+            0,
+            0
+          ],
+          "grey_distinct_count": 1,
+          "grey_total_events": 1,
+          "last_orth_eta": 1.6357786727687964e-15,
+          "rank": 32,
+          "rank_interval": [
+            32,
+            32
+          ],
+          "raw_class": "INCONSISTENT",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 8.4953072346401,
+          "status": "INCONSISTENT"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "c9b19e63af499fc4c4f8d67c4f5e29f7d2bd34981dd6cfad65d34b18603e52dc",
+      "path": "inputs/T8-030.npz",
+      "shape": [
+        64,
+        32
+      ],
+      "source_category": "rasg_datasets",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-030.npz",
+      "transformation": "selected UVFITS channel; fixed 4x4 small-field Fourier operator; BLOCK_REAL_IMAG_V1 realification; measured visibility RHS",
+      "upstream": {
+        "channel": 0,
+        "object": "zen.2456865.60537.xy.uvcRREAAM.uvfits",
+        "revision": "55bd68b28fabe0936011bd9540cbaef9e20809db",
+        "sha256": "2544212e4bba85319c4628b1e019aa79b6e988a310cd258b258165a3999439e9",
+        "source_id": "rasg_datasets"
+      }
+    },
+    {
+      "A_bytes_sha256": "ba696300c4bf455cb2adf7526cd5812c4985b1a06360755c5bc7a3519bfb3df1",
+      "abs_apps_A_sha256": "1a850898e6ad294501d3a5b65f522f167914835048c311c9d87fe9b810b1b1d8",
+      "abs_apps_b_sha256": "e1aecfcb6eba569d9f70bc25efa13c4f18ae31345d52a1bf6f57a17b2e2807af",
+      "attribution": "rasg_bsd_2",
+      "b_bytes_sha256": "076a27c79e5ace2a3d47f9dd2e83e4ff6ea8872b3c2218f66c92b89b55f36560",
+      "case_id": "T8-031",
+      "current_api_behavior": {
+        "case_id": "T8-031",
+        "certificate": {
+          "certified_status": 1,
+          "eta_inconsistent": "no_finite_bound:+Infinity",
+          "eta_infinite": 3.258493314625692e-05,
+          "eta_status": 2.132355691502328e-15,
+          "eta_unique": 2.132355691502328e-15,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 4,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 3,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          64,
+          32
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": 0.0,
+          "certainty": "DETERMINISTIC",
+          "core_qr_rank": 32,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 0,
+          "formation_guard_counters": [
+            1,
+            0,
+            0
+          ],
+          "grey_distinct_count": 1,
+          "grey_total_events": 1,
+          "last_orth_eta": 4.547473508864641e-13,
+          "rank": 32,
+          "rank_interval": [
+            32,
+            32
+          ],
+          "raw_class": "UNIQUE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 0.0,
+          "status": "UNIQUE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "f74fff4e577cf49c9ad909883bb51c47f7c8c1ad45ae2bea26ece13827552461",
+      "path": "inputs/T8-031.npz",
+      "shape": [
+        64,
+        32
+      ],
+      "source_category": "rasg_datasets",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-031.npz",
+      "transformation": "selected UVFITS channel; fixed 4x4 small-field Fourier operator; BLOCK_REAL_IMAG_V1 realification; measured visibility RHS",
+      "upstream": {
+        "channel": 1,
+        "object": "zen.2456865.60537.xy.uvcRREAAM.uvfits",
+        "revision": "55bd68b28fabe0936011bd9540cbaef9e20809db",
+        "sha256": "2544212e4bba85319c4628b1e019aa79b6e988a310cd258b258165a3999439e9",
+        "source_id": "rasg_datasets"
+      }
+    },
+    {
+      "A_bytes_sha256": "ec0eb9ac9e6973ce404cad1c934011ecd38ae5d79c20e403c291a49f68b2f936",
+      "abs_apps_A_sha256": "cba77f4c2e5bbf2a4dd68b29550c8df746a3b91dac51478b431b22f658ccfe85",
+      "abs_apps_b_sha256": "e1aecfcb6eba569d9f70bc25efa13c4f18ae31345d52a1bf6f57a17b2e2807af",
+      "attribution": "rasg_bsd_2",
+      "b_bytes_sha256": "076a27c79e5ace2a3d47f9dd2e83e4ff6ea8872b3c2218f66c92b89b55f36560",
+      "case_id": "T8-032",
+      "current_api_behavior": {
+        "case_id": "T8-032",
+        "certificate": {
+          "certified_status": 1,
+          "eta_inconsistent": "no_finite_bound:+Infinity",
+          "eta_infinite": 3.242796753255567e-05,
+          "eta_status": 2.0533360285852922e-15,
+          "eta_unique": 2.0533360285852922e-15,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 4,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 3,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          64,
+          32
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": 0.0,
+          "certainty": "DETERMINISTIC",
+          "core_qr_rank": 32,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 0,
+          "formation_guard_counters": [
+            1,
+            0,
+            0
+          ],
+          "grey_distinct_count": 1,
+          "grey_total_events": 1,
+          "last_orth_eta": 4.547473508864641e-13,
+          "rank": 32,
+          "rank_interval": [
+            32,
+            32
+          ],
+          "raw_class": "UNIQUE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 0.0,
+          "status": "UNIQUE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "c7b339b013f2f1b7ddde7641c78cfbc564f783fc757e05994db15dd8a756686f",
+      "path": "inputs/T8-032.npz",
+      "shape": [
+        64,
+        32
+      ],
+      "source_category": "rasg_datasets",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-032.npz",
+      "transformation": "selected UVFITS channel; fixed 4x4 small-field Fourier operator; BLOCK_REAL_IMAG_V1 realification; measured visibility RHS",
+      "upstream": {
+        "channel": 2,
+        "object": "zen.2456865.60537.xy.uvcRREAAM.uvfits",
+        "revision": "55bd68b28fabe0936011bd9540cbaef9e20809db",
+        "sha256": "2544212e4bba85319c4628b1e019aa79b6e988a310cd258b258165a3999439e9",
+        "source_id": "rasg_datasets"
+      }
+    },
+    {
+      "A_bytes_sha256": "79123b15b3f4a326842d33e5d97af59b2198b83cccf098b64db1e561e2c65c4d",
+      "abs_apps_A_sha256": "784a1c58c48385ad69fca9319e98664157815f73f9cf4feaf2c45c7b5b6943b7",
+      "abs_apps_b_sha256": "e010ae2e656f063d94029b51d1556ba6815e5622c8a398e8b197be3522763967",
+      "attribution": "suitesparse_cc_by_4",
+      "b_bytes_sha256": "d555c86b366a4f0d890d2b2bddf3e58af18951bb890ae98aced24b295cc27ff4",
+      "case_id": "T8-036",
+      "current_api_behavior": {
+        "case_id": "T8-036",
+        "certificate": {
+          "certified_status": 1,
+          "eta_inconsistent": 0.9999999999999818,
+          "eta_infinite": 0.0004176245168068767,
+          "eta_status": 1.4284319651467341e-15,
+          "eta_unique": 1.4284319651467341e-15,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 7,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          48,
+          48
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": 8.772795060728805e-17,
+          "certainty": "DETERMINISTIC",
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 0,
+          "formation_guard_counters": [
+            0,
+            0,
+            0
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 2.220446049250313e-16,
+          "rank": 48,
+          "rank_interval": [
+            48,
+            48
+          ],
+          "raw_class": "UNIQUE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 7.462443504120154e-14,
+          "status": "UNIQUE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "17650a6d04022bb0ebffb58d9b7108519bf48ec19e9217a6d518e2fe5c7177cf",
+      "path": "inputs/T8-036.npz",
+      "shape": [
+        48,
+        48
+      ],
+      "source_category": "suitesparse_collection",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-036.npz",
+      "transformation": "complete symmetric sparse matrix to dense binary64; controlled b=e0",
+      "upstream": {
+        "name": "bcsstk01",
+        "object": "HB/bcsstk01",
+        "rhs": "unit_load_e0",
+        "source_id": "suitesparse_collection"
+      }
+    },
+    {
+      "A_bytes_sha256": "8e76e07d13cc64be06c5c35241ab7fcef5f8c147bf6541b4f1b4877c2b625180",
+      "abs_apps_A_sha256": "688d6322736561ee3d33ebb530f11c24b9e639351cf79d365f8520910fb677e7",
+      "abs_apps_b_sha256": "cd369672f77891950703f5dd28692f5acc93fc2dd1bb4b07d42cfb477a17e918",
+      "attribution": "suitesparse_cc_by_4",
+      "b_bytes_sha256": "6159721250fa8160ca81aecd168267095e2bc3244a37eb023b0ac9961247be41",
+      "case_id": "T8-037",
+      "current_api_behavior": {
+        "case_id": "T8-037",
+        "certificate": {
+          "certified_status": 1,
+          "eta_inconsistent": 0.9999999328257683,
+          "eta_infinite": 0.0002784650479523227,
+          "eta_status": 1.2301735437621705e-15,
+          "eta_unique": 1.2301735437621705e-15,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 7,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          66,
+          66
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": 9.325584524599021e-17,
+          "certainty": "DETERMINISTIC",
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 0,
+          "formation_guard_counters": [
+            0,
+            0,
+            0
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 2.220446049250313e-16,
+          "rank": 66,
+          "rank_interval": [
+            66,
+            66
+          ],
+          "raw_class": "UNIQUE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 4.832674871698398e-14,
+          "status": "UNIQUE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "c5e322f06ee98319ab2fe323253977bcf72a7f6f3c1ca1ccc9bb4fe0588d98bf",
+      "path": "inputs/T8-037.npz",
+      "shape": [
+        66,
+        66
+      ],
+      "source_category": "suitesparse_collection",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-037.npz",
+      "transformation": "complete symmetric sparse matrix to dense binary64; controlled b=e0",
+      "upstream": {
+        "name": "bcsstk02",
+        "object": "HB/bcsstk02",
+        "rhs": "unit_load_e0",
+        "source_id": "suitesparse_collection"
+      }
+    },
+    {
+      "A_bytes_sha256": "e17764fab7e28e966541f295852cc350fa101353bc46269f2e6c3244fcc47ffe",
+      "abs_apps_A_sha256": "c11cd1ed445fd862aacbed908be303c12f8b9c462724d2929a8f4d8feb731110",
+      "abs_apps_b_sha256": "318cf1a0d075dbe3e9515d6910cd9d2c6e8f2ec1b66c842fd4762c6ed73b6a0d",
+      "attribution": "suitesparse_cc_by_4",
+      "b_bytes_sha256": "d4ba2ed15110fd268126185c32f0eb333a3bdfd8a3ba913222f681659e7e3c5d",
+      "case_id": "T8-038",
+      "current_api_behavior": {
+        "case_id": "T8-038",
+        "certificate": {
+          "certified_status": 1,
+          "eta_inconsistent": 0.9999999890199766,
+          "eta_infinite": 0.00012023701764076571,
+          "eta_status": 3.0266841763584734e-15,
+          "eta_unique": 3.0266841763584734e-15,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 7,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          132,
+          132
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": 5.0729481229119124e-17,
+          "certainty": "DETERMINISTIC",
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 0,
+          "formation_guard_counters": [
+            0,
+            0,
+            0
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 3.1498489613205854e-16,
+          "rank": 132,
+          "rank_interval": [
+            132,
+            132
+          ],
+          "raw_class": "UNIQUE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 9.351086388605112e-14,
+          "status": "UNIQUE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "bb9f80cef4d7eadb696c3982ee80cb7f044a5d3640c3789ef4f709fff8ceeebe",
+      "path": "inputs/T8-038.npz",
+      "shape": [
+        132,
+        132
+      ],
+      "source_category": "suitesparse_collection",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-038.npz",
+      "transformation": "complete symmetric sparse matrix to dense binary64; controlled b=e0",
+      "upstream": {
+        "name": "bcsstk04",
+        "object": "HB/bcsstk04",
+        "rhs": "unit_load_e0",
+        "source_id": "suitesparse_collection"
+      }
+    },
+    {
+      "A_bytes_sha256": "2a88ab0a9c5f9494e4e9f225944acfd6ae5b43108680328aed368b30f3cff0df",
+      "abs_apps_A_sha256": "423d8f0ff176a0c38b394125f309bda41a29c737d257cd87d03aeb374b212d1e",
+      "abs_apps_b_sha256": "f9ed596ca666c8b51c1a949b7c86df90e33a9d3b117c20a94303407ea023a35a",
+      "attribution": "suitesparse_cc_by_4",
+      "b_bytes_sha256": "5243c2fd18f8f19ba78019fea1f5f58300c220cdad92eb068581253466cfa19c",
+      "case_id": "T8-039",
+      "current_api_behavior": {
+        "case_id": "T8-039",
+        "certificate": {
+          "certified_status": 1,
+          "eta_inconsistent": 0.9999999999969754,
+          "eta_infinite": 0.00048459891115656896,
+          "eta_status": 1.7868650726853443e-15,
+          "eta_unique": 1.7868650726853443e-15,
+          "generator_code": 0,
+          "inconsistent_generator_code": 0,
+          "inconsistent_verifier_code": 0,
+          "infinite_generator_code": 0,
+          "infinite_verifier_code": 0,
+          "nearby_status_mask": 7,
+          "unique_generator_code": 0,
+          "unique_verifier_code": 0,
+          "verifier_code": 0
+        },
+        "exact_source": {
+          "status": "UNKNOWN",
+          "verification": "NOT_VERIFIED"
+        },
+        "input_shape": [
+          153,
+          153
+        ],
+        "invocation_mode": "combined_policy_v1",
+        "operational": {
+          "backward_error": 7.032087104354993e-17,
+          "certainty": "DETERMINISTIC",
+          "core_qr_rank": -1,
+          "core_rank_interval": [
+            -1,
+            -1
+          ],
+          "fallback": 0,
+          "formation_guard_counters": [
+            0,
+            0,
+            0
+          ],
+          "grey_distinct_count": 0,
+          "grey_total_events": 0,
+          "last_orth_eta": 4.974574778416052e-16,
+          "rank": 153,
+          "rank_interval": [
+            153,
+            153
+          ],
+          "raw_class": "UNIQUE",
+          "relative_reference_error": "semantic_absence:NaN",
+          "relative_residual": 7.021267597739773e-14,
+          "status": "UNIQUE"
+        },
+        "policy": [
+          1e-13,
+          1e-09,
+          2e-10,
+          1e-14
+        ],
+        "return_code": 0,
+        "solution_vector": "not_exposed_by_current_api"
+      },
+      "npz_sha256": "d49d3789edb2ce0f62e26a45a270911ca2cbd1cc6429719cf08378fd545a82b5",
+      "path": "inputs/T8-039.npz",
+      "shape": [
+        153,
+        153
+      ],
+      "source_category": "suitesparse_collection",
+      "source_path": "campaigns/affine-bundle-solver-1000/results/task8-targeted-expansion/inputs/T8-039.npz",
+      "transformation": "complete symmetric sparse matrix to dense binary64; controlled b=e0",
+      "upstream": {
+        "name": "bcsstk05",
+        "object": "HB/bcsstk05",
+        "rhs": "unit_load_e0",
+        "source_id": "suitesparse_collection"
+      }
+    }
+  ],
+  "expected_case_count": 36,
+  "expected_shape_partition": {
+    "square": 26,
+    "tall": 8,
+    "wide": 2
+  },
+  "schema": "affine-bundle-solver-api-regression-v1",
+  "source": {
+    "commit": "ae9b662d7f5755418aa80f31ade1fffcbefebafd",
+    "repository": "https://github.com/metronforge/abs-apps"
+  }
+}
