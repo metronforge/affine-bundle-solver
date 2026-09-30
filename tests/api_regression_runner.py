@@ -203,7 +203,13 @@ def call_combined(
     )
 
 
-def run_corpus(root: Path, *, library=None, include_ids: set[str] | None = None) -> RunSummary:
+def run_corpus(
+    root: Path,
+    *,
+    library=None,
+    include_ids: set[str] | None = None,
+    verify_behavior: bool = False,
+) -> RunSummary:
     library = library or load_library()
     cases = discover_cases(root, load_manifest(root))
     discovered = tuple(case.case_id for case in cases)
@@ -217,7 +223,7 @@ def run_corpus(root: Path, *, library=None, include_ids: set[str] | None = None)
         if observation.return_code not in (0, 2):
             raise RuntimeError(f"{case.case_id}: API return code {observation.return_code}")
         expected = case.metadata.get("current_api_behavior")
-        if expected is not None:
+        if verify_behavior and expected is not None:
             _assert_snapshot(snapshot_observation(observation), expected, case.case_id)
         observations.append(observation)
         completed.append(case.case_id)
@@ -292,7 +298,7 @@ def main() -> None:
         record_expectations(args.fixture_root)
         print(f"recorded={args.expect_count}")
         return
-    summary = run_corpus(args.fixture_root)
+    summary = run_corpus(args.fixture_root, verify_behavior=True)
     if summary.completed_count != args.expect_count:
         raise SystemExit(f"expected {args.expect_count}, completed {summary.completed_count}")
     print(json.dumps(_json_value(asdict(summary)), sort_keys=True, allow_nan=False))
