@@ -271,8 +271,10 @@ def record_expectations(root: Path, *, library=None) -> None:
 
 
 def _json_value(value):
-    if isinstance(value, float) and math.isnan(value):
-        return None
+    if isinstance(value, float) and not math.isfinite(value):
+        if math.isnan(value):
+            return "semantic_absence:NaN"
+        return "no_finite_bound:+Infinity" if value > 0 else "no_finite_bound:-Infinity"
     if isinstance(value, dict):
         return {key: _json_value(item) for key, item in value.items()}
     if isinstance(value, (list, tuple)):
