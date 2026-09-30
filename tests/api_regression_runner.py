@@ -7,10 +7,14 @@ from dataclasses import asdict, dataclass
 import json
 import math
 from pathlib import Path
+import subprocess
 from typing import Any
 
 from api_regression_binding import PolicyValues, default_policy, invoke, load_library
 from api_regression_corpus import EXPECTED_IDS, FixtureCase, discover_cases, load_manifest
+
+
+SOLVER_SOURCE_COMMIT = "2741af01f0c0116347dbc81b21998f538690dcea"
 
 
 STATUS = {1: "UNIQUE", 2: "INFINITE", 3: "INCONSISTENT", 4: "FAIL", 5: "UNDECIDABLE"}
@@ -109,6 +113,33 @@ def compare_value(actual: Any, expected: Any) -> bool:
     return actual == expected
 
 
+def snapshot_observation(observation: CombinedObservation) -> dict[str, Any]:
+    return _json_value(asdict(observation))
+
+
+def _assert_snapshot(actual: Any, expected: Any, path: str = "observation") -> None:
+    if isinstance(expected, dict):
+        if not isinstance(actual, dict) or set(actual) != set(expected):
+            raise AssertionError(f"{path}: field set differs")
+        for key in expected:
+            _assert_snapshot(actual[key], expected[key], f"{path}.{key}")
+        return
+    if isinstance(expected, list):
+        if not isinstance(actual, list) or len(actual) != len(expected):
+            raise AssertionError(f"{path}: sequence shape differs")
+        for index, value in enumerate(expected):
+            _assert_snapshot(actual[index], value, f"{path}[{index}]")
+        return
+    if isinstance(expected, float):
+        if not isinstance(actual, (int, float)) or not math.isclose(
+            float(actual), expected, rel_tol=1e-10, abs_tol=1e-15
+        ):
+            raise AssertionError(f"{path}: {actual!r} != {expected!r} within tolerance")
+        return
+    if actual != expected:
+        raise AssertionError(f"{path}: {actual!r} != {expected!r}")
+
+
 def call_combined(
     case: FixtureCase,
     policy: PolicyValues,
@@ -185,6 +216,9 @@ def run_corpus(root: Path, *, library=None, include_ids: set[str] | None = None)
         observation = call_combined(case, default_policy(library), library=library)
         if observation.return_code not in (0, 2):
             raise RuntimeError(f"{case.case_id}: API return code {observation.return_code}")
+        expected = case.metadata.get("current_api_behavior")
+        if expected is not None:
+            _assert_snapshot(snapshot_observation(observation), expected, case.case_id)
         observations.append(observation)
         completed.append(case.case_id)
     expected = set(EXPECTED_IDS)
@@ -195,6 +229,45 @@ def run_corpus(root: Path, *, library=None, include_ids: set[str] | None = None)
             f"extra={sorted(completed_set-expected)}"
         )
     return RunSummary(discovered, tuple(attempted), tuple(completed), tuple(observations))
+
+
+def record_expectations(root: Path, *, library=None) -> None:
+    manifest = load_manifest(root)
+    if manifest["source"]["commit"] != "ae9b662d7f5755418aa80f31ade1fffcbefebafd":
+        raise RuntimeError("refusing to record against an unexpected abs-apps revision")
+    repository = Path(__file__).resolve().parents[1]
+    if subprocess.run(
+        ["git", "status", "--porcelain"], cwd=repository, text=True, capture_output=True, check=True
+    ).stdout:
+        raise RuntimeError("refusing to record from a dirty worktree")
+    source_diff = subprocess.run(
+        ["git", "diff", "--quiet", SOLVER_SOURCE_COMMIT, "--", "src", "include"],
+        cwd=repository,
+    )
+    if source_diff.returncode:
+        raise RuntimeError("refusing to record after solver source/API changes")
+    summary = run_corpus(root, library=library)
+    snapshots = {item.case_id: snapshot_observation(item) for item in summary.observations}
+    for entry in manifest["cases"]:
+        entry["current_api_behavior"] = snapshots[entry["case_id"]]
+    manifest["behavior_contract"] = {
+        "solver_source_commit": SOLVER_SOURCE_COMMIT,
+        "classification": {
+            "input_shape": "invariant",
+            "invocation_mode": "invariant",
+            "policy": "invariant",
+            "return_code": "behavior",
+            "operational": "behavior",
+            "exact_source": "behavior_not_mathematical_oracle",
+            "certificate": "behavior_nearby_system_guarantees_only",
+            "solution_vector": "invariant_not_exposed",
+            "elapsed_time": "dont_care_not_recorded",
+        },
+        "float_tolerance": {"relative": 1e-10, "absolute": 1e-15},
+    }
+    (root / "manifest.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True, allow_nan=False) + "\n"
+    )
 
 
 def _json_value(value):
@@ -211,7 +284,12 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--fixture-root", type=Path, default=Path(__file__).parent / "fixtures/api-regression")
     parser.add_argument("--expect-count", type=int, required=True)
+    parser.add_argument("--record", action="store_true")
     args = parser.parse_args()
+    if args.record:
+        record_expectations(args.fixture_root)
+        print(f"recorded={args.expect_count}")
+        return
     summary = run_corpus(args.fixture_root)
     if summary.completed_count != args.expect_count:
         raise SystemExit(f"expected {args.expect_count}, completed {summary.completed_count}")
