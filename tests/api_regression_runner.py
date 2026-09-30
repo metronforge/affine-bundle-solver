@@ -209,6 +209,11 @@ def run_corpus(
 ) -> RunSummary:
     library = library or load_library()
     cases = discover_cases(root, load_manifest(root))
+    oracles = None
+    if verify_behavior:
+        from api_regression_oracle import load_oracles
+
+        oracles = load_oracles(root / "oracles.json")
     discovered = tuple(case.case_id for case in cases)
     selected = [case for case in cases if include_ids is None or case.case_id in include_ids]
     attempted: list[str] = []
@@ -222,6 +227,15 @@ def run_corpus(
         expected = case.metadata.get("current_api_behavior")
         if verify_behavior and expected is not None:
             _assert_snapshot(snapshot_observation(observation), expected, case.case_id)
+            from api_regression_oracle import verify_semantic_layers
+
+            failed = [
+                check
+                for check in verify_semantic_layers(observation, oracles[case.case_id])
+                if not check.passed
+            ]
+            if failed:
+                raise AssertionError(f"{case.case_id}: semantic layer failure: {failed}")
         observations.append(observation)
         completed.append(case.case_id)
     expected = set(EXPECTED_IDS)
