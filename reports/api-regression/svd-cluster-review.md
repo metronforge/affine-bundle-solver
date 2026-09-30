@@ -114,3 +114,15 @@ reviewed baseline update and common tolerances restored:
 
 Hosted cross-toolchain results must be checked separately on the new PR HEAD;
 these local results do not stand in for GCC/Clang portable or GCC native CI.
+
+PR-head `2335b4d74add84c7dd378de503dd9acfe1eccda9`, hosted run
+[36740738316](https://github.com/metronforge/affine-bundle-solver/actions/runs/36740738316),
+passed both API regression steps in GCC portable, GCC native and Clang
+portable, including the independent reference and controlled negative.
+All three jobs subsequently failed `Synthetic benchmark contract` because
+the manuscript hash registry still named the pre-edit `paper.tex` hash.
+The follow-up changes only that SHA-256 binding: benchmark claims,
+artifact hashes, source provenance and assertions remain unchanged.
+Locally the 52 contract tests and full `--audit-performance-artifacts .
+--require-publication-ready` check then passed. A new full PR run is still
+required; the preceding run is not reported as successful CI.
