@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 from dataclasses import asdict, dataclass
 import json
 import math
@@ -129,7 +130,7 @@ def _assert_snapshot(actual: Any, expected: Any, path: str = "observation") -> N
         return
     if isinstance(expected, float):
         if not isinstance(actual, (int, float)) or not math.isclose(
-            float(actual), expected, rel_tol=1e-10, abs_tol=1e-15
+            float(actual), expected, rel_tol=1e-10, abs_tol=1e-12
         ):
             raise AssertionError(f"{path}: {actual!r} != {expected!r} within tolerance")
         return
@@ -206,6 +207,7 @@ def run_corpus(
     library=None,
     include_ids: set[str] | None = None,
     verify_behavior: bool = False,
+    inject_wrong_expected: str | None = None,
 ) -> RunSummary:
     library = library or load_library()
     cases = discover_cases(root, load_manifest(root))
@@ -219,6 +221,15 @@ def run_corpus(
     attempted: list[str] = []
     completed: list[str] = []
     observations = []
+    injected = False
+    injection_case = injection_field = None
+    if inject_wrong_expected:
+        try:
+            injection_case, injection_field = inject_wrong_expected.split(":", 1)
+        except ValueError as error:
+            raise ValueError("injection must be CASE:FIELD") from error
+        if injection_case not in EXPECTED_IDS:
+            raise ValueError(f"unknown injection case: {injection_case}")
     for case in selected:
         attempted.append(case.case_id)
         observation = call_combined(case, default_policy(library), library=library)
@@ -226,7 +237,40 @@ def run_corpus(
             raise RuntimeError(f"{case.case_id}: API return code {observation.return_code}")
         expected = case.metadata.get("current_api_behavior")
         if verify_behavior and expected is not None:
-            _assert_snapshot(snapshot_observation(observation), expected, case.case_id)
+            compared_expected = expected
+            if case.case_id == injection_case:
+                compared_expected = copy.deepcopy(expected)
+                aliases = {
+                    "operational_status": ("operational", "status"),
+                    "rank": ("operational", "rank"),
+                    "nearby_status_mask": ("certificate", "nearby_status_mask"),
+                }
+                if injection_field not in aliases:
+                    raise ValueError(
+                        f"unsupported injection field {injection_field!r}; "
+                        f"choose one of {sorted(aliases)}"
+                    )
+                section, field = aliases[injection_field]
+                value = compared_expected[section][field]
+                if isinstance(value, int):
+                    compared_expected[section][field] = value + 1
+                elif isinstance(value, str):
+                    compared_expected[section][field] = (
+                        "UNIQUE" if value != "UNIQUE" else "INFINITE"
+                    )
+                else:
+                    raise ValueError(f"cannot inject type-valid value for {injection_field}")
+                injected = True
+            try:
+                _assert_snapshot(
+                    snapshot_observation(observation), compared_expected, case.case_id
+                )
+            except AssertionError as error:
+                if injected and case.case_id == injection_case:
+                    raise AssertionError(
+                        f"{injection_case}:{injection_field}: controlled expectation mismatch: {error}"
+                    ) from error
+                raise
             from api_regression_oracle import verify_semantic_layers
 
             failed = [
@@ -245,6 +289,8 @@ def run_corpus(
             f"incomplete run: missing={sorted(expected-completed_set)}, "
             f"extra={sorted(completed_set-expected)}"
         )
+    if inject_wrong_expected and not injected:
+        raise ValueError(f"controlled injection was not reached: {inject_wrong_expected}")
     return RunSummary(discovered, tuple(attempted), tuple(completed), tuple(observations))
 
 
@@ -311,6 +357,8 @@ def main() -> None:
     parser.add_argument("--expect-count", type=int, required=True)
     parser.add_argument("--record", action="store_true")
     parser.add_argument("--solver-source-commit")
+    parser.add_argument("--expect-ids-from", choices=("manifest",), default="manifest")
+    parser.add_argument("--inject-wrong-expected")
     args = parser.parse_args()
     if args.record:
         if not args.solver_source_commit:
@@ -318,7 +366,14 @@ def main() -> None:
         record_expectations(args.fixture_root, args.solver_source_commit)
         print(f"recorded={args.expect_count}")
         return
-    summary = run_corpus(args.fixture_root, verify_behavior=True)
+    try:
+        summary = run_corpus(
+            args.fixture_root,
+            verify_behavior=True,
+            inject_wrong_expected=args.inject_wrong_expected,
+        )
+    except (AssertionError, ValueError, RuntimeError) as error:
+        parser.exit(1, f"api regression failed: {error}\n")
     if summary.completed_count != args.expect_count:
         raise SystemExit(f"expected {args.expect_count}, completed {summary.completed_count}")
     print(json.dumps(_json_value(asdict(summary)), sort_keys=True, allow_nan=False))

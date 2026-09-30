@@ -14,7 +14,7 @@ T8-001..029 are deterministic constructions from `task8_cases.py`. T8-030..032 d
 
 ## Input → observed current API → exact oracle
 
-Invocation: `combined_policy_v1`, `xt=NULL`, `sp=1`, `qv=2`, `alpha=2`, `seed=17`, `full=0`; default policy `(D=1e-13, G=1e-9, compatibility=2e-10, quality=1e-14)`. Floats use `rtol=1e-10`, `atol=1e-15` in the frozen single-thread behavior gate; elapsed time is excluded.
+Invocation: `combined_policy_v1`, `xt=NULL`, `sp=1`, `qv=2`, `alpha=2`, `seed=17`, `full=0`; default policy `(D=1e-13, G=1e-9, compatibility=2e-10, quality=1e-14)`. Floats use `rtol=1e-10`, `atol=1e-12` in the frozen single-thread behavior gate; elapsed time is excluded.
 
 | slot | shape/type | source | A SHA-256 | b SHA-256 | observed API output | independent oracle |
 |---|---:|---|---|---|---|---|

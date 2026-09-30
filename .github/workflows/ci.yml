@@ -196,6 +196,41 @@ jobs:
             -Wl,-rpath,"$PWD" -o /tmp/test-operational-policy
           OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 ABS_CERT_UNIQUE_THREADS=1 /tmp/test-operational-policy
 
+      - name: API regression baseline (36 cases)
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+          OMP_NUM_THREADS: '1'
+          ABS_CERT_UNIQUE_THREADS: '1'
+        run: |
+          python -m unittest \
+            tests/test_api_regression_corpus.py \
+            tests/test_api_regression_runner.py \
+            tests/test_api_regression_oracle.py \
+            tests/test_api_regression_decisions.py \
+            tests/test_certificate_thread_determinism.py -v
+          python tests/api_regression_runner.py \
+            --expect-count 36 --expect-ids-from manifest
+
+      - name: API regression controlled negative
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+          OMP_NUM_THREADS: '1'
+          ABS_CERT_UNIQUE_THREADS: '1'
+        run: |
+          set +e
+          python tests/api_regression_runner.py \
+            --expect-count 36 --expect-ids-from manifest \
+            --inject-wrong-expected T8-001:operational_status \
+            >/tmp/api-regression-negative.out 2>/tmp/api-regression-negative.err
+          rc=$?
+          set -e
+          if [ "$rc" -eq 0 ]; then
+            echo "::error::controlled negative unexpectedly passed"
+            exit 1
+          fi
+          grep -F 'T8-001:operational_status: controlled expectation mismatch' \
+            /tmp/api-regression-negative.err
+
       - name: Synthetic benchmark contract
         run: python tests/test_synthetic_bench_contract.py
 

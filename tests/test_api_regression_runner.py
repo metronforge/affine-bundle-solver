@@ -1,11 +1,13 @@
 import math
+import os
 from pathlib import Path
+import subprocess
 import sys
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from api_regression_corpus import discover_cases, load_manifest
+from api_regression_corpus import discover_cases, load_manifest, sha256_file
 from api_regression_binding import default_policy, load_library
 from api_regression_runner import compare_value, call_combined, run_corpus
 
@@ -62,6 +64,64 @@ class ApiRegressionRunnerTests(unittest.TestCase):
         self.assertTrue(compare_value(math.nan, math.nan))
         self.assertFalse(compare_value(math.nan, 0.0))
         self.assertFalse(compare_value(0.0, math.nan))
+
+    def test_controlled_wrong_status_fails_and_names_case_and_field(self):
+        manifest_path = CORPUS / "manifest.json"
+        fixture_path = CORPUS / "inputs/T8-001.npz"
+        before = (sha256_file(manifest_path), sha256_file(fixture_path))
+        env = dict(os.environ)
+        env.update(OPENBLAS_NUM_THREADS="1", OMP_NUM_THREADS="1", ABS_CERT_UNIQUE_THREADS="1")
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "tests/api_regression_runner.py"),
+                "--expect-count", "36",
+                "--expect-ids-from", "manifest",
+                "--inject-wrong-expected", "T8-001:operational_status",
+            ],
+            cwd=ROOT,
+            env=env,
+            text=True,
+            capture_output=True,
+        )
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("T8-001", result.stderr)
+        self.assertIn("operational_status", result.stderr)
+        self.assertIn("controlled expectation mismatch", result.stderr)
+        self.assertEqual(before, (sha256_file(manifest_path), sha256_file(fixture_path)))
+
+    def test_cli_positive_run_reports_exact_complete_set(self):
+        env = dict(os.environ)
+        env.update(OPENBLAS_NUM_THREADS="1", OMP_NUM_THREADS="1", ABS_CERT_UNIQUE_THREADS="1")
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "tests/api_regression_runner.py"),
+                "--expect-count", "36",
+                "--expect-ids-from", "manifest",
+            ],
+            cwd=ROOT,
+            env=env,
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+        payload = __import__("json").loads(result.stdout)
+        self.assertEqual(36, len(payload["discovered_ids"]))
+        self.assertEqual(payload["discovered_ids"], payload["completed_ids"])
+
+    def test_required_ci_contains_positive_and_controlled_negative_steps(self):
+        workflow = (ROOT / ".github/workflows/ci.yml").read_text()
+        for required in (
+            "API regression baseline (36 cases)",
+            "API regression controlled negative",
+            "--expect-count 36 --expect-ids-from manifest",
+            "--inject-wrong-expected T8-001:operational_status",
+            "test_certificate_thread_determinism.py",
+        ):
+            self.assertIn(required, workflow)
+        self.assertIn("pull_request:", workflow)
+        self.assertIn("branches: [main]", workflow)
 
 
 if __name__ == "__main__":
