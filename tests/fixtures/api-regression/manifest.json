@@ -15,6 +15,13 @@
       "absolute": 1e-12,
       "relative": 1e-10
     },
+    "field_float_tolerance": {
+      "certificate.eta_infinite": {
+        "absolute": 1e-12,
+        "basis": "noncanonical verifier-accepted BLAS witness; measured cross-runner candidate relative shift 0.003301267178120985",
+        "relative": 0.005
+      }
+    },
     "solver_source_commit": "49ec7e34377818c2fc149466879f088ecd834c1b"
   },
   "cases": [

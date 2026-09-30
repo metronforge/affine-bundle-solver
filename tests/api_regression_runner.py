@@ -26,6 +26,14 @@ VERIFICATION = {
     4: "EXTERNAL_PROOF",
 }
 
+DEFAULT_FLOAT_REL_TOL = 1e-10
+DEFAULT_FLOAT_ABS_TOL = 1e-12
+# eta_infinite is an accepted upper bound produced from a BLAS-generated
+# witness, not a canonical optimum.  The same source and unchanged strict
+# verifier measured a 0.3301267% shift between BLAS candidates on CI runners.
+# Keep this tolerance path-specific and bounded above that observation.
+ETA_INFINITE_REL_TOL = 5e-3
+
 
 @dataclass(frozen=True)
 class OperationalObservation:
@@ -129,10 +137,21 @@ def _assert_snapshot(actual: Any, expected: Any, path: str = "observation") -> N
             _assert_snapshot(actual[index], value, f"{path}[{index}]")
         return
     if isinstance(expected, float):
+        relative_tolerance = (
+            ETA_INFINITE_REL_TOL
+            if path.endswith(".certificate.eta_infinite")
+            else DEFAULT_FLOAT_REL_TOL
+        )
         if not isinstance(actual, (int, float)) or not math.isclose(
-            float(actual), expected, rel_tol=1e-10, abs_tol=1e-12
+            float(actual),
+            expected,
+            rel_tol=relative_tolerance,
+            abs_tol=DEFAULT_FLOAT_ABS_TOL,
         ):
-            raise AssertionError(f"{path}: {actual!r} != {expected!r} within tolerance")
+            raise AssertionError(
+                f"{path}: {actual!r} != {expected!r} within "
+                f"rtol={relative_tolerance!r}, atol={DEFAULT_FLOAT_ABS_TOL!r}"
+            )
         return
     if actual != expected:
         raise AssertionError(f"{path}: {actual!r} != {expected!r}")
@@ -332,7 +351,17 @@ def record_expectations(root: Path, solver_source_commit: str, *, library=None) 
             "solution_vector": "invariant_not_exposed",
             "elapsed_time": "dont_care_not_recorded",
         },
-        "float_tolerance": {"relative": 1e-10, "absolute": 1e-15},
+        "float_tolerance": {
+            "relative": DEFAULT_FLOAT_REL_TOL,
+            "absolute": DEFAULT_FLOAT_ABS_TOL,
+        },
+        "field_float_tolerance": {
+            "certificate.eta_infinite": {
+                "relative": ETA_INFINITE_REL_TOL,
+                "absolute": DEFAULT_FLOAT_ABS_TOL,
+                "basis": "noncanonical verifier-accepted BLAS witness; measured cross-runner candidate relative shift 0.003301267178120985",
+            }
+        },
     }
     (root / "manifest.json").write_text(
         json.dumps(manifest, indent=2, sort_keys=True, allow_nan=False) + "\n"
