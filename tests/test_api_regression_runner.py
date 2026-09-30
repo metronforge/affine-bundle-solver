@@ -16,6 +16,15 @@ ROOT = Path(__file__).resolve().parents[1]
 CORPUS = ROOT / "tests" / "fixtures" / "api-regression"
 
 
+def _assert_child_success(testcase, result):
+    testcase.assertEqual(
+        0,
+        result.returncode,
+        "child exit code "
+        f"{result.returncode}; stdout={result.stdout!r}; stderr={result.stderr!r}",
+    )
+
+
 class ApiRegressionRunnerTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -90,6 +99,16 @@ class ApiRegressionRunnerTests(unittest.TestCase):
         self.assertIn("controlled expectation mismatch", result.stderr)
         self.assertEqual(before, (sha256_file(manifest_path), sha256_file(fixture_path)))
 
+    def test_child_failure_diagnostic_includes_exit_stdout_and_stderr(self):
+        result = subprocess.CompletedProcess(
+            args=["child"], returncode=7, stdout="captured-out", stderr="captured-err"
+        )
+        with self.assertRaisesRegex(
+            AssertionError,
+            "exit code 7.*captured-out.*captured-err",
+        ):
+            _assert_child_success(self, result)
+
     def test_cli_positive_run_reports_exact_complete_set(self):
         env = dict(os.environ)
         env.update(OPENBLAS_NUM_THREADS="1", OMP_NUM_THREADS="1", ABS_CERT_UNIQUE_THREADS="1")
@@ -104,8 +123,8 @@ class ApiRegressionRunnerTests(unittest.TestCase):
             env=env,
             text=True,
             capture_output=True,
-            check=True,
         )
+        _assert_child_success(self, result)
         payload = __import__("json").loads(result.stdout)
         self.assertEqual(36, len(payload["discovered_ids"]))
         self.assertEqual(payload["discovered_ids"], payload["completed_ids"])
