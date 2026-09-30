@@ -15,7 +15,7 @@
       "absolute": 1e-15,
       "relative": 1e-10
     },
-    "solver_source_commit": "2741af01f0c0116347dbc81b21998f538690dcea"
+    "solver_source_commit": "49ec7e34377818c2fc149466879f088ecd834c1b"
   },
   "cases": [
     {
@@ -687,7 +687,7 @@
         "case_id": "T8-008",
         "certificate": {
           "certified_status": 2,
-          "eta_inconsistent": 1.3832099173665298,
+          "eta_inconsistent": 0.22941573387056183,
           "eta_infinite": 1.3918224908672401e-15,
           "eta_status": 1.3918224908672401e-15,
           "eta_unique": "no_finite_bound:+Infinity",
@@ -781,7 +781,7 @@
         "case_id": "T8-009",
         "certificate": {
           "certified_status": 2,
-          "eta_inconsistent": 1.9916674817402336,
+          "eta_inconsistent": 0.22941573387056183,
           "eta_infinite": 3.082785234729003e-15,
           "eta_status": 3.082785234729003e-15,
           "eta_unique": "no_finite_bound:+Infinity",
@@ -2478,7 +2478,7 @@
         "case_id": "T8-024",
         "certificate": {
           "certified_status": 0,
-          "eta_inconsistent": 1.099659069861835,
+          "eta_inconsistent": 0.7071067811865478,
           "eta_infinite": 1.4142363659196337e-11,
           "eta_status": "no_finite_bound:+Infinity",
           "eta_unique": 2.355138688025663e-16,
@@ -2575,7 +2575,7 @@
         "case_id": "T8-025",
         "certificate": {
           "certified_status": 0,
-          "eta_inconsistent": 1.099659069861835,
+          "eta_inconsistent": 0.7071067811865478,
           "eta_infinite": 1.40007165478469e-09,
           "eta_status": "no_finite_bound:+Infinity",
           "eta_unique": 2.355138688025663e-16,
@@ -2672,7 +2672,7 @@
         "case_id": "T8-026",
         "certificate": {
           "certified_status": 1,
-          "eta_inconsistent": 1.099659069861835,
+          "eta_inconsistent": 0.7071067811865478,
           "eta_infinite": 1.4142137904084206e-09,
           "eta_status": 2.355138688025663e-16,
           "eta_unique": 2.355138688025663e-16,
@@ -2769,7 +2769,7 @@
         "case_id": "T8-027",
         "certificate": {
           "certified_status": 1,
-          "eta_inconsistent": 1.099659069861835,
+          "eta_inconsistent": 0.7071067811865478,
           "eta_infinite": 1.4283559260321516e-09,
           "eta_status": 2.355138688025663e-16,
           "eta_unique": 2.355138688025663e-16,
@@ -2866,7 +2866,7 @@
         "case_id": "T8-028",
         "certificate": {
           "certified_status": 1,
-          "eta_inconsistent": 1.099659069861835,
+          "eta_inconsistent": 0.7071067811865478,
           "eta_infinite": 1.7677671810016947e-09,
           "eta_status": 2.355138688025663e-16,
           "eta_unique": 2.355138688025663e-16,
@@ -2963,7 +2963,7 @@
         "case_id": "T8-029",
         "certificate": {
           "certified_status": 1,
-          "eta_inconsistent": 1.099659069861835,
+          "eta_inconsistent": 0.7071067811865478,
           "eta_infinite": 5.656854477527709e-09,
           "eta_status": 2.355138688025663e-16,
           "eta_unique": 2.355138688025663e-16,
@@ -3321,7 +3321,7 @@
         "case_id": "T8-036",
         "certificate": {
           "certified_status": 1,
-          "eta_inconsistent": 2.656382146215537,
+          "eta_inconsistent": 0.9999999999999818,
           "eta_infinite": 0.0004176245168068767,
           "eta_status": 1.4284319651467341e-15,
           "eta_unique": 1.4284319651467341e-15,
@@ -3407,7 +3407,7 @@
         "case_id": "T8-037",
         "certificate": {
           "certified_status": 1,
-          "eta_inconsistent": 2.1549061306844144,
+          "eta_inconsistent": 0.9999999328257683,
           "eta_infinite": 0.0002784650479523227,
           "eta_status": 1.2301735437621705e-15,
           "eta_unique": 1.2301735437621705e-15,
@@ -3493,7 +3493,7 @@
         "case_id": "T8-038",
         "certificate": {
           "certified_status": 1,
-          "eta_inconsistent": 2.0261372389521175,
+          "eta_inconsistent": 0.9999999890199766,
           "eta_infinite": 0.00012023701764076571,
           "eta_status": 3.0266841763584734e-15,
           "eta_unique": 3.0266841763584734e-15,
@@ -3579,7 +3579,7 @@
         "case_id": "T8-039",
         "certificate": {
           "certified_status": 1,
-          "eta_inconsistent": 3.3252360545111177,
+          "eta_inconsistent": 0.9999999999969754,
           "eta_infinite": 0.00048459891115656896,
           "eta_status": 1.7868650726853443e-15,
           "eta_unique": 1.7868650726853443e-15,
