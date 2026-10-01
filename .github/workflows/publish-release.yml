@@ -121,28 +121,32 @@ jobs:
           git show origin/main:docs/releases/v0.5.0.md > "$RUNNER_TEMP/release-notes.md"
           response="$RUNNER_TEMP/release-lookup.json"
           error="$RUNNER_TEMP/release-lookup.stderr"
-          set +e
-          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" >"$response" 2>"$error"
-          api_status=$?
-          set -e
+          lookup_release() {
+            gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" \
+              --jq "[.[] | select(.tag_name == \"$TAG\")] | if length == 0 then {message:\"Not Found\",status:\"404\"} elif length == 1 then .[0] else {message:\"multiple releases for tag\"} end"
+          }
+          if ! lookup_release >"$response" 2>"$error"; then
+            cat "$error" >&2
+            echo "GitHub release list lookup failed" >&2
+            exit 1
+          fi
           state=$(python3 "$RUNNER_TEMP/release_assets.py" release-state "$response" "$TAG" "$VERIFIED_SHA") || {
             cat "$error" >&2
             exit 1
           }
           if [ "$state" = missing ]; then
-            if [ "$api_status" -eq 0 ]; then
-              echo "GitHub returned Not Found without an HTTP error" >&2
-              exit 1
-            fi
             gh release create "$TAG" --draft --target "$VERIFIED_SHA" \
               --title "$TAG" --notes-file "$RUNNER_TEMP/release-notes.md"
-            echo "state=draft" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          if [ "$api_status" -ne 0 ]; then
-            cat "$error" >&2
-            echo "GitHub release lookup failed unexpectedly" >&2
-            exit 1
+            if ! lookup_release >"$response" 2>"$error"; then
+              cat "$error" >&2
+              echo "new release draft could not be resolved by release ID" >&2
+              exit 1
+            fi
+            state=$(python3 "$RUNNER_TEMP/release_assets.py" release-state "$response" "$TAG" "$VERIFIED_SHA")
+            if [ "$state" != draft ]; then
+              echo "created release is not the expected draft" >&2
+              exit 1
+            fi
           fi
           if [ "$state" = immutable ]; then
             echo "state=immutable" >> "$GITHUB_OUTPUT"
@@ -152,19 +156,22 @@ jobs:
             echo "existing release is published but not immutable" >&2
             exit 1
           fi
+          release_id=$(jq -er '.id | select(type == "number")' "$response")
+          echo "release_id=$release_id" >> "$GITHUB_OUTPUT"
 
       - name: Attach exact assets without overwriting
         if: steps.release.outputs.created == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.release.outputs.tag }}
+          RELEASE_ID: ${{ steps.draft.outputs.release_id }}
           VERSION: ${{ steps.release.outputs.version }}
         run: |
           python3 tools/release_assets.py names "$VERSION" > "$RUNNER_TEMP/expected-assets.txt"
           while IFS= read -r name; do
             path="dist/$name"
-            asset_id=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" \
-              --jq ".assets[] | select(.name == \"$name\") | .id")
+            asset_id=$(gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets" \
+              --jq "[.[] | select(.name == \"$name\")] | if length > 1 then error(\"duplicate release asset\") elif length == 1 then .[0].id else empty end")
             if [ -n "$asset_id" ]; then
               tmp=$(mktemp -d)
               gh api "repos/$GITHUB_REPOSITORY/releases/assets/$asset_id" \
@@ -172,7 +179,13 @@ jobs:
               python3 tools/release_assets.py identical "$path" "$tmp/$name"
               echo "$name already attached with the expected bytes"
             else
-              gh release upload "$TAG" "$path"
+              curl --fail-with-body --silent --show-error --location \
+                --request POST \
+                --header 'Accept: application/vnd.github+json' \
+                --header "Authorization: Bearer $GH_TOKEN" \
+                --header 'Content-Type: application/octet-stream' \
+                "https://uploads.github.com/repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets?name=$name" \
+                --data-binary "@$path" > /dev/null
             fi
           done < "$RUNNER_TEMP/expected-assets.txt"
 
@@ -181,21 +194,31 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.release.outputs.tag }}
+          RELEASE_ID: ${{ steps.draft.outputs.release_id }}
           STATE: ${{ steps.draft.outputs.state }}
           VERSION: ${{ steps.release.outputs.version }}
           VERIFIED_SHA: ${{ steps.source.outputs.verified_sha }}
         run: |
           remote=$(mktemp -d)
-          gh release download "$TAG" --dir "$remote"
+          release_json="$RUNNER_TEMP/release-assets.json"
+          gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" > "$release_json"
+          while IFS= read -r name; do
+            asset_id=$(jq -er --arg name "$name" \
+              '[.assets[] | select(.name == $name)] | if length == 1 then .[0].id else error("missing or duplicate release asset") end' \
+              "$release_json")
+            gh api "repos/$GITHUB_REPOSITORY/releases/assets/$asset_id" \
+              -H 'Accept: application/octet-stream' > "$remote/$name"
+          done < "$RUNNER_TEMP/expected-assets.txt"
           python3 tools/release_assets.py verify "$remote" "$VERSION" "$VERIFIED_SHA"
           (cd "$remote" && sha256sum -c SHA256SUMS.txt)
           while IFS= read -r name; do
             python3 tools/release_assets.py identical "dist/$name" "$remote/$name"
           done < "$RUNNER_TEMP/expected-assets.txt"
           if [ "$STATE" = draft ]; then
-            gh release edit "$TAG" --draft=false --latest
+            gh api --method PATCH "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" \
+              -F draft=false -F make_latest=true > "$RUNNER_TEMP/published-release.json"
           fi
-          immutable=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" --jq '.immutable // false')
+          immutable=$(gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" --jq '.immutable // false')
           if [ "$immutable" != true ]; then
             echo "published release is not immutable" >&2
             exit 1
