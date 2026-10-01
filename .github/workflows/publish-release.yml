@@ -117,6 +117,7 @@ jobs:
           VERIFIED_SHA: ${{ steps.source.outputs.verified_sha }}
         run: |
           git fetch --no-tags origin main
+          git show origin/main:tools/release_assets.py > "$RUNNER_TEMP/release_assets.py"
           git show origin/main:docs/releases/v0.5.0.md > "$RUNNER_TEMP/release-notes.md"
           response="$RUNNER_TEMP/release-lookup.json"
           error="$RUNNER_TEMP/release-lookup.stderr"
@@ -124,7 +125,7 @@ jobs:
           gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" >"$response" 2>"$error"
           api_status=$?
           set -e
-          state=$(python3 tools/release_assets.py release-state "$response" "$TAG" "$VERIFIED_SHA") || {
+          state=$(python3 "$RUNNER_TEMP/release_assets.py" release-state "$response" "$TAG" "$VERIFIED_SHA") || {
             cat "$error" >&2
             exit 1
           }

@@ -46,6 +46,14 @@ class ReleaseContract(unittest.TestCase):
         self.assertTrue(release.candidate_required('1.2.3', '1.2.2', False))
         self.assertTrue(release.candidate_required('1.2.3', '1.2.3', True))
 
+    def test_release_lookup_helper_is_loaded_from_publisher_revision(self):
+        workflow = (Path(__file__).resolve().parents[1] /
+                    '.github/workflows/publish-release.yml').read_text()
+        self.assertIn('git show origin/main:tools/release_assets.py > "$RUNNER_TEMP/release_assets.py"',
+                      workflow)
+        self.assertIn('python3 "$RUNNER_TEMP/release_assets.py" release-state', workflow)
+        self.assertIn('python3 tools/release_assets.py verify dist', workflow)
+
     def test_release_lookup_treats_only_not_found_as_absent(self):
         self.assertEqual('missing', release.release_lookup_state(
             {'message': 'Not Found', 'status': '404'}, 'v' + VERSION, SHA))
