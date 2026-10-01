@@ -39,11 +39,25 @@ hal:
   existing_v1_status: awaiting_moderation
   version_specific_doi: null
 release_candidate:
-  immutable_tag: null
-  immutable_release_url: null
-  source_commit: null
-  manuscript_pdf_sha256: null
-  source_archive_sha256: null
-  research_archive_sha256: null
-  binary_archive_sha256: {}
-  checksum_manifest_sha256: null
+  immutable_tag: v0.5.0
+  immutable_release_url: https://github.com/metronforge/affine-bundle-solver/releases/tag/v0.5.0
+  source_commit: 9e189869b55dbe0d95adcac92c796cee708ed269
+  release_workflow_run_id: 36925629085
+  source_build_run_id: 36918836724
+  published_at: 2026-10-01
+  manuscript_pdf:
+    filename: paper.pdf
+    sha256: fedc61e33e24a030a6d3830c42118703c8103721736749c20e37e9a46aaacac0
+    workflow_run_id: 36918836169
+    workflow_url: https://github.com/metronforge/affine-bundle-solver/actions/runs/36918836169
+    artifact_name: paper-pdf
+  manuscript_source:
+    filename: paper.tex
+    sha256: bfe8cde988ab00d71e62e3ae2b8c7aa93703f04289ee6c5560064164870ebf3d
+  source_archive_sha256: c8f86f1a5de92d0cffeb300d770f60aa27931bca34317910ec797fc627f68215
+  research_archive_sha256: f794dc1e1b8508bbdbc7fb6a8160e8a05a499d2a15e3d955af2a690a10adab09
+  binary_archive_sha256:
+    linux_x86_64: 19a2b8567cf588cacf3613a940b8710232aaa6fa08889b3f32e74b968fdd9b6e
+    linux_arm64: a7fb6be9150c14d023457585c65a7c7ef5462bbb63f8afb068e472fab6613461
+    macos_arm64: d2ca8b5b37ee95586b7a29743e475a11a9200986a20b3485ed9d575ecda9c51b
+  checksum_manifest_sha256: 873514beb59065f52d1021c7a9cc30a2c8901e4e9878097549c19b7aef52fe37
