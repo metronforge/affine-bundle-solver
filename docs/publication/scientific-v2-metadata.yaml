@@ -26,14 +26,14 @@ zenodo:
   action: create_new_version_of_existing_record
   concept_doi: 10.5281/zenodo.22753772
   previous_version_doi: 10.5281/zenodo.22753773
-  version_specific_doi: null
-  publication_date: null
+  version_specific_doi: 10.5281/zenodo.23091078
+  publication_date: 2026-10-01
   description: >-
     Scientific v2 adds the split solve/check/certify public architecture and
     its qualification evidence while retaining the legacy router API.
 orcid:
   action_after_zenodo_publication: add_or_link_version_specific_doi
-  version_specific_doi: null
+  version_specific_doi: 10.5281/zenodo.23091078
 hal:
   action_after_zenodo_publication: submit_as_new_version_of_the_existing_work
   existing_v1_status: awaiting_moderation
