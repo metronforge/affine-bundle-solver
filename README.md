@@ -80,6 +80,64 @@ See the [API guide](docs/api.md#2-solve-check-and-optionally-certify) for the
 versioned result contracts and a complete three-phase C example. Existing
 router and combined certified symbols remain supported.
 
+#### Quick start
+
+Solve a small row-major system:
+
+```c
+#include <affine_bundle/solve.h>
+
+double A[] = {
+    2.0, 1.0,
+    1.0, 3.0
+};
+double b[] = {5.0, 7.0};
+double x[2];
+
+BSOperationalPolicyV1 policy;
+BSSolveResultV1 solved;
+
+bs_default_operational_policy(&policy);
+bs_init_solve_result(&solved);
+
+if (bsolve(A, b, 2, 2, &policy, x, &solved) == BS_SOLVE_OK) {
+    /* x is available for use or storage. */
+}
+```
+
+Check that candidate now or later:
+
+```c
+#include <affine_bundle/candidate_check.h>
+
+BSCandidateCheckResultV1 checked;
+bs_init_candidate_check_result(&checked);
+
+if (abs_check_candidate(A, b, x, 2, 2, &policy, &checked)
+        == BS_CANDIDATE_CHECK_OK) {
+    /* checked.verdict describes the quality established for this x. */
+}
+```
+
+Request stronger nearby-system evidence without solving again:
+
+```c
+#include <affine_bundle/certified_api.h>
+
+BSCertificateResultV1 certificate;
+bs_init_certificate_result(&certificate);
+
+if (bs_certify_candidate(A, b, x, 2, 2, &certificate) == BS_CERTIFY_OK) {
+    /* certificate.nearby_status_mask records accepted nearby profiles. */
+}
+```
+
+`x` does not have to come from `bsolve()`: candidate checking and
+certification accept a caller-supplied finite vector and do not re-solve the
+system. For explicit routing and reproducibility controls, use `bsolve_ex()`
+with `BSSolveOptionsV1`; see the [API guide](docs/api.md#2-solve-check-and-optionally-certify).
+
+
 ### Certificates
 
 An optional audit API attempts three typed proof objects — nearby exact
