@@ -82,6 +82,37 @@ int bsolve_certified_policy_api(const double *A,const double *b,const double *xt
     int m,int n,int sp,int qv,int alpha,unsigned long long seed,int full,
     const BSOperationalPolicyV1 *policy,BSCombinedSemanticResultV1 *out);
 
+/* Standalone nearby-system evidence for one caller-supplied candidate x.
+   These fields retain the existing eta-profile meaning: they bound nearby
+   exact systems and do not classify the exact stored A,b. */
+typedef struct {
+    size_t struct_size;
+    int nearby_status_mask;
+    double eta_unique, eta_infinite, eta_inconsistent;
+    int unique_generator_code, unique_verifier_code;
+    int infinite_generator_code, infinite_verifier_code;
+    int inconsistent_generator_code, inconsistent_verifier_code;
+    BSExactSourceStatus exact_source_status;
+    BSExactSourceVerification exact_source_verification;
+} BSCertificateResultV1;
+
+enum {
+    BS_CERTIFY_OK = 0,
+    BS_CERTIFY_INVALID_ARGUMENT = 1,
+    BS_CERTIFY_ALLOCATION_FAILURE = 2,
+    BS_CERTIFY_NUMERICAL_FAILURE = 3
+};
+
+void bs_init_certificate_result(BSCertificateResultV1 *out);
+
+/* Attempts the established nearby-system profiles using caller-owned finite
+   x for candidate-dependent witnesses.  It never invokes the router and
+   never solves to reconstruct x.  Successful execution can still yield an
+   empty nearby_status_mask; that is evidence not established, not an API
+   execution error. */
+int bs_certify_candidate(const double *A, const double *b, const double *x,
+                         int m, int n, BSCertificateResultV1 *out);
+
 /* One router result plus its same-invocation diagnostics and the independent
    three-profile certificate audit.  Unused grey_rows entries are zero.
    formation_guard_counters are per-invocation deltas: checks, escalations,

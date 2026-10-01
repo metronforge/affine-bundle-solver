@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 #include "affine_bundle/certified_api.h"
+#include "affine_bundle/solve.h"
 #include "router_diag_snapshot.h"
 #include <math.h>
 #include <float.h>
@@ -23,6 +24,34 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+
+static _Thread_local int candidate_certification_active;
+static _Thread_local int candidate_certification_allocation_failed;
+
+static void *certificate_malloc(size_t size) {
+#ifdef ABS_TEST_CERTIFICATE_ALLOC
+    extern void *abs_test_certificate_malloc(size_t);
+    void *pointer=abs_test_certificate_malloc(size);
+#else
+    void *pointer=malloc(size);
+#endif
+    if(!pointer&&candidate_certification_active)candidate_certification_allocation_failed=1;
+    return pointer;
+}
+
+static void *certificate_calloc(size_t count,size_t size) {
+#ifdef ABS_TEST_CERTIFICATE_ALLOC
+    extern void *abs_test_certificate_calloc(size_t,size_t);
+    void *pointer=abs_test_certificate_calloc(count,size);
+#else
+    void *pointer=calloc(count,size);
+#endif
+    if(!pointer&&candidate_certification_active)candidate_certification_allocation_failed=1;
+    return pointer;
+}
+
+#define malloc certificate_malloc
+#define calloc certificate_calloc
 
 _Static_assert(BS_CERTIFIED_DIAG_GREY_CAP == ABS_ROUTER_SNAPSHOT_GREY_CAP,
                "public and private grey capacities must agree");
@@ -152,6 +181,11 @@ static int map_augmented_left_witness(const double *ybar,const long double *dman
 
 static int least_squares_x(const double *A, const double *b, int m, int n,
                            double *x, int *rank_out) {
+#ifdef ABS_TEST_SOLVE_LSTSQ_FAILURE
+    extern int abs_test_solve_lstsq_failure(void);
+    int injected_failure=abs_test_solve_lstsq_failure();
+    if(injected_failure)return injected_failure;
+#endif
 #ifdef ABS_TEST_CERTIFIED_LSTSQ
     extern void abs_test_certified_lstsq_hook(void);
     abs_test_certified_lstsq_hook();
@@ -178,6 +212,15 @@ static int least_squares_x(const double *A, const double *b, int m, int n,
     if(rank_out)*rank_out=rank;
     free(Ac);free(B);free(jpvt);free(work);
     return info?5:0;
+}
+
+static int reconstruct_candidate_x(const double *A,const double *b,int m,int n,
+                                   double *x,int *rank_out) {
+#ifdef ABS_TEST_CANDIDATE_RECONSTRUCTION
+    extern void abs_test_candidate_reconstruction_hook(void);
+    abs_test_candidate_reconstruction_hook();
+#endif
+    return least_squares_x(A,b,m,n,x,rank_out);
 }
 
 static int select_rows_qrcp(const double *A,int m,int n,int *idx) {
@@ -232,14 +275,17 @@ static int lu_pack(const double *N,int n,double *packed,int *perm) {
     free(order);return 0;
 }
 
-int bs_generate_unique_witness(const double *A,const double *b,int m,int n,BSUniqueWitness *w) {
-    if(!A||!b||!w||m<n||n<=0||!finite_array(A,(size_t)m*n)||!finite_array(b,(size_t)m))return 1;
+static int unique_witness_prepare(const double *A,const double *b,const double *candidate,
+                                  int m,int n,BSUniqueWitness *w) {
+    if(!A||!b||!w||m<n||n<=0||!finite_array(A,(size_t)m*n)||!finite_array(b,(size_t)m) ||
+       (candidate&&!finite_array(candidate,(size_t)n)))return 1;
     memset(w,0,sizeof(*w));w->m=m;w->n=n;
     w->idx=(int*)malloc((size_t)n*sizeof(int));w->scale=(double*)malloc((size_t)n*sizeof(double));
     w->perm=(int*)malloc((size_t)n*sizeof(int));w->packed_lu=(double*)malloc((size_t)n*n*sizeof(double));w->x=(double*)malloc((size_t)n*sizeof(double));
     double *N=(double*)malloc((size_t)n*n*sizeof(double));
     if(!w->idx||!w->scale||!w->perm||!w->packed_lu||!w->x||!N){free(N);bs_unique_witness_free(w);return 2;}
-    int rank=0;if(least_squares_x(A,b,m,n,w->x,&rank)){free(N);bs_unique_witness_free(w);return 3;}
+    if(candidate)memcpy(w->x,candidate,(size_t)n*sizeof(double));
+    else {int rank=0;if(reconstruct_candidate_x(A,b,m,n,w->x,&rank)){free(N);bs_unique_witness_free(w);return 3;}}
     if(select_rows_qrcp(A,m,n,w->idx)){free(N);bs_unique_witness_free(w);return 4;}
     for(int i=0;i<n;i++){
         int ix=w->idx[i];double s=row_norm(A+(size_t)ix*n,n);w->scale[i]=s;
@@ -249,6 +295,10 @@ int bs_generate_unique_witness(const double *A,const double *b,int m,int n,BSUni
     int rc=lu_pack(N,n,w->packed_lu,w->perm);free(N);
     if(rc){bs_unique_witness_free(w);return 6;}
     return 0;
+}
+
+int bs_generate_unique_witness(const double *A,const double *b,int m,int n,BSUniqueWitness *w) {
+    return unique_witness_prepare(A,b,NULL,m,n,w);
 }
 
 static int smallest_subspace_vector(const double *s,const double *VT,int m,int n,double *z) {
@@ -406,7 +456,7 @@ int bs_generate_infinite_witness(const double *A,const double *b,int m,int n,BSI
     if(!A||!b||!w||m<0||n<=0||!finite_array(A,(size_t)m*n)||!finite_array(b,(size_t)m))return 1;
     memset(w,0,sizeof(*w));w->n=n;w->x=(double*)malloc((size_t)n*sizeof(double));w->z=(double*)malloc((size_t)n*sizeof(double));
     if(!w->x||!w->z){bs_infinite_witness_free(w);return 2;}
-    int rank=0;if(least_squares_x(A,b,m,n,w->x,&rank)){bs_infinite_witness_free(w);return 3;}
+    int rank=0;if(reconstruct_candidate_x(A,b,m,n,w->x,&rank)){bs_infinite_witness_free(w);return 3;}
     if(smallest_right_vector(A,m,n,w->z)){bs_infinite_witness_free(w);return 4;}
     return 0;
 }
@@ -435,7 +485,7 @@ static int infinite_witness_prepare(const double *A,const double *b,int m,int n,
     w->x=(double*)malloc((size_t)n*sizeof(double));w->z=(double*)malloc((size_t)n*sizeof(double));
     if(!w->x||!w->z){bs_infinite_witness_free(w);return 2;}
     if(x)memcpy(w->x,x,(size_t)n*sizeof(double));
-    else {int rank=0;if(least_squares_x(A,b,m,n,w->x,&rank)){bs_infinite_witness_free(w);return 3;}}
+    else {int rank=0;if(reconstruct_candidate_x(A,b,m,n,w->x,&rank)){bs_infinite_witness_free(w);return 3;}}
     return 0;
 }
 
@@ -637,15 +687,18 @@ int bs_generate_inconsistent_witness(const double *A,const double *b,int m,int n
     w->pivot_row=best;return 0;
 }
 
-static void run_unique_and_infinite_profiles(const double *A,const double *b,int m,int n,BSCertifiedResult *out) {
+static void run_unique_and_infinite_profiles(const double *A,const double *b,const double *candidate,
+                                             int m,int n,BSCertifiedResult *out) {
     BSUniqueWitness w={0}; double eta=INFINITY;
-    int grc=bs_generate_unique_witness(A,b,m,n,&w), vrc=0;
+    int grc=unique_witness_prepare(A,b,candidate,m,n,&w), vrc=0;
     if(!grc) vrc=bs_verify_unique(A,b,m,n,&w,&eta);
     out->unique_generator_code=grc; out->unique_verifier_code=vrc;
     if(!grc && !vrc && isfinite(eta)){out->eta_unique=eta;out->accepted_status_mask|=1;}
     {
         BSInfiniteWitness iw={0}; double ieta=INFINITY;
-        int igrc=infinite_witness_prepare(A,b,m,n,!grc?w.x:NULL,&iw), ivrc=0;
+        const double *infinite_x=candidate?candidate:(!grc?w.x:NULL);
+        int igrc=infinite_witness_prepare(A,b,m,n,infinite_x,&iw), ivrc=0;
+        int witness_prepared=!igrc;
         if(!igrc){
 #ifdef ABS_TEST_INFINITE_FASTPATH_HOOK
             abs_test_infinite_fastpath_hook(1);
@@ -661,7 +714,7 @@ static void run_unique_and_infinite_profiles(const double *A,const double *b,int
 #endif
             }
         }
-        if(igrc||ivrc){
+        if(witness_prepared && (igrc||ivrc)){
 #ifdef ABS_TEST_INFINITE_FASTPATH_HOOK
             abs_test_infinite_fastpath_hook(3);
 #endif
@@ -751,7 +804,7 @@ static void certified_complete(const double *A,const double *b,int m,int n,
     out->rank_hi=(int)meta[ABS_OUT_RANK_HI];out->eta_x=meta[ABS_OUT_BERR];
 
     /* The trusted audit semantics do not depend on which type the router chose. */
-    run_unique_and_infinite_profiles(A,b,m,n,out);
+    run_unique_and_infinite_profiles(A,b,NULL,m,n,out);
     run_inconsistent_profile(A,b,m,n,out);
 
     /* Compatibility projection: expose the accepted radius matching fast_status,
@@ -836,4 +889,79 @@ int bsolve_certified_diag_api(const double *A,const double *b,const double *xt,
     certified_init(certified);
     certified_complete(A,b,m,n,snapshot.meta,certified);
     return certified->fast_status==ABS_STATUS_FAIL ? 2 : 0;
+}
+
+void bs_init_solve_result(BSSolveResultV1 *out) {
+    bs_init_operational_result(out);
+}
+
+int bsolve(const double *A,const double *b,int m,int n,
+           int sp,int qv,int alpha,unsigned long long seed,int full,
+           const BSOperationalPolicyV1 *policy,
+           double *x,BSSolveResultV1 *out) {
+    if(!out || out->struct_size<sizeof(*out))return BS_SOLVE_INVALID_ARGUMENT;
+    BSOperationalPolicyV1 aliased_policy;
+    if(policy==&out->policy_used){aliased_policy=*policy;policy=&aliased_policy;}
+    size_t caller_size=out->struct_size;
+    bs_init_solve_result(out);out->struct_size=caller_size;
+    if(!x || m<=0 || n<=0)return BS_SOLVE_INVALID_ARGUMENT;
+    for(int j=0;j<n;j++)x[j]=0.0;
+
+    int operational=bsolve_router_policy_api(A,b,NULL,m,n,sp,qv,alpha,seed,full,
+                                              policy,out);
+    if(operational==BS_POLICY_INVALID_ARGUMENT)return BS_SOLVE_INVALID_ARGUMENT;
+    if(operational==BS_POLICY_SOLVER_FAILED)return BS_SOLVE_OPERATIONAL_FAILURE;
+
+    int rank=0;
+    int numerical=reconstruct_candidate_x(A,b,m,n,x,&rank);
+    if(numerical==2 || numerical==4)return BS_SOLVE_ALLOCATION_FAILURE;
+    if(numerical)return BS_SOLVE_NUMERICAL_FAILURE;
+    return BS_SOLVE_OK;
+}
+
+void bs_init_certificate_result(BSCertificateResultV1 *out) {
+    if(!out)return;
+    memset(out,0,sizeof(*out));out->struct_size=sizeof(*out);
+    out->eta_unique=out->eta_infinite=out->eta_inconsistent=INFINITY;
+    out->exact_source_status=BS_EXACT_SOURCE_UNKNOWN;
+    out->exact_source_verification=BS_EXACT_VERIFY_NOT_VERIFIED;
+}
+
+int bs_certify_candidate(const double *A,const double *b,const double *x,
+                         int m,int n,BSCertificateResultV1 *out) {
+    if(!out || out->struct_size<sizeof(*out))return BS_CERTIFY_INVALID_ARGUMENT;
+    size_t caller_size=out->struct_size;
+    bs_init_certificate_result(out);out->struct_size=caller_size;
+    if(!A||!b||!x||m<=0||n<=0 ||
+       (size_t)m>SIZE_MAX/(size_t)n ||
+       (size_t)m*(size_t)n>SIZE_MAX/sizeof(double) ||
+       !finite_array(A,(size_t)m*n)||!finite_array(b,(size_t)m)||
+       !finite_array(x,(size_t)n))return BS_CERTIFY_INVALID_ARGUMENT;
+
+    int previous_active=candidate_certification_active;
+    int previous_failed=candidate_certification_allocation_failed;
+    candidate_certification_active=1;
+    candidate_certification_allocation_failed=0;
+    BSCertifiedResult profile;
+    certified_init(&profile);
+    run_unique_and_infinite_profiles(A,b,x,m,n,&profile);
+    run_inconsistent_profile(A,b,m,n,&profile);
+    int allocation_failed=candidate_certification_allocation_failed;
+    candidate_certification_active=previous_active;
+    candidate_certification_allocation_failed=previous_failed;
+    if(allocation_failed){
+        bs_init_certificate_result(out);out->struct_size=caller_size;
+        return BS_CERTIFY_ALLOCATION_FAILURE;
+    }
+    out->nearby_status_mask=profile.accepted_status_mask;
+    out->eta_unique=profile.eta_unique;
+    out->eta_infinite=profile.eta_infinite;
+    out->eta_inconsistent=profile.eta_inconsistent;
+    out->unique_generator_code=profile.unique_generator_code;
+    out->unique_verifier_code=profile.unique_verifier_code;
+    out->infinite_generator_code=profile.infinite_generator_code;
+    out->infinite_verifier_code=profile.infinite_verifier_code;
+    out->inconsistent_generator_code=profile.inconsistent_generator_code;
+    out->inconsistent_verifier_code=profile.inconsistent_verifier_code;
+    return BS_CERTIFY_OK;
 }

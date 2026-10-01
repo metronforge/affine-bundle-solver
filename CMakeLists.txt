@@ -234,13 +234,14 @@ target_include_directories(status_verifier
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
-add_library(certified_solver SHARED src/certified_api.c)
+add_library(certified_solver SHARED src/certified_api.c src/candidate_check.c)
 target_compile_options(certified_solver PRIVATE
   ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
 target_compile_definitions(certified_solver PRIVATE ${ABS_BLAS_DEFINES})
 target_link_options(certified_solver PRIVATE ${ABS_INSTRUMENTATION})
 target_link_libraries(certified_solver
-  PRIVATE affine_bundle_solver status_verifier ${ABS_BLAS_LIBRARIES} m)
+  PUBLIC affine_bundle_solver status_verifier
+  PRIVATE ${ABS_BLAS_LIBRARIES} m)
 target_include_directories(certified_solver
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
@@ -359,6 +360,72 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/affine-bundle-solver.pc
 # ---------------------------------------------------------------------------
 
 if(ABS_BUILD_TESTING)
+  add_executable(abs_candidate_certification_alloc_test
+    tests/test_candidate_certification_alloc.c src/certified_api.c
+    $<TARGET_OBJECTS:abs_router_obj>
+    $<TARGET_OBJECTS:abs_formation_guard_obj>)
+  target_compile_options(abs_candidate_certification_alloc_test PRIVATE
+    ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
+  target_compile_definitions(abs_candidate_certification_alloc_test PRIVATE
+    ${ABS_BLAS_DEFINES} ABS_TEST_CERTIFICATE_ALLOC ABS_TEST_INFINITE_FASTPATH_HOOK)
+  target_include_directories(abs_candidate_certification_alloc_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src)
+  target_link_options(abs_candidate_certification_alloc_test PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_libraries(abs_candidate_certification_alloc_test PRIVATE
+    status_verifier OpenMP::OpenMP_C ${ABS_BLAS_LIBRARIES} ${ABS_ATOMIC_LIBRARY} m)
+  add_test(NAME test_candidate_certification_alloc COMMAND abs_candidate_certification_alloc_test)
+
+  add_executable(abs_split_api_abi_test tests/test_split_api_abi.c)
+  target_compile_options(abs_split_api_abi_test PRIVATE ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
+  target_link_options(abs_split_api_abi_test PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_libraries(abs_split_api_abi_test PRIVATE
+    certified_solver affine_bundle_solver status_verifier m)
+  add_test(NAME test_split_api_abi COMMAND abs_split_api_abi_test)
+
+  add_executable(abs_candidate_certification_test tests/test_candidate_certification.c)
+  target_compile_options(abs_candidate_certification_test PRIVATE ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
+  target_link_options(abs_candidate_certification_test PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_libraries(abs_candidate_certification_test PRIVATE
+    certified_solver affine_bundle_solver status_verifier m)
+  add_test(NAME test_candidate_certification COMMAND abs_candidate_certification_test)
+
+  add_executable(abs_solve_api_test tests/test_solve_api.c)
+  target_compile_options(abs_solve_api_test PRIVATE ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
+  target_link_options(abs_solve_api_test PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_libraries(abs_solve_api_test PRIVATE certified_solver affine_bundle_solver m)
+  add_test(NAME test_solve_api COMMAND abs_solve_api_test)
+
+  add_executable(abs_solve_failures_test
+    tests/test_solve_failures.c src/certified_api.c
+    $<TARGET_OBJECTS:abs_router_obj>
+    $<TARGET_OBJECTS:abs_formation_guard_obj>)
+  target_compile_options(abs_solve_failures_test PRIVATE
+    ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
+  target_compile_definitions(abs_solve_failures_test PRIVATE
+    ${ABS_BLAS_DEFINES} ABS_TEST_SOLVE_LSTSQ_FAILURE)
+  target_include_directories(abs_solve_failures_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src)
+  target_link_options(abs_solve_failures_test PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_libraries(abs_solve_failures_test PRIVATE
+    status_verifier OpenMP::OpenMP_C ${ABS_BLAS_LIBRARIES} ${ABS_ATOMIC_LIBRARY} m)
+  add_test(NAME test_solve_failures COMMAND abs_solve_failures_test)
+
+  add_executable(abs_candidate_check_test tests/test_candidate_check.c)
+  target_compile_options(abs_candidate_check_test PRIVATE ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
+  target_link_options(abs_candidate_check_test PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_libraries(abs_candidate_check_test PRIVATE certified_solver affine_bundle_solver m)
+  add_test(NAME test_candidate_check COMMAND abs_candidate_check_test)
+
+  add_executable(abs_candidate_check_enomem_test
+    tests/test_candidate_check_enomem.c src/candidate_check.c)
+  target_compile_options(abs_candidate_check_enomem_test PRIVATE
+    ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
+  target_compile_definitions(abs_candidate_check_enomem_test PRIVATE
+    ABS_TEST_CANDIDATE_ALLOC)
+  target_link_options(abs_candidate_check_enomem_test PRIVATE ${ABS_INSTRUMENTATION})
+  target_link_libraries(abs_candidate_check_enomem_test PRIVATE affine_bundle_solver m)
+  add_test(NAME test_candidate_check_enomem COMMAND abs_candidate_check_enomem_test)
+
   add_executable(abs_certified_diag_test tests/test_certified_diag.c)
   target_compile_options(abs_certified_diag_test PRIVATE ${ABS_INSTRUMENTATION})
   target_link_options(abs_certified_diag_test PRIVATE ${ABS_INSTRUMENTATION})
@@ -382,12 +449,13 @@ if(ABS_BUILD_TESTING)
   target_include_directories(abs_router_once_obj PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src)
   add_executable(abs_certified_diag_once_test
-    tests/test_certified_diag_once.c src/certified_api.c
+    tests/test_certified_diag_once.c src/certified_api.c src/candidate_check.c
     $<TARGET_OBJECTS:abs_router_once_obj>
     $<TARGET_OBJECTS:abs_formation_guard_obj>)
   target_compile_options(abs_certified_diag_once_test PRIVATE
     ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
-  target_compile_definitions(abs_certified_diag_once_test PRIVATE ${ABS_BLAS_DEFINES})
+  target_compile_definitions(abs_certified_diag_once_test PRIVATE
+    ${ABS_BLAS_DEFINES} ABS_TEST_CANDIDATE_RECONSTRUCTION)
   target_include_directories(abs_certified_diag_once_test PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src)
   target_link_options(abs_certified_diag_once_test PRIVATE ${ABS_INSTRUMENTATION})
@@ -598,7 +666,8 @@ if(ABS_BUILD_TESTING)
                       -I${CMAKE_CURRENT_SOURCE_DIR}/src
                    -- ${CMAKE_CURRENT_SOURCE_DIR}/src/formation_guard.c
                       ${CMAKE_CURRENT_SOURCE_DIR}/src/status_certificate.c
-                      ${CMAKE_CURRENT_SOURCE_DIR}/src/certified_api.c)
+                      ${CMAKE_CURRENT_SOURCE_DIR}/src/certified_api.c
+                      ${CMAKE_CURRENT_SOURCE_DIR}/src/candidate_check.c)
   add_test(NAME fp_contraction_fail_closed
            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_fp_contraction_gate.sh
                    ${CMAKE_CURRENT_SOURCE_DIR}/tools/check_fp_contraction.sh
@@ -636,7 +705,9 @@ if(ABS_BUILD_TESTING)
             test_exact_compatibility_row_order
             test_row_order_contradiction_control
             test_dgesdd_compact_vt
-            test_dgesdd_candidate_semantics)
+            test_dgesdd_candidate_semantics
+            test_split_api_decisions
+            test_split_api_qualification)
       add_test(NAME ${_battery}
                COMMAND ${Python3_EXECUTABLE}
                        ${CMAKE_CURRENT_SOURCE_DIR}/tests/${_battery}.py)

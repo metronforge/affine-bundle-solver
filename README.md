@@ -52,6 +52,28 @@ is written to be read without the manuscript.
 The [versioned operational policy API](docs/operational-policy.md) exposes all four
 sensitivity values and separates exact-source evidence from nearby certificates.
 
+### Solve, check, certify
+
+The public API separates three operations instead of selecting them with a
+mode flag:
+
+```text
+bsolve(A,b,...)                    -> x + operational evidence
+abs_check_candidate(A,b,x,...)    -> quality evidence about this x
+bs_certify_candidate(A,b,x,...)   -> optional nearby-system evidence
+```
+
+Solving does not imply certification. Candidate checking accepts an arbitrary
+finite caller-supplied `x` and never invokes the router or another solver, so
+verification can be deferred until after `x` has been stored or transported.
+`NOT_ESTABLISHED` means only that the configured quality bound was not
+established; it is not rejection. Nearby-system evidence is likewise distinct
+from the exact mathematical status of the original finite `A,b`.
+
+See the [API guide](docs/api.md#2-solve-check-and-optionally-certify) for the
+versioned result contracts and a complete three-phase C example. Existing
+router and combined certified symbols remain supported.
+
 ### Certificates
 
 An optional audit API attempts three typed proof objects — nearby exact
@@ -171,10 +193,11 @@ the retained manuscript performance values agree with the immutable package.
 src/bsolver.c, bsolver_core.c   fast affine-bundle router
 src/formation_guard.c/.h        a-posteriori formation-provenance checker
 src/status_certificate.c/.h     independent proof-object checker
-src/certified_api.c/.h          audit API
+src/certified_api.c/.h          solve and audit APIs
+src/candidate_check.c           caller-supplied candidate-quality checker
 src/rounding_probe.c            build-time directed-rounding check
 src/mxcsr_probe.c               build-time FP-mode leak check
-include/affine_bundle/          public headers: router, stream, certificates
+include/affine_bundle/          public headers: solve, check, router, stream, certificates
 docs/api.md                     how to call it, without reading the paper
 tests/                          regression suites and property batteries
 experiments/                    manuscript table reruns
