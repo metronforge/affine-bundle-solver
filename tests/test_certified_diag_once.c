@@ -1,11 +1,14 @@
 /* Recompile the same router source with a test-only hook, not installed. */
 #include <affine_bundle/certified_api.h>
+#include <affine_bundle/candidate_check.h>
 #include "router_diag_snapshot.h"
 #include <stdio.h>
 
 static _Thread_local unsigned long long executions;
+static _Thread_local unsigned long long reconstructions;
 static int force_failure;
 int abs_test_router_execution_hook(void) { ++executions; return force_failure; }
+void abs_test_candidate_reconstruction_hook(void) { ++reconstructions; }
 void abs_test_grey_capacity_fixture(ABSRouterSnapshot *snapshot);
 
 int main(void)
@@ -22,6 +25,23 @@ int main(void)
     if (bsolve_certified_api(A,b,NULL,2,2,1,2,2,3,0,&old) || executions != 2) {
         fputs("legacy router execution count changed\n",stderr);
         return 1;
+    }
+    {
+        const double x[]={2,3};
+        BSOperationalPolicyV1 policy;
+        BSCandidateCheckResultV1 checked;
+        BSCertificateResultV1 certificate;
+        unsigned long long router_before=executions,reconstruct_before=reconstructions;
+        bs_default_operational_policy(&policy);
+        bs_init_candidate_check_result(&checked);
+        bs_init_certificate_result(&certificate);
+        if(abs_check_candidate(A,b,x,2,2,&policy,&checked) ||
+           bs_certify_candidate(A,b,x,2,2,&certificate) ||
+           executions!=router_before || reconstructions!=reconstruct_before){
+            fprintf(stderr,"deferred path routed/resolved: router=%llu/%llu reconstruct=%llu/%llu\n",
+                    router_before,executions,reconstruct_before,reconstructions);
+            return 1;
+        }
     }
     if (!bsolve_certified_diag_api(NULL,b,NULL,2,2,1,2,2,3,0,&combined) ||
         executions != 2) {
@@ -52,6 +72,6 @@ int main(void)
                 fixture.grey_distinct_count,fixture.grey_total_events,fixture.grey_rows[63]);
         return 1;
     }
-    puts("one router execution and grey capacity: PASS");
+    puts("one router execution, deferred no-resolve, and grey capacity: PASS");
     return 0;
 }

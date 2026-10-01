@@ -105,7 +105,7 @@ rm -f .rounding_probe
   "${STRICT_FP_ARGV[@]}" -lm
 
 "${CC_ARGV[@]}" -O2 -shared -fPIC "${INCLUDE_ARGV[@]}" \
-  "${BLAS_DEF_ARGV[@]}" src/certified_api.c -o libcertified_solver.so \
+  "${BLAS_DEF_ARGV[@]}" src/certified_api.c src/candidate_check.c -o libcertified_solver.so \
   "${STRICT_FP_ARGV[@]}" -L. -laffine_bundle_solver -lstatus_verifier \
   "$OPENBLAS" -Wl,-rpath,'$ORIGIN' -Wl,-rpath,"$RPATH" -lm
 
@@ -123,7 +123,7 @@ rm -f .mxcsr_probe
 # fail the build on any fused multiply-add.
 tools/check_fp_contraction.sh "${CC_ARGV[@]}" \
   -- -O2 -fPIC -fopenmp "${STRICT_FP_ARGV[@]}" "${INCLUDE_ARGV[@]}" "${BLAS_DEF_ARGV[@]}" \
-  -- src/formation_guard.c src/status_certificate.c src/certified_api.c
+  -- src/formation_guard.c src/status_certificate.c src/certified_api.c src/candidate_check.c
 
 # Publish provenance only after every build and runtime probe succeeds. The
 # JSON receives the exact expanded arrays used above, not reconstructed flags.

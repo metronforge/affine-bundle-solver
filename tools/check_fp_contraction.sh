@@ -80,6 +80,7 @@ for src in "${sources[@]}"; do
     formation_guard.c) expected_symbol=fg_sketch_formation_eps ;;
     status_certificate.c) expected_symbol=bs_verify_unique ;;
     certified_api.c) expected_symbol=bsolve_certified_diag_api ;;
+    candidate_check.c) expected_symbol=abs_check_candidate ;;
     *)
       echo "fp-contraction check: FAILED -- no expected target symbol registered for $src" >&2
       exit 1 ;;

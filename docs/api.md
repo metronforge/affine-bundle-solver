@@ -5,7 +5,7 @@ call the library correctly. It covers what each entry point promises, what the
 return values mean, and — the part that is easy to get wrong — what they do
 *not* mean.
 
-Three headers make up the public interface. Everything in `src/` is internal,
+The following headers make up the public interface. Everything in `src/` is internal,
 including `formation_guard.h`, whose symbols are visible in the fast library
 only because that library is linked from strictly and loosely compiled objects
 together.
@@ -14,6 +14,8 @@ together.
 |---|---|---|
 | `<affine_bundle/router.h>` | fast classification, untrusted | `-ffast-math` |
 | `<affine_bundle/stream.h>` | incremental classification, untrusted | `-ffast-math` |
+| `<affine_bundle/solve.h>` | numerical solution plus operational evidence | strict driver over the fast router and LAPACK |
+| `<affine_bundle/candidate_check.h>` | caller-supplied candidate quality | `-frounding-math -fno-fast-math` |
 | `<affine_bundle/certified_api.h>`, `<affine_bundle/status_certificate.h>` | proof objects and verifier, trusted | `-frounding-math -fno-fast-math` |
 
 ---
@@ -25,12 +27,131 @@ rank, or uniqueness, the library answers **which of those it can establish**,
 and hands back an object that can be checked independently of how it was
 found.
 
-It is not primarily a solver. A solution comes back only in the cases where a
-solution exists and the library was able to accept a witness for it.
+The public operations deliberately answer different questions. `bsolve`
+computes a numerical candidate and operational classification;
+`abs_check_candidate` evaluates the quality of a concrete candidate; and
+`bs_certify_candidate` attempts stronger nearby-system evidence. The legacy
+combined APIs remain available for compatible existing clients.
+
+## 2. Solve, check, and optionally certify
+
+Operation is selected by the function called, not by a mode value:
+
+```c
+#include <affine_bundle/solve.h>
+#include <affine_bundle/candidate_check.h>
+#include <affine_bundle/certified_api.h>
+
+BSSolveResultV1 solved;
+BSCandidateCheckResultV1 checked;
+BSCertificateResultV1 certified;
+BSOperationalPolicyV1 policy;
+double x[N];
+
+bs_default_operational_policy(&policy);
+bs_init_solve_result(&solved);
+int solve_rc = bsolve(A, b, M, N, &policy, x, &solved);
+if (solve_rc != BS_SOLVE_OK) {
+    /* No successful numerical solve was produced. */
+}
+
+/* x may be used, stored, or replaced by a candidate from another source. */
+
+bs_init_candidate_check_result(&checked);
+int check_rc = abs_check_candidate(A, b, x, M, N, &policy, &checked);
+if (check_rc == BS_CANDIDATE_CHECK_OK) {
+    /* checked.verdict and its bounds are valid evidence about this x. */
+}
+
+bs_init_certificate_result(&certified);
+int certify_rc = bs_certify_candidate(A, b, x, M, N, &certified);
+if (certify_rc == BS_CERTIFY_OK) {
+    /* certified.nearby_status_mask describes accepted nearby profiles. */
+}
+```
+
+`bs_default_operational_policy` selects the unchanged defaults: dependence
+`1e-13`, growth `1e-9`, compatibility `2e-10`, and quality `1e-14`.
+
+### Numerical solve
+
+`bsolve` writes a least-squares/minimum-norm candidate to caller-owned `x` and
+returns operational information in `BSSolveResultV1`. The result is the same
+versioned layout as `BSOperationalResultV1`, because the meanings are
+identical. A successful solve does **not** imply that candidate checking or
+nearby-system certification was performed.
+
+Most callers should use `bsolve`. It selects the documented router defaults:
+sketch width `1`, verification passes `2`, acceptance scale `2`, and
+deterministic seed `17`.
+
+Call `bsolve_ex` only when one solve needs explicit router or reproducibility
+controls:
+
+```c
+BSSolveOptionsV1 options;
+
+bs_default_solve_options(&options);
+options.seed = 12345ULL;
+int solve_rc = bsolve_ex(A, b, M, N, &options, &policy, x, &solved);
+```
+
+`bsolve_ex` requires non-NULL options. `bs_default_solve_options` reproduces
+`bsolve` exactly. `BSSolveOptionsV1` configures how the numerical solve is
+executed; operational thresholds remain in `BSOperationalPolicyV1`, where
+they define what the reported criteria mean. A non-default operational policy
+selects the existing deterministic source-QRCP policy route; solve options are
+still validated there, but its randomized-router controls do not affect that
+route.
+
+The legacy router's `full` parameter is absent from both new solve entry
+points and from `BSSolveOptionsV1`. Normal routing no longer uses it
+meaningfully; the released router symbols retain it only for ABI
+compatibility, and the new solve implementation supplies compatibility value
+zero internally.
+
+### Candidate quality
+
+`abs_check_candidate(A,b,x,...)` is stateless and accepts any finite candidate:
+one returned by `bsolve`, loaded from storage, or produced by another solver.
+It does not route or solve. It reports rigorous upper bounds for maximum
+absolute residual and row-wise mixed-2-norm backward error.
+
+The execution return and mathematical result are separate:
+
+| Candidate verdict | Meaning |
+|---|---|
+| `BS_CANDIDATE_WITHIN_QUALITY_BOUND` | the mixed backward-error upper bound is at most `policy.quality_threshold` |
+| `BS_CANDIDATE_NOT_ESTABLISHED` | that quality was not established; this is not proof that `x` is invalid |
+| `BS_CANDIDATE_BOUND_UNAVAILABLE` | a required rigorous bound could not be represented |
+
+A nonzero execution return means that no valid requested candidate evidence
+was produced. In particular, invalid or non-finite input is an execution
+error, not `NOT_ESTABLISHED`.
+
+### Candidate-based nearby certification
+
+`bs_certify_candidate(A,b,x,...)` attempts the established nearby unique,
+infinite, and inconsistent profiles, using the supplied `x` in the
+candidate-dependent witnesses. It neither calls the router nor reconstructs
+`x` with a solver. Successful execution may still return an empty acceptance
+mask; operation success never fabricates certificate acceptance.
+
+The resulting finite eta values retain the existing meaning: independently
+verified upper bounds on the distance to an exact **nearby** system of the
+corresponding type. They are not proof of the exact status of the original
+finite `A,b`; `exact_source_status` therefore remains `UNKNOWN` with
+verification `NOT_VERIFIED`.
+
+All three new result contracts use `struct_size`. Initialize them with their
+`bs_init_*` function. `BSSolveOptionsV1` follows the same discipline through
+`bs_default_solve_options`. An undersized structure is rejected; a known V1
+prefix in a larger future structure is accepted without reading or writing
+trailing bytes.
 
 ---
 
-## 2. Two layers, and why the separation is load-bearing
+## 3. Two layers, and why the separation is load-bearing
 
 The **router** is fast and untrusted. It proposes a classification. Nothing it
 computes is evidence of anything. It is compiled with `-ffast-math`, under
@@ -48,7 +169,7 @@ invariant to preserve when modifying anything here.
 
 ---
 
-## 3. The status model
+## 4. The status model
 
 All router labels are operational under a finite-precision policy. The status
 table describes mathematical intuition within that policy, not exact-source
@@ -105,7 +226,7 @@ and the two are distinguishable without reading the source.
 
 ---
 
-## 4. Reading the output vector
+## 5. Reading the output vector
 
 `bsolve_router_meta_api` writes `ABS_OUT_LEN` = 11 doubles. Fields carry
 information only in the cases noted.
@@ -126,18 +247,21 @@ information only in the cases noted.
 `xt` is optional and feeds field 6 only. Pass `NULL` when there is no
 reference solution.
 
-`sp`, `qv` and `alpha` select sketch width, verification passes and
+On the legacy router APIs, `sp`, `qv` and `alpha` select sketch width, verification passes and
 acceptance scale; `(1, 2, 2)` is what the manuscript reports and what the
-test batteries use. `alpha` reaches only some of the routes, so changing it
-does not always change the answer.
+test batteries use. The new `bsolve` applies those defaults internally, while
+`bsolve_ex` gives them descriptive names in `BSSolveOptionsV1`. `alpha`
+reaches only some of the routes, so changing it does not always change the
+answer.
 
-`full` is accepted and ignored. It once selected a deterministic pass over
+`full` is accepted and ignored by the legacy router APIs. It once selected a deterministic pass over
 the whole source system instead of the randomised closure check. Every route
 the router selects now does source-derived rank arbitration by itself where
 the evidence requires it, so the choice is no longer the caller's; only the
 embedded benchmark route still reads the flag. The parameter stays in the
-signature because the entry points are exported. Passing 1 does not buy a
-stricter answer, and passing 0 does not lose one.
+signature because those entry points are exported. It is intentionally absent
+from `bsolve`, `bsolve_ex`, and `BSSolveOptionsV1`. Passing 1 to a legacy
+router does not buy a stricter answer, and passing 0 does not lose one.
 
 **Non-finite entries** in `A` or `b` are rejected at the API boundary and
 produce `FAIL`, with rank and residual carrying nothing.
@@ -148,7 +272,7 @@ thread.
 
 ---
 
-## 5. The three thresholds
+## 6. The three thresholds
 
 These are published in `router.h` because they are what a classification
 *means*, not because they are convenient to expose.
@@ -207,7 +331,7 @@ implies  out[ABS_OUT_BERR] <= ABS_QUALITY_THRESHOLD
 ```
 
 This is a statement about the **witness**, not about the distance to a nearby
-exact system. Those distances are the η profile of section 6 and are bounded
+exact system. Those distances are the η profile of section 7 and are bounded
 by a different mechanism.
 
 ### What does not follow from their being public
@@ -220,7 +344,7 @@ the header and the shared object are from different builds.
 
 ---
 
-## 6. Certificates and the η profile
+## 7. Certificates and the η profile
 
 `bsolve_certified_api` runs the router and then, **independently of what the
 router chose**, attempts all three proof-object types: unique, infinite,
@@ -288,7 +412,7 @@ diagnostic. Witnesses are freed with the matching `bs_*_witness_free`.
 
 ---
 
-## 7. Incremental classification
+## 8. Incremental classification
 
 `stream.h` keeps the affine bundle as persistent state, costing `O(n·r)` per
 row rather than the `O(m)` per row a caller pays by re-running the batch
@@ -354,7 +478,7 @@ objects need the whole system at once and have no incremental form.
 
 ---
 
-## 8. Guarantees, and where they stop
+## 9. Guarantees, and where they stop
 
 What is guaranteed:
 
@@ -397,7 +521,7 @@ produces each number.
 
 ---
 
-## 9. A minimal correct call
+## 10. A minimal legacy router call
 
 ```c
 #include <affine_bundle/router.h>
@@ -430,7 +554,7 @@ only against the installed interface and never see `src/`.
 
 ---
 
-## 10. Exported but not public
+## 11. Exported but not public
 
 The library also exports `bsolve_fast_api`, `bsolve_auto_api`,
 `bsolve_auto_qr_api`, `bsolve_block_api`, `bsolve_global_api`,
