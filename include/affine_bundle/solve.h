@@ -13,6 +13,16 @@ extern "C" {
    second layout would duplicate semantics and create an unnecessary ABI. */
 typedef BSOperationalResultV1 BSSolveResultV1;
 
+/* Controls how one numerical solve is routed.  Size is the accessible caller
+   allocation, at least sizeof(V1); future trailing bytes are ignored. */
+typedef struct {
+    size_t struct_size;
+    int sketch_width;
+    int verification_passes;
+    int acceptance_scale;
+    unsigned long long seed;
+} BSSolveOptionsV1;
+
 enum {
     BS_SOLVE_OK = 0,
     BS_SOLVE_INVALID_ARGUMENT = 1,
@@ -22,15 +32,26 @@ enum {
 };
 
 void bs_init_solve_result(BSSolveResultV1 *out);
+void bs_default_solve_options(BSSolveOptionsV1 *out);
 
 /* A and b are finite row-major inputs.  x has n caller-owned doubles.  The
    operation computes a numerical least-squares/minimum-norm candidate and
    reports the router's operational classification; it performs no nearby
    certification and establishes no exact-source status. */
 int bsolve(const double *A, const double *b, int m, int n,
-           int sp, int qv, int alpha, unsigned long long seed, int full,
            const BSOperationalPolicyV1 *policy,
            double *x, BSSolveResultV1 *out);
+
+/* Advanced solve configuration.  options must be non-NULL, have a supported
+   V1 prefix, and contain positive control values.  The historical router's
+   `full` parameter is intentionally absent: it is ignored by normal routing
+   and is retained only by the legacy router ABI.  Non-default operational
+   policies select the existing deterministic source-QRCP policy route, where
+   these randomized-router controls are validated but do not affect routing. */
+int bsolve_ex(const double *A, const double *b, int m, int n,
+              const BSSolveOptionsV1 *options,
+              const BSOperationalPolicyV1 *policy,
+              double *x, BSSolveResultV1 *out);
 
 #ifdef __cplusplus
 }

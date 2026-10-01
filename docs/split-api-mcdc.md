@@ -87,6 +87,30 @@ Solve completion is:
 success = validation_ok AND router_ok AND least_squares_ok
 ```
 
+Advanced solve-option validation is the conjunction:
+
+```text
+O = options pointer present and struct_size >= BSSolveOptionsV1
+S = sketch_width > 0
+V = verification_passes > 0
+A = acceptance_scale > 0
+options_valid = O AND S AND V AND A
+```
+
+The CNF is one implication clause per condition and the reverse clause:
+
+```text
+(!options_valid OR O) AND (!options_valid OR S)
+AND (!options_valid OR V) AND (!options_valid OR A)
+AND (!O OR !S OR !V OR !A OR options_valid)
+```
+
+`test_split_api_decisions.py` uses the initialized default options as the
+all-true assignment, then independently substitutes a null pointer, an
+undersized prefix, and zero for each of the three integer controls while all
+other conditions remain true.  Router dimension-dependent overflow guards are
+preserved from the legacy path and are not claimed as new option MC/DC.
+
 The least-squares test double holds validation and router success true and
 independently toggles `least_squares_ok`, once as allocation failure and once
 as LAPACK/numerical failure. Router allocation failure already belongs to the

@@ -402,7 +402,7 @@ if(ABS_BUILD_TESTING)
   target_compile_options(abs_solve_failures_test PRIVATE
     ${ABS_STRICT_FP_FLAGS} ${ABS_INSTRUMENTATION})
   target_compile_definitions(abs_solve_failures_test PRIVATE
-    ${ABS_BLAS_DEFINES} ABS_TEST_SOLVE_LSTSQ_FAILURE)
+    ${ABS_BLAS_DEFINES} ABS_TEST_SOLVE_LSTSQ_FAILURE ABS_TEST_SOLVE_OPTIONS)
   target_include_directories(abs_solve_failures_test PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src)
   target_link_options(abs_solve_failures_test PRIVATE ${ABS_INSTRUMENTATION})

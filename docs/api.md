@@ -50,8 +50,7 @@ double x[N];
 
 bs_default_operational_policy(&policy);
 bs_init_solve_result(&solved);
-int solve_rc = bsolve(A, b, M, N, 1, 2, 2, 0ULL, 0,
-                      &policy, x, &solved);
+int solve_rc = bsolve(A, b, M, N, &policy, x, &solved);
 if (solve_rc != BS_SOLVE_OK) {
     /* No successful numerical solve was produced. */
 }
@@ -81,6 +80,35 @@ returns operational information in `BSSolveResultV1`. The result is the same
 versioned layout as `BSOperationalResultV1`, because the meanings are
 identical. A successful solve does **not** imply that candidate checking or
 nearby-system certification was performed.
+
+Most callers should use `bsolve`. It selects the documented router defaults:
+sketch width `1`, verification passes `2`, acceptance scale `2`, and
+deterministic seed `17`.
+
+Call `bsolve_ex` only when one solve needs explicit router or reproducibility
+controls:
+
+```c
+BSSolveOptionsV1 options;
+
+bs_default_solve_options(&options);
+options.seed = 12345ULL;
+int solve_rc = bsolve_ex(A, b, M, N, &options, &policy, x, &solved);
+```
+
+`bsolve_ex` requires non-NULL options. `bs_default_solve_options` reproduces
+`bsolve` exactly. `BSSolveOptionsV1` configures how the numerical solve is
+executed; operational thresholds remain in `BSOperationalPolicyV1`, where
+they define what the reported criteria mean. A non-default operational policy
+selects the existing deterministic source-QRCP policy route; solve options are
+still validated there, but its randomized-router controls do not affect that
+route.
+
+The legacy router's `full` parameter is absent from both new solve entry
+points and from `BSSolveOptionsV1`. Normal routing no longer uses it
+meaningfully; the released router symbols retain it only for ABI
+compatibility, and the new solve implementation supplies compatibility value
+zero internally.
 
 ### Candidate quality
 
@@ -116,8 +144,10 @@ finite `A,b`; `exact_source_status` therefore remains `UNKNOWN` with
 verification `NOT_VERIFIED`.
 
 All three new result contracts use `struct_size`. Initialize them with their
-`bs_init_*` function. An undersized structure is rejected; a known V1 prefix
-in a larger future structure is written without touching trailing bytes.
+`bs_init_*` function. `BSSolveOptionsV1` follows the same discipline through
+`bs_default_solve_options`. An undersized structure is rejected; a known V1
+prefix in a larger future structure is accepted without reading or writing
+trailing bytes.
 
 ---
 
@@ -217,18 +247,21 @@ information only in the cases noted.
 `xt` is optional and feeds field 6 only. Pass `NULL` when there is no
 reference solution.
 
-`sp`, `qv` and `alpha` select sketch width, verification passes and
+On the legacy router APIs, `sp`, `qv` and `alpha` select sketch width, verification passes and
 acceptance scale; `(1, 2, 2)` is what the manuscript reports and what the
-test batteries use. `alpha` reaches only some of the routes, so changing it
-does not always change the answer.
+test batteries use. The new `bsolve` applies those defaults internally, while
+`bsolve_ex` gives them descriptive names in `BSSolveOptionsV1`. `alpha`
+reaches only some of the routes, so changing it does not always change the
+answer.
 
-`full` is accepted and ignored. It once selected a deterministic pass over
+`full` is accepted and ignored by the legacy router APIs. It once selected a deterministic pass over
 the whole source system instead of the randomised closure check. Every route
 the router selects now does source-derived rank arbitration by itself where
 the evidence requires it, so the choice is no longer the caller's; only the
 embedded benchmark route still reads the flag. The parameter stays in the
-signature because the entry points are exported. Passing 1 does not buy a
-stricter answer, and passing 0 does not lose one.
+signature because those entry points are exported. It is intentionally absent
+from `bsolve`, `bsolve_ex`, and `BSSolveOptionsV1`. Passing 1 to a legacy
+router does not buy a stricter answer, and passing 0 does not lose one.
 
 **Non-finite entries** in `A` or `b` are rejected at the API boundary and
 produce `FAIL`, with rank and residual carrying nothing.

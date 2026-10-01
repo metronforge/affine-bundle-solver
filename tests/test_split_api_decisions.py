@@ -10,7 +10,8 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).parent))
 from api_regression_binding import (
-    CandidateCheckResult, DP, default_policy, invoke_candidate_check, load_library
+    CandidateCheckResult, DP, OperationalResult, SolveOptions,
+    default_policy, default_solve_options, invoke_candidate_check, load_library
 )
 
 
@@ -71,6 +72,38 @@ class SplitApiDecisionTests(unittest.TestCase):
         code, result = invoke_candidate_check(self.library, A, b, bad_x, policy)
         self.assertEqual(1, code)
         self.assertEqual(0, result.verdict)
+
+    def test_each_solve_option_condition_independently_blocks_execution(self):
+        policy = default_policy(self.library)
+        A = np.eye(1, dtype=np.float64)
+        b = np.ones(1, dtype=np.float64)
+        x = np.empty(1, dtype=np.float64)
+
+        def call(options):
+            result = OperationalResult()
+            self.library.bs_init_solve_result(ctypes.byref(result))
+            option_pointer = None if options is None else ctypes.byref(options)
+            code = self.library.bsolve_ex(
+                A.ctypes.data_as(DP), b.ctypes.data_as(DP), 1, 1,
+                option_pointer, ctypes.byref(policy), x.ctypes.data_as(DP),
+                ctypes.byref(result),
+            )
+            return code, result
+
+        valid = default_solve_options(self.library)
+        self.assertEqual(0, call(valid)[0])
+        self.assertEqual(1, call(None)[0])
+
+        undersized = default_solve_options(self.library)
+        undersized.struct_size = ctypes.sizeof(ctypes.c_size_t)
+        self.assertEqual(1, call(undersized)[0])
+
+        for field in ("sketch_width", "verification_passes", "acceptance_scale"):
+            invalid = default_solve_options(self.library)
+            setattr(invalid, field, 0)
+            code, result = call(invalid)
+            self.assertEqual(1, code, field)
+            self.assertEqual(4, result.operational_status, field)
 
 
 if __name__ == "__main__":

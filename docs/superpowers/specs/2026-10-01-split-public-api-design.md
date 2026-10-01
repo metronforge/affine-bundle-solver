@@ -6,7 +6,7 @@ Expose numerical solving, evaluation of a caller-owned candidate, and nearby-sys
 
 ## Public contracts
 
-`bsolve` accepts finite row-major `A`, finite `b`, dimensions and the existing router controls, a `BSOperationalPolicyV1`, caller storage for `x`, and a versioned solve result. It returns a numerical candidate plus operational evidence. It does not run the nearby-system audit and does not claim exact-source status. `BSSolveResultV1` is a typedef of the semantically identical `BSOperationalResultV1`, avoiding an ABI-identical duplicate.
+`bsolve` accepts finite row-major `A`, finite `b`, dimensions, a `BSOperationalPolicyV1`, caller storage for `x`, and a versioned solve result. It uses the canonical router controls `(1, 2, 2, seed 17)` internally. `bsolve_ex` accepts the same operation plus a versioned `BSSolveOptionsV1` for advanced control. Both return a numerical candidate plus operational evidence and share one implementation. Neither runs the nearby-system audit nor claims exact-source status. `BSSolveResultV1` is a typedef of the semantically identical `BSOperationalResultV1`, avoiding an ABI-identical duplicate. The legacy `full` argument remains on released router APIs only and is absent from both new solve entry points and their options.
 
 `abs_check_candidate` accepts finite caller-owned `A`, `b`, and arbitrary finite `x`, dimensions, the existing operational policy, and `BSCandidateCheckResultV1`. The result contains an upper bound for `max_i |a_i x-b_i|`, an upper bound for the established row-wise mixed-2-norm backward error, and a verdict: `WITHIN_QUALITY_BOUND`, `NOT_ESTABLISHED`, or `BOUND_UNAVAILABLE`. The function return describes execution only. A successfully computed bound above `quality_threshold` is `NOT_ESTABLISHED`, never rejection. Invalid inputs and execution failures leave a fail-closed initialized result and do not fabricate a verdict.
 
@@ -27,7 +27,8 @@ combined certified call -> router -> hidden operational witness
 After:
 
 ```text
-bsolve               -> router operational evidence + numerical x
+bsolve(defaults)      -> shared solve -> router evidence + numerical x
+bsolve_ex(options)    -> shared solve -> router evidence + numerical x
 abs_check_candidate  -> strict candidate-bound kernel(A,b,x)
 bs_certify_candidate -> proof generators using caller x + strict verifiers
 legacy combined      -> unchanged compatibility path

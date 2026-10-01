@@ -11,10 +11,12 @@ import numpy as np
 
 from api_regression_binding import (
     default_policy,
+    default_solve_options,
     invoke,
     invoke_candidate_certification,
     invoke_candidate_check,
     invoke_solve,
+    invoke_solve_ex,
     load_library,
 )
 from api_regression_corpus import discover_cases, load_manifest
@@ -51,6 +53,7 @@ def qualify(fixture_root: Path) -> dict[str, int]:
     policy = default_policy(library)
     counts = {
         "solve": 0,
+        "solve_default_equivalence": 0,
         "solve_candidate_check": 0,
         "certification": 0,
         "combined_vs_composed": 0,
@@ -63,6 +66,43 @@ def qualify(fixture_root: Path) -> dict[str, int]:
         if code != 0 or not np.isfinite(x).all():
             raise AssertionError(f"{case.case_id}: solve code={code}, finite={np.isfinite(x).all()}")
         counts["solve"] += 1
+
+        ex_code, ex_x, ex_operational = invoke_solve_ex(
+            library, case.A, case.b, default_solve_options(library), policy
+        )
+        if ex_code != code or not np.allclose(ex_x, x, rtol=2e-13, atol=2e-15,
+                                              equal_nan=True):
+            raise AssertionError(f"{case.case_id}: default solve entry points differ")
+        if operational.struct_size != ex_operational.struct_size:
+            raise AssertionError(f"{case.case_id}: default result size differs")
+        if operational.policy_used.struct_size != ex_operational.policy_used.struct_size:
+            raise AssertionError(f"{case.case_id}: default policy size differs")
+        comparable = (
+            "operational_status", "operational_certainty", "exact_source_status",
+            "exact_source_verification", "grey_distinct_count", "grey_total_events",
+            "last_orth_eta", "core_qr_rank",
+        )
+        for field in comparable:
+            left, right = getattr(operational, field), getattr(ex_operational, field)
+            if left != right and not (isinstance(left, float) and math.isnan(left)
+                                      and math.isnan(right)):
+                raise AssertionError(f"{case.case_id}: default {field} differs")
+        if list(operational.core_rank_interval) != list(ex_operational.core_rank_interval):
+            raise AssertionError(f"{case.case_id}: default rank interval differs")
+        if list(operational.grey_rows) != list(ex_operational.grey_rows):
+            raise AssertionError(f"{case.case_id}: default grey rows differ")
+        if list(operational.formation_guard_counters) != list(
+                ex_operational.formation_guard_counters):
+            raise AssertionError(f"{case.case_id}: default guard counters differ")
+        if operational.policy_used.values() != ex_operational.policy_used.values():
+            raise AssertionError(f"{case.case_id}: default policy evidence differs")
+        for index in range(11):
+            if index == 7:
+                continue
+            left, right = operational.router_meta[index], ex_operational.router_meta[index]
+            if left != right and not (math.isnan(left) and math.isnan(right)):
+                raise AssertionError(f"{case.case_id}: default router meta[{index}] differs")
+        counts["solve_default_equivalence"] += 1
 
         oracle_x, *_ = np.linalg.lstsq(case.A, case.b, rcond=1e-12)
         residual = np.linalg.norm(case.A @ x - case.b)

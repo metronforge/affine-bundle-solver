@@ -895,28 +895,75 @@ void bs_init_solve_result(BSSolveResultV1 *out) {
     bs_init_operational_result(out);
 }
 
-int bsolve(const double *A,const double *b,int m,int n,
-           int sp,int qv,int alpha,unsigned long long seed,int full,
-           const BSOperationalPolicyV1 *policy,
-           double *x,BSSolveResultV1 *out) {
+void bs_default_solve_options(BSSolveOptionsV1 *out) {
+    if(!out)return;
+    out->struct_size=sizeof(*out);
+    out->sketch_width=1;
+    out->verification_passes=2;
+    out->acceptance_scale=2;
+    out->seed=17ULL;
+}
+
+static int solve_with_controls(const double *A,const double *b,int m,int n,
+           int sp,int qv,int alpha,unsigned long long seed,
+           const BSOperationalPolicyV1 *policy,double *x,BSSolveResultV1 *out) {
     if(!out || out->struct_size<sizeof(*out))return BS_SOLVE_INVALID_ARGUMENT;
     BSOperationalPolicyV1 aliased_policy;
     if(policy==&out->policy_used){aliased_policy=*policy;policy=&aliased_policy;}
     size_t caller_size=out->struct_size;
     bs_init_solve_result(out);out->struct_size=caller_size;
     if(!x || m<=0 || n<=0)return BS_SOLVE_INVALID_ARGUMENT;
-    for(int j=0;j<n;j++)x[j]=0.0;
 
-    int operational=bsolve_router_policy_api(A,b,NULL,m,n,sp,qv,alpha,seed,full,
+    /* The normal router ignores `full`; zero is the legacy compatibility
+       value.  It is deliberately not part of the new solve contract. */
+#ifdef ABS_TEST_SOLVE_OPTIONS
+    extern void abs_test_solve_options(int,int,int,unsigned long long,int);
+    abs_test_solve_options(sp,qv,alpha,seed,0);
+#endif
+    int operational=bsolve_router_policy_api(A,b,NULL,m,n,sp,qv,alpha,seed,0,
                                               policy,out);
     if(operational==BS_POLICY_INVALID_ARGUMENT)return BS_SOLVE_INVALID_ARGUMENT;
     if(operational==BS_POLICY_SOLVER_FAILED)return BS_SOLVE_OPERATIONAL_FAILURE;
 
     int rank=0;
     int numerical=reconstruct_candidate_x(A,b,m,n,x,&rank);
-    if(numerical==2 || numerical==4)return BS_SOLVE_ALLOCATION_FAILURE;
-    if(numerical)return BS_SOLVE_NUMERICAL_FAILURE;
+    if(numerical){
+        for(int j=0;j<n;j++)x[j]=0.0;
+        if(numerical==2 || numerical==4)return BS_SOLVE_ALLOCATION_FAILURE;
+        return BS_SOLVE_NUMERICAL_FAILURE;
+    }
     return BS_SOLVE_OK;
+}
+
+int bsolve_ex(const double *A,const double *b,int m,int n,
+              const BSSolveOptionsV1 *options,
+              const BSOperationalPolicyV1 *policy,
+              double *x,BSSolveResultV1 *out) {
+    if(!out || out->struct_size<sizeof(*out))return BS_SOLVE_INVALID_ARGUMENT;
+    BSSolveOptionsV1 copy;
+    if(!options || options->struct_size<sizeof(*options)){
+        size_t caller_size=out->struct_size;
+        bs_init_solve_result(out);out->struct_size=caller_size;
+        return BS_SOLVE_INVALID_ARGUMENT;
+    }
+    copy=*options;copy.struct_size=sizeof(copy);
+    if(copy.sketch_width<=0 || copy.verification_passes<=0 ||
+       copy.acceptance_scale<=0){
+        size_t caller_size=out->struct_size;
+        bs_init_solve_result(out);out->struct_size=caller_size;
+        return BS_SOLVE_INVALID_ARGUMENT;
+    }
+    return solve_with_controls(A,b,m,n,copy.sketch_width,
+                               copy.verification_passes,copy.acceptance_scale,
+                               copy.seed,policy,x,out);
+}
+
+int bsolve(const double *A,const double *b,int m,int n,
+           const BSOperationalPolicyV1 *policy,
+           double *x,BSSolveResultV1 *out) {
+    BSSolveOptionsV1 options;
+    bs_default_solve_options(&options);
+    return bsolve_ex(A,b,m,n,&options,policy,x,out);
 }
 
 void bs_init_certificate_result(BSCertificateResultV1 *out) {

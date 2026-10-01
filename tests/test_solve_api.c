@@ -11,7 +11,15 @@ static int solve(const double *matrix, const double *rhs, int m, int n,
                  const BSOperationalPolicyV1 *policy, double *x,
                  BSSolveResultV1 *result)
 {
-    return bsolve(matrix, rhs, m, n, 1, 2, 2, 17, 0, policy, x, result);
+    return bsolve(matrix, rhs, m, n, policy, x, result);
+}
+
+static int solve_ex(const double *matrix, const double *rhs, int m, int n,
+                    const BSSolveOptionsV1 *options,
+                    const BSOperationalPolicyV1 *policy, double *x,
+                    BSSolveResultV1 *result)
+{
+    return bsolve_ex(matrix, rhs, m, n, options, policy, x, result);
 }
 
 int main(void)
@@ -31,6 +39,74 @@ int main(void)
     assert(result.operational_certainty == ABS_CERTAINTY_DETERMINISTIC);
     assert(fabs(x[0] - 1.0) <= 1e-14);
     assert(fabs(x[1] - 2.0) <= 1e-14);
+
+    double aliased_A[] = {1.0, 0.0, 0.0, 1.0};
+    bs_init_solve_result(&result);
+    assert(solve(aliased_A, b, 2, 2, &policy, aliased_A, &result) == BS_SOLVE_OK);
+    assert(fabs(aliased_A[0] - 1.0) <= 1e-14);
+    assert(fabs(aliased_A[1] - 2.0) <= 1e-14);
+
+    double aliased_b[] = {1.0, 2.0};
+    bs_init_solve_result(&result);
+    assert(solve(A, aliased_b, 2, 2, &policy, aliased_b, &result) == BS_SOLVE_OK);
+    assert(fabs(aliased_b[0] - 1.0) <= 1e-14);
+    assert(fabs(aliased_b[1] - 2.0) <= 1e-14);
+
+    BSSolveOptionsV1 options;
+    bs_default_solve_options(&options);
+    assert(options.struct_size == sizeof(options));
+    assert(options.sketch_width == 1);
+    assert(options.verification_passes == 2);
+    assert(options.acceptance_scale == 2);
+    assert(options.seed == 17ULL);
+
+    double default_x[2] = {NAN, NAN};
+    BSSolveResultV1 default_result;
+    bs_init_solve_result(&default_result);
+    assert(solve_ex(A, b, 2, 2, &options, &policy, default_x,
+                    &default_result) == BS_SOLVE_OK);
+    assert(memcmp(x, default_x, sizeof(x)) == 0);
+    assert(default_result.operational_status == result.operational_status);
+    assert(default_result.operational_certainty == result.operational_certainty);
+    for (int i = 0; i < ABS_OUT_LEN; ++i) {
+        if (i == ABS_OUT_SECONDS) continue;
+        assert(default_result.router_meta[i] == result.router_meta[i] ||
+               (isnan(default_result.router_meta[i]) &&
+                isnan(result.router_meta[i])));
+    }
+
+    struct {
+        BSSolveOptionsV1 value;
+        unsigned char tail[24];
+    } future_options;
+    memset(&future_options, 0x5a, sizeof(future_options));
+    bs_default_solve_options(&future_options.value);
+    future_options.value.struct_size = sizeof(future_options);
+    bs_init_solve_result(&default_result);
+    assert(solve_ex(A, b, 2, 2, &future_options.value, &policy, default_x,
+                    &default_result) == BS_SOLVE_OK);
+    for (size_t i = 0; i < sizeof(future_options.tail); ++i)
+        assert(future_options.tail[i] == 0x5a);
+
+    BSSolveOptionsV1 bad_options;
+    bs_default_solve_options(&bad_options);
+    bad_options.struct_size = sizeof(size_t);
+    assert(solve_ex(A, b, 2, 2, &bad_options, &policy, default_x,
+                    &default_result) == BS_SOLVE_INVALID_ARGUMENT);
+    assert(solve_ex(A, b, 2, 2, NULL, &policy, default_x,
+                    &default_result) == BS_SOLVE_INVALID_ARGUMENT);
+    bs_default_solve_options(&bad_options);
+    bad_options.sketch_width = 0;
+    assert(solve_ex(A, b, 2, 2, &bad_options, &policy, default_x,
+                    &default_result) == BS_SOLVE_INVALID_ARGUMENT);
+    bs_default_solve_options(&bad_options);
+    bad_options.verification_passes = 0;
+    assert(solve_ex(A, b, 2, 2, &bad_options, &policy, default_x,
+                    &default_result) == BS_SOLVE_INVALID_ARGUMENT);
+    bs_default_solve_options(&bad_options);
+    bad_options.acceptance_scale = 0;
+    assert(solve_ex(A, b, 2, 2, &bad_options, &policy, default_x,
+                    &default_result) == BS_SOLVE_INVALID_ARGUMENT);
 
     /* Preserve the aliasing contract of bsolve_router_policy_api. */
     bs_init_solve_result(&result);
@@ -98,8 +174,11 @@ int main(void)
 
     bs_default_operational_policy(&policy);
     policy.dependence_threshold = policy.growth_threshold;
+    x[0] = 7.0;
+    x[1] = 8.0;
     assert(solve(A, b, 2, 2, &policy, x, &result) == BS_SOLVE_INVALID_ARGUMENT);
     assert(result.operational_status == ABS_STATUS_FAIL);
+    assert(x[0] == 7.0 && x[1] == 8.0);
 
     puts("standalone solve contract: PASS");
     return 0;

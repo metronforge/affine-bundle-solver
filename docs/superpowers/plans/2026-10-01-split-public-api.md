@@ -57,9 +57,9 @@
 
 **Interfaces:**
 - Consumes: `bsolve_router_policy_api`, existing LAPACK least-squares primitive, `BSOperationalResultV1`.
-- Produces: `BSSolveResultV1`, `bs_init_solve_result`, `bsolve`.
+- Produces: `BSSolveOptionsV1`, `bs_default_solve_options`, `BSSolveResultV1`, `bs_init_solve_result`, `bsolve`, and `bsolve_ex`.
 
-- [ ] Write tests for success, operational equivalence, finite `x`, malformed sizes, invalid inputs/policies, allocation/LAPACK failure, and suffix preservation.
+- [ ] Write tests for simple/default equivalence, option validation/versioning, success, operational equivalence, finite `x`, malformed sizes, invalid inputs/policies, allocation/LAPACK failure, and suffix preservation.
 - [ ] Run focused tests and confirm missing-symbol/test failures.
 - [ ] Extract the least-squares helper into a reusable private primitive and implement `bsolve` without certification.
 - [ ] Run focused and legacy operational tests.

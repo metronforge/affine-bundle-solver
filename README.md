@@ -58,10 +58,16 @@ The public API separates three operations instead of selecting them with a
 mode flag:
 
 ```text
-bsolve(A,b,...)                    -> x + operational evidence
-abs_check_candidate(A,b,x,...)    -> quality evidence about this x
-bs_certify_candidate(A,b,x,...)   -> optional nearby-system evidence
+simple solve:                  bsolve(...)
+advanced solve configuration: bsolve_ex(..., BSSolveOptionsV1, ...)
+candidate evaluation:         abs_check_candidate(...)
+nearby-system certification:  bs_certify_candidate(...)
 ```
+
+Operation choice is represented by the function called. Solve options
+configure one solve operation; operational policy separately defines the
+criteria used to interpret its numerical evidence. Most callers should use
+`bsolve()` and its documented deterministic defaults.
 
 Solving does not imply certification. Candidate checking accepts an arbitrary
 finite caller-supplied `x` and never invokes the router or another solver, so

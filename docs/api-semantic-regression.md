@@ -13,6 +13,7 @@ The frozen 36-system corpus is consumed without changing any matrix, right-hand 
 | Nearby eta bounds | Numerical equivalence under the existing floating tolerance |
 | Exact-source status | Remains UNKNOWN / NOT_VERIFIED |
 | Timings | Not contractual and never compared |
+| `bsolve` vs `bsolve_ex(defaults)` router metadata | All exposed non-timing fields compared on all 36 systems |
 | Router diagnostics/backend metadata | Not compared by the split-path qualification |
 | SVD/null-space basis and witness choice | Not contractual and never compared |
 

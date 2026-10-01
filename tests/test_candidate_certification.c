@@ -21,7 +21,7 @@ int main(void)
     BSSolveResultV1 solve_result;
     bs_init_solve_result(&solve_result);
     double x[2];
-    assert(bsolve(A, b, 3, 2, 1, 2, 2, 17, 0, &policy, x,
+    assert(bsolve(A, b, 3, 2, &policy, x,
                   &solve_result) == BS_SOLVE_OK);
 
     BSCertificateResultV1 result;
