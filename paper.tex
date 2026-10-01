@@ -70,7 +70,7 @@ The state used throughout this paper is an affine bundle. At the exact level it 
 
 The computational question is whether the same state can avoid paying for a general rank-revealing factorization when the current geometry already makes the next decision cheap. Randomized numerical linear algebra provides compression and approximate subspace tests \citep{ClarksonWoodruff2013,NelsonNguyen2013,GowerRichtarik2015}; communication-avoiding QR and low-synchronization Gram--Schmidt reorganize tall dense linear algebra around communication costs \citep{DemmelEtAl2008,CarsonLundMaOktay2024,CarsonMa2024}. The present solver draws on this landscape but is organized by affine-bundle semantics rather than by a single factorization.
 
-A second question is logically separate: how can exact nearby-status statements be certified without proving every heterogeneous routing path correct at floating-point instruction level? Our answer is to move the trusted boundary. In certified mode untrusted numerical generators propose typed proof objects, while an independent checker reconstructs nearby exact problems and computes their perturbation radii directly from the source data. The audit API attempts all three proof-object types rather than exposing only the type selected by the fast router. This generator/checker separation is established methodology in verified numerical computation and linear-algebra certification; the contribution claimed here is the common verifier contract for the three exact solution classifications of a general equality system and its integration with the affine-bundle router.
+A second question is logically separate: how can exact nearby-status statements be certified without proving every heterogeneous routing path correct at floating-point instruction level? Our answer is to move the trusted boundary. During certification, untrusted numerical generators propose typed proof objects, while an independent checker reconstructs nearby exact problems and computes their perturbation radii directly from the source data. The audit API attempts all three proof-object types rather than exposing only the type selected by the fast router. This generator/checker separation is established methodology in verified numerical computation and linear-algebra certification; the contribution claimed here is the common verifier contract for the three exact solution classifications of a general equality system and its integration with the affine-bundle router.
 
 The contributions are deliberately narrow.
 \begin{enumerate}[label=(\roman*)]
@@ -194,6 +194,37 @@ and a UNIQUE quality bound. This may change the route and witness as well as
 status. Policy values are immutable per-call inputs; none enters strict nearby
 certificate verification. Sensitivity changes operational interpretation, not the
 exact source mathematics or the nearby-certificate theorem.
+
+\subsection{Public operations and evidence boundaries}
+The public C interface selects an operation by the function called, rather than
+by a FAST, CERTIFIED, or AUDIT switch.  \texttt{bsolve(A,b,policy,x,result)}
+computes a numerical least-squares/minimum-norm candidate \(x\) and reports
+operational evidence.  \texttt{bsolve\_ex} performs that same operation with a
+versioned \texttt{BSSolveOptionsV1} containing the numerical routing controls;
+the ordinary function uses its documented deterministic defaults.  The
+operational policy remains a separate input because it defines how numerical
+evidence is interpreted, rather than how the routing controls are executed.
+
+Two operations consume a caller-supplied finite \(x\).  The stateless
+\texttt{abs\_check\_candidate} operation on \(A,b,x\), a policy, and a result
+never invokes a router or reconstructs a solution.  It returns outward bounds
+\texttt{max\_abs\_residual\_up} and
+\texttt{mixed\_backward\_error\_up}, the latter bounding the rowwise quantity
+\(\eta_x(x)\) defined below.  Its verdict is
+\texttt{BS\_CANDIDATE\_}\allowbreak\texttt{WITHIN\_QUALITY\_BOUND},
+\texttt{BS\_CANDIDATE\_}\allowbreak\texttt{NOT\_ESTABLISHED}, or
+\texttt{BS\_CANDIDATE\_}\allowbreak\texttt{BOUND\_UNAVAILABLE}.  In
+particular, \texttt{NOT\_ESTABLISHED} is not rejection of \(x\): it records
+that the configured bound was not established.  API execution failures are
+reported separately from this evidence verdict.
+
+\texttt{bs\_certify\_candidate(A,b,x,result)} likewise works on the supplied
+candidate and does not call the router to solve again.  It attempts the
+established nearby-system proof objects and returns their versioned
+three-coordinate profile.  A finite coordinate remains evidence that a
+nearby real system has the corresponding exact status; it is not proof of the
+exact status of the stored finite \(A,b\).  The released router and combined
+certified APIs remain available for existing callers.
 
 \subsection{Row decisions and system-level epistemic state}
 The implementation uses guarded bands around the rank transition. At the row level the local decision is one of
@@ -627,7 +658,7 @@ using $+\infty$ for an unavailable coordinate. Every finite coordinate separatel
 
 The executable API retains the legacy pair $(\texttt{certified\_status},\texttt{eta\_status})$ only as a compatibility projection onto the fast router's proposed type. The primary certified output is the three-coordinate profile together with per-type generator and verifier return codes. Thus the router remains outside the trusted core both for proof acceptance and for visibility of competing accepted status objects.
 
-The theorem deliberately excludes the internal router from the trusted mathematical core. Sketches, random probes, direct factorizations, tangent screening, and fallbacks act only as candidate generators in certified mode. A poor candidate may be rejected or may receive a large radius, but it cannot create a false accepted certificate. Fast provenance remains useful for ordinary execution; it is simply a different semantic layer from accepted nearby-status certification.
+The theorem deliberately excludes the internal router from the trusted mathematical core. Sketches, random probes, direct factorizations, tangent screening, and fallbacks act only as candidate generators during certification. A poor candidate may be rejected or may receive a large radius, but it cannot create a false accepted certificate. Fast provenance remains useful for ordinary execution; it is simply a different semantic layer from accepted nearby-status certification.
 
 The current executable checker is a strict-C research prototype using directed rounding and a runtime floating-point-environment probe. The mathematical theorem assumes valid outward bounds; the present binary is not claimed to be a compiler-independent formal proof. A production proof closure should use a validated interval package, MPFR-style directed arithmetic, or a formally verified checker.
 
@@ -955,7 +986,7 @@ input, which is the intended division of trust rather than a coincidence.
 \section{Conclusion}
 The affine-bundle representation turns a general linear equality system into a stateful geometric problem: which normal directions are already known, which right-hand-side values are implied, and what new information does an incoming row contribute? The exact answers are encoded by $g=(I-P)a$ and $\rho=\beta-a^Tx$. The numerical router uses this state to acquire information adaptively rather than committing to one global factorization, and parallelizes evidence while serializing information-changing growth.
 
-The central semantic distinction is the separation of fast numerical classification from exact nearby-status certification. The router may use deterministic or randomized mechanisms and may remain unresolved near a rank transition. Certified mode does not attempt to prove every routing branch backward stable. Instead, untrusted generators attempt three typed objects, and a small independent checker reconstructs nearby exact systems: a full-column-rank compatible system for uniqueness, a compatible system with an explicit nonzero null direction for infinitely many solutions, or an inconsistent system with an explicit left-null contradiction. The checker computes every accepted radius itself and exports the three-coordinate profile without asking the router which type should be visible. Consequently, replacement of an internal sketch, factorization, or route does not alter the soundness theorem as long as accepted proof objects obey the same contract.
+The central semantic distinction is the separation of fast numerical classification from exact nearby-status certification. The router may use deterministic or randomized mechanisms and may remain unresolved near a rank transition. Certification does not attempt to prove every routing branch backward stable. Instead, untrusted generators attempt three typed objects, and a small independent checker reconstructs nearby exact systems: a full-column-rank compatible system for uniqueness, a compatible system with an explicit nonzero null direction for infinitely many solutions, or an inconsistent system with an explicit left-null contradiction. The checker computes every accepted radius itself and exports the three-coordinate profile without asking the router which type should be visible. Consequently, replacement of an internal sketch, factorization, or route does not alter the soundness theorem as long as accepted proof objects obey the same contract.
 
 The regression and adversarial experiments support this separation. The equivalence-orbit battery reports 8,335 checks with no hard failure. Its 155 explicitly labelled affine-translation cases are quantitatively tied to the contradiction-policy threshold of Proposition~\ref{prop:translation-threshold}, rather than retained as unexplained exceptions. A separate focused battery has 2,271 checks and zero failure, including independent signed dyadic row scalings through $2^{\pm1000}$ and high-precision shadow checks of the constructive inconsistency radius. The immutable laptop package contributes 29 valid row-level classification records and deliberately mixed performance results across tall, square, wide, rank-deficient, inconsistent, and near-transition inputs. Reuse of already computed factors as untrusted certificate candidates has begun: the unique and infinite generators share one least-squares solve, and the tall inconsistency scan reuses one pivoted QR factorization. Because generators are untrusted, such sharing leaves the soundness theorem unchanged. The remaining engineering work is broader factor reuse and replacement of the strict-C interval prototype by a stronger validated arithmetic backend. The mathematical and empirical claims remain restricted to general linear equality classification in the tested dense regimes.
 
@@ -1039,8 +1070,12 @@ claim is attached to them.
 The public implementation and verification suite accompanying this manuscript
 are available in the GitHub repository
 \url{https://github.com/metronforge/affine-bundle-solver}. The immutable source
-archive for release \texttt{v0.4.4} is deposited on Zenodo under
+archive for the prior \texttt{v0.4.4} release is deposited on Zenodo under
 \href{https://doi.org/10.5281/zenodo.22753773}{doi:10.5281/zenodo.22753773}.
+Scientific v2 is prepared as software release candidate \texttt{v0.5.0}; its
+version-specific Zenodo DOI is intentionally not stated here until the new
+Zenodo version is published. The existing version-history record is
+\href{https://doi.org/10.5281/zenodo.22753772}{doi:10.5281/zenodo.22753772}.
 
 \section*{Acknowledgments}
 The author thanks Ilya Scheblanov for suggesting the initial question of whether

@@ -237,9 +237,11 @@ Deliberately narrow, and worth reading before citing:
 
 ## Status
 
-Research prototype. Release `v0.4.4` is archived on Zenodo; the manuscript is
-under preparation for deposit. Issues and independent reproduction attempts
-are welcome — in particular, reports of the build failing either probe on a
+Research prototype. Scientific v2 is prepared as software release candidate
+`v0.5.0`; its version-specific Zenodo DOI will exist only after the Zenodo New
+Version publication step. The prior `v0.4.4` archive remains available for
+historical reproduction. Issues and independent reproduction attempts are
+welcome — in particular, reports of the build failing either probe on a
 toolchain we have not tested.
 
 ## Acknowledgments
@@ -265,8 +267,7 @@ preprint deposit for their terms.
 
 ## Citation
 
-For exact reproducibility, cite the archived `v0.4.4` software release using
-[DOI 10.5281/zenodo.22753773](https://doi.org/10.5281/zenodo.22753773). The
-[concept DOI 10.5281/zenodo.22753772](https://doi.org/10.5281/zenodo.22753772)
-resolves to the complete version history. Machine-readable metadata are in
-[CITATION.cff](CITATION.cff).
+For the complete Affine Bundle Solver version history, use the
+[Zenodo concept DOI 10.5281/zenodo.22753772](https://doi.org/10.5281/zenodo.22753772).
+The v2 version-specific DOI is intentionally absent until Zenodo publishes the
+new version. Machine-readable metadata are in [CITATION.cff](CITATION.cff).

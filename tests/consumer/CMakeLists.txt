@@ -5,7 +5,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(consumer LANGUAGES C CXX)
 
-find_package(affine-bundle-solver 0.4.4 REQUIRED) # x-release-please-version
+find_package(affine-bundle-solver 0.5.0 REQUIRED) # x-release-please-version
 
 add_executable(consumer main.c)
 target_link_libraries(consumer PRIVATE

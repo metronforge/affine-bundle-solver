@@ -15,7 +15,8 @@ from inspect_binary_sdk import audit, FLOORS
 from release_assets import validate_identity
 
 ROOT = Path(__file__).resolve().parents[1]
-HEADERS = {"router.h", "certified_api.h", "status_certificate.h", "stream.h", "operational_policy.h"}
+HEADERS = {"candidate_check.h", "certified_api.h", "operational_policy.h", "router.h",
+           "solve.h", "status_certificate.h", "stream.h"}
 
 
 def sha256(path):

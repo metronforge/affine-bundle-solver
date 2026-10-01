@@ -7,10 +7,16 @@ import tempfile
 import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from inspect_binary_sdk import check_elf, check_macho
-from package_binary_sdk import extract_verified, sha256, package_identity
+from package_binary_sdk import HEADERS, extract_verified, sha256, package_identity
 
 
 class AuditContract(unittest.TestCase):
+    def test_sdk_header_inventory_includes_all_public_operations(self):
+        self.assertEqual(HEADERS, {
+            "candidate_check.h", "certified_api.h", "operational_policy.h",
+            "router.h", "solve.h", "status_certificate.h", "stream.h",
+        })
+
     def test_packaging_modes_are_explicit(self):
         from unittest.mock import patch
         with patch('package_binary_sdk.validate_identity') as validate:
