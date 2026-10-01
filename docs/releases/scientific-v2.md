@@ -63,12 +63,14 @@ new solve functions and solve-options structure.
 
 ## Verification and artifacts
 
-Candidate-specific commands, counts, checksums, and archive identities are
-recorded in `reports/scientific-v2/qualification.md` and
-`reports/scientific-v2/artifacts.sha256` after final qualification. The
-release contract requires deterministic source and research archives, three
-platform SDK archives, ordered SHA-256 checksums, and `BUILD-INFO.json`
-identity binding before an immutable GitHub release can be created.
+Candidate-specific commands and local counts are recorded in
+`reports/scientific-v2/qualification.md`. The exact-head CI release-dry-run
+artifact is the authoritative source for the final five-archive checksums and
+`BUILD-INFO.json` identities, because a source archive cannot contain its own
+non-self-referential digest. The release contract requires deterministic source
+and research archives, three platform SDK archives, ordered SHA-256 checksums,
+and `BUILD-INFO.json` identity binding before an immutable GitHub release can
+be created.
 
 ## Publication metadata
 
