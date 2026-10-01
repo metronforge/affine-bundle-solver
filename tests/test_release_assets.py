@@ -54,6 +54,17 @@ class ReleaseContract(unittest.TestCase):
         self.assertIn('python3 "$RUNNER_TEMP/release_assets.py" release-state', workflow)
         self.assertIn('python3 tools/release_assets.py verify dist', workflow)
 
+    def test_draft_assets_use_validated_release_id_not_tag_lookup(self):
+        workflow = (Path(__file__).resolve().parents[1] /
+                    '.github/workflows/publish-release.yml').read_text()
+        self.assertIn('releases?per_page=100', workflow)
+        self.assertIn('RELEASE_ID: ${{ steps.draft.outputs.release_id }}', workflow)
+        self.assertIn('repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID', workflow)
+        self.assertIn('https://uploads.github.com/repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets?name=$name',
+                      workflow)
+        self.assertIn('--data-binary "@$path"', workflow)
+        self.assertNotIn('releases/tags/$TAG', workflow)
+
     def test_release_lookup_treats_only_not_found_as_absent(self):
         self.assertEqual('missing', release.release_lookup_state(
             {'message': 'Not Found', 'status': '404'}, 'v' + VERSION, SHA))
