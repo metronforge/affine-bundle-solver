@@ -4,9 +4,15 @@ on:
   workflow_run:
     workflows: [build-and-test]
     types: [completed]
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: Successful build-and-test push run on main containing the verified release candidate
+        type: string
+        required: true
 
 concurrency:
-  group: publish-${{ github.event.workflow_run.head_sha }}
+  group: publish-${{ github.event.workflow_run.head_sha || inputs.source_run_id }}
   cancel-in-progress: false
 
 permissions:
@@ -16,23 +22,59 @@ jobs:
   publish:
     name: publish verified immutable release
     if: >-
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'push' &&
-      github.event.workflow_run.head_branch == 'main'
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'main') ||
+      github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     permissions:
       actions: read
       contents: write
     steps:
+      - name: Resolve and validate successful main build run
+        id: source
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_RUN_ID: ${{ github.event.workflow_run.id }}
+          EVENT_SHA: ${{ github.event.workflow_run.head_sha }}
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+        run: |
+          if [ "$EVENT_NAME" = workflow_run ]; then
+            run_id=$EVENT_RUN_ID
+            verified_sha=$EVENT_SHA
+          else
+            if [[ ! "$SOURCE_RUN_ID" =~ ^[0-9]+$ ]]; then
+              echo "source_run_id must be a numeric GitHub Actions run ID" >&2
+              exit 1
+            fi
+            run=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID")
+            if ! jq -e '
+              .name == "build-and-test" and
+              .event == "push" and
+              .head_branch == "main" and
+              .conclusion == "success" and
+              (.head_sha | type == "string" and test("^[0-9a-f]{40}$"))
+            ' <<<"$run" >/dev/null; then
+              echo "source run is not a successful build-and-test push on main" >&2
+              exit 1
+            fi
+            run_id=$SOURCE_RUN_ID
+            verified_sha=$(jq -r '.head_sha' <<<"$run")
+          fi
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          echo "verified_sha=$verified_sha" >> "$GITHUB_OUTPUT"
+
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ steps.source.outputs.verified_sha }}
           fetch-depth: 2
 
       - name: Detect and validate a release commit
         id: release
         env:
-          VERIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
+          VERIFIED_SHA: ${{ steps.source.outputs.verified_sha }}
         run: |
           version=$(jq -r '."."' .release-please-manifest.json)
           previous=$(git show HEAD^:.release-please-manifest.json 2>/dev/null \
@@ -55,13 +97,13 @@ jobs:
           path: dist
           github-token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
-          run-id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ steps.source.outputs.run_id }}
 
       - name: Verify complete candidate checksums, names and binary identity
         if: steps.release.outputs.created == 'true'
         env:
           VERSION: ${{ steps.release.outputs.version }}
-          VERIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
+          VERIFIED_SHA: ${{ steps.source.outputs.verified_sha }}
         run: |
           python3 tools/release_assets.py verify dist "$VERSION" "$VERIFIED_SHA"
           (cd dist && sha256sum -c SHA256SUMS.txt)
@@ -72,25 +114,38 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.release.outputs.tag }}
-          VERIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
+          VERIFIED_SHA: ${{ steps.source.outputs.verified_sha }}
         run: |
-          release=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" 2>/dev/null || true)
-          if [ -z "$release" ]; then
+          git fetch --no-tags origin main
+          git show origin/main:docs/releases/v0.5.0.md > "$RUNNER_TEMP/release-notes.md"
+          response="$RUNNER_TEMP/release-lookup.json"
+          error="$RUNNER_TEMP/release-lookup.stderr"
+          set +e
+          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" >"$response" 2>"$error"
+          api_status=$?
+          set -e
+          state=$(python3 tools/release_assets.py release-state "$response" "$TAG" "$VERIFIED_SHA") || {
+            cat "$error" >&2
+            exit 1
+          }
+          if [ "$state" = missing ]; then
+            if [ "$api_status" -eq 0 ]; then
+              echo "GitHub returned Not Found without an HTTP error" >&2
+              exit 1
+            fi
             gh release create "$TAG" --draft --target "$VERIFIED_SHA" \
-              --title "$TAG" --generate-notes
+              --title "$TAG" --notes-file "$RUNNER_TEMP/release-notes.md"
             echo "state=draft" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          target=$(jq -r '.target_commitish' <<<"$release")
-          immutable=$(jq -r '.immutable // false' <<<"$release")
-          draft=$(jq -r '.draft' <<<"$release")
-          if [ "$target" != "$VERIFIED_SHA" ]; then
-            echo "existing release targets $target, expected $VERIFIED_SHA" >&2
+          if [ "$api_status" -ne 0 ]; then
+            cat "$error" >&2
+            echo "GitHub release lookup failed unexpectedly" >&2
             exit 1
           fi
-          if [ "$immutable" = true ]; then
+          if [ "$state" = immutable ]; then
             echo "state=immutable" >> "$GITHUB_OUTPUT"
-          elif [ "$draft" = true ]; then
+          elif [ "$state" = draft ]; then
             echo "state=draft" >> "$GITHUB_OUTPUT"
           else
             echo "existing release is published but not immutable" >&2
@@ -127,7 +182,7 @@ jobs:
           TAG: ${{ steps.release.outputs.tag }}
           STATE: ${{ steps.draft.outputs.state }}
           VERSION: ${{ steps.release.outputs.version }}
-          VERIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
+          VERIFIED_SHA: ${{ steps.source.outputs.verified_sha }}
         run: |
           remote=$(mktemp -d)
           gh release download "$TAG" --dir "$remote"

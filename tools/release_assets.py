@@ -114,6 +114,23 @@ def verify_candidate(directory, version, commit):
         verify_binary(directory / name, version, commit, target)
 
 
+def release_lookup_state(response, tag, commit):
+    """Classify a GitHub release lookup response without treating API errors as releases."""
+    if not isinstance(response, dict):
+        raise ValueError('release lookup response must be a JSON object')
+    if response.get('message') == 'Not Found':
+        return 'missing'
+    if response.get('tag_name') != tag or not isinstance(response.get('id'), int):
+        raise ValueError('release lookup returned an error or an unexpected release')
+    if response.get('target_commitish') != commit:
+        raise ValueError('existing release targets a different source commit')
+    if response.get('immutable') is True:
+        return 'immutable'
+    if response.get('draft') is True:
+        return 'draft'
+    raise ValueError('existing release is published but not immutable')
+
+
 def require_identical(candidate, existing):
     # Compare the bytes directly; a matching filename or remote checksum is insufficient.
     with Path(candidate).open('rb') as left, Path(existing).open('rb') as right:
@@ -161,10 +178,17 @@ def main():
     for name in ('source', 'sdks', 'output', 'version', 'commit'):
         p.add_argument(name)
     p = sub.add_parser('identical'); p.add_argument('candidate'); p.add_argument('existing')
+    p = sub.add_parser('release-state')
+    p.add_argument('response')
+    p.add_argument('tag')
+    p.add_argument('commit')
     args = vars(parser.parse_args())
     action = args.pop('action')
     if action == 'names':
         print('\n'.join(archive_names(args['version']) + ['SHA256SUMS.txt']))
+    elif action == 'release-state':
+        response = json.loads(Path(args['response']).read_text())
+        print(release_lookup_state(response, args['tag'], args['commit']))
     else:
         {'context': context, 'identity': validate_identity, 'verify': verify_candidate,
          'aggregate': aggregate, 'identical': require_identical}[action](**args)

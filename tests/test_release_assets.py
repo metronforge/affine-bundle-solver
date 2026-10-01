@@ -46,6 +46,21 @@ class ReleaseContract(unittest.TestCase):
         self.assertTrue(release.candidate_required('1.2.3', '1.2.2', False))
         self.assertTrue(release.candidate_required('1.2.3', '1.2.3', True))
 
+    def test_release_lookup_treats_only_not_found_as_absent(self):
+        self.assertEqual('missing', release.release_lookup_state(
+            {'message': 'Not Found', 'status': '404'}, 'v' + VERSION, SHA))
+        base = dict(id=1, tag_name='v' + VERSION, target_commitish=SHA,
+                    draft=True, immutable=False)
+        self.assertEqual('draft', release.release_lookup_state(base, 'v' + VERSION, SHA))
+        self.assertEqual('immutable', release.release_lookup_state(
+            {**base, 'draft': False, 'immutable': True}, 'v' + VERSION, SHA))
+        for bad in ({'message': 'Bad credentials'}, None,
+                    {**base, 'target_commitish': 'b' * 40},
+                    {**base, 'tag_name': 'v9.9.9'},
+                    {**base, 'draft': False, 'immutable': False}):
+            with self.assertRaises(ValueError):
+                release.release_lookup_state(bad, 'v' + VERSION, SHA)
+
     def test_names_and_five_entry_order(self):
         self.assertEqual(self.names, [f'affine-bundle-solver-v1.2.3{s}.tar.gz' for s in
                                      ('', '-research', '-linux-x86_64', '-linux-arm64', '-macos-arm64')])
