@@ -1,0 +1,49 @@
+schema_version: 1
+record_kind: scientific-publication-release-candidate
+scientific_version: v2
+software_version: 0.5.0
+repository:
+  code: https://github.com/metronforge/affine-bundle-solver
+  canonical_base: 9c5336e1523415c8e93d3ce2632304ea738b6883
+title: >-
+  Affine-Bundle Solvers for General Linear Equality Systems:
+  Independently Verifiable Nearby-Status Certificates and
+  Information-Adaptive Routing
+authors:
+  - given_names: Viktor
+    family_names: Mikhalkin
+    orcid: https://orcid.org/0009-0000-4954-2300
+license: Apache-2.0
+keywords:
+  - linear systems
+  - certified computation
+  - numerical rank
+  - consistency classification
+  - affine bundle
+  - certifying algorithms
+  - verified numerical linear algebra
+zenodo:
+  action: create_new_version_of_existing_record
+  concept_doi: 10.5281/zenodo.22753772
+  previous_version_doi: 10.5281/zenodo.22753773
+  version_specific_doi: null
+  publication_date: null
+  description: >-
+    Scientific v2 adds the split solve/check/certify public architecture and
+    its qualification evidence while retaining the legacy router API.
+orcid:
+  action_after_zenodo_publication: add_or_link_version_specific_doi
+  version_specific_doi: null
+hal:
+  action_after_zenodo_publication: submit_as_new_version_of_the_existing_work
+  existing_v1_status: awaiting_moderation
+  version_specific_doi: null
+release_candidate:
+  immutable_tag: null
+  immutable_release_url: null
+  source_commit: null
+  manuscript_pdf_sha256: null
+  source_archive_sha256: null
+  research_archive_sha256: null
+  binary_archive_sha256: {}
+  checksum_manifest_sha256: null

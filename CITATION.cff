@@ -32,12 +32,11 @@ keywords:
   - certifying algorithms
   - verified numerical linear algebra
 license: Apache-2.0
-version: 0.4.4 # x-release-please-version
-date-released: '2026-09-13'
+version: 0.5.0 # x-release-please-version
 identifiers:
   - type: doi
-    value: 10.5281/zenodo.22753773
-    description: Archived source code for version 0.4.4
+    value: 10.5281/zenodo.22753772
+    description: Zenodo concept record for the Affine Bundle Solver version history
 # Uncomment and fill once the preprint exists:
 # preferred-citation:
 #   type: article
