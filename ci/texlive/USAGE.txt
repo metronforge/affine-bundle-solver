@@ -1,53 +1,45 @@
-Reusable manuscript toolchain
+Shared offline TeX Live toolchain
 
-On a host that already has LaTeX, keep using the existing native command:
-  bash build_paper.sh
+The prebuilt image is a shared toolchain for repositories that own their own
+manuscript sources, build scripts, bibliography handling, and output names.
+It does not contain manuscripts and does not install packages or download
+dependencies while compiling. Consumers pin the verified image digest from
+ci/texlive/image.txt; pull requests never publish images.
 
-The container is the CI toolchain. Local use is optional, for checking the
-CI environment or for hosts without LaTeX; it is not a new prerequisite.
+Run a repository's build script in its own workspace with:
+  bash scripts/build_manuscript_container.sh WORKSPACE -- bash BUILD_SCRIPT
 
-To use the container from the repository:
-  bash scripts/build_manuscript_container.sh
+Examples:
 
-Or process another host checkout (including a path containing spaces):
-  bash scripts/build_manuscript_container.sh /absolute/path/to/checkout
+Solver manuscript (build_paper.sh preserves its BibTeX procedure):
+  bash scripts/build_manuscript_container.sh . -- bash build_paper.sh
 
-The host folder must contain paper.tex, references.bib and build_paper.sh.
-paper.pdf and the LaTeX logs are written to that same host folder, owned by
-the invoking user. Manuscript sources are never copied into the image.
+Radon manuscript (paper.tex and paper.pdf are local to manuscript/):
+  bash scripts/build_manuscript_container.sh manuscript -- bash build_paper.sh
 
-The image reference in image.txt is immutable. Docker downloads the image
-only when it is absent locally. --rm removes the temporary execution
-container, NOT the image, registry version or host files. Do not delete the
-GHCR version referenced by image.txt. A fresh GitHub runner downloads this
-prebuilt image; it does not rebuild it or install TeX.
+Another project with a differently named main file and its own build script:
+  bash scripts/build_manuscript_container.sh /path/to/project -- bash build-report.sh
 
-The consumer has no apt step. It runs without network, with a read-only
-container root filesystem, dropped capabilities and no registry token in
-the TeX process. No persistent container service is necessary.
+Or invoke TeX directly when that is the repository's complete build procedure:
+  bash scripts/build_manuscript_container.sh /path/to/project -- \
+    pdflatex -interaction=nonstopmode -halt-on-error analysis-report.tex
 
-If the GHCR package is private, authenticate Docker with read:packages
-access first. The repository workflow uses its scoped GITHUB_TOKEN; public
-packages can be pulled anonymously. Visibility is an owner decision.
+The generic interface imposes no paper.tex, references.bib, paper.pdf, or
+paper.log naming convention. Outputs are written into the bind-mounted host
+workspace and owned by the invoking UID/GID. Use the repository's own build
+script when it needs multiple TeX passes, BibTeX/Biber, or custom output names.
 
-Toolchain update procedure:
-  1. Review changes to Dockerfile or build-manuscript.
-  2. Run the manuscript toolchain image workflow. It builds once and must
-     pass the real-document, unresolved-reference and stale-PDF negatives
-     before publishing. PRs never publish packages.
-  3. Take the digest and package inventory from texlive-image-provenance.
-  4. Explicitly update image.txt in a reviewed commit. Never use latest.
-  5. Run the manuscript workflow, including the positive/negative checks.
+For compatibility, running the launcher without a command still invokes
+abs-build-manuscript, the original solver-manuscript helper. New consumers
+should pass their own command explicitly.
 
-Base Ubuntu is digest-pinned. Apt package resolution may change on a new
-image build; every image records dpkg-query output at
-/usr/local/share/abs-texlive/packages.tsv and carries source/revision labels.
-Image pinning reproduces a chosen toolchain; it is not a promise that
-rebuilding the Dockerfile later yields identical bytes.
+Every container run uses no network, a read-only root filesystem, no Linux
+capabilities, no-new-privileges, and the invoking host UID/GID. A private GHCR
+package requires read access for each consuming repository's Actions token;
+grant repository workflow access in GHCR package settings without placing
+credentials in the image.
 
-Initial qualification:
-  Publisher run: https://github.com/metronforge/affine-bundle-solver/actions/runs/36744594921
-  Source: 33469c6266758e6e555738b14aa80ee5ac91893d
-  Server integration tests: 3/3 passed in 6.369 seconds.
-  Local PR #55 manuscript (9489cb5): 28 pages, 4.17 seconds, no unresolved references.
-  These are host-specific measurements, not runtime promises.
+Toolchain publication records the image digest and installed package list.
+The prior package ghcr.io/metronforge/affine-bundle-solver-texlive and its
+versions are retained as historical provenance; current usage is
+ghcr.io/metronforge/texlive-custom.

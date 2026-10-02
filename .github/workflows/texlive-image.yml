@@ -9,7 +9,10 @@ on:
     paths:
       - 'ci/texlive/Dockerfile'
       - 'ci/texlive/build-manuscript'
+      - 'ci/texlive/run-command'
       - 'tests/manuscript_container_contract.py'
+      - 'tests/texlive_graphics_contract.py'
+      - 'tests/fixtures/texlive-graphics/**'
       - '.github/workflows/texlive-image.yml'
   workflow_dispatch:
 
@@ -36,21 +39,37 @@ jobs:
         env:
           MANUSCRIPT_IMAGE: abs-texlive:qualification
         run: python3 tests/manuscript_container_contract.py
+      - name: Qualify offline TikZ, PGF, and PGFPlots support
+        env:
+          MANUSCRIPT_IMAGE: abs-texlive:qualification
+        run: python3 tests/texlive_graphics_contract.py
       - name: Publish qualified image
         env:
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          image="ghcr.io/${GITHUB_REPOSITORY,,}-texlive"
+          image="ghcr.io/metronforge/texlive-custom"
           tag="${GITHUB_SHA}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
           trap 'docker logout ghcr.io' EXIT
           docker tag abs-texlive:qualification "$image:$tag"
           docker push "$image:$tag"
-          docker image inspect "$image:$tag" --format '{{range .RepoDigests}}{{println .}}{{end}}' | tee image-digest.txt
-          test -s image-digest.txt
-          docker run --rm --network=none "$image:$tag" \
+          digest_ref=$(docker image inspect "$image:$tag" \
+            --format '{{range .RepoDigests}}{{println .}}{{end}}' \
+            | awk -v prefix="$image@" 'index($0, prefix) == 1 { print; exit }')
+          digest=${digest_ref#"$image@"}
+          if [[ ! $digest =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo 'registry did not return a digest for the new package coordinate' >&2
+            exit 1
+          fi
+          printf '%s@%s\n' "$image" "$digest" > image-digest.txt
+          docker pull "$image@$digest"
+          docker run --rm --network=none "$image@$digest" \
             cat /usr/local/share/abs-texlive/packages.tsv > texlive-packages.tsv
-          cat image-digest.txt >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "Published image: $image@$digest"
+            echo 'Installed package inventory:'
+            cat texlive-packages.tsv
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Preserve digest and installed package inventory
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:

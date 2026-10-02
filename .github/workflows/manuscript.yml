@@ -16,6 +16,8 @@ on:
       - 'build_paper.sh'
       - 'scripts/build_manuscript_container.sh'
       - 'ci/texlive/image.txt'
+      - 'ci/texlive/USAGE.txt'
+      - 'ci/texlive/run-command'
       - 'tests/test_manuscript_launcher.py'
       - 'tests/manuscript_container_contract.py'
       - '.github/workflows/manuscript.yml'
@@ -26,6 +28,8 @@ on:
       - 'build_paper.sh'
       - 'scripts/build_manuscript_container.sh'
       - 'ci/texlive/image.txt'
+      - 'ci/texlive/USAGE.txt'
+      - 'ci/texlive/run-command'
       - 'tests/test_manuscript_launcher.py'
       - 'tests/manuscript_container_contract.py'
       - '.github/workflows/manuscript.yml'
@@ -69,7 +73,7 @@ jobs:
       - name: Build host manuscript offline with the pinned toolchain
         run: |
           start=$SECONDS
-          bash scripts/build_manuscript_container.sh
+          bash scripts/build_manuscript_container.sh . -- bash build_paper.sh
           echo "Manuscript build: $((SECONDS-start)) seconds" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Container positive and controlled-negative checks
