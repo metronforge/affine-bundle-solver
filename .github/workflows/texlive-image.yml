@@ -63,6 +63,7 @@ jobs:
           fi
           printf '%s@%s\n' "$image" "$digest" > image-digest.txt
           docker pull "$image@$digest"
+          MANUSCRIPT_IMAGE="$image@$digest" python3 tests/texlive_graphics_contract.py
           docker run --rm --network=none "$image@$digest" \
             cat /usr/local/share/abs-texlive/packages.tsv > texlive-packages.tsv
           {
