@@ -37,7 +37,7 @@ jobs:
           python -m pip install --disable-pip-version-check -r external/dynamite/requirements.txt
           python -m pip install --disable-pip-version-check -e external/dynamite
       - name: Build DYNAMITE orbit integrators (NNLS mode, no Galahad)
-        run: make -C external/dynamite/legacy_fortran all
+        run: make -C external/dynamite/legacy_fortran nogal triaxmass triaxmassbin
       - name: Build unmodified native ABS and strict checker
         env:
           ARCH_FLAGS: ''
