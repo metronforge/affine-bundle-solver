@@ -25,6 +25,7 @@ def assemble():
     os.chdir(WORKDIR)
     import dynamite as dyn
 
+    import yaml
     config_file = WORKDIR / "FCC167_config.yaml"
     data_dir = WORKDIR / "FCC167_input"
     required = [
@@ -40,8 +41,21 @@ def assemble():
     for path in required:
         if not path.is_file():
             raise FileNotFoundError(f"Published FCC167 input missing: {path}")
+    # Limit the case to photometry + stellar kinematics. The published config
+    # additionally includes stellar-population apertures which are not part of
+    # the stated orbit-weight identifiability question and trigger a Fortran
+    # binning-input parser error with the pinned DYNAMITE revision.
+    # Original observations and repository config remain untouched.
+    config_dict = yaml.safe_load(config_file.read_text())
+    config_dict["system_components"]["stars"].pop("populations", None)
+    config_dict["io_settings"]["output_directory"] = "FCC167_output_abs_kin/"
+    config_dict["multiprocessing_settings"]["ncpus"] = 1
+    config_dict["multiprocessing_settings"]["ncpus_weights"] = 1
+    config_dict["multiprocessing_settings"]["modeliterator"] = "ModelInnerIterator"
+    adapted_config = WORKDIR / "FCC167_abs_kinematics.yaml"
+    adapted_config.write_text(yaml.safe_dump(config_dict, sort_keys=False))
     cfg = dyn.config_reader.Configuration(
-        config_file.name, reset_logging=True, reset_existing_output=True)
+        adapted_config.name, reset_logging=True, reset_existing_output=True)
     dyn.model_iterator.ModelIterator(config=cfg, plots=False)
     model = cfg.all_models.get_model_from_row(0)
     orblib = model.get_orblib()
@@ -56,7 +70,9 @@ def assemble():
         raise RuntimeError("Nonfinite observational orbit matrix")
     provenance = {
         "galaxy": "FCC 167 / NGC 1380",
-        "source": "DYNAMITE Fornax3D prepared observations and integrated orbits",
+        "source": "DYNAMITE Fornax3D prepared photometry and stellar kinematics; optional populations disabled",
+        "adaptation": "Remove optional populations, 1 CPU, keep all physical potential/orbit configuration and observation values unchanged",
+        "adapted_config_sha256": digest(adapted_config),
         "input_sha256": {
             str(p.relative_to(WORKDIR)): digest(p) for p in required
         },
