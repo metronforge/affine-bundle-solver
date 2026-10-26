@@ -3,6 +3,7 @@ name: NGC 6278 real orbit weights / native ABS
 on:
   push:
     branches: [experiment/ngc6278-orbit-abs]
+  pull_request:
   workflow_dispatch:
 
 permissions:
