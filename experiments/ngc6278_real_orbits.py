@@ -151,7 +151,7 @@ def prepare_galaxy() -> tuple[np.ndarray, np.ndarray, int, dict]:
     if not in_file.is_file():
         raise FileNotFoundError(f"Real CALIFA FITS input unavailable: {in_file}")
     out_dir.mkdir(parents=True, exist_ok=True)
-    create_kin_input("NGC6278", str(in_file), str(out_dir),
+    create_kin_input("NGC6278", str(in_file), str(out_dir) + "/",
                      expr="", fit_PA=True, kin_input="CALIFA")
     gh = dyn.kinematics.GaussHermite()
     gh.add_psf_to_datafile(sigma=[1.06], weight=[1.0],
