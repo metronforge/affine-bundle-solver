@@ -6,12 +6,12 @@ Run: python -m unittest discover -s research/graph_butterfly -p 'test_*.py'
 from fractions import Fraction as Q
 
 
-def rref(rows, n):
+def rref(rows, n, pivot_columns=None):
     """Reduced echelon augmented matrix, with inconsistency detection."""
     a = [[Q(v) for v in row] for row in rows]
-    pivots = []
+    if pivot_columns is None:\n        pivot_columns = n\n    pivots = []
     k = 0
-    for j in range(n):
+    for j in range(pivot_columns):
         p = next((i for i in range(k, len(a)) if a[i][j]), None)
         if p is None:
             continue
@@ -40,7 +40,7 @@ def project_block(rows, internal, separator):
     ni, ns = internal, separator
     if any(len(row) != ni + ns + 1 for row in rows):
         raise ValueError("invalid block row")
-    reduced = rref(rows, ni)
+    reduced = rref(rows, ni + ns, pivot_columns=ni)
     if reduced is None:
         return None
     a, _ = reduced
