@@ -88,4 +88,3 @@ if __name__ == "__main__":
             rc,x,out = api.invoke_solve(lib,A,b,p)
             assert rc == 0
             print("GUARDS",*out.formation_guard_counters,file=sys.stderr)
-

@@ -1,0 +1,57 @@
+above the window the guard certifies the full rank
+  [ok] 800x192 gap 1e-06: deterministic UNIQUE at [192,192] (got UNIQUE c1 [192,192])
+  [ok] 800x192 gap 1e-06 contradictory: deterministic INCONSISTENT (got INCONSISTENT c1)
+  [ok] 800x192 gap 1e-08: deterministic UNIQUE at [192,192] (got UNIQUE c1 [192,192])
+  [ok] 800x192 gap 1e-08 contradictory: deterministic INCONSISTENT (got INCONSISTENT c1)
+  [ok] 2000x256 gap 1e-06: deterministic UNIQUE at [256,256] (got UNIQUE c1 [256,256])
+  [ok] 2000x256 gap 1e-06 contradictory: deterministic INCONSISTENT (got INCONSISTENT c1)
+  [ok] 2000x256 gap 1e-08: deterministic UNIQUE at [256,256] (got UNIQUE c1 [256,256])
+  [ok] 2000x256 gap 1e-08 contradictory: deterministic INCONSISTENT (got INCONSISTENT c1)
+
+inside the window the guard declines and no rank is claimed
+  [ok] 800x192 gap 1e-10: UNDECIDABLE with no certainty (got UNDECIDABLE c3)
+  [ok] 800x192 gap 1e-10: interval [191,192] brackets both candidate ranks and is not a point
+  [ok] 800x192 gap 1e-11: UNDECIDABLE with no certainty (got UNDECIDABLE c3)
+  [ok] 800x192 gap 1e-11: interval [191,192] brackets both candidate ranks and is not a point
+  [ok] 800x192 gap 1e-12: UNDECIDABLE with no certainty (got UNDECIDABLE c3)
+  [ok] 800x192 gap 1e-12: interval [191,192] brackets both candidate ranks and is not a point
+  [ok] 2000x256 gap 1e-10: UNDECIDABLE with no certainty (got UNDECIDABLE c3)
+  [ok] 2000x256 gap 1e-10: interval [255,256] brackets both candidate ranks and is not a point
+  [ok] 2000x256 gap 1e-11: UNDECIDABLE with no certainty (got UNDECIDABLE c3)
+  [ok] 2000x256 gap 1e-11: interval [255,256] brackets both candidate ranks and is not a point
+  [ok] 2000x256 gap 1e-12: UNDECIDABLE with no certainty (got UNDECIDABLE c3)
+  [ok] 2000x256 gap 1e-12: interval [255,256] brackets both candidate ranks and is not a point
+
+an unresolved rank blocks a consistency verdict in both directions
+  [ok] 800x192 gap 1e-10 contradictory: still UNDECIDABLE, compressed evidence does not certify a source contradiction (got UNDECIDABLE)
+  [ok] 800x192 gap 1e-11 contradictory: still UNDECIDABLE, compressed evidence does not certify a source contradiction (got UNDECIDABLE)
+  [ok] 800x192 gap 1e-12 contradictory: still UNDECIDABLE, compressed evidence does not certify a source contradiction (got UNDECIDABLE)
+  [ok] 2000x256 gap 1e-10 contradictory: still UNDECIDABLE, compressed evidence does not certify a source contradiction (got UNDECIDABLE)
+  [ok] 2000x256 gap 1e-11 contradictory: still UNDECIDABLE, compressed evidence does not certify a source contradiction (got UNDECIDABLE)
+  [ok] 2000x256 gap 1e-12 contradictory: still UNDECIDABLE, compressed evidence does not certify a source contradiction (got UNDECIDABLE)
+
+below the window the direction is absent and the verdict is decided
+  [ok] 800x192 gap 1e-14: INFINITE at rank 191 (got INFINITE rank 191)
+  [ok] 800x192 gap 1e-14 contradictory: deterministic INCONSISTENT at a point rank (got INCONSISTENT c1 [191,191])
+  [ok] 800x192 gap 0e+00: INFINITE at rank 191 (got INFINITE rank 191)
+  [ok] 800x192 gap 0e+00 contradictory: deterministic INCONSISTENT at a point rank (got INCONSISTENT c1 [191,191])
+  [ok] 2000x256 gap 1e-14: INFINITE at rank 255 (got INFINITE rank 255)
+  [ok] 2000x256 gap 1e-14 contradictory: deterministic INCONSISTENT at a point rank (got INCONSISTENT c1 [255,255])
+  [ok] 2000x256 gap 0e+00: INFINITE at rank 255 (got INFINITE rank 255)
+  [ok] 2000x256 gap 0e+00 contradictory: deterministic INCONSISTENT at a point rank (got INCONSISTENT c1 [255,255])
+
+the refusal is a property of the data
+  [ok] gap 1e-10: three sketch seeds agree (UNDECIDABLE)
+  [ok] gap 1e-10: UNDECIDABLE survives a row permutation
+  [ok] gap 1e-10 scaled by 2^-30: UNDECIDABLE unchanged
+  [ok] gap 1e-10 scaled by 2^+30: UNDECIDABLE unchanged
+  [ok] gap 1e-11: three sketch seeds agree (UNDECIDABLE)
+  [ok] gap 1e-11: UNDECIDABLE survives a row permutation
+  [ok] gap 1e-11 scaled by 2^-30: UNDECIDABLE unchanged
+  [ok] gap 1e-11 scaled by 2^+30: UNDECIDABLE unchanged
+  [ok] gap 1e-12: three sketch seeds agree (UNDECIDABLE)
+  [ok] gap 1e-12: UNDECIDABLE survives a row permutation
+  [ok] gap 1e-12 scaled by 2^-30: UNDECIDABLE unchanged
+  [ok] gap 1e-12 scaled by 2^+30: UNDECIDABLE unchanged
+
+ok: the formation-guard gate refuses an uncertifiable rank and keeps an unresolved rank out of every consistency verdict

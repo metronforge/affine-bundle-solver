@@ -1,0 +1,24 @@
+{
+  "artifact_integrity": {
+    "reasons": [
+      "artifact_not_audited"
+    ],
+    "valid": null
+  },
+  "benchmark_protocol_eligibility": {
+    "eligible": false,
+    "reasons": [
+      "benchmark_protocol_not_audited"
+    ]
+  },
+  "manuscript_claim_coverage": {
+    "complete": true,
+    "reasons": []
+  },
+  "manuscript_publication_readiness": {
+    "ready": false,
+    "reasons": [
+      "benchmark_protocol_not_audited"
+    ]
+  }
+}

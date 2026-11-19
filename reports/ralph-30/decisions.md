@@ -1,3 +1,4 @@
+# Ralph PDCA · 30 sequential decisions
 
 1. Can the pinned source build with the reproduction toolchain? Falsifier: A build/probe error or missing public symbol. → PASS, `./build.sh`, GCC 14.2.0 and SciPy OpenBLAS, `bsolve` exported by libcertified_solver.so. [Manifest](data/base-manifest.json), [probes](data/base-build.log). Proceed to A/A.
 
@@ -49,4 +50,12 @@
 
 25. Does the +3.5% square observation repeat above the investigation threshold? Falsifier: New independent blocks show a reproducible ratio >1.05. → Square 0.986 [0.921,1.105], tall 1.023 [0.956,1.118]. No confirmed regression; do not introduce a shape cutoff. [Retest](data/square-repeat.json). Send clean session the input and patch.
 
-26. Can a fresh reviewer falsify the mechanism or reproduce it from clean builds? Falsifier: No guard-count drop or no speedup on w2 when rebuilt independently. → 
+26. Can a fresh reviewer falsify the mechanism or reproduce it from clean builds? Falsifier: No guard-count drop or no speedup on w2 when rebuilt independently. → Independent clean builds w2 20.642→14.060 ms (0.681 [0.669,0.738]), guards 2→1. Small 0.960 [0.931,1.003], one guard on both. Reviewer confirmed pre_lo=m requires p=pr=m; removed allocations may avoid resource-pressure fallback. [Replication](data/independent.json), [commands](handoff.md). Unseal holdout.
+
+27. Will the frozen, unseen wide inputs meet the goal with equivalent output? Falsifier: Held family ratio >0.80 or any numerical mismatch. → Holdout ratios 0.690 and 0.684, family 0.687 [0.671,0.704], identical numerical results. [First exposure](data/holdout.json). Inputs now used; no tuning. Rebuild both versions.
+
+28. Will fresh uninstrumented builds on the same CPU meet the preregistered target? Falsifier: Family ratio >0.80, incompatible outputs, or uncertainty spanning the target. → Reproduction script passed with independently rebuilt BASE/FINAL on CPU 1. Family 0.708 [0.681,0.734], controls at worst +3.3% point (square). Holdout repeat 0.700 [0.663,0.740]. [Final pairs](data/final.json), [build manifests](data/final-manifest.json), [whole run](data/reproduction.txt). Verify manuscript and tests.
+
+29. Do the project batteries and manuscript claims pass on the rebuilt solver? Falsifier: Any new failure or published performance number treated as portable. → All 8 manuscript claims reproduced, standalone C solve contract, blockprefix, compressed-core, threshold and graph-03 transition tests passed. Frozen checksums verified. [Claims](data/paper-claims.txt), [C API](data/solve-api.txt), [thresholds](data/test_threshold_contract.txt). Prepare review package.
+
+30. Can a reviewer reconstruct the result from branch artifacts alone? Falsifier: Missing inputs/links, dirty solver diff, inconsistent metric, or failure to publish the requested ref. → 15 NPZ checksums, raw final/held input hashes, all 30 decisions and internal links verified; public family ratio recalculated 0.707976. Production diff is one router source file. Deliver [report](README.md), [reproduction](reproduce.sh) and [handoff](handoff.md) for branch-only review.

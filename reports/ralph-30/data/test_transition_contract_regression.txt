@@ -1,0 +1,1 @@
+PASS: graph-03 remains UNDECIDABLE at rank interval [3,4]

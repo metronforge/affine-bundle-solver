@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "built_at_utc": "2026-11-19T21:56:13Z",
+  "source": {
+    "git_sha": "f7a0ae4251bb3a2b2122bc58073edb308bed0b7c",
+    "git_tree_sha": "2558c041a1f310b5c9b76199c908000bf9707fd9",
+    "git_dirty": false
+  },
+  "build_script": {
+    "path": "build.sh",
+    "sha256": "d0fb743d929883a95bcc229eadfd07f201d6d5e517c1d4b3e5adb61c34410ec9"
+  },
+  "compiler": {
+    "command_argv": [
+      "gcc"
+    ],
+    "identity": "gcc (Debian 14.2.0-19) 14.2.0"
+  },
+  "router": {
+    "compile_argv": [
+      "gcc",
+      "-O3",
+      "-march=native",
+      "-fopenmp",
+      "-fPIC",
+      "-ffast-math",
+      "-Iinclude",
+      "-Isrc",
+      "-DABS_SCIPY_BLAS",
+      "-c",
+      "src/bsolver.c",
+      "-o",
+      "bsolver.o"
+    ],
+    "link_argv": [
+      "gcc",
+      "-shared",
+      "-fopenmp",
+      "bsolver.o",
+      "formation_guard.o",
+      "-o",
+      "libaffine_bundle_solver.so",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-6cdc3b4a.so",
+      "-Wl,-rpath,/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/scipy.libs",
+      "-latomic",
+      "-lm"
+    ],
+    "arch_flags": "-march=native",
+    "library": {
+      "basename": "libaffine_bundle_solver.so",
+      "resolved_path": "/tmp/abs-ralph-I0WbwR/final/libaffine_bundle_solver.so",
+      "sha256": "d685cf4e242922cbbd59ba0bfbebb785cb311cb8f7bcd627100abc2db47095b1"
+    }
+  },
+  "openblas": {
+    "basename": "libscipy_openblas-6cdc3b4a.so",
+    "resolved_path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-6cdc3b4a.so",
+    "sha256": "8fb864c29cac4b25f6e2c139491ea96f2724dde42d51394f84e9c4a622e34790"
+  }
+}

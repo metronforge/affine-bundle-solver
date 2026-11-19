@@ -1,0 +1,125 @@
+a singular value above the window leaves a point rank
+  [ok] 200x16 gap 1e-04: deterministic UNIQUE at rank 16 (got UNIQUE [16,16])
+  [ok] 200x16 gap 1e-06: deterministic UNIQUE at rank 16 (got UNIQUE [16,16])
+  [ok] 200x16 gap 1e-08: deterministic UNIQUE at rank 16 (got UNIQUE [16,16])
+  [ok] 400x32 gap 1e-04: deterministic UNIQUE at rank 32 (got UNIQUE [32,32])
+  [ok] 400x32 gap 1e-06: deterministic UNIQUE at rank 32 (got UNIQUE [32,32])
+  [ok] 400x32 gap 1e-08: deterministic UNIQUE at rank 32 (got UNIQUE [32,32])
+  [ok] 1000x64 gap 1e-04: deterministic UNIQUE at rank 64 (got UNIQUE [64,64])
+  [ok] 1000x64 gap 1e-06: deterministic UNIQUE at rank 64 (got UNIQUE [64,64])
+  [ok] 1000x64 gap 1e-08: deterministic UNIQUE at rank 64 (got UNIQUE [64,64])
+  [ok] 256x256 gap 1e-04: deterministic UNIQUE at rank 256 (got UNIQUE [256,256])
+  [ok] 256x256 gap 1e-06: deterministic UNIQUE at rank 256 (got UNIQUE [256,256])
+  [ok] 256x256 gap 1e-08: deterministic UNIQUE at rank 256 (got UNIQUE [256,256])
+
+a singular value inside the window is refused, with an interval
+  [ok] 200x16 gap 1e-12: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 200x16 gap 1e-12: interval [15,16] brackets both candidate ranks
+  [ok] 200x16 gap 1e-12: no point rank is claimed
+  [ok] 200x16 gap 1e-12: core interval reported and ordered (15, 15)
+  [ok] 200x16 gap 1e-11: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 200x16 gap 1e-11: interval [15,16] brackets both candidate ranks
+  [ok] 200x16 gap 1e-11: no point rank is claimed
+  [ok] 200x16 gap 1e-11: core interval reported and ordered (15, 16)
+  [ok] 200x16 gap 1e-10: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 200x16 gap 1e-10: interval [15,16] brackets both candidate ranks
+  [ok] 200x16 gap 1e-10: no point rank is claimed
+  [ok] 200x16 gap 1e-10: core interval reported and ordered (15, 16)
+  [ok] 400x32 gap 1e-12: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 400x32 gap 1e-12: interval [31,32] brackets both candidate ranks
+  [ok] 400x32 gap 1e-12: no point rank is claimed
+  [ok] 400x32 gap 1e-12: core interval reported and ordered (31, 31)
+  [ok] 400x32 gap 1e-11: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 400x32 gap 1e-11: interval [31,32] brackets both candidate ranks
+  [ok] 400x32 gap 1e-11: no point rank is claimed
+  [ok] 400x32 gap 1e-11: core interval reported and ordered (31, 32)
+  [ok] 400x32 gap 1e-10: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 400x32 gap 1e-10: interval [31,32] brackets both candidate ranks
+  [ok] 400x32 gap 1e-10: no point rank is claimed
+  [ok] 400x32 gap 1e-10: core interval reported and ordered (31, 32)
+  [ok] 1000x64 gap 1e-12: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 1000x64 gap 1e-12: interval [63,64] brackets both candidate ranks
+  [ok] 1000x64 gap 1e-12: no point rank is claimed
+  [ok] 1000x64 gap 1e-12: core interval reported and ordered (63, 63)
+  [ok] 1000x64 gap 1e-11: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 1000x64 gap 1e-11: interval [63,64] brackets both candidate ranks
+  [ok] 1000x64 gap 1e-11: no point rank is claimed
+  [ok] 1000x64 gap 1e-11: core interval reported and ordered (63, 64)
+  [ok] 1000x64 gap 1e-10: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 1000x64 gap 1e-10: interval [63,64] brackets both candidate ranks
+  [ok] 1000x64 gap 1e-10: no point rank is claimed
+  [ok] 1000x64 gap 1e-10: core interval reported and ordered (63, 64)
+  [ok] 256x256 gap 1e-12: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 256x256 gap 1e-12: interval [255,256] brackets both candidate ranks
+  [ok] 256x256 gap 1e-12: no point rank is claimed
+  [ok] 256x256 gap 1e-12: core interval reported and ordered (255, 255)
+  [ok] 256x256 gap 1e-11: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 256x256 gap 1e-11: interval [255,256] brackets both candidate ranks
+  [ok] 256x256 gap 1e-11: no point rank is claimed
+  [ok] 256x256 gap 1e-11: core interval reported and ordered (255, 256)
+  [ok] 256x256 gap 1e-10: UNDECIDABLE (got UNDECIDABLE)
+  [ok] 256x256 gap 1e-10: interval [255,256] brackets both candidate ranks
+  [ok] 256x256 gap 1e-10: no point rank is claimed
+  [ok] 256x256 gap 1e-10: core interval reported and ordered (255, 256)
+
+a singular value below the window makes the direction absent
+  [ok] 200x16 gap 1e-14: INFINITE at rank 15 (got INFINITE rank 15)
+  [ok] 200x16 gap 1e-16: INFINITE at rank 15 (got INFINITE rank 15)
+  [ok] 200x16 gap 0e+00: INFINITE at rank 15 (got INFINITE rank 15)
+  [ok] 400x32 gap 1e-14: INFINITE at rank 31 (got INFINITE rank 31)
+  [ok] 400x32 gap 1e-16: INFINITE at rank 31 (got INFINITE rank 31)
+  [ok] 400x32 gap 0e+00: INFINITE at rank 31 (got INFINITE rank 31)
+  [ok] 1000x64 gap 1e-14: INFINITE at rank 63 (got INFINITE rank 63)
+  [ok] 1000x64 gap 1e-16: INFINITE at rank 63 (got INFINITE rank 63)
+  [ok] 1000x64 gap 0e+00: INFINITE at rank 63 (got INFINITE rank 63)
+  [ok] 256x256 gap 1e-14: INFINITE at rank 255 (got INFINITE rank 255)
+  [ok] 256x256 gap 1e-16: INFINITE at rank 255 (got INFINITE rank 255)
+  [ok] 256x256 gap 0e+00: INFINITE at rank 255 (got INFINITE rank 255)
+
+the verdict does not depend on the scale of the system
+  [ok] gap 1e-04 scaled by 2^-40: UNIQUE unchanged (got UNIQUE)
+  [ok] gap 1e-04 scaled by 2^-12: UNIQUE unchanged (got UNIQUE)
+  [ok] gap 1e-04 scaled by 2^+12: UNIQUE unchanged (got UNIQUE)
+  [ok] gap 1e-04 scaled by 2^+40: UNIQUE unchanged (got UNIQUE)
+  [ok] gap 1e-12 scaled by 2^-40: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-12 scaled by 2^-12: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-12 scaled by 2^+12: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-12 scaled by 2^+40: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-11 scaled by 2^-40: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-11 scaled by 2^-12: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-11 scaled by 2^+12: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-11 scaled by 2^+40: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-10 scaled by 2^-40: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-10 scaled by 2^-12: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-10 scaled by 2^+12: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-10 scaled by 2^+40: UNDECIDABLE unchanged (got UNDECIDABLE)
+  [ok] gap 1e-14 scaled by 2^-40: INFINITE unchanged (got INFINITE)
+  [ok] gap 1e-14 scaled by 2^-12: INFINITE unchanged (got INFINITE)
+  [ok] gap 1e-14 scaled by 2^+12: INFINITE unchanged (got INFINITE)
+  [ok] gap 1e-14 scaled by 2^+40: INFINITE unchanged (got INFINITE)
+
+the verdict does not depend on the sketch seed
+  [ok] gap 1e-12: five seeds agree (UNDECIDABLE)
+  [ok] gap 1e-11: five seeds agree (UNDECIDABLE)
+  [ok] gap 1e-10: five seeds agree (UNDECIDABLE)
+
+an unresolved rank never yields a consistency verdict
+  [ok] 200x16 gap 1e-12 with a contradictory row: UNDECIDABLE is not a consistent verdict
+  [ok] 200x16 gap 1e-11 with a contradictory row: UNDECIDABLE is not a consistent verdict
+  [ok] 200x16 gap 1e-10 with a contradictory row: UNDECIDABLE is not a consistent verdict
+  [ok] 400x32 gap 1e-12 with a contradictory row: UNDECIDABLE is not a consistent verdict
+  [ok] 400x32 gap 1e-11 with a contradictory row: UNDECIDABLE is not a consistent verdict
+  [ok] 400x32 gap 1e-10 with a contradictory row: UNDECIDABLE is not a consistent verdict
+  [ok] 1000x64 gap 1e-12 with a contradictory row: UNDECIDABLE is not a consistent verdict
+  [ok] 1000x64 gap 1e-11 with a contradictory row: UNDECIDABLE is not a consistent verdict
+  [ok] 1000x64 gap 1e-10 with a contradictory row: UNDECIDABLE is not a consistent verdict
+  [ok] 256x256 gap 1e-12 with a contradictory row: UNDECIDABLE is not a consistent verdict
+  [ok] 256x256 gap 1e-11 with a contradictory row: UNDECIDABLE is not a consistent verdict
+  [ok] 256x256 gap 1e-10 with a contradictory row: UNDECIDABLE is not a consistent verdict
+
+the boundary is a property of the data, not of a row ordering
+  [ok] gap 1e-12: UNDECIDABLE survives a row permutation (got UNDECIDABLE)
+  [ok] gap 1e-11: UNDECIDABLE survives a row permutation (got UNDECIDABLE)
+  [ok] gap 1e-10: UNDECIDABLE survives a row permutation (got UNDECIDABLE)
+
+ok: the compressed-core rank boundary separates decide, refuse and discard, and the refusal is stable under scale, seed and ordering
