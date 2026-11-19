@@ -1,0 +1,16 @@
+/workspace/affine-bundle-solver/src/bsolver.c:774
+   28bb6:	8b 85 e0 fd ff ff    	mov    -0x220(%rbp),%eax
+   28bbc:	41 39 c4             	cmp    %eax,%r12d
+   28bbf:	75 0f                	jne    28bd0 <solve_blockprefix_qr.isra.0+0x45d0>
+/workspace/affine-bundle-solver/src/bsolver.c:774 (discriminator 1)
+   28bc1:	8b 85 60 fd ff ff    	mov    -0x2a0(%rbp),%eax
+   28bc7:	41 39 c4             	cmp    %eax,%r12d
+   28bca:	0f 84 d9 21 00 00    	je     2ada9 <solve_blockprefix_qr.isra.0+0x67a9>
+/workspace/affine-bundle-solver/src/bsolver.c:774 (discriminator 1)
+   28bc1:	8b 85 60 fd ff ff    	mov    -0x2a0(%rbp),%eax
+   28bc7:	41 39 c4             	cmp    %eax,%r12d
+   28bca:	0f 84 d9 21 00 00    	je     2ada9 <solve_blockprefix_qr.isra.0+0x67a9>
+/workspace/affine-bundle-solver/src/bsolver.c:775
+   28bd0:	48 8d 3d 00 00 00 00 	lea    0x0(%rip),%rdi        # 28bd7 <solve_blockprefix_qr.isra.0+0x45d7>
+   28bd7:	e8 00 00 00 00       	call   28bdc <solve_blockprefix_qr.isra.0+0x45dc>
+   28bdc:	48 ff 80 00 00 00 00 	incq   0x0(%rax)

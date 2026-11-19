@@ -22,3 +22,31 @@
 11. Can the second proof be replaced by a scalar bound without weakening the evidence? Falsifier: A non-source prefix, lower bound below the proposal, or missing source-row check. → Prefix contains every source row when pre_lo=m (p≤m); fg_qr_rank_certifies already proved m independent directions on this A with the same provenance errors. Full-row compatibility and validation still precede acceptance. Repeated QR/QR reconstruction/Gram costs Θ(nm²+m³) and extra workspace incl. n² capacity; bound lookup O(1). Counts in [w3 trace](data/profile-base-w3.txt). Implement only on first successful check.
 
 12. Can the normal bsolve path execute exactly one guard on w2? Falsifier: Two guard calls or an altered operational/candidate result. → Baseline evidence test failed on 2 guards; A passes with [1,0,0], point interval [128,128]. Source edit leaves fallback and result ABI intact. Disable by reversing this single source commit. [A build](data/a-build.log).
+
+13. Does A speed up all three cases and remove specifically the repeated phase? Falsifier: Family ratio above 0.8 or trace still contains the second proof. → Ratios 0.719/0.649/0.684, geometric mean 0.683, exploratory CI [0.647,0.802]. W2 trace has one QR/guard and no certified_proof_rank_lo. [Pairs](data/a.json), [instrumented run](data/profile-a-w2.txt). Reverse source change.
+
+14. Does reversing A restore two guards only on the affected path? Falsifier: Reversal leaves one guard on w2 or changes count on small. → Reversed source equals BASE. W2 OFF→ON 18.906→12.931 ms, guards 2→1; small 0.724→0.739 ms, guards 1→1, CI includes 1. [Disable experiment](data/disable.json). Try boundary inputs.
+
+15. Does A preserve numerical outcomes when the full row-rank premise fails? Falsifier: Changed x/status/evidence/quality or gate reuse on a rank-defective case. → All outputs agree, true defect [95,96], conflict [95,95], grey UNDECIDABLE [95,96]; counts unchanged except certified rank-96 ill case, 2→1. [Raw results](data/a-boundary.json). Profile remaining data movement.
+
+16. Is building the DGELSY matrix twice a measurable residual cost? Falsifier: First pack below clock resolution or the query needs matrix values. → On w3 the first of two transposes costs 2.78–3.65 ms each call; last call 3.42 of 125.26 ms. B will pack only after the LAPACK workspace query. [Pack profile](data/profile-a-pack-w3.txt). Verify query contract.
+
+17. Does DGELSY workspace size depend only on dimensions? Falsifier: Different optimal lengths or INFO on a finite, zero or NaN payload at fixed m,n. → INFO=0 and identical workspace for all payloads, sizes 17536/6752/1152. LWORK=−1 requests the optimal workspace only (LAPACK DGELSY); retain valid buffers and load all actual values and pivots before the computation. [Payload experiment](data/query.txt).
+
+18. Does B improve public solve over both BASE and A? Falsifier: No reproducible extra improvement or changed numerical results. → B/BASE 0.964 [0.892,1.007]; (A+B)/A 0.986 [0.972,1.146]. All matched. Additional family benefit unresolved; keep B as experimental patch only. [B](data/b.json), [A+B versus A](data/ab-v-a.json), [patch](data/candidate-b.patch).
+
+19. Where does A stop helping as dimensions and rank change? Falsifier: Full row rank alone predicts the saving even on the secant-tail route. → Ratios w1 0.670, extreme 0.736; small 0.956, defect 0.987, grey 0.994, last three intervals span 1. No supported loss region here. No new representation; avoids one short-lived n² allocation and factor work. [Shape/rank sweep](data/domain.json). Use computed rank, no tuned crossover.
+
+20. Does deciding reuse require an additional data pass or expensive dispatch? Falsifier: Generated router calls another function to decide or allocates new storage. → Two integer compares/conditional branches, two stack loads at most in GCC native code. No matrix scan, tuning parameter or extra allocation. [Disassembly](data/selection.txt). Retain existing route and guard at its original acceptance site.
+
+21. Does the selected public build reproduce the A effect without experiment-only patches? Falsifier: Production library has profiling hooks or paired family ratio >0.80. → Stock public build source equals 2e868b0, family ratio 0.689 [0.650,0.722], x/contract equal. [Integrated timings](data/integrated.json). Audit edge classifications and radii.
+
+22. Do independent residuals or certificates reveal any near-boundary change? Falsifier: Different status, rank interval, candidate quality or accepted radius on the same input. → Six matched status/intervals, original-row upper bounds covered long-double oracle, all accepted masks and binary64 radii equal, including conflict and grey. Check/certify measured outside solve. [BASE](data/numeric-base.json), [FINAL](data/numeric-final.json). Run project oracles.
+
+23. Do independent project oracles and source fallback still pass? Falsifier: Any rank/solution, outward-radius or fallback failure. → 36 solution and 180 quality oracle comparisons; qualification 180/180, 378 certificate-property checks; minimum finite strict/shadow radius ratio 1.0000000000000002. Conflict/grey exercised source QRCP (1/2 calls). [Split](data/split.json), [qualification](data/qualification.json), [radius oracle](data/oracle-radius.json). Measure controls.
+
+24. Is any control slower by more than 5%? Falsifier: Any ratio >1.05; repeat that case before accepting. → Extreme 0.754; remaining ratios 1.031/1.016/1.035/1.021/1.032 (tall/grouped/square/grey/small). No >5% point loss. [Control data](data/controls.json). Retest largest apparent loss rather than narrowing prematurely.
+
+25. Does the +3.5% square observation repeat above the investigation threshold? Falsifier: New independent blocks show a reproducible ratio >1.05. → Square 0.986 [0.921,1.105], tall 1.023 [0.956,1.118]. No confirmed regression; do not introduce a shape cutoff. [Retest](data/square-repeat.json). Send clean session the input and patch.
+
+26. Can a fresh reviewer falsify the mechanism or reproduce it from clean builds? Falsifier: No guard-count drop or no speedup on w2 when rebuilt independently. → 

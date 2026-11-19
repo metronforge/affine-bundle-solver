@@ -1,0 +1,1941 @@
+{
+ "blocks": [
+  {
+   "base": {
+    "w1": {
+     "ms": [
+      8.7572155,
+      9.2774035
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      96.0,
+      96.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      2,
+      0,
+      0
+     ],
+     "core": 96,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "8c6f7ea30c5a2b0925387e696e79bb1ddded7765d2e39e9ae647e45b86a87652",
+     "check": 1,
+     "berr": 4.3545915504497684e-15,
+     "input": "e1b4e9d4d665bfaf1d8ba41a55bf8e836bdbccdf844f31aafcd86d2362a9e346",
+     "rhs": "396146d7f2770963dbb8568952007ae2b8b72ea6172be7df749169c71ca58aef"
+    },
+    "small": {
+     "ms": [
+      0.8120951666666666,
+      0.6585740833333333
+     ],
+     "batch": 12,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      48.0,
+      48.0,
+      48.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      0,
+      0
+     ],
+     "core": 48,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "e3cd831c3012231e06840bc2db13e8ea31a41ce80b441b9477a5ba95a58324a1",
+     "check": 1,
+     "berr": 2.3948798371050197e-15,
+     "input": "5511327c276efd932d199a1998d7aeb6b27ca82f374b060eef397300593f1c42",
+     "rhs": "c677e92786491ef88614440cb5beaa8ef0f6715f07276a9333a6e15145918827"
+    },
+    "defect": {
+     "ms": [
+      7.672422,
+      7.653023
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      95.0,
+      95.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      2,
+      0,
+      0
+     ],
+     "core": 95,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "f43b6f859439cbdc8f3e15771f5fb7791aea5f15578febac0f51fdf36a738d9b",
+     "check": 1,
+     "berr": 4.866104588386093e-15,
+     "input": "0c18100dc2bfe5e3eff5389c1fbf51fb029c343e454af78b4b8aeb0893ada351",
+     "rhs": "fce0de79a8a1c430a3881a5842f04ba3d32d3e8bfe7a763286668a5313dd1443"
+    },
+    "grey2": {
+     "ms": [
+      11.298211,
+      12.31365
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 5,
+     "certainty": 3,
+     "rank": [
+      95.0,
+      95.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      1,
+      2
+     ],
+     "core": 96,
+     "grey": 2,
+     "fallback": 1.0,
+     "x": "a6ed316cda843a1a05caeed8efc0e67a0ed705a7a845681d33e0efd032bcfeee",
+     "check": 1,
+     "berr": 5.553507483806542e-15,
+     "input": "285f750d0415e424523cc554cc2f54821d401cc634639ed915e2f4d1aeb5ade0",
+     "rhs": "67fb7d07d4702d7e8459ee2edbb82fdb10d81877b1a48d6661a0a386153be1aa"
+    },
+    "extreme": {
+     "ms": [
+      49.9911745,
+      52.27965
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      32.0,
+      32.0,
+      32.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      2,
+      0,
+      0
+     ],
+     "core": 32,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "464b2438f99c19fd719d1fefb6efb5e39c261c081eb48514fee96dbadfa55783",
+     "check": 2,
+     "berr": 1.6098752765183673e-13,
+     "input": "94d4739e2021a4f8049dd798edbdd2490ddf21006c46eb9abd996e173e2bd6f2",
+     "rhs": "43ac4f713461c95285568d2f765bd76edbc7e89e85e8d6a1a88d3db1217c102f"
+    }
+   },
+   "new": {
+    "w1": {
+     "ms": [
+      5.3422635,
+      5.8502435
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      96.0,
+      96.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      0,
+      0
+     ],
+     "core": 96,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "8c6f7ea30c5a2b0925387e696e79bb1ddded7765d2e39e9ae647e45b86a87652",
+     "check": 1,
+     "berr": 4.3545915504497684e-15,
+     "input": "e1b4e9d4d665bfaf1d8ba41a55bf8e836bdbccdf844f31aafcd86d2362a9e346",
+     "rhs": "396146d7f2770963dbb8568952007ae2b8b72ea6172be7df749169c71ca58aef"
+    },
+    "small": {
+     "ms": [
+      0.74119675,
+      0.66344975
+     ],
+     "batch": 12,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      48.0,
+      48.0,
+      48.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      0,
+      0
+     ],
+     "core": 48,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "e3cd831c3012231e06840bc2db13e8ea31a41ce80b441b9477a5ba95a58324a1",
+     "check": 1,
+     "berr": 2.3948798371050197e-15,
+     "input": "5511327c276efd932d199a1998d7aeb6b27ca82f374b060eef397300593f1c42",
+     "rhs": "c677e92786491ef88614440cb5beaa8ef0f6715f07276a9333a6e15145918827"
+    },
+    "defect": {
+     "ms": [
+      7.6734985,
+      7.5707645
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      95.0,
+      95.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      2,
+      0,
+      0
+     ],
+     "core": 95,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "f43b6f859439cbdc8f3e15771f5fb7791aea5f15578febac0f51fdf36a738d9b",
+     "check": 1,
+     "berr": 4.866104588386093e-15,
+     "input": "0c18100dc2bfe5e3eff5389c1fbf51fb029c343e454af78b4b8aeb0893ada351",
+     "rhs": "fce0de79a8a1c430a3881a5842f04ba3d32d3e8bfe7a763286668a5313dd1443"
+    },
+    "grey2": {
+     "ms": [
+      10.8826555,
+      11.292097
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 5,
+     "certainty": 3,
+     "rank": [
+      95.0,
+      95.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      1,
+      2
+     ],
+     "core": 96,
+     "grey": 2,
+     "fallback": 1.0,
+     "x": "a6ed316cda843a1a05caeed8efc0e67a0ed705a7a845681d33e0efd032bcfeee",
+     "check": 1,
+     "berr": 5.553507483806542e-15,
+     "input": "285f750d0415e424523cc554cc2f54821d401cc634639ed915e2f4d1aeb5ade0",
+     "rhs": "67fb7d07d4702d7e8459ee2edbb82fdb10d81877b1a48d6661a0a386153be1aa"
+    },
+    "extreme": {
+     "ms": [
+      34.028039,
+      34.77866
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      32.0,
+      32.0,
+      32.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      0,
+      0
+     ],
+     "core": 32,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "464b2438f99c19fd719d1fefb6efb5e39c261c081eb48514fee96dbadfa55783",
+     "check": 2,
+     "berr": 1.6098752765183673e-13,
+     "input": "94d4739e2021a4f8049dd798edbdd2490ddf21006c46eb9abd996e173e2bd6f2",
+     "rhs": "43ac4f713461c95285568d2f765bd76edbc7e89e85e8d6a1a88d3db1217c102f"
+    }
+   }
+  },
+  {
+   "new": {
+    "w1": {
+     "ms": [
+      5.7179295,
+      5.9417515
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      96.0,
+      96.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      0,
+      0
+     ],
+     "core": 96,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "8c6f7ea30c5a2b0925387e696e79bb1ddded7765d2e39e9ae647e45b86a87652",
+     "check": 1,
+     "berr": 4.3545915504497684e-15,
+     "input": "e1b4e9d4d665bfaf1d8ba41a55bf8e836bdbccdf844f31aafcd86d2362a9e346",
+     "rhs": "396146d7f2770963dbb8568952007ae2b8b72ea6172be7df749169c71ca58aef"
+    },
+    "small": {
+     "ms": [
+      0.7518770833333334,
+      0.68969425
+     ],
+     "batch": 12,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      48.0,
+      48.0,
+      48.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      0,
+      0
+     ],
+     "core": 48,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "e3cd831c3012231e06840bc2db13e8ea31a41ce80b441b9477a5ba95a58324a1",
+     "check": 1,
+     "berr": 2.3948798371050197e-15,
+     "input": "5511327c276efd932d199a1998d7aeb6b27ca82f374b060eef397300593f1c42",
+     "rhs": "c677e92786491ef88614440cb5beaa8ef0f6715f07276a9333a6e15145918827"
+    },
+    "defect": {
+     "ms": [
+      8.043145,
+      8.01639
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      95.0,
+      95.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      2,
+      0,
+      0
+     ],
+     "core": 95,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "f43b6f859439cbdc8f3e15771f5fb7791aea5f15578febac0f51fdf36a738d9b",
+     "check": 1,
+     "berr": 4.866104588386093e-15,
+     "input": "0c18100dc2bfe5e3eff5389c1fbf51fb029c343e454af78b4b8aeb0893ada351",
+     "rhs": "fce0de79a8a1c430a3881a5842f04ba3d32d3e8bfe7a763286668a5313dd1443"
+    },
+    "grey2": {
+     "ms": [
+      11.3760385,
+      12.097119
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 5,
+     "certainty": 3,
+     "rank": [
+      95.0,
+      95.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      1,
+      2
+     ],
+     "core": 96,
+     "grey": 2,
+     "fallback": 1.0,
+     "x": "a6ed316cda843a1a05caeed8efc0e67a0ed705a7a845681d33e0efd032bcfeee",
+     "check": 1,
+     "berr": 5.553507483806542e-15,
+     "input": "285f750d0415e424523cc554cc2f54821d401cc634639ed915e2f4d1aeb5ade0",
+     "rhs": "67fb7d07d4702d7e8459ee2edbb82fdb10d81877b1a48d6661a0a386153be1aa"
+    },
+    "extreme": {
+     "ms": [
+      34.528258,
+      33.682529
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      32.0,
+      32.0,
+      32.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      0,
+      0
+     ],
+     "core": 32,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "464b2438f99c19fd719d1fefb6efb5e39c261c081eb48514fee96dbadfa55783",
+     "check": 2,
+     "berr": 1.6098752765183673e-13,
+     "input": "94d4739e2021a4f8049dd798edbdd2490ddf21006c46eb9abd996e173e2bd6f2",
+     "rhs": "43ac4f713461c95285568d2f765bd76edbc7e89e85e8d6a1a88d3db1217c102f"
+    }
+   },
+   "base": {
+    "w1": {
+     "ms": [
+      8.2844335,
+      7.586017
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      96.0,
+      96.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      2,
+      0,
+      0
+     ],
+     "core": 96,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "8c6f7ea30c5a2b0925387e696e79bb1ddded7765d2e39e9ae647e45b86a87652",
+     "check": 1,
+     "berr": 4.3545915504497684e-15,
+     "input": "e1b4e9d4d665bfaf1d8ba41a55bf8e836bdbccdf844f31aafcd86d2362a9e346",
+     "rhs": "396146d7f2770963dbb8568952007ae2b8b72ea6172be7df749169c71ca58aef"
+    },
+    "small": {
+     "ms": [
+      0.7455483333333334,
+      0.7592581666666667
+     ],
+     "batch": 12,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      48.0,
+      48.0,
+      48.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      0,
+      0
+     ],
+     "core": 48,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "e3cd831c3012231e06840bc2db13e8ea31a41ce80b441b9477a5ba95a58324a1",
+     "check": 1,
+     "berr": 2.3948798371050197e-15,
+     "input": "5511327c276efd932d199a1998d7aeb6b27ca82f374b060eef397300593f1c42",
+     "rhs": "c677e92786491ef88614440cb5beaa8ef0f6715f07276a9333a6e15145918827"
+    },
+    "defect": {
+     "ms": [
+      7.757535,
+      8.0438965
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      95.0,
+      95.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      2,
+      0,
+      0
+     ],
+     "core": 95,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "f43b6f859439cbdc8f3e15771f5fb7791aea5f15578febac0f51fdf36a738d9b",
+     "check": 1,
+     "berr": 4.866104588386093e-15,
+     "input": "0c18100dc2bfe5e3eff5389c1fbf51fb029c343e454af78b4b8aeb0893ada351",
+     "rhs": "fce0de79a8a1c430a3881a5842f04ba3d32d3e8bfe7a763286668a5313dd1443"
+    },
+    "grey2": {
+     "ms": [
+      11.677307,
+      11.202302
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 5,
+     "certainty": 3,
+     "rank": [
+      95.0,
+      95.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      1,
+      2
+     ],
+     "core": 96,
+     "grey": 2,
+     "fallback": 1.0,
+     "x": "a6ed316cda843a1a05caeed8efc0e67a0ed705a7a845681d33e0efd032bcfeee",
+     "check": 1,
+     "berr": 5.553507483806542e-15,
+     "input": "285f750d0415e424523cc554cc2f54821d401cc634639ed915e2f4d1aeb5ade0",
+     "rhs": "67fb7d07d4702d7e8459ee2edbb82fdb10d81877b1a48d6661a0a386153be1aa"
+    },
+    "extreme": {
+     "ms": [
+      45.1357485,
+      50.297721
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      32.0,
+      32.0,
+      32.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      2,
+      0,
+      0
+     ],
+     "core": 32,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "464b2438f99c19fd719d1fefb6efb5e39c261c081eb48514fee96dbadfa55783",
+     "check": 2,
+     "berr": 1.6098752765183673e-13,
+     "input": "94d4739e2021a4f8049dd798edbdd2490ddf21006c46eb9abd996e173e2bd6f2",
+     "rhs": "43ac4f713461c95285568d2f765bd76edbc7e89e85e8d6a1a88d3db1217c102f"
+    }
+   }
+  },
+  {
+   "base": {
+    "w1": {
+     "ms": [
+      8.5889715,
+      7.6977805
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      96.0,
+      96.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      2,
+      0,
+      0
+     ],
+     "core": 96,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "8c6f7ea30c5a2b0925387e696e79bb1ddded7765d2e39e9ae647e45b86a87652",
+     "check": 1,
+     "berr": 4.3545915504497684e-15,
+     "input": "e1b4e9d4d665bfaf1d8ba41a55bf8e836bdbccdf844f31aafcd86d2362a9e346",
+     "rhs": "396146d7f2770963dbb8568952007ae2b8b72ea6172be7df749169c71ca58aef"
+    },
+    "small": {
+     "ms": [
+      0.7101033333333334,
+      0.7971594166666667
+     ],
+     "batch": 12,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      48.0,
+      48.0,
+      48.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      0,
+      0
+     ],
+     "core": 48,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "e3cd831c3012231e06840bc2db13e8ea31a41ce80b441b9477a5ba95a58324a1",
+     "check": 1,
+     "berr": 2.3948798371050197e-15,
+     "input": "5511327c276efd932d199a1998d7aeb6b27ca82f374b060eef397300593f1c42",
+     "rhs": "c677e92786491ef88614440cb5beaa8ef0f6715f07276a9333a6e15145918827"
+    },
+    "defect": {
+     "ms": [
+      8.1860705,
+      8.317333
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      95.0,
+      95.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      2,
+      0,
+      0
+     ],
+     "core": 95,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "f43b6f859439cbdc8f3e15771f5fb7791aea5f15578febac0f51fdf36a738d9b",
+     "check": 1,
+     "berr": 4.866104588386093e-15,
+     "input": "0c18100dc2bfe5e3eff5389c1fbf51fb029c343e454af78b4b8aeb0893ada351",
+     "rhs": "fce0de79a8a1c430a3881a5842f04ba3d32d3e8bfe7a763286668a5313dd1443"
+    },
+    "grey2": {
+     "ms": [
+      11.269102,
+      10.9696015
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 5,
+     "certainty": 3,
+     "rank": [
+      95.0,
+      95.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      1,
+      2
+     ],
+     "core": 96,
+     "grey": 2,
+     "fallback": 1.0,
+     "x": "a6ed316cda843a1a05caeed8efc0e67a0ed705a7a845681d33e0efd032bcfeee",
+     "check": 1,
+     "berr": 5.553507483806542e-15,
+     "input": "285f750d0415e424523cc554cc2f54821d401cc634639ed915e2f4d1aeb5ade0",
+     "rhs": "67fb7d07d4702d7e8459ee2edbb82fdb10d81877b1a48d6661a0a386153be1aa"
+    },
+    "extreme": {
+     "ms": [
+      44.498319,
+      45.728316
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      32.0,
+      32.0,
+      32.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      2,
+      0,
+      0
+     ],
+     "core": 32,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "464b2438f99c19fd719d1fefb6efb5e39c261c081eb48514fee96dbadfa55783",
+     "check": 2,
+     "berr": 1.6098752765183673e-13,
+     "input": "94d4739e2021a4f8049dd798edbdd2490ddf21006c46eb9abd996e173e2bd6f2",
+     "rhs": "43ac4f713461c95285568d2f765bd76edbc7e89e85e8d6a1a88d3db1217c102f"
+    }
+   },
+   "new": {
+    "w1": {
+     "ms": [
+      5.6596015,
+      5.432384
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      96.0,
+      96.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      0,
+      0
+     ],
+     "core": 96,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "8c6f7ea30c5a2b0925387e696e79bb1ddded7765d2e39e9ae647e45b86a87652",
+     "check": 1,
+     "berr": 4.3545915504497684e-15,
+     "input": "e1b4e9d4d665bfaf1d8ba41a55bf8e836bdbccdf844f31aafcd86d2362a9e346",
+     "rhs": "396146d7f2770963dbb8568952007ae2b8b72ea6172be7df749169c71ca58aef"
+    },
+    "small": {
+     "ms": [
+      0.7072515,
+      0.7494668333333334
+     ],
+     "batch": 12,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      48.0,
+      48.0,
+      48.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      0,
+      0
+     ],
+     "core": 48,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "e3cd831c3012231e06840bc2db13e8ea31a41ce80b441b9477a5ba95a58324a1",
+     "check": 1,
+     "berr": 2.3948798371050197e-15,
+     "input": "5511327c276efd932d199a1998d7aeb6b27ca82f374b060eef397300593f1c42",
+     "rhs": "c677e92786491ef88614440cb5beaa8ef0f6715f07276a9333a6e15145918827"
+    },
+    "defect": {
+     "ms": [
+      7.471139,
+      7.983235
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      95.0,
+      95.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      2,
+      0,
+      0
+     ],
+     "core": 95,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "f43b6f859439cbdc8f3e15771f5fb7791aea5f15578febac0f51fdf36a738d9b",
+     "check": 1,
+     "berr": 4.866104588386093e-15,
+     "input": "0c18100dc2bfe5e3eff5389c1fbf51fb029c343e454af78b4b8aeb0893ada351",
+     "rhs": "fce0de79a8a1c430a3881a5842f04ba3d32d3e8bfe7a763286668a5313dd1443"
+    },
+    "grey2": {
+     "ms": [
+      11.926648,
+      10.963512
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 5,
+     "certainty": 3,
+     "rank": [
+      95.0,
+      95.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      1,
+      2
+     ],
+     "core": 96,
+     "grey": 2,
+     "fallback": 1.0,
+     "x": "a6ed316cda843a1a05caeed8efc0e67a0ed705a7a845681d33e0efd032bcfeee",
+     "check": 1,
+     "berr": 5.553507483806542e-15,
+     "input": "285f750d0415e424523cc554cc2f54821d401cc634639ed915e2f4d1aeb5ade0",
+     "rhs": "67fb7d07d4702d7e8459ee2edbb82fdb10d81877b1a48d6661a0a386153be1aa"
+    },
+    "extreme": {
+     "ms": [
+      31.5566585,
+      33.711698
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      32.0,
+      32.0,
+      32.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      0,
+      0
+     ],
+     "core": 32,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "464b2438f99c19fd719d1fefb6efb5e39c261c081eb48514fee96dbadfa55783",
+     "check": 2,
+     "berr": 1.6098752765183673e-13,
+     "input": "94d4739e2021a4f8049dd798edbdd2490ddf21006c46eb9abd996e173e2bd6f2",
+     "rhs": "43ac4f713461c95285568d2f765bd76edbc7e89e85e8d6a1a88d3db1217c102f"
+    }
+   }
+  },
+  {
+   "new": {
+    "w1": {
+     "ms": [
+      5.6409155,
+      5.887329
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      96.0,
+      96.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      0,
+      0
+     ],
+     "core": 96,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "8c6f7ea30c5a2b0925387e696e79bb1ddded7765d2e39e9ae647e45b86a87652",
+     "check": 1,
+     "berr": 4.3545915504497684e-15,
+     "input": "e1b4e9d4d665bfaf1d8ba41a55bf8e836bdbccdf844f31aafcd86d2362a9e346",
+     "rhs": "396146d7f2770963dbb8568952007ae2b8b72ea6172be7df749169c71ca58aef"
+    },
+    "small": {
+     "ms": [
+      1.0075144166666665,
+      0.7214153333333334
+     ],
+     "batch": 12,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      48.0,
+      48.0,
+      48.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      0,
+      0
+     ],
+     "core": 48,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "e3cd831c3012231e06840bc2db13e8ea31a41ce80b441b9477a5ba95a58324a1",
+     "check": 1,
+     "berr": 2.3948798371050197e-15,
+     "input": "5511327c276efd932d199a1998d7aeb6b27ca82f374b060eef397300593f1c42",
+     "rhs": "c677e92786491ef88614440cb5beaa8ef0f6715f07276a9333a6e15145918827"
+    },
+    "defect": {
+     "ms": [
+      8.1124995,
+      8.4072485
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      95.0,
+      95.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      2,
+      0,
+      0
+     ],
+     "core": 95,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "f43b6f859439cbdc8f3e15771f5fb7791aea5f15578febac0f51fdf36a738d9b",
+     "check": 1,
+     "berr": 4.866104588386093e-15,
+     "input": "0c18100dc2bfe5e3eff5389c1fbf51fb029c343e454af78b4b8aeb0893ada351",
+     "rhs": "fce0de79a8a1c430a3881a5842f04ba3d32d3e8bfe7a763286668a5313dd1443"
+    },
+    "grey2": {
+     "ms": [
+      11.5655085,
+      11.966117
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 5,
+     "certainty": 3,
+     "rank": [
+      95.0,
+      95.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      1,
+      2
+     ],
+     "core": 96,
+     "grey": 2,
+     "fallback": 1.0,
+     "x": "a6ed316cda843a1a05caeed8efc0e67a0ed705a7a845681d33e0efd032bcfeee",
+     "check": 1,
+     "berr": 5.553507483806542e-15,
+     "input": "285f750d0415e424523cc554cc2f54821d401cc634639ed915e2f4d1aeb5ade0",
+     "rhs": "67fb7d07d4702d7e8459ee2edbb82fdb10d81877b1a48d6661a0a386153be1aa"
+    },
+    "extreme": {
+     "ms": [
+      31.1040065,
+      31.9430755
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      32.0,
+      32.0,
+      32.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      0,
+      0
+     ],
+     "core": 32,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "464b2438f99c19fd719d1fefb6efb5e39c261c081eb48514fee96dbadfa55783",
+     "check": 2,
+     "berr": 1.6098752765183673e-13,
+     "input": "94d4739e2021a4f8049dd798edbdd2490ddf21006c46eb9abd996e173e2bd6f2",
+     "rhs": "43ac4f713461c95285568d2f765bd76edbc7e89e85e8d6a1a88d3db1217c102f"
+    }
+   },
+   "base": {
+    "w1": {
+     "ms": [
+      8.3122855,
+      8.384474
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      96.0,
+      96.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      2,
+      0,
+      0
+     ],
+     "core": 96,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "8c6f7ea30c5a2b0925387e696e79bb1ddded7765d2e39e9ae647e45b86a87652",
+     "check": 1,
+     "berr": 4.3545915504497684e-15,
+     "input": "e1b4e9d4d665bfaf1d8ba41a55bf8e836bdbccdf844f31aafcd86d2362a9e346",
+     "rhs": "396146d7f2770963dbb8568952007ae2b8b72ea6172be7df749169c71ca58aef"
+    },
+    "small": {
+     "ms": [
+      0.7984396666666667,
+      0.7578669166666666
+     ],
+     "batch": 12,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      48.0,
+      48.0,
+      48.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      0,
+      0
+     ],
+     "core": 48,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "e3cd831c3012231e06840bc2db13e8ea31a41ce80b441b9477a5ba95a58324a1",
+     "check": 1,
+     "berr": 2.3948798371050197e-15,
+     "input": "5511327c276efd932d199a1998d7aeb6b27ca82f374b060eef397300593f1c42",
+     "rhs": "c677e92786491ef88614440cb5beaa8ef0f6715f07276a9333a6e15145918827"
+    },
+    "defect": {
+     "ms": [
+      9.119401,
+      8.1124295
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      95.0,
+      95.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      2,
+      0,
+      0
+     ],
+     "core": 95,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "f43b6f859439cbdc8f3e15771f5fb7791aea5f15578febac0f51fdf36a738d9b",
+     "check": 1,
+     "berr": 4.866104588386093e-15,
+     "input": "0c18100dc2bfe5e3eff5389c1fbf51fb029c343e454af78b4b8aeb0893ada351",
+     "rhs": "fce0de79a8a1c430a3881a5842f04ba3d32d3e8bfe7a763286668a5313dd1443"
+    },
+    "grey2": {
+     "ms": [
+      11.3622575,
+      12.6298865
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 5,
+     "certainty": 3,
+     "rank": [
+      95.0,
+      95.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      1,
+      2
+     ],
+     "core": 96,
+     "grey": 2,
+     "fallback": 1.0,
+     "x": "a6ed316cda843a1a05caeed8efc0e67a0ed705a7a845681d33e0efd032bcfeee",
+     "check": 1,
+     "berr": 5.553507483806542e-15,
+     "input": "285f750d0415e424523cc554cc2f54821d401cc634639ed915e2f4d1aeb5ade0",
+     "rhs": "67fb7d07d4702d7e8459ee2edbb82fdb10d81877b1a48d6661a0a386153be1aa"
+    },
+    "extreme": {
+     "ms": [
+      45.9125185,
+      46.810959
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      32.0,
+      32.0,
+      32.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      2,
+      0,
+      0
+     ],
+     "core": 32,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "464b2438f99c19fd719d1fefb6efb5e39c261c081eb48514fee96dbadfa55783",
+     "check": 2,
+     "berr": 1.6098752765183673e-13,
+     "input": "94d4739e2021a4f8049dd798edbdd2490ddf21006c46eb9abd996e173e2bd6f2",
+     "rhs": "43ac4f713461c95285568d2f765bd76edbc7e89e85e8d6a1a88d3db1217c102f"
+    }
+   }
+  },
+  {
+   "base": {
+    "w1": {
+     "ms": [
+      8.6851115,
+      8.5407325
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      96.0,
+      96.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      2,
+      0,
+      0
+     ],
+     "core": 96,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "8c6f7ea30c5a2b0925387e696e79bb1ddded7765d2e39e9ae647e45b86a87652",
+     "check": 1,
+     "berr": 4.3545915504497684e-15,
+     "input": "e1b4e9d4d665bfaf1d8ba41a55bf8e836bdbccdf844f31aafcd86d2362a9e346",
+     "rhs": "396146d7f2770963dbb8568952007ae2b8b72ea6172be7df749169c71ca58aef"
+    },
+    "small": {
+     "ms": [
+      0.7864733333333334,
+      0.7913155833333334
+     ],
+     "batch": 12,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      48.0,
+      48.0,
+      48.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      0,
+      0
+     ],
+     "core": 48,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "e3cd831c3012231e06840bc2db13e8ea31a41ce80b441b9477a5ba95a58324a1",
+     "check": 1,
+     "berr": 2.3948798371050197e-15,
+     "input": "5511327c276efd932d199a1998d7aeb6b27ca82f374b060eef397300593f1c42",
+     "rhs": "c677e92786491ef88614440cb5beaa8ef0f6715f07276a9333a6e15145918827"
+    },
+    "defect": {
+     "ms": [
+      8.1673725,
+      8.1063855
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      95.0,
+      95.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      2,
+      0,
+      0
+     ],
+     "core": 95,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "f43b6f859439cbdc8f3e15771f5fb7791aea5f15578febac0f51fdf36a738d9b",
+     "check": 1,
+     "berr": 4.866104588386093e-15,
+     "input": "0c18100dc2bfe5e3eff5389c1fbf51fb029c343e454af78b4b8aeb0893ada351",
+     "rhs": "fce0de79a8a1c430a3881a5842f04ba3d32d3e8bfe7a763286668a5313dd1443"
+    },
+    "grey2": {
+     "ms": [
+      12.424627,
+      11.3529135
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 5,
+     "certainty": 3,
+     "rank": [
+      95.0,
+      95.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      1,
+      2
+     ],
+     "core": 96,
+     "grey": 2,
+     "fallback": 1.0,
+     "x": "a6ed316cda843a1a05caeed8efc0e67a0ed705a7a845681d33e0efd032bcfeee",
+     "check": 1,
+     "berr": 5.553507483806542e-15,
+     "input": "285f750d0415e424523cc554cc2f54821d401cc634639ed915e2f4d1aeb5ade0",
+     "rhs": "67fb7d07d4702d7e8459ee2edbb82fdb10d81877b1a48d6661a0a386153be1aa"
+    },
+    "extreme": {
+     "ms": [
+      47.1181985,
+      42.9642645
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      32.0,
+      32.0,
+      32.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      2,
+      0,
+      0
+     ],
+     "core": 32,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "464b2438f99c19fd719d1fefb6efb5e39c261c081eb48514fee96dbadfa55783",
+     "check": 2,
+     "berr": 1.6098752765183673e-13,
+     "input": "94d4739e2021a4f8049dd798edbdd2490ddf21006c46eb9abd996e173e2bd6f2",
+     "rhs": "43ac4f713461c95285568d2f765bd76edbc7e89e85e8d6a1a88d3db1217c102f"
+    }
+   },
+   "new": {
+    "w1": {
+     "ms": [
+      5.456756,
+      5.410922
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      96.0,
+      96.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      0,
+      0
+     ],
+     "core": 96,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "8c6f7ea30c5a2b0925387e696e79bb1ddded7765d2e39e9ae647e45b86a87652",
+     "check": 1,
+     "berr": 4.3545915504497684e-15,
+     "input": "e1b4e9d4d665bfaf1d8ba41a55bf8e836bdbccdf844f31aafcd86d2362a9e346",
+     "rhs": "396146d7f2770963dbb8568952007ae2b8b72ea6172be7df749169c71ca58aef"
+    },
+    "small": {
+     "ms": [
+      0.6987211666666666,
+      0.6749670833333333
+     ],
+     "batch": 12,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      48.0,
+      48.0,
+      48.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      0,
+      0
+     ],
+     "core": 48,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "e3cd831c3012231e06840bc2db13e8ea31a41ce80b441b9477a5ba95a58324a1",
+     "check": 1,
+     "berr": 2.3948798371050197e-15,
+     "input": "5511327c276efd932d199a1998d7aeb6b27ca82f374b060eef397300593f1c42",
+     "rhs": "c677e92786491ef88614440cb5beaa8ef0f6715f07276a9333a6e15145918827"
+    },
+    "defect": {
+     "ms": [
+      9.522628,
+      8.5447255
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      95.0,
+      95.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      2,
+      0,
+      0
+     ],
+     "core": 95,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "f43b6f859439cbdc8f3e15771f5fb7791aea5f15578febac0f51fdf36a738d9b",
+     "check": 1,
+     "berr": 4.866104588386093e-15,
+     "input": "0c18100dc2bfe5e3eff5389c1fbf51fb029c343e454af78b4b8aeb0893ada351",
+     "rhs": "fce0de79a8a1c430a3881a5842f04ba3d32d3e8bfe7a763286668a5313dd1443"
+    },
+    "grey2": {
+     "ms": [
+      11.4231895,
+      14.935072
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 5,
+     "certainty": 3,
+     "rank": [
+      95.0,
+      95.0,
+      96.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      1,
+      2
+     ],
+     "core": 96,
+     "grey": 2,
+     "fallback": 1.0,
+     "x": "a6ed316cda843a1a05caeed8efc0e67a0ed705a7a845681d33e0efd032bcfeee",
+     "check": 1,
+     "berr": 5.553507483806542e-15,
+     "input": "285f750d0415e424523cc554cc2f54821d401cc634639ed915e2f4d1aeb5ade0",
+     "rhs": "67fb7d07d4702d7e8459ee2edbb82fdb10d81877b1a48d6661a0a386153be1aa"
+    },
+    "extreme": {
+     "ms": [
+      37.1007235,
+      36.424668
+     ],
+     "batch": 2,
+     "policy": [
+      1e-13,
+      1e-09,
+      2e-10,
+      1e-14
+     ],
+     "status": 2,
+     "certainty": 2,
+     "rank": [
+      32.0,
+      32.0,
+      32.0
+     ],
+     "exact": [
+      0,
+      0
+     ],
+     "guards": [
+      1,
+      0,
+      0
+     ],
+     "core": 32,
+     "grey": 0,
+     "fallback": 0.0,
+     "x": "464b2438f99c19fd719d1fefb6efb5e39c261c081eb48514fee96dbadfa55783",
+     "check": 2,
+     "berr": 1.6098752765183673e-13,
+     "input": "94d4739e2021a4f8049dd798edbdd2490ddf21006c46eb9abd996e173e2bd6f2",
+     "rhs": "43ac4f713461c95285568d2f765bd76edbc7e89e85e8d6a1a88d3db1217c102f"
+    }
+   }
+  }
+ ],
+ "summary": {
+  "w1": {
+   "base": 8.34837975,
+   "new": 5.5962534999999995,
+   "ratio": 0.670340074072457,
+   "mad": 0.05014964375040121,
+   "ci": [
+    0.6206123345328226,
+    0.7346786406598854
+   ],
+   "same": true
+  },
+  "small": {
+   "base": 0.7536313750000001,
+   "new": 0.7207856666666667,
+   "ratio": 0.9564167450786754,
+   "mad": 0.008488212718215093,
+   "ci": [
+    0.8706413357891609,
+    1.1109184838741337
+   ],
+   "same": true
+  },
+  "defect": {
+   "base": 8.136879,
+   "new": 8.0297675,
+   "ratio": 0.9868362919001253,
+   "mad": 0.0360264678884894,
+   "ci": [
+    0.9364355661545815,
+    1.1102139714748123
+   ],
+   "same": true
+  },
+  "grey2": {
+   "base": 11.8059305,
+   "new": 11.73657875,
+   "ratio": 0.9941256853917613,
+   "mad": 0.04513680225181238,
+   "ci": [
+    0.9391361612708121,
+    1.108536078405586
+   ],
+   "same": true
+  },
+  "extreme": {
+   "base": 46.36173875,
+   "new": 34.105393500000005,
+   "ratio": 0.7356366352847369,
+   "mad": 0.03479966894340447,
+   "ci": [
+    0.6727891296114465,
+    0.8162009457934116
+   ],
+   "same": true
+  }
+ }
+}

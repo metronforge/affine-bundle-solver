@@ -1,0 +1,158 @@
+{
+  "w1": {
+    "status": 2,
+    "certainty": 2,
+    "rank": [
+      96.0,
+      96.0,
+      96.0
+    ],
+    "guards": [
+      2,
+      0,
+      0
+    ],
+    "check": 1,
+    "backward_upper": 4.3545915504497684e-15,
+    "backward_oracle": 2.4241763295632284e-16,
+    "sv_ratio": 0.4130545742531929,
+    "mask": 6,
+    "radii": [
+      "inf",
+      "0x1.cba5140a15324p-46",
+      "0x1.83d9d407ee3bap-2"
+    ],
+    "check_ms": 0.887366,
+    "certify_ms": 13.489982
+  },
+  "w2": {
+    "status": 2,
+    "certainty": 2,
+    "rank": [
+      128.0,
+      128.0,
+      128.0
+    ],
+    "guards": [
+      2,
+      0,
+      0
+    ],
+    "check": 1,
+    "backward_upper": 7.246782734042675e-15,
+    "backward_oracle": 1.848392391520851e-16,
+    "sv_ratio": 0.42623829136130764,
+    "mask": 6,
+    "radii": [
+      "inf",
+      "0x1.62a9f6b2403a0p-45",
+      "0x1.423f8e71020c0p-2"
+    ],
+    "check_ms": 2.209497,
+    "certify_ms": 14.905753
+  },
+  "defect": {
+    "status": 2,
+    "certainty": 2,
+    "rank": [
+      95.0,
+      95.0,
+      96.0
+    ],
+    "guards": [
+      2,
+      0,
+      0
+    ],
+    "check": 1,
+    "backward_upper": 4.866104588386093e-15,
+    "backward_oracle": 2.430846547576215e-16,
+    "sv_ratio": 1.3635589439971724e-16,
+    "mask": 6,
+    "radii": [
+      "inf",
+      "0x1.d0a2a26a9f7a9p-46",
+      "0x1.d5099ae2dd2b2p-48"
+    ],
+    "check_ms": 0.740885,
+    "certify_ms": 10.024144
+  },
+  "conflict": {
+    "status": 3,
+    "certainty": 1,
+    "rank": [
+      95.0,
+      95.0,
+      95.0
+    ],
+    "guards": [
+      2,
+      0,
+      1
+    ],
+    "check": 2,
+    "backward_upper": 0.002430282997049988,
+    "backward_oracle": 0.0024302829970494597,
+    "sv_ratio": 4.3619287212474283e-16,
+    "mask": 6,
+    "radii": [
+      "inf",
+      "0x1.5b404c02c16d6p-6",
+      "0x1.4c2900f3406fbp-47"
+    ],
+    "check_ms": 0.87666,
+    "certify_ms": 9.126051
+  },
+  "grey2": {
+    "status": 5,
+    "certainty": 3,
+    "rank": [
+      95.0,
+      95.0,
+      96.0
+    ],
+    "guards": [
+      1,
+      1,
+      2
+    ],
+    "check": 1,
+    "backward_upper": 5.553507483806542e-15,
+    "backward_oracle": 1.8533338435931397e-16,
+    "sv_ratio": 4.3404903285626267e-11,
+    "mask": 6,
+    "radii": [
+      "inf",
+      "0x1.21e51efe2c382p-45",
+      "0x1.2dc99215ad15dp-2"
+    ],
+    "check_ms": 0.752243,
+    "certify_ms": 6.525606
+  },
+  "ill": {
+    "status": 2,
+    "certainty": 2,
+    "rank": [
+      96.0,
+      96.0,
+      96.0
+    ],
+    "guards": [
+      2,
+      0,
+      0
+    ],
+    "check": 1,
+    "backward_upper": 4.712127784709797e-15,
+    "backward_oracle": 1.7188284610691027e-16,
+    "sv_ratio": 3.9913844873930595e-09,
+    "mask": 6,
+    "radii": [
+      "inf",
+      "0x1.b1b39ff255d7cp-46",
+      "0x1.443b4594e405ap-2"
+    ],
+    "check_ms": 0.759804,
+    "certify_ms": 6.393355
+  }
+}

@@ -1,3 +1,9 @@
 model name	: AMD EPYC 9V74 80-Core Processor
 synthetic-reference.csv: OK
 synthetic-reference.metadata.json: OK
+Linux-6.18.57-x86_64-with-glibc2.41
+timing CPU=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1
+namespace(implementation='clock_gettime(CLOCK_MONOTONIC)', monotonic=True, adjustable=False, resolution=1e-09)
+Median empty timer bracket, ns: 70.0
+CPU quota: 400000 100000
+temperature zones: 0

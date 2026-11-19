@@ -47,6 +47,18 @@ def instrument(root):
                 raise ValueError((name, fn, len(matches)))
             i = matches[0].end()
             src = src[:i] + "\n RALPH_SPAN;\n" + src[i:]
+        if name == "certified_api.c":
+            start = src.index("static int least_squares_x(")
+            end = src.index("static int reconstruct_candidate_x", start)
+            body = src[start:end]
+            loop = "for(int j=0;j<n;j++)for(int i=0;i<m;i++)Ac[i+(size_t)j*m]=A[(size_t)i*n+j];"
+            # Count an entire packing pass; scopes do not enter the timed inner loop.
+            for label in ("pack_query","pack_solve"):
+                marker = "{ RalphSpan move __attribute__((cleanup(ralph_finish))) = "
+                replacement = marker + '{"' + label + '",ralph_now(),getenv("RALPH_TRACE")!=NULL}; ' + loop + " }"
+                at = body.index(loop, 0 if label == "pack_query" else body.index("double *work="))
+                body = body[:at] + replacement + body[at+len(loop):]
+            src = src[:start] + body + src[end:]
         if name == "bsolver.c":
             for anchor, label, args in [
                 ("g_last_core_qr_rank=r;", "qr %d %d %d", "rows,n,r"),

@@ -1,0 +1,10 @@
+{
+  "checks": 378,
+  "failure_counts": {},
+  "stats": {
+    "inconsistent_eta_max": 1.4956855236576592e-15,
+    "inconsistent_eta_median": 1.3544088684104094e-16,
+    "shadow_ratio_min": 1.0000000000000002,
+    "shadow_ratio_max": 2.0000000000000004
+  }
+}
