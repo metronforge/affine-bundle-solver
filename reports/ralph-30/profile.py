@@ -41,7 +41,7 @@ def instrument(root):
         path = root / "src" / name
         src = path.read_text()
         for fn in funcs:
-            pattern = r"\b" + fn + r"\s*\([^;{}]*\)\s*\{"
+            pattern = r"(?m)^(?:static )?(?:int|void|Result)\s+" + fn + r"\s*\([^;{}]*\)\s*\{"
             matches = list(re.finditer(pattern, src))
             if len(matches) != 1:
                 raise ValueError((name, fn, len(matches)))

@@ -1,0 +1,13 @@
+diff --git a/src/bsolver.c b/src/bsolver.c
+index b7fa07a..58808f2 100644
+--- a/src/bsolver.c
++++ b/src/bsolver.c
+@@ -765,7 +765,7 @@ static Result solve_blockprefix_qr(const double*A,const double*b,const double*xt
+    int vf=fcan.inconsistent?2:0;fcan.inconsistent=0;
+    for(int v=0;v<qv;v++){int ck=bs_check_certified(&fcan,E+(size_t)v*n,f[v],tc);if(ck!=1){vf=1;if(ck==-1||ck==2){vf=2;break;}int rc=bs_insert_guarded(&fcan,E+(size_t)v*n,f[v],tc);if(rc==2){vf=2;break;}}}
+    if(fcan.inconsistent){vf=2;fcan.inconsistent=0;}
+-   if(!vf){double rr=0;int bad=compat_scan_fused(A,b,fcan.x,m,n,tc,&rr);if(!bad){g_fg_checks++;int lo=certified_proof_rank_lo(&proof,fcan.r);if(lo>=fcan.r){R.cls=fcan.r==n?CLS_UNIQUE:CLS_INFINITE;R.rank=fcan.r;R.accepted_random=(fcan.r==n?0:1);R.relres=rr;R.relx=relxerr(fcan.x,xt,n);R.sec=now_sec()-t0;goto cleanup;}g_fg_escalations++;Result q={0};int qrc=source_qrcp_trusted(A,b,xt,m,n,tc,&q);if(qrc>=0){R=q;R.sec=now_sec()-t0;goto cleanup;}vf=2;}else vf=1;}
++   if(!vf){double rr=0;int bad=compat_scan_fused(A,b,fcan.x,m,n,tc,&rr);if(!bad){g_fg_checks++;int lo=(p==m && pre_lo==m && fcan.r==m)?pre_lo:certified_proof_rank_lo(&proof,fcan.r);if(lo>=fcan.r){R.cls=fcan.r==n?CLS_UNIQUE:CLS_INFINITE;R.rank=fcan.r;R.accepted_random=(fcan.r==n?0:1);R.relres=rr;R.relx=relxerr(fcan.x,xt,n);R.sec=now_sec()-t0;goto cleanup;}g_fg_escalations++;Result q={0};int qrc=source_qrcp_trusted(A,b,xt,m,n,tc,&q);if(qrc>=0){R=q;R.sec=now_sec()-t0;goto cleanup;}vf=2;}else vf=1;}
+    for(int round=1;round<=3 && vf==1;round++){
+      if(fcan.r==n){double rr=0;int bad=compat_scan_fused(A,b,fcan.x,m,n,tc,&rr);if(!bad){g_fg_checks++;int lo=certified_proof_rank_lo(&proof,n);if(lo>=n){R.cls=CLS_UNIQUE;R.rank=n;R.relres=rr;R.relx=relxerr(fcan.x,xt,n);R.sec=now_sec()-t0;goto cleanup;}g_fg_escalations++;Result q={0};int qrc=source_qrcp_trusted(A,b,xt,m,n,tc,&q);if(qrc>=0){R=q;R.sec=now_sec()-t0;goto cleanup;}vf=2;break;}vf=2;break;}
+      int dh2=(n+1)-fcan.r,k2=dh2+dh2/8+4;if(k2<dh2)k2=dh2;if(k2>k)k2=k;if(k2>m-p)k2=m-p;if(k2<1)k2=1;
