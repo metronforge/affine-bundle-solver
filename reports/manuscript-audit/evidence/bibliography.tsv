@@ -1,0 +1,23 @@
+key	doi	manuscript_title	registry_title
+BenIsraelGreville2003	10.1007/b97366	Generalized Inverses: Theory and Applications	Generalized Inverses
+CarsonLundMaOktay2024	10.48550/arXiv.2408.10109	On the Loss of Orthogonality in Low-Synchronization Variants of Reorthogonalized Block Classical Gram--Schmidt	On the loss of orthogonality in low-synchronization variants of reorthogonalized block classical Gram-Schmidt
+CarsonMa2024	10.48550/arXiv.2411.07077	A Stable One-Synchronization Variant of Reorthogonalized Block Classical Gram--Schmidt	A stable one-synchronization variant of reorthogonalized block classical Gram--Schmidt
+ClarksonWoodruff2013	10.1145/2488608.2488620	Low Rank Approximation and Regression in Input Sparsity Time	Low rank approximation and regression in input sparsity time
+DemmelEtAl2008	10.48550/arXiv.0806.2159	Communication-Optimal Parallel and Sequential {QR} and {LU} Factorizations: Theory and Practice	Communication-optimal parallel and sequential QR and LU factorizations: theory and practice
+DumasKaltofen2014	10.48550/arXiv.1401.4567	Essentially Optimal Interactive Certificates in Linear Algebra	Essentially optimal interactive certificates in linear algebra
+EckartYoung1936	10.1007/BF02288367	The Approximation of One Matrix by Another of Lower Rank	The Approximation of One Matrix by Another of Lower Rank
+GolubVanLoan1980	10.1137/0717073	An Analysis of the Total Least Squares Problem	An Analysis of the Total Least Squares Problem
+GowerRichtarik2015	10.1137/15M1025487	Randomized Iterative Methods for Linear Systems	Randomized Iterative Methods for Linear Systems
+Greville1960	10.1137/1002004	Some Applications of the Pseudoinverse of a Matrix	Some Applications of the Pseudoinverse of a Matrix
+HardtWoodruff2013	10.1145/2488608.2488624	How Robust Are Linear Sketches to Adaptive Inputs?	How robust are linear sketches to adaptive inputs?
+Higham2002	10.1137/1.9780898718027	Accuracy and Stability of Numerical Algorithms	Accuracy and Stability of Numerical Algorithms
+Huang1975	10.1007/BF00933852	A Direct Method for the General Solution of a System of Linear Equations	A direct method for the general solution of a system of linear equations
+Manteuffel1981	10.1137/0902027	An Interval Analysis Approach to Rank Determination in Linear Least Squares Problems	An Interval Analysis Approach to Rank Determination in Linear Least Squares Problems
+NelsonNguyen2013	10.1109/FOCS.2013.21	{OSNAP}: Faster Numerical Linear Algebra Algorithms via Sparser Subspace Embeddings	OSNAP: Faster Numerical Linear Algebra Algorithms via Sparser Subspace Embeddings
+OettliPrager1964	10.1007/BF01386090	Compatibility of Approximate Solution of Linear Equations with Given Error Bounds for Coefficients and Right-Hand Sides	Compatibility of approximate solution of linear equations with given error bounds for coefficients and right-hand sides
+Plesnik2007	10.1016/j.laa.2006.11.003	Finding the Orthogonal Projection of a Point onto an Affine Subspace	Finding the orthogonal projection of a point onto an affine subspace
+RigalGaches1967	10.1145/321406.321416	On the Compatibility of a Given Solution With the Data of a Linear System	On the Compatibility of a Given Solution With the Data of a Linear System
+Stewart1977	10.1137/1019104	On the Perturbation of Pseudo-Inverses, Projections and Linear Least Squares Problems	On the Perturbation of Pseudo-Inverses, Projections and Linear Least Squares Problems
+VanDerSluisVeltkamp1979	10.1016/0024-3795(79)90138-1	Restoring Rank and Consistency by Orthogonal Projection	Restoring rank and consistency by orthogonal projection
+Villard2007	10.48550/arXiv.cs/0701183	Certification of the QR Factor R, and of Lattice Basis Reducedness	Certification of the QR factor R, and of lattice basis reducedness
+finlay2023tabascal	10.48550/arXiv.2301.04188	Trajectory Based RFI Subtraction and Calibration for Radio Interferometry	Trajectory Based RFI Subtraction and Calibration for Radio Interferometry

@@ -1,0 +1,13 @@
+Pages:           29
+Page size:       612 x 792 pts (letter)
+File size:       499125 bytes
+ Cites:                22 out of 750
+Pages:           28
+Pages:           29
+scalar-large-z rc=0 eta=0x0p+0
+candidate rc=0 mask=6 infinite_gen=0 infinite_ver=0 eta_inf=0x0p+0
+combined rc=0 mask=6 infinite_gen=0 infinite_ver=0 eta_inf=0x0p+0
+bsolve rc=0 x=1.0000000001164149 status=1 router_BERR=6.6311990742027321e-16 candidate_check_rc=0 verdict=2 mixed_up=5.8207882947907937e-11
+Exact rational trace budget violated: True norm/error-budget ratio 1.3183801876439547
+ok: the formation-guard gate refuses an uncertifiable rank and keeps an unresolved rank out of every consistency verdict
+all 8 manuscript claims reproduced

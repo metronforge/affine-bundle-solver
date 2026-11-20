@@ -1,0 +1,16 @@
+scalar-large-z rc=0 eta=0x0p+0
+scalar-unit-z rc=0 eta=0x1p+0
+scalar-zero-z rc=3 eta=inf
+nonfinite-input rc=2 eta=inf
+incompatible-two-rows rc=0 eta=0x0p+0
+candidate rc=0 mask=6 infinite_gen=0 infinite_ver=0 eta_inf=0x0p+0
+combined rc=0 mask=6 infinite_gen=0 infinite_ver=0 eta_inf=0x0p+0
+unique-changes-zero-row rc=7 eta=inf
+zero-pivot-needs-change rc=6 eta=inf interval=[0x1p-2,0x1p-2]
+zero-pivot-no-change rc=0 eta=0x0p+0 interval=[0x1p-2,0x1p-2]
+exact-zero-contradiction rc=4 eta=inf interval=[-0x0p+0,0x0p+0]
+signed-frame rc=0 eta=0x0p+0 interval=[0x1p-2,0x1p-2]
+unique-ftz-daz-0 rc=0 eta=0x0.0000000000001p-1022
+inconsistent-ftz-daz-0 rc=0 eta=0x0.0000000000004p-1022 interval=[0x1p-2,0x1p-2]
+unique-ftz-daz-1 rc=0 eta=0x0p+0
+inconsistent-ftz-daz-1 rc=0 eta=0x0p+0 interval=[0x1p-2,0x1p-2]

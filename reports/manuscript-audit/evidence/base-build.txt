@@ -1,0 +1,16 @@
+Pages:           28
+Page size:       612 x 792 pts (letter)
+File size:       494336 bytes
+pdfTeX 3.141592653-2.6-1.40.26 (TeX Live 2025/dev/Debian)
+Reallocated glb_str_ptr (elt_size=8) to 10 items from 0.
+Reallocated global_strs (elt_size=200001) to 10 items from 0.
+Reallocated glb_str_end (elt_size=8) to 10 items from 0.
+Database file #1: references.bib
+
+Here's how much of BibTeX's memory you used:
+ Cites:                21 out of 750
+ Fields:              408 out of 5000
+ Hash table:       199797 out of 200000
+ Strings:             748 out of 200000
+ Free string pool:   8656 out of 65000
+ Wizard functions:   2773 out of 3000

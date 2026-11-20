@@ -1,0 +1,101 @@
+Build: {
+  "schema_version": 1,
+  "built_at_utc": "2026-11-20T22:47:55Z",
+  "source": {
+    "git_sha": "1df77461faf407320dab200d025fa846b2151502",
+    "git_tree_sha": "e2106454a28fa80a103d779d6093d64cc6e62765",
+    "git_dirty": false
+  },
+  "build_script": {
+    "path": "build.sh",
+    "sha256": "d0fb743d929883a95bcc229eadfd07f201d6d5e517c1d4b3e5adb61c34410ec9"
+  },
+  "compiler": {
+    "command_argv": [
+      "gcc"
+    ],
+    "identity": "gcc (Debian 14.2.0-19) 14.2.0"
+  },
+  "router": {
+    "compile_argv": [
+      "gcc",
+      "-O3",
+      "-march=native",
+      "-fopenmp",
+      "-fPIC",
+      "-ffast-math",
+      "-Iinclude",
+      "-Isrc",
+      "-DABS_SCIPY_BLAS",
+      "-c",
+      "src/bsolver.c",
+      "-o",
+      "bsolver.o"
+    ],
+    "link_argv": [
+      "gcc",
+      "-shared",
+      "-fopenmp",
+      "bsolver.o",
+      "formation_guard.o",
+      "-o",
+      "libaffine_bundle_solver.so",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-6cdc3b4a.so",
+      "-Wl,-rpath,/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/scipy.libs",
+      "-latomic",
+      "-lm"
+    ],
+    "arch_flags": "-march=native",
+    "library": {
+      "basename": "libaffine_bundle_solver.so",
+      "resolved_path": "/tmp/manuscript-main/libaffine_bundle_solver.so",
+      "sha256": "490657bda3a2ada645948a5c6a6c7b37cb30111b8fef5ad61368c8337b3e15ad"
+    }
+  },
+  "openblas": {
+    "basename": "libscipy_openblas-6cdc3b4a.so",
+    "resolved_path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-6cdc3b4a.so",
+    "sha256": "8fb864c29cac4b25f6e2c139491ea96f2724dde42d51394f84e9c4a622e34790"
+  }
+}
+
+tall.8000x32 output [1.0, 1.0, 32.0, 32.0, 32.0, 1.6767255574564666e-14, nan, 0.00011951999999837426, 0.0, 1.0, 9.987918701174194e-15]
+application N64_gauge status/rank/lo/hi [2.0, 63.0, 63.0, 64.0]
+application L7_equator status/rank/lo/hi [2.0, 15.0, 15.0, 15.0]
+degenerate case: ||P_null b0|| = 5.217e-15, 4 of 41 candidates accepted, first interval [1.388e-15, 2.956e-15]
+controlled case: delta = 1.716e-07, rc=0, interval [4.290e-08, 4.290e-08], eta = 1.964e-15
+eps=1e-12 eta_unique=7.987e-13 eta_inconsistent=2.008e-15
+eps=1e-09 eta_unique=7.985e-10 eta_inconsistent=2.002e-15
+eps=1e-06 eta_unique=7.985e-07 eta_inconsistent=2.055e-15
+eps=1e-03 eta_unique=7.982e-04 eta_inconsistent=1.900e-15
+eps=1e-01 eta_unique=7.628e-02 eta_inconsistent=1.910e-15
+compatible-adversarial eta_inconsistent=1.436e-15 (4/41 candidates accepted, ||P_null b0||=5.22e-15)
+PRIMARY PASS
+rank-deficient-compatible eta_unique=1.077e-15 eta_infinite=8.196e-16 eta_inconsistent=2.204e-15
+MIRROR PASS
+full-scope orbit results 8335 {'known-representation': 155} {'affine_translation_2^30': 24, 'inconsistent_affine_translation_sweep': 131}
+certificate battery {
+  "checks": 2271,
+  "property_counts": {
+    "inconsistent_row_scaling_generator": 1800,
+    "tall_zero_distance_inconsistency_availability": 300,
+    "strict_unique_subnormal_availability": 3,
+    "strict_infinite_subnormal_availability": 3,
+    "strict_inconsistent_subnormal_availability": 3,
+    "strict_unique_extreme_global_scale": 14,
+    "strict_infinite_extreme_global_scale": 14,
+    "strict_inconsistent_extreme_global_scale": 14,
+    "high_precision_outward_radius": 120
+  },
+  "failures": [],
+  "failure_counts": {},
+  "stats": {
+    "inconsistent_eta_max": 3.8706114675943495e-15,
+    "inconsistent_eta_median": 9.417587441149346e-17,
+    "shadow_ratio_min": 1.0000000000000002,
+    "shadow_ratio_max": 2.0000000000000004
+  }
+}
+type, count, distinct scale exponents, distinct shadow values 0 40 [-1000, -600, -200, 0, 200, 600, 1000] ['0.00000000000000004965068306494545994154540632895047903440351698937162359716917515518643634648398908858300889465691774']
+type, count, distinct scale exponents, distinct shadow values 1 40 [-1000, -600, -200, 0, 200, 600, 1000] ['0.0000000000000002563950248511418570403591756798699988307185254710626747336920445636721731754429790289663928896100154']
+type, count, distinct scale exponents, distinct shadow values 2 40 [-1000, -600, -200, 0, 200, 600, 1000] ['0.0000000000000001412582639307638242907786306178269632592123053892152649862421681917580952918972125607712665818943045']

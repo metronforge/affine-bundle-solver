@@ -1,0 +1,278 @@
+66:\section{Introduction}
+85:\section{Affine bundles and exact insertion}
+115:\subsection{Semantic merge}
+126:\subsection{Canonical atomic insertion}
+153:\section{Certified numerical semantics}\label{sec:semantics}
+156:\subsection{Nested augmented-row geometry}
+179:\subsection{Operational policy and exact-source evidence}
+198:\subsection{Public operations and evidence boundaries}
+229:\subsection{Row decisions and system-level epistemic state}
+305:\subsection{An a-posteriori distance envelope}
+360:\subsection{Formation provenance for compressed rank evidence}\label{sec:formation-provenance}
+430:\section{Independently verifiable nearby-status certificates}\label{sec:statuscert}
+452:\subsection{Unique-status object}
+465:\subsection{Infinite-status object}
+515:\subsection{Inconsistent-status object}
+530:\subsection{Row-scaling equivariance and exponent-framed verification}\label{sec:certificate-scaling}
+687:\section{Tangent screening and monotone evidence}\label{sec:secant}
+727:\subsection{A monotonicity property behind block screening}
+738:\section{The information-adaptive solver}\label{sec:solver}
+741:\subsection{Guarded unique lane}
+746:\subsection{Rank-aware prefix and tail}
+753:\subsection{Sketch correction and validation}
+762:\subsection{Orthogonalization kernel}
+769:\subsection{Router summary}
+783:\section{Parallelism: evidence versus state mutation}\label{sec:parallel}
+786:\subsection{Independent row evidence}
+800:\subsection{Why the bundle butterfly was not retained}
+813:\section{Complexity perspective}
+820:\section{Experimental methodology}\label{sec:experiments}
+856:\section{Results}\label{sec:results}
+857:\subsection{Representative classifications}
+864:\begin{table}[ht]
+866:\caption{Representative direct router classifications from the immutable
+891:\subsection{Machine-scoped timing observations}
+896:\begin{table}[ht]
+898:\caption{Selected medians from the immutable laptop package. Times are
+932:\subsection{Certificate and transformation evidence}
+951:\section{Related work and novelty boundary}\label{sec:related}
+960:\section{Limitations}
+986:\section{Conclusion}
+995:\section{Reproducibility protocol}\label{app:repro}
+1017:\section{Implementation thresholds and policy constants}\label{app:thresholds}
+1034:\section{Why the solver is called competitive rather than universally superior}\label{app:competitive}
+1037:\section{Illustrative application constructions}\label{app:astro}
+1043:\subsection{Radio-interferometric phase calibration}
+1057:\subsection{Irregular spherical-harmonic recovery}
+1069:\section*{Software availability}
+1080:\section*{Acknowledgments}
+1090:\section*{Declaration of AI-assisted research}
+reports/ralph-30/README.md
+reports/ralph-30/bench.py
+reports/ralph-30/data/a-boundary.json
+reports/ralph-30/data/a-build.log
+reports/ralph-30/data/a.json
+reports/ralph-30/data/aa-build.log
+reports/ralph-30/data/aa.json
+reports/ralph-30/data/ab-v-a.json
+reports/ralph-30/data/b.json
+reports/ralph-30/data/base-build.log
+reports/ralph-30/data/base-manifest.json
+reports/ralph-30/data/candidate-b.patch
+reports/ralph-30/data/controls.json
+reports/ralph-30/data/disable.json
+reports/ralph-30/data/domain.json
+reports/ralph-30/data/final-base-manifest.json
+reports/ralph-30/data/final-build.txt
+reports/ralph-30/data/final-manifest.json
+reports/ralph-30/data/final.json
+reports/ralph-30/data/holdout-rebuild.json
+reports/ralph-30/data/holdout.json
+reports/ralph-30/data/host.txt
+reports/ralph-30/data/independent.json
+reports/ralph-30/data/integrated.json
+reports/ralph-30/data/knockout.json
+reports/ralph-30/data/knockout.patch
+reports/ralph-30/data/map.json
+reports/ralph-30/data/numeric-base.json
+reports/ralph-30/data/numeric-final.json
+reports/ralph-30/data/oracle-radius.json
+reports/ralph-30/data/oracle-radius.txt
+reports/ralph-30/data/paper-claims.txt
+reports/ralph-30/data/paper-inventory.txt
+reports/ralph-30/data/profile-a-pack-w3.txt
+reports/ralph-30/data/profile-a-w2.txt
+reports/ralph-30/data/profile-base-small.txt
+reports/ralph-30/data/profile-base-w1.txt
+reports/ralph-30/data/profile-base-w2.txt
+reports/ralph-30/data/profile-base-w3.txt
+reports/ralph-30/data/qualification.json
+reports/ralph-30/data/query.txt
+reports/ralph-30/data/reproduction.txt
+reports/ralph-30/data/selection.txt
+reports/ralph-30/data/solve-api.txt
+reports/ralph-30/data/split.json
+reports/ralph-30/data/square-repeat.json
+reports/ralph-30/data/test_blockprefix_guard.txt
+reports/ralph-30/data/test_core_rank_boundary.txt
+reports/ralph-30/data/test_threshold_contract.txt
+reports/ralph-30/data/test_transition_contract_regression.txt
+reports/ralph-30/decisions.md
+reports/ralph-30/handoff.md
+reports/ralph-30/inputs/SHA256SUMS
+reports/ralph-30/inputs/conflict.npz
+reports/ralph-30/inputs/defect.npz
+reports/ralph-30/inputs/extreme.npz
+reports/ralph-30/inputs/grey.npz
+reports/ralph-30/inputs/grey2.npz
+reports/ralph-30/inputs/grouped.npz
+reports/ralph-30/inputs/hold1.npz
+reports/ralph-30/inputs/hold2.npz
+reports/ralph-30/inputs/ill.npz
+reports/ralph-30/inputs/small.npz
+reports/ralph-30/inputs/square.npz
+reports/ralph-30/inputs/tall.npz
+reports/ralph-30/inputs/w1.npz
+reports/ralph-30/inputs/w2.npz
+reports/ralph-30/inputs/w3.npz
+reports/ralph-30/mechanism.md
+reports/ralph-30/notes.md
+reports/ralph-30/numerics.py
+reports/ralph-30/profile.py
+reports/ralph-30/protocol.md
+reports/ralph-30/query.py
+reports/ralph-30/reproduce.sh
+reports/ralph-30/summarize.py
+src/bsolver.c
+reports/cert-performance/README.md
+reports/cert-performance/capture_witness.c
+reports/cert-performance/count_calls.c
+reports/cert-performance/count_calls.py
+reports/cert-performance/data/a.json
+reports/cert-performance/data/aa.json
+reports/cert-performance/data/ab.json
+reports/cert-performance/data/add-b.json
+reports/cert-performance/data/b-only.json
+reports/cert-performance/data/base-build.txt
+reports/cert-performance/data/base-extreme.trace
+reports/cert-performance/data/base-manifest.json
+reports/cert-performance/data/base-t1.trace
+reports/cert-performance/data/base-t2.trace
+reports/cert-performance/data/base-t3.trace
+reports/cert-performance/data/base-w1.trace
+reports/cert-performance/data/base-w2.trace
+reports/cert-performance/data/base-w3.trace
+reports/cert-performance/data/cert-alloc.txt
+reports/cert-performance/data/cert-api.txt
+reports/cert-performance/data/controls.json
+reports/cert-performance/data/counts-A.json
+reports/cert-performance/data/counts-base.json
+reports/cert-performance/data/counts-final.json
+reports/cert-performance/data/final-build.txt
+reports/cert-performance/data/final-manifest.json
+reports/cert-performance/data/final-t1.trace
+reports/cert-performance/data/final-t2.trace
+reports/cert-performance/data/final-t3.trace
+reports/cert-performance/data/final-w2.trace
+reports/cert-performance/data/final.json
+reports/cert-performance/data/holdout.json
+reports/cert-performance/data/independent-off.json
+reports/cert-performance/data/paper-claims.txt
+reports/cert-performance/data/previous-w2.json
+reports/cert-performance/data/public-oracle-base.json
+reports/cert-performance/data/public-oracle-final.json
+reports/cert-performance/data/qualification.json
+reports/cert-performance/data/range.txt
+reports/cert-performance/data/rebuilt-base-manifest.json
+reports/cert-performance/data/recheck-controls.json
+reports/cert-performance/data/recheck-holdout.json
+reports/cert-performance/data/recheck-previous.json
+reports/cert-performance/data/recheck-primary.json
+reports/cert-performance/data/split.json
+reports/cert-performance/data/test_certificate_extreme_scaling.txt
+reports/cert-performance/data/test_certificate_thread_determinism.txt
+reports/cert-performance/decisions.md
+reports/cert-performance/experiment.py
+reports/cert-performance/inputs/SHA256SUMS
+reports/cert-performance/inputs/conflict.npz
+reports/cert-performance/inputs/defect.npz
+reports/cert-performance/inputs/extreme.npz
+reports/cert-performance/inputs/grey.npz
+reports/cert-performance/inputs/grouped.npz
+reports/cert-performance/inputs/previous_w2.npz
+reports/cert-performance/inputs/square.npz
+reports/cert-performance/inputs/t1.npz
+reports/cert-performance/inputs/t2.npz
+reports/cert-performance/inputs/t3.npz
+reports/cert-performance/inputs/th1.npz
+reports/cert-performance/inputs/th2.npz
+reports/cert-performance/inputs/w1.npz
+reports/cert-performance/inputs/w2.npz
+reports/cert-performance/inputs/w3.npz
+reports/cert-performance/profile_cert.py
+reports/cert-performance/protocol.md
+reports/cert-performance/public_oracle.py
+reports/cert-performance/reproduce.sh
+reports/cert-performance/review/check_inconsistent.py
+reports/cert-performance/review/review.md
+reports/cert-performance/review/verification-x87.json
+reports/cert-performance/review/verification.json
+reports/ralph-30/README.md
+reports/ralph-30/bench.py
+reports/ralph-30/data/a-boundary.json
+reports/ralph-30/data/a-build.log
+reports/ralph-30/data/a.json
+reports/ralph-30/data/aa-build.log
+reports/ralph-30/data/aa.json
+reports/ralph-30/data/ab-v-a.json
+reports/ralph-30/data/b.json
+reports/ralph-30/data/base-build.log
+reports/ralph-30/data/base-manifest.json
+reports/ralph-30/data/candidate-b.patch
+reports/ralph-30/data/controls.json
+reports/ralph-30/data/disable.json
+reports/ralph-30/data/domain.json
+reports/ralph-30/data/final-base-manifest.json
+reports/ralph-30/data/final-build.txt
+reports/ralph-30/data/final-manifest.json
+reports/ralph-30/data/final.json
+reports/ralph-30/data/holdout-rebuild.json
+reports/ralph-30/data/holdout.json
+reports/ralph-30/data/host.txt
+reports/ralph-30/data/independent.json
+reports/ralph-30/data/integrated.json
+reports/ralph-30/data/knockout.json
+reports/ralph-30/data/knockout.patch
+reports/ralph-30/data/map.json
+reports/ralph-30/data/numeric-base.json
+reports/ralph-30/data/numeric-final.json
+reports/ralph-30/data/oracle-radius.json
+reports/ralph-30/data/oracle-radius.txt
+reports/ralph-30/data/paper-claims.txt
+reports/ralph-30/data/paper-inventory.txt
+reports/ralph-30/data/profile-a-pack-w3.txt
+reports/ralph-30/data/profile-a-w2.txt
+reports/ralph-30/data/profile-base-small.txt
+reports/ralph-30/data/profile-base-w1.txt
+reports/ralph-30/data/profile-base-w2.txt
+reports/ralph-30/data/profile-base-w3.txt
+reports/ralph-30/data/qualification.json
+reports/ralph-30/data/query.txt
+reports/ralph-30/data/reproduction.txt
+reports/ralph-30/data/selection.txt
+reports/ralph-30/data/solve-api.txt
+reports/ralph-30/data/split.json
+reports/ralph-30/data/square-repeat.json
+reports/ralph-30/data/test_blockprefix_guard.txt
+reports/ralph-30/data/test_core_rank_boundary.txt
+reports/ralph-30/data/test_threshold_contract.txt
+reports/ralph-30/data/test_transition_contract_regression.txt
+reports/ralph-30/decisions.md
+reports/ralph-30/handoff.md
+reports/ralph-30/inputs/SHA256SUMS
+reports/ralph-30/inputs/conflict.npz
+reports/ralph-30/inputs/defect.npz
+reports/ralph-30/inputs/extreme.npz
+reports/ralph-30/inputs/grey.npz
+reports/ralph-30/inputs/grey2.npz
+reports/ralph-30/inputs/grouped.npz
+reports/ralph-30/inputs/hold1.npz
+reports/ralph-30/inputs/hold2.npz
+reports/ralph-30/inputs/ill.npz
+reports/ralph-30/inputs/small.npz
+reports/ralph-30/inputs/square.npz
+reports/ralph-30/inputs/tall.npz
+reports/ralph-30/inputs/w1.npz
+reports/ralph-30/inputs/w2.npz
+reports/ralph-30/inputs/w3.npz
+reports/ralph-30/mechanism.md
+reports/ralph-30/notes.md
+reports/ralph-30/numerics.py
+reports/ralph-30/profile.py
+reports/ralph-30/protocol.md
+reports/ralph-30/query.py
+reports/ralph-30/reproduce.sh
+reports/ralph-30/summarize.py
+src/bsolver.c
+src/status_certificate.c
+tests/test_range_rounding.c

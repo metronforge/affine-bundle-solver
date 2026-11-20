@@ -1,0 +1,4 @@
+numpy=2.3.5 prime=1000000007
+48x8 first 8x8 coefficient minor 251354826
+48x8 first 9x9 augmented minor 140960073
+40x6 first 4x4 base minor 1800

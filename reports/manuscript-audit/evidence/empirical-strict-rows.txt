@@ -1,0 +1,1 @@
+unique verifier rows: 1968 calls, 31160 rows, 1502768 entries compared; 228 signed-zero-only endpoint differences; 0 failures

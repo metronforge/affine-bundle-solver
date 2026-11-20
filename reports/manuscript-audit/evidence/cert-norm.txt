@@ -1,0 +1,2 @@
+negative norm_upper=0x1p+1
+positive norm_upper=0x1.0000000000001p+1
