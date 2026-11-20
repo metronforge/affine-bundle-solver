@@ -107,12 +107,15 @@ static int common_product_exp(const double *y, int m,
     for (int i = 0; i < m; ++i) {
         if (y[i] == 0.0) continue;
         int ey = 0; (void)frexp(y[i], &ey);
-        if (b[i] != 0.0) {
-            int eb = 0; (void)frexp(b[i], &eb);
-            if (ey + eb > E) E = ey + eb;
+        /* frexp's exponent is monotone in the absolute value. */
+        double largest = fabs(b[i]);
+        for (int j = 0; j < n; ++j) {
+            double v = fabs(A[(size_t)i*n+j]);
+            if (v > largest) largest = v;
         }
-        for (int j = 0; j < n; ++j) if (A[(size_t)i*n+j] != 0.0) {
-            int ea = 0; (void)frexp(A[(size_t)i*n+j], &ea);
+        if (largest > 0.0) {
+            int ea;
+            (void)frexp(largest, &ea);
             if (ey + ea > E) E = ey + ea;
         }
     }
