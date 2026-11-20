@@ -21,28 +21,12 @@ accepted constraints. For an incoming equality \(a^Tz=\beta\), the quantities
 nonzero \(g\) grows the bundle by one normal direction, while zero \(g\)
 separates redundancy from contradiction.
 
-In finite precision the fast router reports numerical status, epistemic
-strength, a supported numerical-rank interval, and fixed-solution quality
-separately, and leaves rows near a rank transition unresolved rather than
-forcing a binary decision. Compressed rows are proposal data, not source-row
-evidence: every route that can raise the deterministic source-rank lower
-bound carries a formation-error provenance budget and must pass an
-a-posteriori source-rank certificate.
+In finite precision the router separates operational classification, numerical rank and candidate quality. It uses guarded direct solves, prefix bundles, tangent probes, compressed correction and source checks. We derive a sufficient condition for source-rank promotion when formation and factorization errors have verified upper bounds. The executable rank interval also reflects policy thresholds.
 
-Certification is path independent. Three compact proof-object types target
-exact uniqueness, exact consistency with nonuniqueness, and exact
-inconsistency, and a separate strict-arithmetic checker derives, rather than trusts, an
-outward bound \(\eta_S\) in a rowwise augmented relative
-perturbation metric; acceptance implies a nearby real system of that exact
-type within \(\eta_S\). The audit API attempts all three types independently
-of the router and returns a router-independent profile
-\(\boldsymbol{\eta}=(\eta_{\rm uniq},\eta_{\rm inf},\eta_{\rm inc})\). These
-are existence upper bounds, not confidence scores: the exact status sets are
-not topologically separated, and at a compatible rank-deficient point all
-three distances can vanish together.
+Three proof objects construct nearby real systems with exact uniqueness, nonuniqueness or inconsistency. If the checker bounds the row perturbations outward, each construction yields an upper bound on the corresponding status-set distance. The audit operation attempts all three types independently of the router. A finite-input overflow counterexample to the infinite-status checker gives an accepted zero radius at strictly positive distance. Thus the mathematical theorem requires an arithmetic premise that the released binary can violate.
 
 Two property batteries, of 8{,}335 and 2{,}271 checks, report no hard
-failure. The experiments support a restricted claim of practical viability
+failure. Exact reconstruction of translated inputs identifies 27 diagnostic cases in which rounding the right-hand side changed the exact compatibility of the stored problem. The experiments support a restricted claim of practical viability
 for dense equality classification, not universal superiority over
 general-purpose numerical linear algebra.
 \end{abstract}
