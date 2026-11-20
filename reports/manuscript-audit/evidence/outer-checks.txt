@@ -1,0 +1,44 @@
+107b5c1c0bae56b16645fa164b73b48f69722aad
+2a72250e5350f5016ee5b6ad5e576192ec57b430
+gcc (Debian 14.2.0-19) 14.2.0
+490657bda3a2ada645948a5c6a6c7b37cb30111b8fef5ad61368c8337b3e15ad  libaffine_bundle_solver.so
+d75391e3e519d7f7af339bd2f6c0480cf16e5bce07b1c0d292ed8811b652f1db  libcertified_solver.so
+Output written on paper.pdf (29 pages, 499125 bytes).
+directed-rounding probe: PASS
+FP environment probe: PASS (MXCSR control=0x1f80 unchanged; input/output subnormals and directed rounding preserved)
+fp-contraction check: PASSED (4 sources)
+scale=0x1p+0 status=1 rank=[2,2] fast BERR=0 x=(1,1) strict verdict=1 eta_up=0
+scale=0x1p-42 status=1 rank=[2,2] fast BERR=0 x=(1,0) strict verdict=2 eta_up=0.5
+default verdict=2 residual_up=0x0.0000000004p-1022 eta_up=1, exact eta=1
+caller FTZ+DAZ verdict=1 residual_up=0x0p+0 eta_up=0, exact eta=1
+NumPy 2.3.5 SciPy 1.17.0 prime 1000000007
+L=7 full seed=2007 shape=(4096, 64) ranks=64,65 router=unique/64 det_mod=250816868,145464106 A_sha256=e3c855fce99a83cd7ffdc84164206509dd0bfe1136c3159ae20433d7c322db06 b_sha256=2bbb5d1e4383903569da25642603913029a787348a60ef5c883a10e6ce36ad59
+L=7 equator seed=2107 shape=(4096, 64) ranks=57,58 router=infinite/15 det_mod=967935843,560445572 A_sha256=30ae8c1d04f564422f2c53ad255778bb15a063e8dab7847fe8dc28aa26b20c8b b_sha256=402723c8a1d247c0df7a940130ed52efdff5882fe438ae2b925be03463fca988
+L=11 full seed=2011 shape=(8192, 144) ranks=144,145 router=unique/144 det_mod=85552383,912707419 A_sha256=04693dd2b6af94bc3cc936d14f62f0f3c37156042e315cbd3ea5ba1bed9b9594 b_sha256=3bbd326e742c66107b5ad56db3e3605fbd8c930279998d5ea80cf9683a764b63
+L=11 equator seed=2111 shape=(8192, 144) ranks=133,134 router=infinite/23 det_mod=786080084,753560655 A_sha256=9f8c255a2b456740046d6d82811077509fa8d4aafe533232dfc2a51a99099c3c b_sha256=83a8e57907bf52b92a5aeaa49699d8be944f1b99e2e1c1f3e453f73ec796b2fe
+L=15 full seed=2015 shape=(16384, 256) ranks=256,257 router=unique/256 det_mod=907920565,865239346 A_sha256=540aeebb54839ca66a4296ff6bc92e476b48b2af2d86a86339007ee484facdad b_sha256=f285de0289add8167d58dc1e7013cfb53fa314831a51d338645bdfb3f357eed7
+L=15 equator seed=2115 shape=(16384, 256) ranks=241,242 router=infinite/31 det_mod=94054506,892234924 A_sha256=0f3d98c1354329363f3007b5d6f6d4c59effb7aef0e7a0f1f23e80dcc0178395 b_sha256=291af66a1737efeb2057f6705817aafdd50f1acb6ed05f8ad91d2d36aa0a04f8
+N=64 gauge seed=1001 rows=[0, 63, 1] cycle_defect=-1/9007199254740992 router=infinite/63
+N=64 reference seed=1002 rows=[0, 64, 2] cycle_defect=-3/72057594037927936 router=unique/64
+N=128 gauge seed=1003 rows=[0, 128, 2] cycle_defect=1/9007199254740992 router=infinite/127
+N=128 disconnected seed=1004 rows=[0, 65, 3] cycle_defect=-3/18014398509481984 router=infinite/126
+N=256 gauge seed=1005 rows=[0, 256, 2] cycle_defect=-1/36028797018963968 router=infinite/255
+N=256 perturbed seed=1006 rows=[0, 257, 3] cycle_defect=-1/4503599627370496 router=inconsistent/255
+full-scope orbit results 8335 {'known-representation': 155} {'affine_translation_2^30': 24, 'inconsistent_affine_translation_sweep': 131}
+  "checks": 2271,
+  "failures": [],
+    "inconsistent_eta_max": 3.8706114675943495e-15,
+    "shadow_ratio_min": 1.0000000000000002,
+diagonal core ratio=9.9999999999999998e-13 ambiguous=1 core=[1,1]
+diagonal core ratio=1.0000000000000001e-09 ambiguous=1 core=[1,2]
+Exact rational trace budget violated: True norm/error-budget ratio 1.3183801876439547
+ok: thresholds match the header, separate the three verdicts, are scale-free, and every deterministic UNIQUE carries an acceptable witness
+ok: the compressed-core rank boundary separates decide, refuse and discard, and the refusal is stable under scale, seed and ordering
+ok: the formation-guard gate refuses an uncertifiable rank and keeps an unresolved rank out of every consistency verdict
+
+DataCite public records retrieved on 2026-11-20 (HTTP 200, attributes.version):
+https://api.datacite.org/dois/10.5281/zenodo.22753773  v0.4.4
+https://api.datacite.org/dois/10.5281/zenodo.23091078  0.5.0
+https://api.datacite.org/dois/10.5281/zenodo.22753772  0.5.0 (concept DOI per CITATION.cff)
+Crossref journal record for bibliography [9]:
+https://api.crossref.org/works/10.1093/mnras/stad1979  Finlay, Bassett, Kunz, Oozeer; MNRAS 524(3), 3231–3251 (2023).
