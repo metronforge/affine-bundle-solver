@@ -18,6 +18,7 @@
 #pragma STDC FENV_ACCESS ON
 #include "affine_bundle/status_certificate.h"
 #include <fenv.h>
+#include <float.h>
 #include <limits.h>
 #include <math.h>
 #include <omp.h>
@@ -379,6 +380,45 @@ int bs_verify_infinite(const double *A, const double *b, int m, int n,
     return isfinite(best) ? 0 : 4;
 }
 
+/* Compute 2^-E y exactly where both the scaled weights and every nonzero
+   product with an active row are safely in the normal binary64 range.
+   There, rounding commutes with power-of-two scaling: multiplying the
+   scaled weight by A[i,j] gives exactly the endpoint produced by the
+   mantissa multiply followed by scalbn in product_in_frame_dir. */
+static int prepare_scaled_weights(const double *A, int m, int n, const double *y,
+                                  int E, double *scaled) {
+    for (int i = 0; i < m; ++i) {
+        scaled[i] = 0.0;
+        if (y[i] == 0.0) continue;
+        int ey;
+        (void)frexp(y[i], &ey);
+        if (ey - E < -500 || ey - E > 500) return 0;
+        for (int j = 0; j < n; ++j) {
+            double a = fabs(A[(size_t)i*n+j]);
+            if (a > 0x1p500 || (a != 0.0 && a < 0x1p-500)) return 0;
+        }
+        scaled[i] = scalbn(y[i], -E);
+    }
+    return 1;
+}
+
+/* Keep each column's original summation order. Independent columns share
+   a rounding mode, just as in unique_row_pass. Strict FP flags prevent FMA. */
+ABS_NOINLINE static void scaled_column_pass(const double *A, int m, int n,
+                                            const double *weights, int width,
+                                            double *restrict sums, int mode) {
+    fesetround(mode);
+    for (int j = 0; j < width; ++j) sums[j] = 0.0;
+    for (int i = 0; i < m; ++i) {
+        if (weights[i] == 0.0) continue;
+        const double *row = A + (size_t)i*n;
+        for (int j = 0; j < width; ++j) {
+            double product = row[j] * weights[i];
+            sums[j] = sums[j] + product;
+        }
+    }
+}
+
 int bs_verify_inconsistent(const double *A, const double *b, int m, int n,
                            const BSInconsistentWitness *w,
                            double *ytb_lo, double *ytb_hi, double *eta_up) {
@@ -399,13 +439,29 @@ int bs_verify_inconsistent(const double *A, const double *b, int m, int n,
     *ytb_lo = lb; *ytb_hi = ub;
     if (!(lb > 0.0 || ub < 0.0)) { fesetround(old); return 4; }
 
-    double *col = (double *)malloc((size_t)m*sizeof(double));
+    double *scratch = (double *)malloc((size_t)m*sizeof(double));
     double *qvec = (double *)malloc((size_t)(n > 0 ? n : 1)*sizeof(double));
-    if (!col || !qvec) { free(col); free(qvec); fesetround(old); return 5; }
-    for (int j = 0; j < n; ++j) {
-        for (int i = 0; i < m; ++i) col[i] = A[(size_t)i*n+j];
-        double lo, hi; dot_interval_frame(col, w->y, m, E, &lo, &hi);
-        qvec[j] = fmax(fabs(lo), fabs(hi));
+    if (!scratch || !qvec) { free(scratch); free(qvec); fesetround(old); return 5; }
+    /* The direct product and addition must each round to binary64. */
+    if (FLT_EVAL_METHOD == 0 && FLT_RADIX == 2 && DBL_MANT_DIG == 53 &&
+        DBL_MIN_EXP == -1021 && DBL_MAX_EXP == 1024 &&
+        prepare_scaled_weights(A, m, n, w->y, E, scratch)) {
+        enum { TILE = 64 };
+        double lo[TILE];
+        for (int first = 0; first < n; ) {
+            int width = n - first < TILE ? n - first : TILE;
+            double *hi = qvec + first;
+            scaled_column_pass(A+first, m, n, scratch, width, lo, FE_DOWNWARD);
+            scaled_column_pass(A+first, m, n, scratch, width, hi, FE_UPWARD);
+            for (int j = 0; j < width; ++j) hi[j] = fmax(fabs(lo[j]), fabs(hi[j]));
+            first += width;
+        }
+    } else {
+        for (int j = 0; j < n; ++j) {
+            for (int i = 0; i < m; ++i) scratch[i] = A[(size_t)i*n+j];
+            double lo, hi; dot_interval_frame(scratch, w->y, m, E, &lo, &hi);
+            qvec[j] = fmax(fabs(lo), fabs(hi));
+        }
     }
     double Hs = norm_up(qvec, n); /* upper bound for 2^{-E} ||A^T y|| */
     double src = norm_aug_lower(A+(size_t)k*n, b[k], n);
@@ -413,6 +469,6 @@ int bs_verify_inconsistent(const double *A, const double *b, int m, int n,
     double q;
     if (dens == 0.0) q = (Hs == 0.0 ? 0.0 : INFINITY);
     else { fesetround(FE_UPWARD); q = Hs/dens; }
-    free(col); free(qvec); fesetround(old); *eta_up = q;
+    free(scratch); free(qvec); fesetround(old); *eta_up = q;
     return isfinite(q) ? 0 : 6;
 }

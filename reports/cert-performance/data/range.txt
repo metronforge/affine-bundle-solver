@@ -1,0 +1,6 @@
+quality neighborhood exponent=-47 status=1 backward_error=0x1.fffffffffffep-49
+quality neighborhood exponent=-46 status=1 backward_error=0x1.fffffffffffcp-48
+quality neighborhood exponent=-45 status=5 backward_error=nan
+quality neighborhood exponent=-44 status=5 backward_error=nan
+quality neighborhood exponent=-43 status=5 backward_error=nan
+range/rounding: 219118 checks, 0 failures; diagnostics are not equality keys

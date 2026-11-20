@@ -48,6 +48,21 @@ static void verify_scale(double s, int mode) {
     verify_rejection(s, mode);
 }
 
+/* A 3-4-5 norm across a tile boundary. Scaling both source rows by a
+   power of two preserves the framed RHS interval and the exact radius. */
+static void verify_framed_columns(int exponent, int mode) {
+    enum { N = 65 };
+    double A[2*N] = {0}, b[] = {0, scalbn(1.0, exponent)}, y[] = {1, 1};
+    double lo, hi, eta;
+    BSInconsistentWitness w = {2, y, 1};
+    A[0] = scalbn(3.0, exponent);
+    A[N-1] = scalbn(4.0, exponent);
+    CHECK(bs_verify_inconsistent(A, b, 2, N, &w, &lo, &hi, &eta) == 0);
+    CHECK(lo == 0x1p-4 && hi == lo);
+    CHECK(eta == 5.0);
+    CHECK(fegetround() == mode);
+}
+
 static void threshold_neighborhoods(void) {
     BSOperationalPolicyV1 p;
     bs_default_operational_policy(&p);
@@ -111,6 +126,9 @@ int main(void) {
     const int modes[] = {FE_TONEAREST, FE_DOWNWARD, FE_UPWARD, FE_TOWARDZERO};
     for (int k = 0; k < 4; ++k) {
         CHECK(!fesetround(modes[k]));
+        verify_framed_columns(0, modes[k]);
+        verify_framed_columns(-600, modes[k]);
+        verify_framed_columns(600, modes[k]);
         for (unsigned j = 0; j < sizeof values / sizeof values[0]; ++j)
             for (int sign = -1; sign <= 1; sign += 2) verify_scale(sign * values[j], modes[k]);
         for (int e = -1074; e <= 1023; ++e)
