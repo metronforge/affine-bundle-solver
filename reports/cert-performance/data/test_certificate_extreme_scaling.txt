@@ -1,0 +1,1 @@
+unique witness extreme binary scaling: PASS (15 scales)

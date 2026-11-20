@@ -1,0 +1,10 @@
+{
+  "caller_supplied_candidates": 144,
+  "certification": 36,
+  "combined_vs_composed": 36,
+  "independent_quality_oracles": 180,
+  "independent_solution_oracles": 36,
+  "solve": 36,
+  "solve_candidate_check": 36,
+  "solve_default_equivalence": 36
+}

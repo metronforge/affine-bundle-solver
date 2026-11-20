@@ -1,0 +1,128 @@
+{
+  "abs_apps_source_commit": "ae9b662d7f5755418aa80f31ade1fffcbefebafd",
+  "attempted_invocations": 180,
+  "binary_sha256": {
+    "libaffine_bundle_solver.so": "d685cf4e242922cbbd59ba0bfbebb785cb311cb8f7bcd627100abc2db47095b1",
+    "libcertified_solver.so": "d75391e3e519d7f7af339bd2f6c0480cf16e5bce07b1c0d292ed8811b652f1db",
+    "libstatus_verifier.so": "edef9edc75cadf295faf28bb98960419aa7d5e98e8be948785f21f7375151fbe"
+  },
+  "blas": [
+    {
+      "internal_api": "openblas",
+      "library": "libscipy_openblas64_-fdde5778.so",
+      "num_threads": 1,
+      "prefix": "libscipy_openblas",
+      "user_api": "blas",
+      "version": "0.3.30"
+    },
+    {
+      "internal_api": "openblas",
+      "library": "libscipy_openblas-6cdc3b4a.so",
+      "num_threads": 1,
+      "prefix": "libscipy_openblas",
+      "user_api": "blas",
+      "version": "0.3.30"
+    },
+    {
+      "internal_api": "openmp",
+      "library": "libgomp.so.1.0.0",
+      "num_threads": 1,
+      "prefix": "libgomp",
+      "user_api": "openmp",
+      "version": null
+    }
+  ],
+  "compiler": "cc (Debian 14.2.0-19) 14.2.0",
+  "completed_invocations": 180,
+  "expected_invocations": 180,
+  "mode_counts": {
+    "combined_default": 36,
+    "combined_tight_compatibility": 36,
+    "combined_tight_quality": 36,
+    "combined_wide_rank_band": 36,
+    "legacy_diagnostic": 36
+  },
+  "mode_status_counts": {
+    "combined_default": {
+      "INCONSISTENT": 3,
+      "INFINITE": 19,
+      "UNDECIDABLE": 4,
+      "UNIQUE": 10
+    },
+    "combined_tight_compatibility": {
+      "INCONSISTENT": 18,
+      "INFINITE": 4,
+      "UNDECIDABLE": 5,
+      "UNIQUE": 9
+    },
+    "combined_tight_quality": {
+      "INCONSISTENT": 3,
+      "INFINITE": 19,
+      "UNDECIDABLE": 9,
+      "UNIQUE": 5
+    },
+    "combined_wide_rank_band": {
+      "INCONSISTENT": 3,
+      "INFINITE": 27,
+      "UNIQUE": 6
+    },
+    "legacy_diagnostic": {
+      "1": 10,
+      "2": 19,
+      "3": 3,
+      "5": 4
+    }
+  },
+  "peak_rss_kib": 30060,
+  "schema": "affine-bundle-solver-api-regression-qualification-v1",
+  "skipped_invocations": 0,
+  "solver_commit": "392e47501e9cbb7607017eeeb4e9edd0ffb753fd",
+  "solver_source_commit": "392e47501e9cbb7607017eeeb4e9edd0ffb753fd",
+  "thread_configuration": {
+    "ABS_CERT_UNIQUE_THREADS": "unset",
+    "MKL_NUM_THREADS": "unset",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "unset"
+  },
+  "unique_case_count": 36,
+  "unique_case_ids": [
+    "T8-001",
+    "T8-002",
+    "T8-003",
+    "T8-004",
+    "T8-005",
+    "T8-006",
+    "T8-007",
+    "T8-008",
+    "T8-009",
+    "T8-010",
+    "T8-011",
+    "T8-012",
+    "T8-013",
+    "T8-014",
+    "T8-015",
+    "T8-016",
+    "T8-017",
+    "T8-018",
+    "T8-019",
+    "T8-020",
+    "T8-021",
+    "T8-022",
+    "T8-023",
+    "T8-024",
+    "T8-025",
+    "T8-026",
+    "T8-027",
+    "T8-028",
+    "T8-029",
+    "T8-030",
+    "T8-031",
+    "T8-032",
+    "T8-036",
+    "T8-037",
+    "T8-038",
+    "T8-039"
+  ],
+  "wall_seconds": 0.16910669999998618
+}

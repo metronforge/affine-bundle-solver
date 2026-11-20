@@ -1,0 +1,22 @@
+{
+  "t1": {
+    "fesetround": 32853,
+    "frexp": 47108,
+    "scalbn": 59787
+  },
+  "t2": {
+    "fesetround": 82065,
+    "frexp": 143364,
+    "scalbn": 201995
+  },
+  "t3": {
+    "fesetround": 164033,
+    "frexp": 286724,
+    "scalbn": 535179
+  },
+  "w2": {
+    "fesetround": 1316,
+    "frexp": 137,
+    "scalbn": 102025
+  }
+}

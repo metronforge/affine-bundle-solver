@@ -27,6 +27,7 @@ CASES = {
     "grey":(32,192,8007),"defect":(96,512,8008),"conflict":(128,16,8009),
     "wh1":(112,608,8191),"wh2":(192,1344,8192),
     "th1":(1536,24,8193),"th2":(3072,40,8194),
+    "previous_w2":(128,768,302),
 }
 
 def generate(base, folder, names):
@@ -34,15 +35,19 @@ def generate(base, folder, names):
     lib=api.load_library(Path(base))
     for name in names:
         m,n,seed=CASES[name]
-        rng=np.random.default_rng(seed)
-        A=rng.standard_normal((m,n))
-        if name=="grouped":
-            A=np.repeat(A[:n],m//n,axis=0)
-        if name in ("defect","grey"):
-            A[-1]=A[0]+(1e-10 if name=="grey" else 0.0)*A[-1]
-        b=A@rng.standard_normal(n)
-        if name=="conflict":
-            b[-1]+=1
+        if name == "previous_w2":
+            with np.load(HERE.parent / "ralph-30" / "inputs" / "w2.npz") as saved:
+                A, b = saved["A"], saved["b"]
+        else:
+            rng = np.random.default_rng(seed)
+            A = rng.standard_normal((m, n))
+            if name == "grouped":
+                A = np.repeat(A[:n], m // n, axis=0)
+            if name in ("defect", "grey"):
+                A[-1] = A[0] + (1e-10 if name == "grey" else 0.0) * A[-1]
+            b = A @ rng.standard_normal(n)
+            if name == "conflict":
+                b[-1] += 1
         rc,x,_=api.invoke_solve(lib,A,b,api.default_policy(lib))
         assert rc==0
         np.savez(folder/(name+".npz"),A=A,b=b,x=x)

@@ -1,0 +1,14 @@
+directed-rounding probe: PASS
+FP environment probe: PASS (MXCSR control=0x1f80 unchanged; input/output subnormals and directed rounding preserved)
+fp-contraction inspection tool: objdump
+GNU objdump (GNU Binutils for Debian) 2.44
+Copyright (C) 2025 Free Software Foundation, Inc.
+This program is free software; you may redistribute it under the terms of
+the GNU General Public License version 3 or (at your option) any later version.
+This program has absolutely no warranty.
+fp-contraction check: src/formation_guard.c: 0 fused multiply-add(s) in 2176 instructions; target 'fg_sketch_formation_eps' has 101 instructions (-march=x86-64-v3)
+fp-contraction check: src/status_certificate.c: 0 fused multiply-add(s) in 2222 instructions; target 'bs_verify_unique' has 437 instructions (-march=x86-64-v3)
+fp-contraction check: src/certified_api.c: 0 fused multiply-add(s) in 6248 instructions; target 'bsolve_certified_diag_api' has 171 instructions (-march=x86-64-v3)
+fp-contraction check: src/candidate_check.c: 0 fused multiply-add(s) in 413 instructions; target 'abs_check_candidate' has 320 instructions (-march=x86-64-v3)
+fp-contraction check: PASSED (4 sources)
+Built fast solver, strict verifier, and certified audit API.

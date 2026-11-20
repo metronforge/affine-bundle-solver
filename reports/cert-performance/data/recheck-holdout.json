@@ -1,0 +1,977 @@
+{
+ "summary": {
+  "cases": {
+   "th1": {
+    "base": 10.190149,
+    "new": 6.8519575,
+    "ratio": 0.6724099421902467,
+    "mad": 0.04045485022879736,
+    "ci": [
+     0.6434110971498588,
+     0.7258256854745833
+    ]
+   },
+   "th2": {
+    "base": 32.490182000000004,
+    "new": 20.926665,
+    "ratio": 0.6440919598418993,
+    "mad": 0.03465788503222139,
+    "ci": [
+     0.5737030287036137,
+     0.6778936963258869
+    ]
+   }
+  },
+  "geomean": 0.658098653305486,
+  "ci": [
+   0.6161229143954371,
+   0.6992468738444819
+  ]
+ },
+ "blocks": [
+  {
+   "base": {
+    "th1": {
+     "ms": [
+      10.1986765,
+      10.337796,
+      10.053894
+     ],
+     "batch": 2,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d0d264ff73076p-47",
+      "eta_infinite": "0x1.b3d92e48b7298p+1",
+      "eta_inconsistent": "0x1.0ed81000130abp-44",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "98b656f76824753aba377e32ff1f059ad51b42db1b097eaa7f8e75a07feb6936",
+      "364d72385c5e204ac67ee8fded2952ebedbcb014293ac956b05dcf1665da8440",
+      "c1c6a84bfdeb9306a9ddfef71d25416dc7cce0a6f6d52d29215cc3700426a8a5"
+     ]
+    },
+    "th2": {
+     "ms": [
+      40.477688,
+      33.601126,
+      34.011072
+     ],
+     "batch": 1,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d2edea139335fp-46",
+      "eta_infinite": "0x1.4adcf96c0ff03p+1",
+      "eta_inconsistent": "0x1.1b0f24abd15dep-43",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "ad1aeb537079b5bc4bd5e1bd5c5ee10ad6dd8ebf6c4dd06eeca37c97c474fa98",
+      "c658a3427bd511435144f7e6ec16a7183c0f01ec3a1b6c2846f54e7a5e7ad0cc",
+      "c5b0f37b4556f4cdc8d8df444087c62de74c2287752fbf2c7e0baf4dd233fe09"
+     ]
+    }
+   },
+   "new": {
+    "th1": {
+     "ms": [
+      6.825823,
+      7.3274235,
+      6.3094055
+     ],
+     "batch": 2,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d0d264ff73076p-47",
+      "eta_infinite": "0x1.b3d92e48b7298p+1",
+      "eta_inconsistent": "0x1.0ed81000130abp-44",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "98b656f76824753aba377e32ff1f059ad51b42db1b097eaa7f8e75a07feb6936",
+      "364d72385c5e204ac67ee8fded2952ebedbcb014293ac956b05dcf1665da8440",
+      "c1c6a84bfdeb9306a9ddfef71d25416dc7cce0a6f6d52d29215cc3700426a8a5"
+     ]
+    },
+    "th2": {
+     "ms": [
+      21.101363,
+      21.771032,
+      20.34825
+     ],
+     "batch": 1,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d2edea139335fp-46",
+      "eta_infinite": "0x1.4adcf96c0ff03p+1",
+      "eta_inconsistent": "0x1.1b0f24abd15dep-43",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "ad1aeb537079b5bc4bd5e1bd5c5ee10ad6dd8ebf6c4dd06eeca37c97c474fa98",
+      "c658a3427bd511435144f7e6ec16a7183c0f01ec3a1b6c2846f54e7a5e7ad0cc",
+      "c5b0f37b4556f4cdc8d8df444087c62de74c2287752fbf2c7e0baf4dd233fe09"
+     ]
+    }
+   }
+  },
+  {
+   "new": {
+    "th1": {
+     "ms": [
+      5.9991025,
+      5.9195185,
+      6.1787185
+     ],
+     "batch": 2,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d0d264ff73076p-47",
+      "eta_infinite": "0x1.b3d92e48b7298p+1",
+      "eta_inconsistent": "0x1.0ed81000130abp-44",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "98b656f76824753aba377e32ff1f059ad51b42db1b097eaa7f8e75a07feb6936",
+      "364d72385c5e204ac67ee8fded2952ebedbcb014293ac956b05dcf1665da8440",
+      "c1c6a84bfdeb9306a9ddfef71d25416dc7cce0a6f6d52d29215cc3700426a8a5"
+     ]
+    },
+    "th2": {
+     "ms": [
+      19.764691,
+      24.271266,
+      19.702988
+     ],
+     "batch": 1,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d2edea139335fp-46",
+      "eta_infinite": "0x1.4adcf96c0ff03p+1",
+      "eta_inconsistent": "0x1.1b0f24abd15dep-43",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "ad1aeb537079b5bc4bd5e1bd5c5ee10ad6dd8ebf6c4dd06eeca37c97c474fa98",
+      "c658a3427bd511435144f7e6ec16a7183c0f01ec3a1b6c2846f54e7a5e7ad0cc",
+      "c5b0f37b4556f4cdc8d8df444087c62de74c2287752fbf2c7e0baf4dd233fe09"
+     ]
+    }
+   },
+   "base": {
+    "th1": {
+     "ms": [
+      10.1816215,
+      9.4558635,
+      11.2092585
+     ],
+     "batch": 2,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d0d264ff73076p-47",
+      "eta_infinite": "0x1.b3d92e48b7298p+1",
+      "eta_inconsistent": "0x1.0ed81000130abp-44",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "98b656f76824753aba377e32ff1f059ad51b42db1b097eaa7f8e75a07feb6936",
+      "364d72385c5e204ac67ee8fded2952ebedbcb014293ac956b05dcf1665da8440",
+      "c1c6a84bfdeb9306a9ddfef71d25416dc7cce0a6f6d52d29215cc3700426a8a5"
+     ]
+    },
+    "th2": {
+     "ms": [
+      44.472461,
+      38.88442,
+      33.362005
+     ],
+     "batch": 1,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d2edea139335fp-46",
+      "eta_infinite": "0x1.4adcf96c0ff03p+1",
+      "eta_inconsistent": "0x1.1b0f24abd15dep-43",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "ad1aeb537079b5bc4bd5e1bd5c5ee10ad6dd8ebf6c4dd06eeca37c97c474fa98",
+      "c658a3427bd511435144f7e6ec16a7183c0f01ec3a1b6c2846f54e7a5e7ad0cc",
+      "c5b0f37b4556f4cdc8d8df444087c62de74c2287752fbf2c7e0baf4dd233fe09"
+     ]
+    }
+   }
+  },
+  {
+   "base": {
+    "th1": {
+     "ms": [
+      9.2188965,
+      9.060673,
+      9.3736995
+     ],
+     "batch": 2,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d0d264ff73076p-47",
+      "eta_infinite": "0x1.b3d92e48b7298p+1",
+      "eta_inconsistent": "0x1.0ed81000130abp-44",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "98b656f76824753aba377e32ff1f059ad51b42db1b097eaa7f8e75a07feb6936",
+      "364d72385c5e204ac67ee8fded2952ebedbcb014293ac956b05dcf1665da8440",
+      "c1c6a84bfdeb9306a9ddfef71d25416dc7cce0a6f6d52d29215cc3700426a8a5"
+     ]
+    },
+    "th2": {
+     "ms": [
+      38.098847,
+      31.277997,
+      29.813782
+     ],
+     "batch": 1,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d2edea139335fp-46",
+      "eta_infinite": "0x1.4adcf96c0ff03p+1",
+      "eta_inconsistent": "0x1.1b0f24abd15dep-43",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "ad1aeb537079b5bc4bd5e1bd5c5ee10ad6dd8ebf6c4dd06eeca37c97c474fa98",
+      "c658a3427bd511435144f7e6ec16a7183c0f01ec3a1b6c2846f54e7a5e7ad0cc",
+      "c5b0f37b4556f4cdc8d8df444087c62de74c2287752fbf2c7e0baf4dd233fe09"
+     ]
+    }
+   },
+   "new": {
+    "th1": {
+     "ms": [
+      6.0594435,
+      6.875368,
+      7.312531
+     ],
+     "batch": 2,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d0d264ff73076p-47",
+      "eta_infinite": "0x1.b3d92e48b7298p+1",
+      "eta_inconsistent": "0x1.0ed81000130abp-44",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "98b656f76824753aba377e32ff1f059ad51b42db1b097eaa7f8e75a07feb6936",
+      "364d72385c5e204ac67ee8fded2952ebedbcb014293ac956b05dcf1665da8440",
+      "c1c6a84bfdeb9306a9ddfef71d25416dc7cce0a6f6d52d29215cc3700426a8a5"
+     ]
+    },
+    "th2": {
+     "ms": [
+      25.996354,
+      22.140698,
+      23.807258
+     ],
+     "batch": 1,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d2edea139335fp-46",
+      "eta_infinite": "0x1.4adcf96c0ff03p+1",
+      "eta_inconsistent": "0x1.1b0f24abd15dep-43",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "ad1aeb537079b5bc4bd5e1bd5c5ee10ad6dd8ebf6c4dd06eeca37c97c474fa98",
+      "c658a3427bd511435144f7e6ec16a7183c0f01ec3a1b6c2846f54e7a5e7ad0cc",
+      "c5b0f37b4556f4cdc8d8df444087c62de74c2287752fbf2c7e0baf4dd233fe09"
+     ]
+    }
+   }
+  },
+  {
+   "new": {
+    "th1": {
+     "ms": [
+      10.0360165,
+      7.231724,
+      7.034492
+     ],
+     "batch": 2,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d0d264ff73076p-47",
+      "eta_infinite": "0x1.b3d92e48b7298p+1",
+      "eta_inconsistent": "0x1.0ed81000130abp-44",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "98b656f76824753aba377e32ff1f059ad51b42db1b097eaa7f8e75a07feb6936",
+      "364d72385c5e204ac67ee8fded2952ebedbcb014293ac956b05dcf1665da8440",
+      "c1c6a84bfdeb9306a9ddfef71d25416dc7cce0a6f6d52d29215cc3700426a8a5"
+     ]
+    },
+    "th2": {
+     "ms": [
+      21.203157,
+      20.842865,
+      21.704431
+     ],
+     "batch": 1,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d2edea139335fp-46",
+      "eta_infinite": "0x1.4adcf96c0ff03p+1",
+      "eta_inconsistent": "0x1.1b0f24abd15dep-43",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "ad1aeb537079b5bc4bd5e1bd5c5ee10ad6dd8ebf6c4dd06eeca37c97c474fa98",
+      "c658a3427bd511435144f7e6ec16a7183c0f01ec3a1b6c2846f54e7a5e7ad0cc",
+      "c5b0f37b4556f4cdc8d8df444087c62de74c2287752fbf2c7e0baf4dd233fe09"
+     ]
+    }
+   },
+   "base": {
+    "th1": {
+     "ms": [
+      12.4240175,
+      9.9221705,
+      10.832466
+     ],
+     "batch": 2,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d0d264ff73076p-47",
+      "eta_infinite": "0x1.b3d92e48b7298p+1",
+      "eta_inconsistent": "0x1.0ed81000130abp-44",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "98b656f76824753aba377e32ff1f059ad51b42db1b097eaa7f8e75a07feb6936",
+      "364d72385c5e204ac67ee8fded2952ebedbcb014293ac956b05dcf1665da8440",
+      "c1c6a84bfdeb9306a9ddfef71d25416dc7cce0a6f6d52d29215cc3700426a8a5"
+     ]
+    },
+    "th2": {
+     "ms": [
+      31.460151,
+      33.189465,
+      31.647563
+     ],
+     "batch": 1,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d2edea139335fp-46",
+      "eta_infinite": "0x1.4adcf96c0ff03p+1",
+      "eta_inconsistent": "0x1.1b0f24abd15dep-43",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "ad1aeb537079b5bc4bd5e1bd5c5ee10ad6dd8ebf6c4dd06eeca37c97c474fa98",
+      "c658a3427bd511435144f7e6ec16a7183c0f01ec3a1b6c2846f54e7a5e7ad0cc",
+      "c5b0f37b4556f4cdc8d8df444087c62de74c2287752fbf2c7e0baf4dd233fe09"
+     ]
+    }
+   }
+  },
+  {
+   "base": {
+    "th1": {
+     "ms": [
+      11.22015,
+      10.5272815,
+      9.9563665
+     ],
+     "batch": 2,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d0d264ff73076p-47",
+      "eta_infinite": "0x1.b3d92e48b7298p+1",
+      "eta_inconsistent": "0x1.0ed81000130abp-44",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "98b656f76824753aba377e32ff1f059ad51b42db1b097eaa7f8e75a07feb6936",
+      "364d72385c5e204ac67ee8fded2952ebedbcb014293ac956b05dcf1665da8440",
+      "c1c6a84bfdeb9306a9ddfef71d25416dc7cce0a6f6d52d29215cc3700426a8a5"
+     ]
+    },
+    "th2": {
+     "ms": [
+      33.518471,
+      35.285592,
+      38.268472
+     ],
+     "batch": 1,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d2edea139335fp-46",
+      "eta_infinite": "0x1.4adcf96c0ff03p+1",
+      "eta_inconsistent": "0x1.1b0f24abd15dep-43",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "ad1aeb537079b5bc4bd5e1bd5c5ee10ad6dd8ebf6c4dd06eeca37c97c474fa98",
+      "c658a3427bd511435144f7e6ec16a7183c0f01ec3a1b6c2846f54e7a5e7ad0cc",
+      "c5b0f37b4556f4cdc8d8df444087c62de74c2287752fbf2c7e0baf4dd233fe09"
+     ]
+    }
+   },
+   "new": {
+    "th1": {
+     "ms": [
+      6.8985125,
+      6.788627,
+      6.920906
+     ],
+     "batch": 2,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d0d264ff73076p-47",
+      "eta_infinite": "0x1.b3d92e48b7298p+1",
+      "eta_inconsistent": "0x1.0ed81000130abp-44",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "98b656f76824753aba377e32ff1f059ad51b42db1b097eaa7f8e75a07feb6936",
+      "364d72385c5e204ac67ee8fded2952ebedbcb014293ac956b05dcf1665da8440",
+      "c1c6a84bfdeb9306a9ddfef71d25416dc7cce0a6f6d52d29215cc3700426a8a5"
+     ]
+    },
+    "th2": {
+     "ms": [
+      22.506559,
+      20.243451,
+      20.173807
+     ],
+     "batch": 1,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d2edea139335fp-46",
+      "eta_infinite": "0x1.4adcf96c0ff03p+1",
+      "eta_inconsistent": "0x1.1b0f24abd15dep-43",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "ad1aeb537079b5bc4bd5e1bd5c5ee10ad6dd8ebf6c4dd06eeca37c97c474fa98",
+      "c658a3427bd511435144f7e6ec16a7183c0f01ec3a1b6c2846f54e7a5e7ad0cc",
+      "c5b0f37b4556f4cdc8d8df444087c62de74c2287752fbf2c7e0baf4dd233fe09"
+     ]
+    }
+   }
+  },
+  {
+   "new": {
+    "th1": {
+     "ms": [
+      6.3483485,
+      6.649057,
+      6.4258255
+     ],
+     "batch": 2,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d0d264ff73076p-47",
+      "eta_infinite": "0x1.b3d92e48b7298p+1",
+      "eta_inconsistent": "0x1.0ed81000130abp-44",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "98b656f76824753aba377e32ff1f059ad51b42db1b097eaa7f8e75a07feb6936",
+      "364d72385c5e204ac67ee8fded2952ebedbcb014293ac956b05dcf1665da8440",
+      "c1c6a84bfdeb9306a9ddfef71d25416dc7cce0a6f6d52d29215cc3700426a8a5"
+     ]
+    },
+    "th2": {
+     "ms": [
+      21.891934,
+      21.129936,
+      21.394565
+     ],
+     "batch": 1,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d2edea139335fp-46",
+      "eta_infinite": "0x1.4adcf96c0ff03p+1",
+      "eta_inconsistent": "0x1.1b0f24abd15dep-43",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "ad1aeb537079b5bc4bd5e1bd5c5ee10ad6dd8ebf6c4dd06eeca37c97c474fa98",
+      "c658a3427bd511435144f7e6ec16a7183c0f01ec3a1b6c2846f54e7a5e7ad0cc",
+      "c5b0f37b4556f4cdc8d8df444087c62de74c2287752fbf2c7e0baf4dd233fe09"
+     ]
+    }
+   },
+   "base": {
+    "th1": {
+     "ms": [
+      10.362548,
+      9.644357,
+      9.963818
+     ],
+     "batch": 2,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d0d264ff73076p-47",
+      "eta_infinite": "0x1.b3d92e48b7298p+1",
+      "eta_inconsistent": "0x1.0ed81000130abp-44",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "98b656f76824753aba377e32ff1f059ad51b42db1b097eaa7f8e75a07feb6936",
+      "364d72385c5e204ac67ee8fded2952ebedbcb014293ac956b05dcf1665da8440",
+      "c1c6a84bfdeb9306a9ddfef71d25416dc7cce0a6f6d52d29215cc3700426a8a5"
+     ]
+    },
+    "th2": {
+     "ms": [
+      34.36793,
+      33.332801,
+      33.197227
+     ],
+     "batch": 1,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d2edea139335fp-46",
+      "eta_infinite": "0x1.4adcf96c0ff03p+1",
+      "eta_inconsistent": "0x1.1b0f24abd15dep-43",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "ad1aeb537079b5bc4bd5e1bd5c5ee10ad6dd8ebf6c4dd06eeca37c97c474fa98",
+      "c658a3427bd511435144f7e6ec16a7183c0f01ec3a1b6c2846f54e7a5e7ad0cc",
+      "c5b0f37b4556f4cdc8d8df444087c62de74c2287752fbf2c7e0baf4dd233fe09"
+     ]
+    }
+   }
+  },
+  {
+   "base": {
+    "th1": {
+     "ms": [
+      12.5621155,
+      10.241506,
+      12.5753705
+     ],
+     "batch": 2,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d0d264ff73076p-47",
+      "eta_infinite": "0x1.b3d92e48b7298p+1",
+      "eta_inconsistent": "0x1.0ed81000130abp-44",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "98b656f76824753aba377e32ff1f059ad51b42db1b097eaa7f8e75a07feb6936",
+      "364d72385c5e204ac67ee8fded2952ebedbcb014293ac956b05dcf1665da8440",
+      "c1c6a84bfdeb9306a9ddfef71d25416dc7cce0a6f6d52d29215cc3700426a8a5"
+     ]
+    },
+    "th2": {
+     "ms": [
+      30.741699,
+      31.161561,
+      31.397838
+     ],
+     "batch": 1,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d2edea139335fp-46",
+      "eta_infinite": "0x1.4adcf96c0ff03p+1",
+      "eta_inconsistent": "0x1.1b0f24abd15dep-43",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "ad1aeb537079b5bc4bd5e1bd5c5ee10ad6dd8ebf6c4dd06eeca37c97c474fa98",
+      "c658a3427bd511435144f7e6ec16a7183c0f01ec3a1b6c2846f54e7a5e7ad0cc",
+      "c5b0f37b4556f4cdc8d8df444087c62de74c2287752fbf2c7e0baf4dd233fe09"
+     ]
+    }
+   },
+   "new": {
+    "th1": {
+     "ms": [
+      10.4583875,
+      9.275511,
+      6.1093595
+     ],
+     "batch": 2,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d0d264ff73076p-47",
+      "eta_infinite": "0x1.b3d92e48b7298p+1",
+      "eta_inconsistent": "0x1.0ed81000130abp-44",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "98b656f76824753aba377e32ff1f059ad51b42db1b097eaa7f8e75a07feb6936",
+      "364d72385c5e204ac67ee8fded2952ebedbcb014293ac956b05dcf1665da8440",
+      "c1c6a84bfdeb9306a9ddfef71d25416dc7cce0a6f6d52d29215cc3700426a8a5"
+     ]
+    },
+    "th2": {
+     "ms": [
+      20.070531,
+      24.402093,
+      19.743588
+     ],
+     "batch": 1,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d2edea139335fp-46",
+      "eta_infinite": "0x1.4adcf96c0ff03p+1",
+      "eta_inconsistent": "0x1.1b0f24abd15dep-43",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "ad1aeb537079b5bc4bd5e1bd5c5ee10ad6dd8ebf6c4dd06eeca37c97c474fa98",
+      "c658a3427bd511435144f7e6ec16a7183c0f01ec3a1b6c2846f54e7a5e7ad0cc",
+      "c5b0f37b4556f4cdc8d8df444087c62de74c2287752fbf2c7e0baf4dd233fe09"
+     ]
+    }
+   }
+  },
+  {
+   "new": {
+    "th1": {
+     "ms": [
+      6.8008405,
+      6.828547,
+      7.1799265
+     ],
+     "batch": 2,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d0d264ff73076p-47",
+      "eta_infinite": "0x1.b3d92e48b7298p+1",
+      "eta_inconsistent": "0x1.0ed81000130abp-44",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "98b656f76824753aba377e32ff1f059ad51b42db1b097eaa7f8e75a07feb6936",
+      "364d72385c5e204ac67ee8fded2952ebedbcb014293ac956b05dcf1665da8440",
+      "c1c6a84bfdeb9306a9ddfef71d25416dc7cce0a6f6d52d29215cc3700426a8a5"
+     ]
+    },
+    "th2": {
+     "ms": [
+      20.751967,
+      20.512657,
+      34.124002
+     ],
+     "batch": 1,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d2edea139335fp-46",
+      "eta_infinite": "0x1.4adcf96c0ff03p+1",
+      "eta_inconsistent": "0x1.1b0f24abd15dep-43",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "ad1aeb537079b5bc4bd5e1bd5c5ee10ad6dd8ebf6c4dd06eeca37c97c474fa98",
+      "c658a3427bd511435144f7e6ec16a7183c0f01ec3a1b6c2846f54e7a5e7ad0cc",
+      "c5b0f37b4556f4cdc8d8df444087c62de74c2287752fbf2c7e0baf4dd233fe09"
+     ]
+    }
+   },
+   "base": {
+    "th1": {
+     "ms": [
+      9.407971,
+      8.960162,
+      9.5570655
+     ],
+     "batch": 2,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d0d264ff73076p-47",
+      "eta_infinite": "0x1.b3d92e48b7298p+1",
+      "eta_inconsistent": "0x1.0ed81000130abp-44",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "98b656f76824753aba377e32ff1f059ad51b42db1b097eaa7f8e75a07feb6936",
+      "364d72385c5e204ac67ee8fded2952ebedbcb014293ac956b05dcf1665da8440",
+      "c1c6a84bfdeb9306a9ddfef71d25416dc7cce0a6f6d52d29215cc3700426a8a5"
+     ]
+    },
+    "th2": {
+     "ms": [
+      30.283119,
+      30.198473,
+      31.596316
+     ],
+     "batch": 1,
+     "result": {
+      "struct_size": 72,
+      "nearby_status_mask": 7,
+      "eta_unique": "0x1.d2edea139335fp-46",
+      "eta_infinite": "0x1.4adcf96c0ff03p+1",
+      "eta_inconsistent": "0x1.1b0f24abd15dep-43",
+      "unique_generator_code": 0,
+      "unique_verifier_code": 0,
+      "infinite_generator_code": 0,
+      "infinite_verifier_code": 0,
+      "inconsistent_generator_code": 0,
+      "inconsistent_verifier_code": 0,
+      "exact_source_status": 0,
+      "exact_source_verification": 0
+     },
+     "hashes": [
+      "ad1aeb537079b5bc4bd5e1bd5c5ee10ad6dd8ebf6c4dd06eeca37c97c474fa98",
+      "c658a3427bd511435144f7e6ec16a7183c0f01ec3a1b6c2846f54e7a5e7ad0cc",
+      "c5b0f37b4556f4cdc8d8df444087c62de74c2287752fbf2c7e0baf4dd233fe09"
+     ]
+    }
+   }
+  }
+ ]
+}

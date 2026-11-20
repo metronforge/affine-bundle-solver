@@ -1,0 +1,48 @@
+{
+  "base_sha256": "6a6282fc8eb7f8aa3b06852a72b565b2f9a23cb6e0446b546cca6d1ab016fbe2",
+  "candidate_sha256": "71fea4ae6aee7570fc86da9c5f602eaf97ea03c506d8d4405ebd46490a9f2f61",
+  "seed": 24604271763092339,
+  "cases": 1468,
+  "paired_comparisons": 5872,
+  "checked_calls": 11744,
+  "caller_modes": [
+    "nearest",
+    "upward",
+    "downward",
+    "toward-zero"
+  ],
+  "return_codes": {
+    "0": 1172,
+    "4": 151,
+    "3": 25,
+    "1": 1,
+    "2": 3,
+    "6": 116
+  },
+  "input_families": {
+    "tile-cancellation": 21,
+    "all-zero-source": 21,
+    "scaled-y-boundary": 30,
+    "zero-column-y-boundary": 30,
+    "subnormal-sum": 2,
+    "matrix-boundary": 18,
+    "range": 20,
+    "sign-zero": 20,
+    "zero-pivot": 1,
+    "pivot-out-of-range": 1,
+    "nan-inactive": 1,
+    "infinite-rhs": 1,
+    "infinite-witness": 1,
+    "zero-pivot-row-source": 1,
+    "random-0": 434,
+    "random-1": 433,
+    "random-2": 433
+  },
+  "input_guard_classes": {
+    "eligible": 657,
+    "fallback": 631,
+    "sign-rejected": 128
+  },
+  "exact_accepted_radii": 1172,
+  "outcome": "pass"
+}
